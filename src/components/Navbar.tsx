@@ -17,9 +17,9 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
 
-  // Only homepage and chi-siamo have full-bleed hero images
-  const hasHero = location.pathname === "/" || location.pathname === "/chi-siamo";
-  const isTransparent = hasHero && !scrolled;
+  // All main pages now have hero images
+  const noHero = location.pathname === "*";
+  const isTransparent = !noHero && !scrolled;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
