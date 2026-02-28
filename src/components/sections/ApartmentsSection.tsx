@@ -1,20 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Eye, ChefHat, BedDouble, Bath, Utensils, Sun } from "lucide-react";
-import kitchenImg from "@/assets/apartment-kitchen.jpg";
-import bedroomImg from "@/assets/apartment-bedroom.jpg";
-import interiorImg from "@/assets/apartment-interior.jpg";
-
-const features = [
-  { icon: Eye, label: "Vista mare o fronte oceano" },
-  { icon: ChefHat, label: "Cucina completamente attrezzata" },
-  { icon: BedDouble, label: "Camere luminose e spaziose" },
-  { icon: Bath, label: "Bagno moderno" },
-  { icon: Utensils, label: "Utensili completi" },
-  { icon: Sun, label: "Spazi ampi e raffinati" },
-];
-
-const images = [kitchenImg, bedroomImg, interiorImg];
+import { ArrowRight, Users, BedDouble, Maximize } from "lucide-react";
+import apartments from "@/data/apartments";
 
 const ApartmentsSection = () => (
   <section className="py-24 lg:py-32 bg-secondary">
@@ -33,61 +20,73 @@ const ApartmentsSection = () => (
           Eleganza fronte mare.
         </h2>
         <p className="font-sans text-base text-muted-foreground leading-relaxed">
-          Ogni appartamento BAZHOUSE è progettato per offrire comfort totale e
-          qualità superiore. Spazi ampi, luminosi e raffinati con attenzione ai
-          dettagli.
+          Tre residenze esclusive, ognuna con la propria personalità. Scopri
+          quella perfetta per la tua esperienza a Boa Vista.
         </p>
       </motion.div>
 
-      {/* Gallery */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-16">
-        {images.map((img, i) => (
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {apartments.map((apt, i) => (
           <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 20 }}
+            key={apt.slug}
+            initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: i * 0.15 }}
-            className="overflow-hidden group"
           >
-            <img
-              src={img}
-              alt={`Appartamento BAZHOUSE ${i + 1}`}
-              className="w-full aspect-[4/3] object-cover transition-transform duration-700 group-hover:scale-105"
-              loading="lazy"
-            />
+            <Link
+              to={`/appartamenti/${apt.slug}`}
+              className="group block bg-background overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-500"
+            >
+              {/* Image */}
+              <div className="relative overflow-hidden aspect-[4/3]">
+                <img
+                  src={apt.cover}
+                  alt={apt.name}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <motion.div
+                  className="absolute bottom-4 right-4 bg-background/90 backdrop-blur-sm px-4 py-2 flex items-center gap-2 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-500"
+                >
+                  <span className="font-sans text-xs tracking-[0.15em] uppercase text-foreground">
+                    Scopri
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5 text-foreground" />
+                </motion.div>
+              </div>
+
+              {/* Content */}
+              <div className="p-6">
+                <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-2">
+                  {apt.tagline}
+                </p>
+                <h3 className="font-serif text-2xl font-light mb-4 text-foreground">
+                  {apt.name}
+                </h3>
+
+                {/* Quick specs */}
+                <div className="flex items-center gap-5 text-muted-foreground">
+                  <div className="flex items-center gap-1.5">
+                    <Users className="w-4 h-4" strokeWidth={1.5} />
+                    <span className="font-sans text-xs">{apt.guests} ospiti</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <BedDouble className="w-4 h-4" strokeWidth={1.5} />
+                    <span className="font-sans text-xs">
+                      {apt.bedrooms} {apt.bedrooms > 1 ? "camere" : "camera"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Maximize className="w-4 h-4" strokeWidth={1.5} />
+                    <span className="font-sans text-xs">{apt.sqm} m²</span>
+                  </div>
+                </div>
+              </div>
+            </Link>
           </motion.div>
         ))}
-      </div>
-
-      {/* Features */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-12">
-        {features.map((f, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: i * 0.1 }}
-            className="flex items-center gap-3"
-          >
-            <f.icon className="w-5 h-5 text-muted-foreground flex-shrink-0" strokeWidth={1.5} />
-            <span className="font-sans text-sm text-foreground">{f.label}</span>
-          </motion.div>
-        ))}
-      </div>
-
-      <div className="text-center">
-        <Link to="/contatti">
-          <motion.span
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.97 }}
-            transition={{ type: "spring", stiffness: 400, damping: 17 }}
-            className="inline-block font-sans text-xs tracking-[0.2em] uppercase bg-primary text-primary-foreground px-8 py-4 hover:bg-primary/90 transition-colors duration-300 shadow-md hover:shadow-lg"
-          >
-            Richiedi Disponibilità
-          </motion.span>
-        </Link>
       </div>
     </div>
   </section>
