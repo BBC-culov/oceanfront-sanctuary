@@ -78,11 +78,15 @@ const ApartmentsSection = () => (
       </div>
 
       <div className="text-center">
-        <Link
-          to="/contatti"
-          className="inline-flex font-sans text-xs tracking-[0.2em] uppercase bg-primary text-primary-foreground px-8 py-4 hover:bg-primary/90 transition-colors duration-300"
-        >
-          Richiedi Disponibilità
+        <Link to="/contatti">
+          <motion.span
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            className="inline-block font-sans text-xs tracking-[0.2em] uppercase bg-primary text-primary-foreground px-8 py-4 hover:bg-primary/90 transition-colors duration-300 shadow-md hover:shadow-lg"
+          >
+            Richiedi Disponibilità
+          </motion.span>
         </Link>
       </div>
     </div>
