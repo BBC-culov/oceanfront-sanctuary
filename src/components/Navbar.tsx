@@ -33,12 +33,18 @@ const Navbar = () => {
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
           ? "bg-background/95 backdrop-blur-md shadow-sm"
-          : "bg-transparent"
+          : "bg-black/20 backdrop-blur-[2px]"
       }`}
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
         <Link to="/" className="flex-shrink-0">
-          <img src={logo} alt="BAZHOUSE" className="h-8 lg:h-10 w-auto" />
+          <img
+            src={logo}
+            alt="BAZHOUSE"
+            className={`h-8 lg:h-10 w-auto transition-all duration-500 ${
+              scrolled ? "" : "brightness-0 invert"
+            }`}
+          />
         </Link>
 
         {/* Desktop */}
@@ -47,10 +53,14 @@ const Navbar = () => {
             <Link
               key={link.to}
               to={link.to}
-              className={`font-sans text-sm tracking-widest uppercase transition-colors duration-300 ${
-                location.pathname === link.to
-                  ? "text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
+              className={`font-sans text-sm tracking-widest uppercase transition-all duration-300 relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-px after:bottom-[-4px] after:left-0 after:transition-transform after:duration-300 hover:after:scale-x-100 after:origin-bottom-left ${
+                scrolled
+                  ? location.pathname === link.to
+                    ? "text-foreground after:bg-foreground"
+                    : "text-muted-foreground hover:text-foreground after:bg-foreground"
+                  : location.pathname === link.to
+                    ? "text-white after:bg-white"
+                    : "text-white/70 hover:text-white after:bg-white"
               }`}
             >
               {link.label}
@@ -60,7 +70,11 @@ const Navbar = () => {
 
         <Link
           to="/contatti"
-          className="hidden lg:inline-flex font-sans text-xs tracking-widest uppercase border border-foreground/30 px-5 py-2.5 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300"
+          className={`hidden lg:inline-flex font-sans text-xs tracking-widest uppercase px-5 py-2.5 border transition-all duration-300 hover:scale-105 active:scale-95 ${
+            scrolled
+              ? "border-foreground/30 text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary"
+              : "border-white/40 text-white hover:bg-white hover:text-black hover:border-white"
+          }`}
         >
           Verifica Disponibilità
         </Link>
@@ -68,7 +82,7 @@ const Navbar = () => {
         {/* Mobile toggle */}
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="lg:hidden text-foreground"
+          className={`lg:hidden transition-colors duration-300 ${scrolled ? "text-foreground" : "text-white"}`}
           aria-label="Menu"
         >
           {mobileOpen ? <X size={24} /> : <Menu size={24} />}
