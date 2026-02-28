@@ -54,6 +54,17 @@
     --sage: 75 25% 72%;
     --gold: 38 80% 55%;
 
+    /* Hero overlay - brand-tinted dark green */
+    --hero-overlay-from: 160 40% 6%;
+    --hero-overlay-to: 160 30% 10%;
+    /* Hero text - warm sand cream */
+    --hero-text: 40 40% 95%;
+    --hero-text-muted: 40 30% 85%;
+    /* Hero CTA */
+    --hero-cta: 40 33% 95%;
+    --hero-cta-foreground: 160 55% 12%;
+    --hero-cta-border: 40 30% 80%;
+
     --font-serif: 'Cormorant Garamond', Georgia, serif;
     --font-sans: 'Outfit', system-ui, sans-serif;
   }

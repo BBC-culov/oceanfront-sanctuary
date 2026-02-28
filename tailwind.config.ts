@@ -72,6 +72,13 @@ export default {
         stone: "hsl(var(--stone))",
         sage: "hsl(var(--sage))",
         gold: "hsl(var(--gold))",
+        hero: {
+          text: "hsl(var(--hero-text))",
+          "text-muted": "hsl(var(--hero-text-muted))",
+          cta: "hsl(var(--hero-cta))",
+          "cta-foreground": "hsl(var(--hero-cta-foreground))",
+          "cta-border": "hsl(var(--hero-cta-border))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

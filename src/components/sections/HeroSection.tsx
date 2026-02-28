@@ -24,7 +24,8 @@ const HeroSection = () => {
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(${heroImage})` }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
+        {/* Brand-tinted overlay using primary dark green */}
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/70 via-primary/45 to-primary/65" />
       </div>
 
       <div className="relative z-10 text-center px-6 max-w-4xl">
@@ -37,8 +38,7 @@ const HeroSection = () => {
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
               transition={{ duration: 1, ease: "easeInOut" }}
-              className="font-serif text-4xl md:text-6xl lg:text-7xl font-light leading-tight whitespace-pre-line drop-shadow-[0_2px_20px_rgba(0,0,0,0.5)]"
-              style={{ color: "white", textShadow: "0 2px 30px rgba(0,0,0,0.6)" }}
+              className="font-serif text-4xl md:text-6xl lg:text-7xl font-light leading-tight whitespace-pre-line text-hero-text drop-shadow-[0_2px_20px_rgba(0,0,0,0.3)]"
             >
               {headlines[index]}
             </motion.h1>
@@ -49,8 +49,7 @@ const HeroSection = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 1 }}
-          className="mt-6 font-sans text-sm md:text-base max-w-2xl mx-auto leading-relaxed tracking-wide drop-shadow-[0_1px_10px_rgba(0,0,0,0.4)]"
-          style={{ color: "rgba(255,255,255,0.85)" }}
+          className="mt-6 font-sans text-sm md:text-base max-w-2xl mx-auto leading-relaxed tracking-wide text-hero-text-muted drop-shadow-[0_1px_8px_rgba(0,0,0,0.3)]"
         >
           Appartamenti vista mare nelle esclusive Praia Cabral e Praia da Cruz.
           Indipendenza totale, comfort di alto livello e accesso a servizi premium
@@ -68,11 +67,7 @@ const HeroSection = () => {
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.97 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
-              className="inline-block font-sans text-xs tracking-[0.2em] uppercase px-8 py-4 transition-all duration-300 shadow-lg hover:shadow-xl"
-              style={{
-                backgroundColor: "white",
-                color: "#1a1a1a",
-              }}
+              className="inline-block font-sans text-xs tracking-[0.2em] uppercase px-8 py-4 bg-hero-cta text-hero-cta-foreground shadow-lg hover:shadow-xl transition-shadow duration-300"
             >
               Verifica Disponibilità
             </motion.span>
@@ -82,12 +77,7 @@ const HeroSection = () => {
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.97 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
-              className="inline-block font-sans text-xs tracking-[0.2em] uppercase px-8 py-4 border transition-all duration-300 backdrop-blur-sm"
-              style={{
-                borderColor: "rgba(255,255,255,0.5)",
-                color: "white",
-                backgroundColor: "rgba(255,255,255,0.08)",
-              }}
+              className="inline-block font-sans text-xs tracking-[0.2em] uppercase px-8 py-4 border border-hero-cta-border/50 text-hero-text backdrop-blur-sm bg-hero-text/5 transition-all duration-300 hover:bg-hero-text/10"
             >
               Scopri gli Appartamenti
             </motion.span>
@@ -101,7 +91,7 @@ const HeroSection = () => {
         transition={{ repeat: Infinity, duration: 2 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2"
       >
-        <div className="w-px h-12" style={{ backgroundColor: "rgba(255,255,255,0.4)" }} />
+        <div className="w-px h-12 bg-hero-text/40" />
       </motion.div>
     </section>
   );

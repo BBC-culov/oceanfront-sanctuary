@@ -33,7 +33,7 @@ const Navbar = () => {
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
           ? "bg-background/95 backdrop-blur-md shadow-sm"
-          : "bg-black/20 backdrop-blur-[2px]"
+          : "bg-primary/30 backdrop-blur-[2px]"
       }`}
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
@@ -59,8 +59,8 @@ const Navbar = () => {
                     ? "text-foreground after:bg-foreground"
                     : "text-muted-foreground hover:text-foreground after:bg-foreground"
                   : location.pathname === link.to
-                    ? "text-white after:bg-white"
-                    : "text-white/70 hover:text-white after:bg-white"
+                    ? "text-hero-text after:bg-hero-text"
+                    : "text-hero-text-muted hover:text-hero-text after:bg-hero-text"
               }`}
             >
               {link.label}
@@ -73,7 +73,7 @@ const Navbar = () => {
           className={`hidden lg:inline-flex font-sans text-xs tracking-widest uppercase px-5 py-2.5 border transition-all duration-300 hover:scale-105 active:scale-95 ${
             scrolled
               ? "border-foreground/30 text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary"
-              : "border-white/40 text-white hover:bg-white hover:text-black hover:border-white"
+              : "border-hero-cta-border/40 text-hero-text hover:bg-hero-cta hover:text-hero-cta-foreground hover:border-hero-cta"
           }`}
         >
           Verifica Disponibilità
@@ -82,7 +82,7 @@ const Navbar = () => {
         {/* Mobile toggle */}
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className={`lg:hidden transition-colors duration-300 ${scrolled ? "text-foreground" : "text-white"}`}
+          className={`lg:hidden transition-colors duration-300 ${scrolled ? "text-foreground" : "text-hero-text"}`}
           aria-label="Menu"
         >
           {mobileOpen ? <X size={24} /> : <Menu size={24} />}
