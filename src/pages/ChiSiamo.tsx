@@ -1,10 +1,11 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageTransition from "@/components/PageTransition";
 import { motion } from "framer-motion";
 import sunsetImg from "@/assets/boavista-sunset.jpg";
 
 const ChiSiamo = () => (
-  <>
+  <PageTransition>
     <Navbar />
     <main>
       {/* Hero */}
@@ -65,7 +66,7 @@ const ChiSiamo = () => (
       </section>
     </main>
     <Footer />
-  </>
+  </PageTransition>
 );
 
 export default ChiSiamo;

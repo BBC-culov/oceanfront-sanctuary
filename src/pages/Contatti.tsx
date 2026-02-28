@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageTransition from "@/components/PageTransition";
 import { motion } from "framer-motion";
 import { MapPin, Mail, Phone } from "lucide-react";
 import { useState } from "react";
@@ -15,7 +16,7 @@ const Contatti = () => {
   };
 
   return (
-    <>
+    <PageTransition>
       <Navbar />
       <main>
         <section className="pt-32 pb-24 lg:pt-40 lg:pb-32">
@@ -145,7 +146,7 @@ const Contatti = () => {
         </section>
       </main>
       <Footer />
-    </>
+    </PageTransition>
   );
 };
 

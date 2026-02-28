@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageTransition from "@/components/PageTransition";
 import { motion } from "framer-motion";
 import {
   Home,
@@ -46,7 +47,7 @@ const ServiceCard = ({ icon: Icon, label, i }: { icon: any; label: string; i: nu
 );
 
 const Servizi = () => (
-  <>
+  <PageTransition>
     <Navbar />
     <main>
       <section className="pt-32 pb-24 lg:pt-40 lg:pb-32">
@@ -88,7 +89,7 @@ const Servizi = () => (
       </section>
     </main>
     <Footer />
-  </>
+  </PageTransition>
 );
 
 export default Servizi;
