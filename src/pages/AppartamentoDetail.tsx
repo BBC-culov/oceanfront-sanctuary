@@ -8,11 +8,46 @@ import {
   BedDouble,
   Bath,
   Maximize,
-  Check,
   ChevronLeft,
   ChevronRight,
   X,
+  Waves,
+  TreePalm,
+  CookingPot,
+  Wifi,
+  AirVent,
+  Tv,
+  ShieldCheck,
+  CarFront,
+  Droplets,
+  Flame,
+  Clapperboard,
+  ConciergeBell,
+  PlaneTakeoff,
+  type LucideIcon,
 } from "lucide-react";
+
+const serviceIconMap: Record<string, LucideIcon> = {
+  "Vista oceano": Waves,
+  "Terrazza privata": TreePalm,
+  "Cucina attrezzata": CookingPot,
+  "Wi-Fi ad alta velocità": Wifi,
+  "Aria condizionata": AirVent,
+  "Smart TV": Tv,
+  "Biancheria premium": ShieldCheck,
+  "Parcheggio incluso": CarFront,
+  "Accesso piscina": Droplets,
+  "Giardino privato": TreePalm,
+  "Cucina completa": CookingPot,
+  "Vasca idromassaggio": Droplets,
+  "Barbecue esterno": Flame,
+  "Piscina privata": Droplets,
+  "Terrazza panoramica": TreePalm,
+  "Cucina gourmet": CookingPot,
+  "Home cinema": Clapperboard,
+  "Concierge dedicato": ConciergeBell,
+  "Transfer aeroporto": PlaneTakeoff,
+};
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
@@ -140,7 +175,10 @@ const AppartamentoDetail = () => {
                   {apt.services.map((s) => (
                     <div key={s} className="flex items-center gap-3">
                       <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <Check className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
+                        {(() => {
+                          const Icon = serviceIconMap[s] || ShieldCheck;
+                          return <Icon className="w-3.5 h-3.5 text-primary" strokeWidth={2} />;
+                        })()}
                       </div>
                       <span className="font-sans text-sm text-foreground">{s}</span>
                     </div>
