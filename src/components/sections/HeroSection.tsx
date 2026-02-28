@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import heroImage from "@/assets/hero-ocean.jpg";
 
 const headlines = [
@@ -12,6 +12,12 @@ const headlines = [
 
 const HeroSection = () => {
   const [index, setIndex] = useState(0);
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end start"],
+  });
+  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
 
   useEffect(() => {
     const timer = setInterval(() => setIndex((i) => (i + 1) % headlines.length), 5000);
@@ -19,14 +25,13 @@ const HeroSection = () => {
   }, []);
 
   return (
-    <section className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${heroImage})` }}
+    <section ref={ref} className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
+      <motion.div
+        className="absolute inset-[-15%] bg-cover bg-center will-change-transform"
+        style={{ backgroundImage: `url(${heroImage})`, y: bgY }}
       >
-        {/* Brand-tinted overlay using primary dark green */}
         <div className="absolute inset-0 bg-gradient-to-b from-primary/70 via-primary/45 to-primary/65" />
-      </div>
+      </motion.div>
 
       <div className="relative z-10 text-center px-6 max-w-4xl">
         {/* Fixed-height container for headline to prevent layout shift */}
