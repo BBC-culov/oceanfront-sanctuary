@@ -13,6 +13,10 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        serif: ['Cormorant Garamond', 'Georgia', 'serif'],
+        sans: ['Outfit', 'system-ui', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -57,6 +61,17 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        ocean: {
+          DEFAULT: "hsl(var(--ocean))",
+          foreground: "hsl(var(--ocean-foreground))",
+        },
+        sand: {
+          DEFAULT: "hsl(var(--sand))",
+          light: "hsl(var(--sand-light))",
+        },
+        stone: "hsl(var(--stone))",
+        sage: "hsl(var(--sage))",
+        gold: "hsl(var(--gold))",
       },
       borderRadius: {
         lg: "var(--radius)",
