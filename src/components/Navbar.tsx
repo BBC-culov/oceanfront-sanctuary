@@ -17,8 +17,9 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
 
-  // All main pages now have hero images
-  const noHero = location.pathname === "*";
+  // Pages without a full-bleed hero (e.g. apartment detail)
+  const mainPages = ["/", "/appartamenti", "/servizi", "/chi-siamo", "/contatti"];
+  const noHero = !mainPages.includes(location.pathname);
   const isTransparent = !noHero && !scrolled;
 
   useEffect(() => {
