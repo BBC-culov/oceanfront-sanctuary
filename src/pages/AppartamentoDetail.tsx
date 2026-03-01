@@ -297,6 +297,24 @@ const AppartamentoDetail = () => {
         )}
       </AnimatePresence>
 
+      {/* Transition to footer */}
+      <div className="bg-secondary py-16">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 text-center">
+          <p className="font-serif text-2xl md:text-3xl font-light text-foreground mb-6">
+            Pronto a vivere Boa Vista?
+          </p>
+          <Link to="/contatti">
+            <motion.span
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              className="inline-block font-sans text-xs tracking-[0.2em] uppercase bg-primary text-primary-foreground px-10 py-4 hover:bg-primary/90 transition-colors"
+            >
+              Contattaci
+            </motion.span>
+          </Link>
+        </div>
+      </div>
+
       <Footer />
     </PageTransition>
   );
