@@ -3,7 +3,7 @@ import { motion, useInView } from "framer-motion";
 
 const TransferMap = () => {
   const mapRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(mapRef, { once: true });
+  const isInView = useInView(mapRef, { once: true, margin: "0px 0px -100px 0px" });
   const [animRef, setAnimRef] = useState<SVGAnimateMotionElement | null>(null);
 
   const animCallbackRef = useCallback((node: SVGAnimateMotionElement | null) => {
@@ -18,10 +18,10 @@ const TransferMap = () => {
       return () => clearTimeout(timer);
     }
   }, [isInView, animRef]);
+
   const routePath =
     "M 95 215 C 115 210, 130 200, 155 185 C 180 170, 200 155, 230 140 C 260 125, 285 115, 310 110 C 335 105, 355 108, 375 120 C 390 130, 395 145, 388 165";
 
-  // Localities along the route
   const localities = [
     { x: 140, y: 230, name: "Rabil", size: 8 },
     { x: 215, y: 120, name: "Sal Rei", size: 9 },
@@ -30,7 +30,6 @@ const TransferMap = () => {
     { x: 330, y: 220, name: "Praia da Cruz", size: 7 },
   ];
 
-  // Beach markers
   const beaches = [
     { x: 360, y: 85, name: "Praia de Chaves" },
     { x: 130, y: 140, name: "Praia de Estoril" },
@@ -38,11 +37,9 @@ const TransferMap = () => {
 
   return (
     <div ref={mapRef} className="relative w-full max-w-xl mx-auto lg:mx-0" style={{ perspective: "800px" }}>
-      {/* 3D tilt wrapper */}
       <motion.div
         initial={{ rotateX: 8, opacity: 0, y: 30 }}
-        whileInView={{ rotateX: 4, opacity: 1, y: 0 }}
-        viewport={{ once: true }}
+        animate={isInView ? { rotateX: 4, opacity: 1, y: 0 } : { rotateX: 8, opacity: 0, y: 30 }}
         transition={{ duration: 1, ease: "easeOut" }}
         style={{ transformStyle: "preserve-3d" }}
       >
@@ -53,22 +50,18 @@ const TransferMap = () => {
           className="w-full h-full drop-shadow-xl"
         >
           <defs>
-            {/* Ocean gradient */}
             <radialGradient id="oceanGrad" cx="50%" cy="50%" r="60%">
               <stop offset="0%" stopColor="hsl(var(--ocean) / 0.08)" />
               <stop offset="100%" stopColor="hsl(var(--ocean) / 0.15)" />
             </radialGradient>
-            {/* Island gradient for 3D feel */}
             <radialGradient id="islandGrad" cx="40%" cy="35%" r="55%">
               <stop offset="0%" stopColor="hsl(var(--sand-light))" />
               <stop offset="70%" stopColor="hsl(var(--sand))" />
               <stop offset="100%" stopColor="hsl(var(--sand) / 0.8)" />
             </radialGradient>
-            {/* Island shadow */}
             <filter id="islandShadow" x="-10%" y="-10%" width="130%" height="140%">
               <feDropShadow dx="3" dy="6" stdDeviation="8" floodColor="hsl(var(--foreground) / 0.12)" />
             </filter>
-            {/* Glow for markers */}
             <filter id="glow">
               <feGaussianBlur stdDeviation="3" result="coloredBlur" />
               <feMerge>
@@ -76,10 +69,6 @@ const TransferMap = () => {
                 <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
-            {/* Road texture */}
-            <pattern id="roadDash" patternUnits="userSpaceOnUse" width="12" height="4" patternTransform="rotate(0)">
-              <rect width="7" height="2" y="1" fill="hsl(var(--primary-foreground) / 0.6)" rx="1" />
-            </pattern>
           </defs>
 
           {/* Background ocean */}
@@ -94,8 +83,7 @@ const TransferMap = () => {
               strokeWidth="0.8"
               fill="none"
               initial={{ pathLength: 0 }}
-              whileInView={{ pathLength: 1 }}
-              viewport={{ once: true }}
+              animate={isInView ? { pathLength: 1 } : { pathLength: 0 }}
               transition={{ duration: 2, delay: 0.8 + i * 0.15 }}
             />
           ))}
@@ -106,20 +94,18 @@ const TransferMap = () => {
             fill="url(#islandGrad)"
             filter="url(#islandShadow)"
             initial={{ scale: 0.9, opacity: 0 }}
-            whileInView={{ scale: 1, opacity: 1 }}
-            viewport={{ once: true }}
+            animate={isInView ? { scale: 1, opacity: 1 } : { scale: 0.9, opacity: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           />
 
-          {/* Inner terrain lines for depth */}
+          {/* Inner terrain lines */}
           <motion.path
             d="M 150 180 C 200 160, 280 150, 350 170"
             stroke="hsl(var(--sand) / 0.5)"
             strokeWidth="0.5"
             fill="none"
             initial={{ pathLength: 0 }}
-            whileInView={{ pathLength: 1 }}
-            viewport={{ once: true }}
+            animate={isInView ? { pathLength: 1 } : { pathLength: 0 }}
             transition={{ duration: 1, delay: 0.5 }}
           />
           <motion.path
@@ -128,8 +114,7 @@ const TransferMap = () => {
             strokeWidth="0.5"
             fill="none"
             initial={{ pathLength: 0 }}
-            whileInView={{ pathLength: 1 }}
-            viewport={{ once: true }}
+            animate={isInView ? { pathLength: 1 } : { pathLength: 0 }}
             transition={{ duration: 1, delay: 0.6 }}
           />
 
@@ -141,12 +126,11 @@ const TransferMap = () => {
             strokeDasharray="3 3"
             fill="none"
             initial={{ pathLength: 0 }}
-            whileInView={{ pathLength: 1 }}
-            viewport={{ once: true }}
+            animate={isInView ? { pathLength: 1 } : { pathLength: 0 }}
             transition={{ duration: 1.2, delay: 0.4 }}
           />
 
-          {/* Main road background (wider, for depth) */}
+          {/* Main road background */}
           <motion.path
             d={routePath}
             stroke="hsl(var(--foreground) / 0.08)"
@@ -155,8 +139,7 @@ const TransferMap = () => {
             strokeLinecap="round"
             strokeLinejoin="round"
             initial={{ pathLength: 0 }}
-            whileInView={{ pathLength: 1 }}
-            viewport={{ once: true }}
+            animate={isInView ? { pathLength: 1 } : { pathLength: 0 }}
             transition={{ duration: 1.5, delay: 0.3 }}
           />
 
@@ -169,8 +152,7 @@ const TransferMap = () => {
             strokeLinecap="round"
             strokeLinejoin="round"
             initial={{ pathLength: 0 }}
-            whileInView={{ pathLength: 1 }}
-            viewport={{ once: true }}
+            animate={isInView ? { pathLength: 1 } : { pathLength: 0 }}
             transition={{ duration: 1.5, delay: 0.3 }}
           />
 
@@ -191,8 +173,7 @@ const TransferMap = () => {
             fill="none"
             strokeLinecap="round"
             initial={{ pathLength: 0 }}
-            whileInView={{ pathLength: 1 }}
-            viewport={{ once: true }}
+            animate={isInView ? { pathLength: 1 } : { pathLength: 0 }}
             transition={{ duration: 2.5, delay: 1, ease: "easeInOut" }}
           />
 
@@ -201,8 +182,7 @@ const TransferMap = () => {
             <motion.g
               key={`beach-${i}`}
               initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
+              animate={isInView ? { opacity: 1 } : { opacity: 0 }}
               transition={{ delay: 0.8 + i * 0.2 }}
             >
               <text x={b.x} y={b.y} fontSize="11" className="select-none">🏖</text>
@@ -224,8 +204,7 @@ const TransferMap = () => {
             <motion.g
               key={`loc-${i}`}
               initial={{ opacity: 0, scale: 0 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
+              animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0 }}
               transition={{ delay: 0.6 + i * 0.12, type: "spring", stiffness: 200 }}
             >
               <circle cx={loc.x} cy={loc.y} r="2.5" fill="hsl(var(--foreground) / 0.3)" />
@@ -245,11 +224,9 @@ const TransferMap = () => {
           {/* Airport marker with pulse */}
           <motion.g
             initial={{ opacity: 0, scale: 0 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
+            animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0 }}
             transition={{ duration: 0.5, delay: 0.8, type: "spring" }}
           >
-            {/* Pulse ring */}
             <motion.circle
               cx="95" cy="215" r="12"
               fill="none"
@@ -261,9 +238,7 @@ const TransferMap = () => {
             />
             <circle cx="95" cy="215" r="9" fill="hsl(var(--primary))" />
             <circle cx="95" cy="215" r="4.5" fill="hsl(var(--primary-foreground))" />
-            {/* Airplane */}
             <text x="87" y="200" fontSize="18" className="select-none">✈️</text>
-            {/* Label with background */}
             <rect x="48" y="228" width="95" height="18" rx="3" fill="hsl(var(--primary))" />
             <text
               x="96"
@@ -282,12 +257,10 @@ const TransferMap = () => {
           {/* Bazhouse destination marker */}
           <motion.g
             initial={{ opacity: 0, scale: 0 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
+            animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0 }}
             transition={{ duration: 0.6, delay: 3.5, type: "spring", stiffness: 250 }}
             filter="url(#glow)"
           >
-            {/* Pulse ring */}
             <motion.circle
               cx="388" cy="165" r="14"
               fill="none"
@@ -299,9 +272,7 @@ const TransferMap = () => {
             />
             <circle cx="388" cy="165" r="11" fill="hsl(var(--primary))" />
             <circle cx="388" cy="165" r="5.5" fill="hsl(var(--accent))" />
-            {/* Home icon */}
             <text x="379" y="150" fontSize="18" className="select-none">🏠</text>
-            {/* Label with background */}
             <rect x="340" y="180" width="96" height="28" rx="3" fill="hsl(var(--primary))" />
             <text
               x="388"
@@ -343,13 +314,10 @@ const TransferMap = () => {
               keySplines="0.42 0 0.58 1"
               rotate="auto"
             />
-            {/* Car shadow */}
             <ellipse cx="0" cy="5" rx="10" ry="3" fill="hsl(var(--foreground) / 0.1)" />
-            {/* Car body */}
             <rect x="-12" y="-7" width="24" height="14" rx="4" fill="hsl(var(--primary))" />
             <rect x="-8" y="-5" width="8" height="6" rx="1.5" fill="hsl(var(--ocean) / 0.4)" />
             <rect x="2" y="-5" width="6" height="6" rx="1.5" fill="hsl(var(--ocean) / 0.3)" />
-            {/* Wheels */}
             <circle cx="-7" cy="7" r="2.5" fill="hsl(var(--foreground) / 0.7)" />
             <circle cx="7" cy="7" r="2.5" fill="hsl(var(--foreground) / 0.7)" />
             <circle cx="-7" cy="7" r="1" fill="hsl(var(--foreground) / 0.3)" />
@@ -359,8 +327,7 @@ const TransferMap = () => {
           {/* Distance indicator */}
           <motion.g
             initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
+            animate={isInView ? { opacity: 1 } : { opacity: 0 }}
             transition={{ delay: 3.8 }}
           >
             <rect x="185" y="85" width="80" height="22" rx="11" fill="hsl(var(--primary) / 0.9)" />
@@ -388,8 +355,7 @@ const TransferMap = () => {
             letterSpacing="0.2em"
             fontWeight="300"
             initial={{ opacity: 0, y: -10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: -10 }}
             transition={{ delay: 0.3 }}
           >
             BOA VISTA, CAPO VERDE
@@ -398,8 +364,7 @@ const TransferMap = () => {
           {/* Compass */}
           <motion.g
             initial={{ opacity: 0, rotate: -90 }}
-            whileInView={{ opacity: 0.5, rotate: 0 }}
-            viewport={{ once: true }}
+            animate={isInView ? { opacity: 0.5, rotate: 0 } : { opacity: 0, rotate: -90 }}
             transition={{ delay: 1, duration: 0.8 }}
           >
             <circle cx="455" cy="45" r="14" fill="none" stroke="hsl(var(--border))" strokeWidth="0.8" />
