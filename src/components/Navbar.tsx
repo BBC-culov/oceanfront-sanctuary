@@ -74,14 +74,14 @@ const Navbar = () => {
         </div>
 
         <Link
-          to="/contatti"
+          to="/registrati"
           className={`hidden lg:inline-flex font-sans text-xs tracking-widest uppercase px-5 py-2.5 border transition-all duration-300 hover:scale-105 active:scale-95 ${
             !isTransparent
               ? "border-foreground/30 text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary"
               : "border-hero-cta-border/40 text-hero-text hover:bg-hero-cta hover:text-hero-cta-foreground hover:border-hero-cta"
           }`}
         >
-          Verifica Disponibilità
+          Registrati
         </Link>
 
         {/* Mobile toggle */}
@@ -114,10 +114,10 @@ const Navbar = () => {
                 </Link>
               ))}
               <Link
-                to="/contatti"
+                to="/registrati"
                 className="font-sans text-xs tracking-widest uppercase border border-foreground/30 px-5 py-2.5 mt-2"
               >
-                Verifica Disponibilità
+                Registrati
               </Link>
             </div>
           </motion.div>
