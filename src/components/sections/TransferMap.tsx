@@ -115,16 +115,22 @@ const TransferMap = () => {
     </>
   );
 
-  // Destination pin (simple, no house)
-  const DestPin = ({ x, y, delay }: { x: number; y: number; delay: number }) => (
+  // Apartment destination dot
+  const AptDot = ({ x, y, delay }: { x: number; y: number; delay: number }) => (
     <motion.g initial={{ opacity: 0, scale: 0 }} animate={isInView ? { opacity: 1, scale: 1 } : {}}
-      transition={{ duration: 0.5, delay, type: "spring", stiffness: 250 }}>
-      <motion.circle cx={x} cy={y} r="10" fill="none" stroke="hsl(var(--accent) / 0.3)" strokeWidth="1.5"
-        initial={{ scale: 0.8, opacity: 1 }} animate={{ scale: 2, opacity: 0 }}
-        transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }} />
-      <circle cx={x} cy={y} r="7" fill="hsl(var(--primary))" />
-      <circle cx={x} cy={y} r="3.5" fill="hsl(var(--accent))" />
-      <text x={x - 5} y={y - 10} fontSize="11" className="select-none">🏠</text>
+      transition={{ duration: 0.4, delay, type: "spring", stiffness: 300 }}>
+      {/* Outer pulse */}
+      <motion.circle cx={x} cy={y} r="10" fill="none" stroke="hsl(var(--accent) / 0.35)" strokeWidth="1.5"
+        initial={{ scale: 0.8, opacity: 1 }} animate={{ scale: 2.2, opacity: 0 }}
+        transition={{ duration: 2.5, repeat: Infinity, ease: "easeOut" }} />
+      {/* Outer ring */}
+      <circle cx={x} cy={y} r="8" fill="hsl(var(--primary) / 0.15)" stroke="hsl(var(--primary) / 0.3)" strokeWidth="1" />
+      {/* Main dot */}
+      <circle cx={x} cy={y} r="5" fill="hsl(var(--primary))" />
+      {/* Inner highlight */}
+      <circle cx={x} cy={y} r="2.5" fill="hsl(var(--accent))" />
+      {/* Tiny shine */}
+      <circle cx={x - 1.5} cy={y - 1.5} r="1" fill="hsl(var(--primary-foreground) / 0.6)" />
     </motion.g>
   );
 
@@ -309,10 +315,10 @@ const TransferMap = () => {
             </text>
           </motion.g>
 
-          {/* Destination pins (no names, just 🏠 pins) */}
-          <DestPin x={362} y={96} delay={6.5} />
-          <DestPin x={368} y={232} delay={6.7} />
-          <DestPin x={155} y={104} delay={6.9} />
+          {/* Apartment dots at destinations */}
+          <AptDot x={362} y={96} delay={1.2} />
+          <AptDot x={368} y={232} delay={1.4} />
+          <AptDot x={155} y={104} delay={1.6} />
 
           {/* === 3D PLANE (flies to airport) === */}
           <g>
