@@ -88,9 +88,9 @@ const TransferMap = () => {
             />
           ))}
 
-          {/* Island shape with shadow */}
+          {/* Island shape - Boa Vista realistic outline */}
           <motion.path
-            d="M 70 220 C 75 175, 95 135, 130 110 C 160 90, 200 70, 250 62 C 300 54, 350 60, 390 80 C 420 95, 440 120, 445 155 C 450 190, 435 225, 405 248 C 375 270, 340 280, 300 282 C 260 284, 220 278, 180 268 C 140 258, 105 248, 85 238 C 72 232, 68 228, 70 220 Z"
+            d="M 155 72 C 180 60, 220 55, 265 58 C 310 61, 350 70, 385 88 C 410 100, 430 118, 440 142 C 448 165, 445 188, 435 210 C 425 232, 408 250, 385 262 C 362 274, 335 280, 310 282 C 285 284, 258 282, 232 276 C 205 270, 178 260, 155 245 C 132 230, 112 212, 100 192 C 88 172, 82 150, 84 128 C 86 106, 98 90, 115 80 C 130 72, 142 68, 155 72 Z"
             fill="url(#islandGrad)"
             filter="url(#islandShadow)"
             initial={{ scale: 0.9, opacity: 0 }}
@@ -324,25 +324,6 @@ const TransferMap = () => {
             <circle cx="7" cy="7" r="1" fill="hsl(var(--foreground) / 0.3)" />
           </g>
 
-          {/* Distance indicator */}
-          <motion.g
-            initial={{ opacity: 0 }}
-            animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-            transition={{ delay: 3.8 }}
-          >
-            <rect x="185" y="85" width="80" height="22" rx="11" fill="hsl(var(--primary) / 0.9)" />
-            <text
-              x="225"
-              y="100"
-              textAnchor="middle"
-              fontSize="8"
-              fill="hsl(var(--primary-foreground))"
-              fontFamily="var(--font-sans)"
-              fontWeight="500"
-            >
-              ~ 15 min
-            </text>
-          </motion.g>
 
           {/* Title */}
           <motion.text
