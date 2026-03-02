@@ -88,30 +88,28 @@ interface ServiceCategory {
 
 const extraCategories: ServiceCategory[] = [
   {
-    tag: "Esperienze su richiesta",
-    title: "Personalizza il tuo viaggio.",
-    subtitle: "Servizi aggiuntivi per rendere ogni momento indimenticabile.",
+    tag: "Servizi extra",
+    title: "Personalizza il tuo soggiorno.",
+    subtitle: "Servizi aggiuntivi su richiesta per rendere ogni momento indimenticabile.",
     accent: true,
     items: [
-      { icon: ShieldCheck, label: "Pulizia extra", desc: "Servizio di housekeeping su richiesta durante il soggiorno." },
-      { icon: ShieldCheck, label: "Spesa a domicilio", desc: "Ordina online e ricevi la spesa direttamente in appartamento." },
-      { icon: ShieldCheck, label: "Chef privato", desc: "Cena gourmet preparata a casa tua con prodotti locali." },
-      { icon: ShieldCheck, label: "Tour dell'isola", desc: "Escursioni guidate alla scoperta di Boa Vista." },
-      { icon: ShieldCheck, label: "Sport acquatici", desc: "Surf, kitesurf, snorkeling con istruttori qualificati." },
-      { icon: ShieldCheck, label: "Servizio fotografico", desc: "Shooting professionale per ricordare la tua vacanza." },
+      { icon: ShieldCheck, label: "Pulizia extra", desc: "Servizio di housekeeping aggiuntivo su richiesta durante il soggiorno." },
+      { icon: ShieldCheck, label: "Consegna a domicilio", desc: "Servizio espresso di spesa e consegna direttamente in appartamento." },
+      { icon: ShieldCheck, label: "Noleggio biciclette", desc: "Bici a disposizione per esplorare l'isola al tuo ritmo." },
+      { icon: ShieldCheck, label: "Noleggio quad", desc: "Quad per avventurarti nei percorsi off-road di Boa Vista." },
+      { icon: ShieldCheck, label: "Noleggio auto", desc: "Veicoli per muoverti in totale libertà sull'isola." },
+      { icon: ShieldCheck, label: "Noleggio moto", desc: "Moto per esplorare ogni angolo di Boa Vista con agilità." },
     ],
   },
   {
-    tag: "Mobilità & benessere",
-    title: "Muoviti in libertà.",
-    subtitle: "Esplora l'isola al tuo ritmo con i nostri servizi.",
+    tag: "Benessere & assistenza",
+    title: "Prenditi cura di te.",
+    subtitle: "Relax e supporto personalizzato per un'esperienza completa.",
     items: [
-      { icon: ShieldCheck, label: "Noleggio auto & quad", desc: "Veicoli 4x4 e quad per esplorare ogni angolo dell'isola." },
-      { icon: ShieldCheck, label: "Noleggio biciclette", desc: "E-bike e bici da spiaggia per scoprire la costa." },
-      { icon: ShieldCheck, label: "Prenotazione attività", desc: "Organizziamo escursioni, ristoranti e transfer per te." },
+      { icon: ShieldCheck, label: "Massaggi & SPA", desc: "Prenota sessioni di massaggio e trattamenti SPA sull'isola." },
+      { icon: ShieldCheck, label: "Trattamenti beauty", desc: "Centro estetico e trattamenti di bellezza su prenotazione." },
       { icon: ShieldCheck, label: "Concierge 24/7", desc: "Assistenza personalizzata in italiano, inglese e portoghese." },
-      { icon: ShieldCheck, label: "Fitness & yoga", desc: "Sessioni private di yoga sulla spiaggia e accesso palestra." },
-      { icon: ShieldCheck, label: "Lavanderia", desc: "Servizio di lavaggio e stiratura con ritiro in giornata." },
+      { icon: ShieldCheck, label: "Prenotazione attività", desc: "Organizziamo escursioni, ristoranti e transfer per te." },
     ],
   },
 ];
@@ -121,33 +119,27 @@ const extraCategories: ServiceCategory[] = [
 /* ------------------------------------------------------------------ */
 import {
   Sparkles,
-  ShoppingCart,
-  UtensilsCrossed,
-  Compass,
-  Waves,
-  Camera,
-  Car,
+  Truck,
   Bike,
+  Car,
   CalendarCheck,
   Headset,
-  Dumbbell,
-  Shirt,
+  Flower2,
+  Scissors,
 } from "lucide-react";
 
-// Reassign real icons
+// Icon per quad e moto riutilizziamo Car con varianti
 const iconMap: Record<string, LucideIcon> = {
   "Pulizia extra": Sparkles,
-  "Spesa a domicilio": ShoppingCart,
-  "Chef privato": UtensilsCrossed,
-  "Tour dell'isola": Compass,
-  "Sport acquatici": Waves,
-  "Servizio fotografico": Camera,
-  "Noleggio auto & quad": Car,
+  "Consegna a domicilio": Truck,
   "Noleggio biciclette": Bike,
-  "Prenotazione attività": CalendarCheck,
+  "Noleggio quad": Car,
+  "Noleggio auto": Car,
+  "Noleggio moto": Car,
+  "Massaggi & SPA": Flower2,
+  "Trattamenti beauty": Scissors,
   "Concierge 24/7": Headset,
-  "Fitness & yoga": Dumbbell,
-  "Lavanderia": Shirt,
+  "Prenotazione attività": CalendarCheck,
 };
 
 const containerVariants = {
