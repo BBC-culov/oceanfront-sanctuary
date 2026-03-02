@@ -1,6 +1,23 @@
-import { motion } from "framer-motion";
+import { useRef, useEffect, useState, useCallback } from "react";
+import { motion, useInView } from "framer-motion";
 
 const TransferMap = () => {
+  const mapRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(mapRef, { once: true });
+  const [animRef, setAnimRef] = useState<SVGAnimateMotionElement | null>(null);
+
+  const animCallbackRef = useCallback((node: SVGAnimateMotionElement | null) => {
+    setAnimRef(node);
+  }, []);
+
+  useEffect(() => {
+    if (isInView && animRef) {
+      const timer = setTimeout(() => {
+        try { animRef.beginElement(); } catch (e) { /* fallback */ }
+      }, 1200);
+      return () => clearTimeout(timer);
+    }
+  }, [isInView, animRef]);
   const routePath =
     "M 95 215 C 115 210, 130 200, 155 185 C 180 170, 200 155, 230 140 C 260 125, 285 115, 310 110 C 335 105, 355 108, 375 120 C 390 130, 395 145, 388 165";
 
@@ -20,7 +37,7 @@ const TransferMap = () => {
   ];
 
   return (
-    <div className="relative w-full max-w-xl mx-auto lg:mx-0" style={{ perspective: "800px" }}>
+    <div ref={mapRef} className="relative w-full max-w-xl mx-auto lg:mx-0" style={{ perspective: "800px" }}>
       {/* 3D tilt wrapper */}
       <motion.div
         initial={{ rotateX: 8, opacity: 0, y: 30 }}
@@ -313,16 +330,19 @@ const TransferMap = () => {
           </motion.g>
 
           {/* Animated car along the path */}
-          <motion.g
-            initial={{ x: 95, y: 215, opacity: 0 }}
-            whileInView={{
-              x: [95, 115, 155, 200, 230, 270, 310, 345, 375, 388],
-              y: [215, 210, 185, 158, 140, 125, 110, 112, 125, 165],
-              opacity: [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-            }}
-            viewport={{ once: true }}
-            transition={{ duration: 3, delay: 1, ease: "easeInOut" }}
-          >
+          <g>
+            <animateMotion
+              ref={animCallbackRef}
+              dur="3s"
+              begin="indefinite"
+              fill="freeze"
+              path={routePath}
+              keyPoints="0;1"
+              keyTimes="0;1"
+              calcMode="spline"
+              keySplines="0.42 0 0.58 1"
+              rotate="auto"
+            />
             {/* Car shadow */}
             <ellipse cx="0" cy="5" rx="10" ry="3" fill="hsl(var(--foreground) / 0.1)" />
             {/* Car body */}
@@ -334,7 +354,7 @@ const TransferMap = () => {
             <circle cx="7" cy="7" r="2.5" fill="hsl(var(--foreground) / 0.7)" />
             <circle cx="-7" cy="7" r="1" fill="hsl(var(--foreground) / 0.3)" />
             <circle cx="7" cy="7" r="1" fill="hsl(var(--foreground) / 0.3)" />
-          </motion.g>
+          </g>
 
           {/* Distance indicator */}
           <motion.g
