@@ -314,14 +314,14 @@ const TransferMap = () => {
 
           {/* Animated car along the path */}
           <motion.g
-            initial={{ offsetDistance: "0%" }}
-            whileInView={{ offsetDistance: "100%" }}
-            viewport={{ once: true }}
-            transition={{ duration: 3, delay: 1, ease: [0.25, 0.1, 0.25, 1] }}
-            style={{
-              offsetPath: `path("${routePath}")`,
-              offsetRotate: "auto",
+            initial={{ x: 95, y: 215, opacity: 0 }}
+            whileInView={{
+              x: [95, 115, 155, 200, 230, 270, 310, 345, 375, 388],
+              y: [215, 210, 185, 158, 140, 125, 110, 112, 125, 165],
+              opacity: [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
             }}
+            viewport={{ once: true }}
+            transition={{ duration: 3, delay: 1, ease: "easeInOut" }}
           >
             {/* Car shadow */}
             <ellipse cx="0" cy="5" rx="10" ry="3" fill="hsl(var(--foreground) / 0.1)" />
