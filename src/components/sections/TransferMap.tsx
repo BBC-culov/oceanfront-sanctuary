@@ -7,22 +7,22 @@ const TransferMap = () => {
   const [animRef, setAnimRef] = useState<SVGAnimateMotionElement | null>(null);
   const [animRefUp, setAnimRefUp] = useState<SVGAnimateMotionElement | null>(null);
   const [animRefDown, setAnimRefDown] = useState<SVGAnimateMotionElement | null>(null);
+  const [animRefLeft, setAnimRefLeft] = useState<SVGAnimateMotionElement | null>(null);
+  const [planeRef, setPlaneRef] = useState<SVGAnimateMotionElement | null>(null);
   const [splitVisible, setSplitVisible] = useState(false);
 
   const animCallbackRef = useCallback((node: SVGAnimateMotionElement | null) => { setAnimRef(node); }, []);
   const animCallbackRefUp = useCallback((node: SVGAnimateMotionElement | null) => { setAnimRefUp(node); }, []);
   const animCallbackRefDown = useCallback((node: SVGAnimateMotionElement | null) => { setAnimRefDown(node); }, []);
+  const animCallbackRefLeft = useCallback((node: SVGAnimateMotionElement | null) => { setAnimRefLeft(node); }, []);
+  const planeCallbackRef = useCallback((node: SVGAnimateMotionElement | null) => { setPlaneRef(node); }, []);
 
-  // Main car: airport → split point
   const mainRoute = "M 138 208 C 155 200, 175 188, 200 178 C 218 170, 238 163, 258 158";
-
-  // Branch up: split → north house
   const branchUp = "M 258 158 C 275 148, 295 132, 315 118 C 330 108, 345 100, 362 96";
-
-  // Branch down: split → south house
   const branchDown = "M 258 158 C 275 168, 295 182, 315 198 C 330 210, 348 222, 368 232";
+  const branchLeft = "M 258 158 C 240 145, 218 132, 198 122 C 182 114, 168 108, 155 104";
+  const planePath = "M 30 50 C 50 80, 70 120, 90 150 C 105 172, 120 190, 138 208";
 
-  // Island outline
   const islandPath = `
     M 112 135 C 108 128, 102 120, 98 112 C 95 105, 96 98, 102 94
     L 115 87 C 122 83, 135 78, 155 74 C 172 70, 195 69, 218 68
@@ -43,7 +43,6 @@ const TransferMap = () => {
     "M 325 286 C 295 292, 265 296, 235 298 C 210 299, 185 298, 165 294",
     "M 142 282 C 132 278, 122 270, 114 262 C 108 254, 104 244, 100 234",
   ];
-
   const terrainLines = [
     "M 180 140 C 220 132, 280 128, 340 138",
     "M 130 180 C 200 168, 310 162, 400 178",
@@ -52,96 +51,59 @@ const TransferMap = () => {
     "M 235 200 C 248 192, 262 190, 275 200",
     "M 230 208 C 250 196, 268 194, 282 206",
   ];
-
   const secondaryRoads = [
     "M 170 155 L 155 185 L 148 205",
     "M 148 215 L 140 245 L 132 270",
     "M 200 142 L 245 130 L 280 128",
     "M 210 255 L 235 275 L 260 288",
   ];
-
   const localities = [
     { x: 168, y: 148, name: "Sal Rei", size: 8.5, bold: true },
     { x: 142, y: 216, name: "Rabil", size: 7.5, bold: false },
     { x: 275, y: 130, name: "Bofareira", size: 6.5, bold: false },
     { x: 128, y: 270, name: "Povoação Velha", size: 6.5, bold: false },
   ];
-
   const beaches = [
     { x: 92, y: 100, name: "Praia de Estoril", icon: "🏖" },
     { x: 340, y: 76, name: "Cabo Santa Maria", icon: "🏖" },
     { x: 148, y: 292, name: "Santa Mónica", icon: "🏖" },
     { x: 356, y: 252, name: "Curral Velho", icon: "🏖" },
   ];
-
   const vegetation = [
     { x: 200, y: 160 }, { x: 220, y: 175 }, { x: 300, y: 155 },
     { x: 260, y: 200 }, { x: 180, y: 230 }, { x: 320, y: 210 },
   ];
 
+  // Plane arrives first, then main car starts
+  useEffect(() => {
+    if (isInView && planeRef) {
+      const t = setTimeout(() => {
+        try { planeRef.beginElement(); } catch (e) { /* */ }
+      }, 600);
+      return () => clearTimeout(t);
+    }
+  }, [isInView, planeRef]);
+
   useEffect(() => {
     if (isInView && animRef) {
+      // Main car starts after plane lands (~2.5s plane + 0.6s delay)
       const timer = setTimeout(() => {
         try { animRef.beginElement(); } catch (e) { /* */ }
-      }, 1200);
-      // After main car arrives at split (~2.5s + 1.2s delay = 3.7s), show split cars
-      const splitTimer = setTimeout(() => {
-        setSplitVisible(true);
-      }, 3700);
+      }, 3200);
+      const splitTimer = setTimeout(() => { setSplitVisible(true); }, 5700);
       return () => { clearTimeout(timer); clearTimeout(splitTimer); };
     }
   }, [isInView, animRef]);
 
   useEffect(() => {
     if (splitVisible) {
-      const t1 = setTimeout(() => {
-        try { animRefUp?.beginElement(); } catch (e) { /* */ }
-      }, 100);
-      const t2 = setTimeout(() => {
-        try { animRefDown?.beginElement(); } catch (e) { /* */ }
-      }, 100);
-      return () => { clearTimeout(t1); clearTimeout(t2); };
+      const t1 = setTimeout(() => { try { animRefUp?.beginElement(); } catch (e) { /* */ } }, 100);
+      const t2 = setTimeout(() => { try { animRefDown?.beginElement(); } catch (e) { /* */ } }, 100);
+      const t3 = setTimeout(() => { try { animRefLeft?.beginElement(); } catch (e) { /* */ } }, 100);
+      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
     }
-  }, [splitVisible, animRefUp, animRefDown]);
+  }, [splitVisible, animRefUp, animRefDown, animRefLeft]);
 
-  // 3D house SVG component
-  const House3D = ({ x, y, color, label, delay }: { x: number; y: number; color: string; label: string; delay: number }) => (
-    <motion.g
-      initial={{ opacity: 0, scale: 0 }}
-      animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0 }}
-      transition={{ duration: 0.6, delay, type: "spring", stiffness: 250 }}
-    >
-      {/* Pulse ring */}
-      <motion.circle cx={x} cy={y} r="14" fill="none" stroke={`hsl(var(--accent) / 0.3)`} strokeWidth="1.5"
-        initial={{ scale: 0.8, opacity: 1 }} animate={{ scale: 2, opacity: 0 }}
-        transition={{ duration: 2, repeat: Infinity, ease: "easeOut", delay: 0.5 }} />
-
-      {/* 3D house body */}
-      {/* Front face */}
-      <rect x={x - 10} y={y - 6} width="20" height="16" rx="1.5" fill="hsl(140 45% 42%)" />
-      {/* Roof */}
-      <polygon points={`${x - 13},${y - 6} ${x},${y - 18} ${x + 13},${y - 6}`} fill="hsl(140 50% 35%)" />
-      {/* Roof 3D side */}
-      <polygon points={`${x},${y - 18} ${x + 13},${y - 6} ${x + 16},${y - 8} ${x + 3},${y - 20}`} fill="hsl(140 45% 28%)" />
-      {/* Side face (3D depth) */}
-      <polygon points={`${x + 10},${y - 6} ${x + 13},${y - 8} ${x + 13},${y + 8} ${x + 10},${y + 10}`} fill="hsl(140 40% 32%)" />
-      {/* Door */}
-      <rect x={x - 3} y={y + 1} width="6" height="9" rx="1" fill="hsl(140 30% 25%)" />
-      {/* Window */}
-      <rect x={x - 8} y={y - 3} width="4" height="4" rx="0.5" fill="hsl(200 60% 70% / 0.6)" />
-
-      {/* Label */}
-      <rect x={x - 48} y={y + 14} width="96" height="24" rx="3" fill="hsl(var(--primary))" />
-      <text x={x} y={y + 24} textAnchor="middle" fontSize="7" fill="hsl(var(--primary-foreground))" fontFamily="var(--font-sans)" fontWeight="400" letterSpacing="0.04em">
-        Appartamento
-      </text>
-      <text x={x} y={y + 34} textAnchor="middle" fontSize="8" fill="hsl(var(--accent))" fontFamily="var(--font-sans)" fontWeight="700" letterSpacing="0.08em">
-        {label}
-      </text>
-    </motion.g>
-  );
-
-  // Small car SVG group
   const CarShape = () => (
     <>
       <ellipse cx="0" cy="5" rx="8" ry="2.5" fill="hsl(var(--foreground) / 0.08)" />
@@ -150,9 +112,20 @@ const TransferMap = () => {
       <rect x="1" y="-4" width="5" height="5" rx="1.2" fill="hsl(var(--ocean) / 0.3)" />
       <circle cx="-6" cy="6" r="2" fill="hsl(var(--foreground) / 0.6)" />
       <circle cx="6" cy="6" r="2" fill="hsl(var(--foreground) / 0.6)" />
-      <circle cx="-6" cy="6" r="0.8" fill="hsl(var(--foreground) / 0.3)" />
-      <circle cx="6" cy="6" r="0.8" fill="hsl(var(--foreground) / 0.3)" />
     </>
+  );
+
+  // Destination pin (simple, no house)
+  const DestPin = ({ x, y, delay }: { x: number; y: number; delay: number }) => (
+    <motion.g initial={{ opacity: 0, scale: 0 }} animate={isInView ? { opacity: 1, scale: 1 } : {}}
+      transition={{ duration: 0.5, delay, type: "spring", stiffness: 250 }}>
+      <motion.circle cx={x} cy={y} r="10" fill="none" stroke="hsl(var(--accent) / 0.3)" strokeWidth="1.5"
+        initial={{ scale: 0.8, opacity: 1 }} animate={{ scale: 2, opacity: 0 }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }} />
+      <circle cx={x} cy={y} r="7" fill="hsl(var(--primary))" />
+      <circle cx={x} cy={y} r="3.5" fill="hsl(var(--accent))" />
+      <text x={x - 5} y={y - 10} fontSize="11" className="select-none">🏠</text>
+    </motion.g>
   );
 
   return (
@@ -197,6 +170,35 @@ const TransferMap = () => {
               initial={{ pathLength: 0 }} animate={isInView ? { pathLength: 1 } : { pathLength: 0 }}
               transition={{ duration: 2, delay: 0.8 + i * 0.15 }} />
           ))}
+
+          {/* === 3D SAILBOAT in the ocean === */}
+          <motion.g
+            initial={{ opacity: 0, y: 10 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+            transition={{ delay: 1.5, duration: 1 }}
+          >
+            {/* Gentle bobbing animation */}
+            <animateTransform attributeName="transform" type="translate" values="0,0;0,-2;0,0;0,1;0,0" dur="4s" repeatCount="indefinite" />
+            {/* Water reflection */}
+            <ellipse cx="448" cy="310" rx="16" ry="3" fill="hsl(var(--ocean) / 0.12)" />
+            {/* Hull - 3D */}
+            <path d="M 434 302 L 440 308 L 456 308 L 462 302 Z" fill="hsl(20 60% 35%)" />
+            <path d="M 440 308 L 456 308 L 458 305 L 442 305 Z" fill="hsl(20 50% 28%)" />
+            {/* Mast */}
+            <line x1="448" y1="308" x2="448" y2="278" stroke="hsl(20 40% 30%)" strokeWidth="1.2" />
+            {/* Main sail - 3D with slight curve */}
+            <path d="M 448 280 L 448 304 L 460 300 Z" fill="hsl(0 0% 95%)" />
+            <path d="M 448 280 L 448 304 L 459 300 Z" fill="hsl(0 0% 88%)" />
+            {/* Jib sail */}
+            <path d="M 448 282 L 448 298 L 438 296 Z" fill="hsl(0 0% 92%)" />
+            {/* Flag */}
+            <path d="M 448 278 L 453 280 L 448 282" fill="hsl(var(--primary))" />
+            {/* Wake lines */}
+            <motion.path d="M 432 306 C 428 308, 424 308, 420 306" stroke="hsl(var(--ocean) / 0.2)" strokeWidth="0.6" fill="none"
+              initial={{ pathLength: 0 }} animate={isInView ? { pathLength: 1 } : {}} transition={{ delay: 2, duration: 1 }} />
+            <motion.path d="M 430 310 C 425 312, 419 312, 414 310" stroke="hsl(var(--ocean) / 0.15)" strokeWidth="0.5" fill="none"
+              initial={{ pathLength: 0 }} animate={isInView ? { pathLength: 1 } : {}} transition={{ delay: 2.2, duration: 1 }} />
+          </motion.g>
 
           {/* Reef edge */}
           <motion.path d={islandPath} fill="none" stroke="hsl(var(--ocean) / 0.12)" strokeWidth="14" strokeLinejoin="round"
@@ -243,33 +245,34 @@ const TransferMap = () => {
               transition={{ duration: 1, delay: 0.4 + i * 0.08 }} />
           ))}
 
-          {/* === MAIN ROAD (airport → split) === */}
-          <motion.path d={mainRoute} stroke="hsl(var(--foreground) / 0.08)" strokeWidth="10" fill="none" strokeLinecap="round" strokeLinejoin="round"
+          {/* === PLANE FLIGHT PATH (dashed arc in sky) === */}
+          <motion.path d={planePath} stroke="hsl(var(--foreground) / 0.06)" strokeWidth="1.5" strokeDasharray="4 4" fill="none"
+            initial={{ pathLength: 0 }} animate={isInView ? { pathLength: 1 } : { pathLength: 0 }}
+            transition={{ duration: 1.5, delay: 0.5 }} />
+
+          {/* === MAIN ROAD === */}
+          <motion.path d={mainRoute} stroke="hsl(var(--foreground) / 0.08)" strokeWidth="10" fill="none" strokeLinecap="round"
             initial={{ pathLength: 0 }} animate={isInView ? { pathLength: 1 } : { pathLength: 0 }} transition={{ duration: 1.5, delay: 0.3 }} />
           <motion.path d={mainRoute} stroke="hsl(var(--foreground) / 0.15)" strokeWidth="5" fill="none" strokeLinecap="round"
             initial={{ pathLength: 0 }} animate={isInView ? { pathLength: 1 } : { pathLength: 0 }} transition={{ duration: 1.5, delay: 0.3 }} />
           <path d={mainRoute} stroke="hsl(var(--primary-foreground) / 0.3)" strokeWidth="1" strokeDasharray="6 4" fill="none" />
           <motion.path d={mainRoute} stroke="hsl(var(--primary))" strokeWidth="3" fill="none" strokeLinecap="round"
-            initial={{ pathLength: 0 }} animate={isInView ? { pathLength: 1 } : { pathLength: 0 }} transition={{ duration: 2, delay: 1, ease: "easeInOut" }} />
+            initial={{ pathLength: 0 }} animate={isInView ? { pathLength: 1 } : { pathLength: 0 }} transition={{ duration: 2, delay: 2.8, ease: "easeInOut" }} />
 
-          {/* === BRANCH UP ROAD (split → north house) === */}
-          <motion.path d={branchUp} stroke="hsl(var(--foreground) / 0.08)" strokeWidth="8" fill="none" strokeLinecap="round"
-            initial={{ pathLength: 0 }} animate={isInView ? { pathLength: 1 } : { pathLength: 0 }} transition={{ duration: 1.2, delay: 2.8 }} />
-          <motion.path d={branchUp} stroke="hsl(var(--foreground) / 0.12)" strokeWidth="4" fill="none" strokeLinecap="round"
-            initial={{ pathLength: 0 }} animate={isInView ? { pathLength: 1 } : { pathLength: 0 }} transition={{ duration: 1.2, delay: 2.8 }} />
-          <motion.path d={branchUp} stroke="hsl(var(--primary) / 0.7)" strokeWidth="2.5" fill="none" strokeLinecap="round"
-            initial={{ pathLength: 0 }} animate={isInView ? { pathLength: 1 } : { pathLength: 0 }} transition={{ duration: 1.5, delay: 3.2, ease: "easeInOut" }} />
+          {/* === BRANCH ROADS === */}
+          {[branchUp, branchDown, branchLeft].map((path, i) => (
+            <g key={`branch-road-${i}`}>
+              <motion.path d={path} stroke="hsl(var(--foreground) / 0.08)" strokeWidth="8" fill="none" strokeLinecap="round"
+                initial={{ pathLength: 0 }} animate={isInView ? { pathLength: 1 } : { pathLength: 0 }} transition={{ duration: 1.2, delay: 4.5 }} />
+              <motion.path d={path} stroke="hsl(var(--foreground) / 0.12)" strokeWidth="4" fill="none" strokeLinecap="round"
+                initial={{ pathLength: 0 }} animate={isInView ? { pathLength: 1 } : { pathLength: 0 }} transition={{ duration: 1.2, delay: 4.5 }} />
+              <motion.path d={path} stroke="hsl(var(--primary) / 0.7)" strokeWidth="2.5" fill="none" strokeLinecap="round"
+                initial={{ pathLength: 0 }} animate={isInView ? { pathLength: 1 } : { pathLength: 0 }} transition={{ duration: 1.5, delay: 5, ease: "easeInOut" }} />
+            </g>
+          ))}
 
-          {/* === BRANCH DOWN ROAD (split → south house) === */}
-          <motion.path d={branchDown} stroke="hsl(var(--foreground) / 0.08)" strokeWidth="8" fill="none" strokeLinecap="round"
-            initial={{ pathLength: 0 }} animate={isInView ? { pathLength: 1 } : { pathLength: 0 }} transition={{ duration: 1.2, delay: 2.8 }} />
-          <motion.path d={branchDown} stroke="hsl(var(--foreground) / 0.12)" strokeWidth="4" fill="none" strokeLinecap="round"
-            initial={{ pathLength: 0 }} animate={isInView ? { pathLength: 1 } : { pathLength: 0 }} transition={{ duration: 1.2, delay: 2.8 }} />
-          <motion.path d={branchDown} stroke="hsl(var(--primary) / 0.7)" strokeWidth="2.5" fill="none" strokeLinecap="round"
-            initial={{ pathLength: 0 }} animate={isInView ? { pathLength: 1 } : { pathLength: 0 }} transition={{ duration: 1.5, delay: 3.2, ease: "easeInOut" }} />
-
-          {/* Split point indicator */}
-          <motion.g initial={{ opacity: 0, scale: 0 }} animate={isInView ? { opacity: 1, scale: 1 } : {}} transition={{ delay: 3, type: "spring" }}>
+          {/* Split point */}
+          <motion.g initial={{ opacity: 0, scale: 0 }} animate={isInView ? { opacity: 1, scale: 1 } : {}} transition={{ delay: 5, type: "spring" }}>
             <circle cx="258" cy="158" r="5" fill="hsl(var(--primary) / 0.2)" />
             <circle cx="258" cy="158" r="2.5" fill="hsl(var(--primary))" />
           </motion.g>
@@ -306,9 +309,32 @@ const TransferMap = () => {
             </text>
           </motion.g>
 
-          {/* 3D Houses at destinations */}
-          <House3D x={362} y={96} color="green" label="BAZHOUSE BREZZA" delay={5} />
-          <House3D x={368} y={232} color="green" label="BAZHOUSE OCEANO" delay={5.2} />
+          {/* Destination pins (no names, just 🏠 pins) */}
+          <DestPin x={362} y={96} delay={6.5} />
+          <DestPin x={368} y={232} delay={6.7} />
+          <DestPin x={155} y={104} delay={6.9} />
+
+          {/* === 3D PLANE (flies to airport) === */}
+          <g>
+            <animateMotion ref={planeCallbackRef} dur="2.5s" begin="indefinite" fill="freeze" path={planePath}
+              keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines="0.3 0 0.7 1" rotate="auto" />
+            {/* Shadow */}
+            <ellipse cx="0" cy="10" rx="12" ry="3" fill="hsl(var(--foreground) / 0.06)" />
+            {/* Fuselage */}
+            <ellipse cx="0" cy="0" rx="14" ry="4" fill="hsl(var(--foreground) / 0.7)" />
+            {/* Cockpit */}
+            <ellipse cx="12" cy="0" rx="4" ry="2.5" fill="hsl(var(--ocean) / 0.5)" />
+            {/* Wings */}
+            <polygon points="-2,-3 -6,-14 2,-14 4,-3" fill="hsl(var(--foreground) / 0.55)" />
+            <polygon points="-2,3 -6,14 2,14 4,3" fill="hsl(var(--foreground) / 0.55)" />
+            {/* Tail fin */}
+            <polygon points="-12,-2 -18,-10 -10,-2" fill="hsl(var(--foreground) / 0.5)" />
+            {/* Tail horizontal */}
+            <polygon points="-11,-1 -16,-6 -10,-6 -8,-1" fill="hsl(var(--foreground) / 0.4)" />
+            <polygon points="-11,1 -16,6 -10,6 -8,1" fill="hsl(var(--foreground) / 0.4)" />
+            {/* Engine highlight */}
+            <ellipse cx="0" cy="0" rx="14" ry="4" fill="none" stroke="hsl(var(--foreground) / 0.15)" strokeWidth="0.5" />
+          </g>
 
           {/* === MAIN CAR (airport → split) === */}
           <g>
@@ -317,16 +343,19 @@ const TransferMap = () => {
             <CarShape />
           </g>
 
-          {/* === BRANCH CAR UP (split → north) === */}
+          {/* === BRANCH CARS === */}
           <g style={{ opacity: splitVisible ? 1 : 0 }}>
             <animateMotion ref={animCallbackRefUp} dur="2s" begin="indefinite" fill="freeze" path={branchUp}
               keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines="0.42 0 0.58 1" rotate="auto" />
             <CarShape />
           </g>
-
-          {/* === BRANCH CAR DOWN (split → south) === */}
           <g style={{ opacity: splitVisible ? 1 : 0 }}>
             <animateMotion ref={animCallbackRefDown} dur="2s" begin="indefinite" fill="freeze" path={branchDown}
+              keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines="0.42 0 0.58 1" rotate="auto" />
+            <CarShape />
+          </g>
+          <g style={{ opacity: splitVisible ? 1 : 0 }}>
+            <animateMotion ref={animCallbackRefLeft} dur="2s" begin="indefinite" fill="freeze" path={branchLeft}
               keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines="0.42 0 0.58 1" rotate="auto" />
             <CarShape />
           </g>
