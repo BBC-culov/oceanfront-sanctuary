@@ -81,7 +81,7 @@ const Navbar = () => {
               : "border-hero-cta-border/40 text-hero-text hover:bg-hero-cta hover:text-hero-cta-foreground hover:border-hero-cta"
           }`}
         >
-          Registrati
+          Accedi / Registrati
         </Link>
 
         {/* Mobile toggle */}
@@ -117,7 +117,7 @@ const Navbar = () => {
                 to="/registrati"
                 className="font-sans text-xs tracking-widest uppercase border border-foreground/30 px-5 py-2.5 mt-2"
               >
-                Registrati
+                Accedi / Registrati
               </Link>
             </div>
           </motion.div>
