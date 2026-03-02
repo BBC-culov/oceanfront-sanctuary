@@ -94,7 +94,7 @@ const TransferMap = () => {
         try { animRef.beginElement(); } catch (e) { /* */ }
       }, 3200);
       const splitTimer = setTimeout(() => { setSplitVisible(true); }, 5700);
-      const dotsTimer = setTimeout(() => { setDotsVisible(true); }, 7200);
+      const dotsTimer = setTimeout(() => { setDotsVisible(true); }, 6800);
       return () => { clearTimeout(timer); clearTimeout(splitTimer); clearTimeout(dotsTimer); };
     }
   }, [isInView, animRef]);
@@ -288,6 +288,18 @@ const TransferMap = () => {
           <motion.path d={planePath} stroke="hsl(var(--foreground) / 0.06)" strokeWidth="1.5" strokeDasharray="4 4" fill="none"
             initial={{ pathLength: 0 }} animate={isInView ? { pathLength: 1 } : { pathLength: 0 }}
             transition={{ duration: 1.5, delay: 0.5 }} />
+
+          {/* === VAPOR TRAIL behind plane === */}
+          <motion.path d={planePath} stroke="hsl(var(--foreground) / 0.12)" strokeWidth="2.5" fill="none" strokeLinecap="round"
+            initial={{ pathLength: 0, opacity: 0 }} animate={isInView ? { pathLength: 1, opacity: [0, 0.3, 0.15] } : {}}
+            transition={{ duration: 2.5, delay: 0.6, ease: "easeInOut" }} />
+          <motion.path d={planePath} stroke="hsl(var(--foreground) / 0.06)" strokeWidth="6" fill="none" strokeLinecap="round"
+            initial={{ pathLength: 0, opacity: 0 }} animate={isInView ? { pathLength: 1, opacity: [0, 0.2, 0.05] } : {}}
+            transition={{ duration: 2.5, delay: 0.7, ease: "easeInOut" }} />
+          {/* Trail fade-out after plane lands */}
+          <motion.path d={planePath} stroke="hsl(var(--foreground) / 0.08)" strokeWidth="3.5" fill="none" strokeLinecap="round" strokeDasharray="2 6"
+            initial={{ pathLength: 0, opacity: 0 }} animate={isInView ? { pathLength: 1, opacity: [0, 0.15, 0] } : {}}
+            transition={{ duration: 3.5, delay: 0.8, ease: "easeOut" }} />
 
           {/* === MAIN ROAD === */}
           <motion.path d={mainRoute} stroke="hsl(var(--foreground) / 0.08)" strokeWidth="10" fill="none" strokeLinecap="round"
