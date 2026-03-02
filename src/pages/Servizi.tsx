@@ -4,96 +4,168 @@ import PageTransition from "@/components/PageTransition";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import {
-  Home,
-  Eye,
-  MapPin,
-  PlaneTakeoff,
-  Sparkles,
-  ShoppingCart,
-  Bike,
-  CalendarCheck,
-  Compass,
-  Waves,
-  Headset,
-  UtensilsCrossed,
   ShieldCheck,
-  Car,
-  Shirt,
-  Dumbbell,
-  Camera,
   type LucideIcon,
 } from "lucide-react";
 import heroImg from "@/assets/hero-servizi.jpg";
+import imgAppartamento from "@/assets/servizi-appartamento.jpg";
+import imgComfort from "@/assets/servizi-comfort.jpg";
+import imgVistaMare from "@/assets/servizi-vista-mare.jpg";
+import imgSpiaggia from "@/assets/servizi-spiaggia.jpg";
+import imgWelcome from "@/assets/servizi-welcome.jpg";
+import TransferMap from "@/components/sections/TransferMap";
 
-interface ServiceItem {
-  icon: LucideIcon;
-  label: string;
-  desc: string;
+/* ------------------------------------------------------------------ */
+/*  Data for the editorial "Inclusi" section                          */
+/* ------------------------------------------------------------------ */
+interface EditorialService {
+  tag: string;
+  title: string;
+  description: string;
+  image?: string;
+  mapComponent?: boolean;
+  reverse?: boolean;
 }
 
+const editorialServices: EditorialService[] = [
+  {
+    tag: "Residenza",
+    title: "Appartamento arredato con cura.",
+    description:
+      "Spazi eleganti e completamente equipaggiati, dove ogni dettaglio è scelto per trasmettere calore e raffinatezza. Materiali naturali, luce morbida e l'essenza di Capo Verde in ogni angolo.",
+    image: imgAppartamento,
+  },
+  {
+    tag: "Comfort",
+    title: "Il massimo comfort, ogni notte.",
+    description:
+      "Letti king-size con biancheria in cotone egiziano, cuscini memory e l'atmosfera perfetta per un riposo profondo. Svegliarsi qui è già vacanza.",
+    image: imgComfort,
+    reverse: true,
+  },
+  {
+    tag: "Panorama",
+    title: "Vista mare, senza compromessi.",
+    description:
+      "Ogni residenza BAZHOUSE offre un affaccio diretto sull'Atlantico. Un orizzonte sconfinato che accompagna le tue giornate, dalla colazione al tramonto.",
+    image: imgVistaMare,
+  },
+  {
+    tag: "Spiaggia",
+    title: "A pochi passi dal paradiso.",
+    description:
+      "Sabbia bianca, acqua cristallina e il suono delle onde come unica colonna sonora. La spiaggia è il tuo giardino privato, raggiungibile in pochi minuti.",
+    image: imgSpiaggia,
+    reverse: true,
+  },
+  {
+    tag: "Transfer",
+    title: "Dall'aeroporto a casa tua.",
+    description:
+      "Il tuo viaggio inizia appena atterri. Un transfer privato ti porta direttamente al tuo appartamento BAZHOUSE, senza stress e senza attese.",
+    mapComponent: true,
+  },
+  {
+    tag: "Benvenuto",
+    title: "Un benvenuto che sa di Capo Verde.",
+    description:
+      "Ad accoglierti trovi un kit con prodotti locali selezionati, frutta fresca e tutto il necessario per il primo giorno. Perché ogni arrivo merita un'emozione.",
+    image: imgWelcome,
+    reverse: true,
+  },
+];
+
+/* ------------------------------------------------------------------ */
+/*  Data for "Su richiesta" & "Mobilità" grids (kept compact)         */
+/* ------------------------------------------------------------------ */
 interface ServiceCategory {
   tag: string;
   title: string;
   subtitle: string;
-  items: ServiceItem[];
+  items: { icon: LucideIcon; label: string; desc: string }[];
   accent?: boolean;
 }
 
-const categories: ServiceCategory[] = [
-  {
-    tag: "Inclusi nel soggiorno",
-    title: "Tutto ciò che serve.",
-    subtitle: "Ogni prenotazione include servizi pensati per un'esperienza senza pensieri.",
-    items: [
-      { icon: Home, label: "Appartamento arredato", desc: "Spazi eleganti e completamente equipaggiati per il massimo comfort." },
-      { icon: Eye, label: "Vista mare", desc: "Affaccio diretto sull'oceano Atlantico da ogni residenza." },
-      { icon: MapPin, label: "Posizione esclusiva", desc: "Zona residenziale tranquilla a pochi passi dalla spiaggia." },
-      { icon: PlaneTakeoff, label: "Transfer aeroporto", desc: "Servizio navetta andata e ritorno incluso nel soggiorno." },
-      { icon: ShieldCheck, label: "Assicurazione soggiorno", desc: "Copertura completa per un viaggio senza preoccupazioni." },
-      { icon: UtensilsCrossed, label: "Kit benvenuto", desc: "Prodotti locali e tutto il necessario per il primo giorno." },
-    ],
-  },
+const extraCategories: ServiceCategory[] = [
   {
     tag: "Esperienze su richiesta",
     title: "Personalizza il tuo viaggio.",
     subtitle: "Servizi aggiuntivi per rendere ogni momento indimenticabile.",
     accent: true,
     items: [
-      { icon: Sparkles, label: "Pulizia extra", desc: "Servizio di housekeeping su richiesta durante il soggiorno." },
-      { icon: ShoppingCart, label: "Spesa a domicilio", desc: "Ordina online e ricevi la spesa direttamente in appartamento." },
-      { icon: UtensilsCrossed, label: "Chef privato", desc: "Cena gourmet preparata a casa tua con prodotti locali." },
-      { icon: Compass, label: "Tour dell'isola", desc: "Escursioni guidate alla scoperta di Boa Vista e dei suoi segreti." },
-      { icon: Waves, label: "Sport acquatici", desc: "Surf, kitesurf, snorkeling e immersioni con istruttori qualificati." },
-      { icon: Camera, label: "Servizio fotografico", desc: "Shooting professionale per ricordare la tua vacanza." },
+      { icon: ShieldCheck, label: "Pulizia extra", desc: "Servizio di housekeeping su richiesta durante il soggiorno." },
+      { icon: ShieldCheck, label: "Spesa a domicilio", desc: "Ordina online e ricevi la spesa direttamente in appartamento." },
+      { icon: ShieldCheck, label: "Chef privato", desc: "Cena gourmet preparata a casa tua con prodotti locali." },
+      { icon: ShieldCheck, label: "Tour dell'isola", desc: "Escursioni guidate alla scoperta di Boa Vista." },
+      { icon: ShieldCheck, label: "Sport acquatici", desc: "Surf, kitesurf, snorkeling con istruttori qualificati." },
+      { icon: ShieldCheck, label: "Servizio fotografico", desc: "Shooting professionale per ricordare la tua vacanza." },
     ],
   },
   {
     tag: "Mobilità & benessere",
     title: "Muoviti in libertà.",
-    subtitle: "Esplora l'isola al tuo ritmo con i nostri servizi di mobilità e relax.",
+    subtitle: "Esplora l'isola al tuo ritmo con i nostri servizi.",
     items: [
-      { icon: Car, label: "Noleggio auto", desc: "Veicoli 4x4 e quad per esplorare ogni angolo dell'isola." },
-      { icon: Bike, label: "Noleggio biciclette", desc: "E-bike e bici da spiaggia per scoprire la costa." },
-      { icon: CalendarCheck, label: "Prenotazione attività", desc: "Organizziamo escursioni, ristoranti e transfer per te." },
-      { icon: Headset, label: "Concierge 24/7", desc: "Assistenza personalizzata in italiano, inglese e portoghese." },
-      { icon: Dumbbell, label: "Fitness & yoga", desc: "Sessioni private di yoga sulla spiaggia e accesso palestra." },
-      { icon: Shirt, label: "Lavanderia", desc: "Servizio di lavaggio e stiratura con ritiro in giornata." },
+      { icon: ShieldCheck, label: "Noleggio auto & quad", desc: "Veicoli 4x4 e quad per esplorare ogni angolo dell'isola." },
+      { icon: ShieldCheck, label: "Noleggio biciclette", desc: "E-bike e bici da spiaggia per scoprire la costa." },
+      { icon: ShieldCheck, label: "Prenotazione attività", desc: "Organizziamo escursioni, ristoranti e transfer per te." },
+      { icon: ShieldCheck, label: "Concierge 24/7", desc: "Assistenza personalizzata in italiano, inglese e portoghese." },
+      { icon: ShieldCheck, label: "Fitness & yoga", desc: "Sessioni private di yoga sulla spiaggia e accesso palestra." },
+      { icon: ShieldCheck, label: "Lavanderia", desc: "Servizio di lavaggio e stiratura con ritiro in giornata." },
     ],
   },
 ];
 
+/* ------------------------------------------------------------------ */
+/*  Reusable sub-components                                           */
+/* ------------------------------------------------------------------ */
+import {
+  Sparkles,
+  ShoppingCart,
+  UtensilsCrossed,
+  Compass,
+  Waves,
+  Camera,
+  Car,
+  Bike,
+  CalendarCheck,
+  Headset,
+  Dumbbell,
+  Shirt,
+} from "lucide-react";
+
+// Reassign real icons
+const iconMap: Record<string, LucideIcon> = {
+  "Pulizia extra": Sparkles,
+  "Spesa a domicilio": ShoppingCart,
+  "Chef privato": UtensilsCrossed,
+  "Tour dell'isola": Compass,
+  "Sport acquatici": Waves,
+  "Servizio fotografico": Camera,
+  "Noleggio auto & quad": Car,
+  "Noleggio biciclette": Bike,
+  "Prenotazione attività": CalendarCheck,
+  "Concierge 24/7": Headset,
+  "Fitness & yoga": Dumbbell,
+  "Lavanderia": Shirt,
+};
+
 const containerVariants = {
   hidden: {},
+  visible: { transition: { staggerChildren: 0.08 } },
+};
+const cardVariants = {
+  hidden: { opacity: 0, y: 24 },
   visible: {
-    transition: { staggerChildren: 0.08 },
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] },
   },
 };
 
-const cardVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] } },
-};
-
+/* ------------------------------------------------------------------ */
+/*  Page component                                                     */
+/* ------------------------------------------------------------------ */
 const Servizi = () => {
   const heroRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
@@ -106,10 +178,10 @@ const Servizi = () => {
     <PageTransition>
       <Navbar />
       <main>
-        {/* Hero with parallax */}
+        {/* ── Hero ── */}
         <section
           ref={heroRef}
-          className="relative h-[50vh] min-h-[400px] flex items-center justify-center overflow-hidden"
+          className="relative h-[60vh] min-h-[440px] flex items-center justify-center overflow-hidden"
         >
           <motion.div
             className="absolute inset-[-15%] bg-cover bg-center will-change-transform"
@@ -144,8 +216,96 @@ const Servizi = () => {
           </div>
         </section>
 
-        {/* Categories */}
-        {categories.map((cat, ci) => (
+        {/* ── Section tag: Inclusi ── */}
+        <section className="py-16 lg:py-20">
+          <div className="mx-auto max-w-6xl px-6 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7 }}
+              className="mb-16 text-center max-w-2xl mx-auto"
+            >
+              <motion.div
+                initial={{ width: 0 }}
+                whileInView={{ width: 48 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="h-[1px] bg-primary mx-auto mb-6"
+              />
+              <p className="font-sans text-[10px] tracking-[0.35em] uppercase text-muted-foreground mb-3">
+                Inclusi nel soggiorno
+              </p>
+              <h2 className="font-serif text-3xl md:text-5xl font-light">
+                Tutto ciò che serve per sognare.
+              </h2>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* ── Editorial service blocks ── */}
+        {editorialServices.map((service, i) => (
+          <section
+            key={i}
+            className={`${i % 2 === 0 ? "" : "bg-secondary"}`}
+          >
+            <div className="mx-auto max-w-7xl">
+              <div
+                className={`grid grid-cols-1 lg:grid-cols-2 min-h-[480px] ${
+                  service.reverse ? "lg:direction-rtl" : ""
+                }`}
+              >
+                {/* Image / Map */}
+                <motion.div
+                  initial={{ opacity: 0, x: service.reverse ? 40 : -40 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8 }}
+                  className={`relative overflow-hidden ${
+                    service.reverse ? "lg:order-2" : "lg:order-1"
+                  }`}
+                >
+                  {service.mapComponent ? (
+                    <div className="flex items-center justify-center h-full p-8 lg:p-12 bg-muted/30">
+                      <TransferMap />
+                    </div>
+                  ) : (
+                    <div
+                      className="absolute inset-0 bg-cover bg-center transition-transform duration-700 hover:scale-105"
+                      style={{ backgroundImage: `url(${service.image})` }}
+                    />
+                  )}
+                  {/* Minimum height for mobile */}
+                  {!service.mapComponent && <div className="pt-[70%] lg:pt-0" />}
+                </motion.div>
+
+                {/* Text */}
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.7, delay: 0.15 }}
+                  className={`flex flex-col justify-center px-8 py-14 lg:px-16 lg:py-20 ${
+                    service.reverse ? "lg:order-1" : "lg:order-2"
+                  }`}
+                >
+                  <p className="font-sans text-[10px] tracking-[0.35em] uppercase text-muted-foreground mb-4">
+                    {service.tag}
+                  </p>
+                  <h3 className="font-serif text-2xl md:text-4xl font-light leading-tight mb-5">
+                    {service.title}
+                  </h3>
+                  <p className="font-sans text-sm text-muted-foreground leading-relaxed max-w-md">
+                    {service.description}
+                  </p>
+                </motion.div>
+              </div>
+            </div>
+          </section>
+        ))}
+
+        {/* ── Extra service grids ── */}
+        {extraCategories.map((cat, ci) => (
           <section
             key={ci}
             className={`py-20 lg:py-28 ${cat.accent ? "bg-secondary" : ""}`}
@@ -184,12 +344,15 @@ const Servizi = () => {
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
               >
                 {cat.items.map((item) => {
-                  const Icon = item.icon;
+                  const Icon = iconMap[item.label] || ShieldCheck;
                   return (
                     <motion.div
                       key={item.label}
                       variants={cardVariants}
-                      whileHover={{ y: -6, transition: { type: "spring", stiffness: 400, damping: 25 } }}
+                      whileHover={{
+                        y: -6,
+                        transition: { type: "spring", stiffness: 400, damping: 25 },
+                      }}
                       className={`group p-6 border border-border ${
                         cat.accent
                           ? "bg-background hover:shadow-lg"
@@ -219,7 +382,7 @@ const Servizi = () => {
           </section>
         ))}
 
-        {/* CTA with background */}
+        {/* ── CTA ── */}
         <section className="py-20 lg:py-28 bg-secondary">
           <div className="mx-auto max-w-3xl px-6 lg:px-8 text-center">
             <motion.div
