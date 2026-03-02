@@ -19,20 +19,29 @@ const TransferMap = () => {
     }
   }, [isInView, animRef]);
 
+  // Route from airport (west) to Bazhouse (east coast)
   const routePath =
-    "M 95 215 C 115 210, 130 200, 155 185 C 180 170, 200 155, 230 140 C 260 125, 285 115, 310 110 C 335 105, 355 108, 375 120 C 390 130, 395 145, 388 165";
+    "M 148 200 C 165 195, 185 185, 210 175 C 235 165, 260 155, 285 148 C 310 141, 335 138, 355 142 C 370 145, 380 155, 385 168";
 
+  // Real localities based on Boa Vista map
   const localities = [
-    { x: 140, y: 230, name: "Rabil", size: 8 },
-    { x: 215, y: 120, name: "Sal Rei", size: 9 },
-    { x: 310, y: 170, name: "Praia Cabral", size: 8 },
-    { x: 175, y: 260, name: "Estância de Baixo", size: 7 },
-    { x: 330, y: 220, name: "Praia da Cruz", size: 7 },
+    { x: 175, y: 170, name: "Sal Rei", size: 9 },
+    { x: 155, y: 210, name: "Rabil", size: 8 },
+    { x: 270, y: 195, name: "Fundo das Figueiras", size: 7 },
+    { x: 140, y: 265, name: "Povoação Velha", size: 7 },
+    { x: 290, y: 165, name: "Bofareira", size: 7 },
   ];
 
   const beaches = [
-    { x: 360, y: 85, name: "Praia de Chaves" },
-    { x: 130, y: 140, name: "Praia de Estoril" },
+    { x: 100, y: 130, name: "Praia de Estoril", icon: "🏖" },
+    { x: 300, y: 90, name: "Cabo Santa Maria", icon: "🏖" },
+    { x: 85, y: 290, name: "Praia de Santa Mónica", icon: "🏖" },
+    { x: 360, y: 105, name: "Praia de Chaves", icon: "🏖" },
+  ];
+
+  const pois = [
+    { x: 260, y: 220, name: "Monte Estância", icon: "⛰️", size: 7 },
+    { x: 105, y: 105, name: "Ponta do Sol", icon: "🌅", size: 6.5 },
   ];
 
   return (
@@ -78,7 +87,7 @@ const TransferMap = () => {
           {[0, 1, 2, 3, 4].map((i) => (
             <motion.path
               key={`wave-${i}`}
-              d={`M ${10 + i * 8} ${310 + i * 12} Q ${130 + i * 5} ${300 + i * 10}, ${250} ${308 + i * 8} Q ${370 - i * 5} ${316 + i * 6}, ${490 - i * 8} ${305 + i * 14}`}
+              d={`M ${10 + i * 8} ${320 + i * 10} Q ${130 + i * 5} ${312 + i * 8}, ${250} ${318 + i * 6} Q ${370 - i * 5} ${324 + i * 4}, ${490 - i * 8} ${315 + i * 12}`}
               stroke="hsl(var(--ocean) / 0.12)"
               strokeWidth="0.8"
               fill="none"
@@ -88,9 +97,10 @@ const TransferMap = () => {
             />
           ))}
 
-          {/* Island shape - Boa Vista realistic outline */}
+          {/* Island shape - Boa Vista realistic outline matching real map */}
+          {/* Shape: wider west coast, narrower east, angular NW point, curved south */}
           <motion.path
-            d="M 155 72 C 180 60, 220 55, 265 58 C 310 61, 350 70, 385 88 C 410 100, 430 118, 440 142 C 448 165, 445 188, 435 210 C 425 232, 408 250, 385 262 C 362 274, 335 280, 310 282 C 285 284, 258 282, 232 276 C 205 270, 178 260, 155 245 C 132 230, 112 212, 100 192 C 88 172, 82 150, 84 128 C 86 106, 98 90, 115 80 C 130 72, 142 68, 155 72 Z"
+            d="M 120 115 C 108 120, 92 135, 85 155 C 78 175, 80 195, 88 215 C 92 225, 98 235, 108 248 C 118 261, 128 272, 142 282 C 158 293, 178 300, 200 305 C 225 310, 255 310, 285 305 C 315 300, 340 288, 365 272 C 385 258, 400 240, 410 218 C 418 198, 420 178, 415 158 C 410 138, 398 122, 380 110 C 362 98, 340 90, 315 85 C 290 80, 262 78, 235 80 C 210 82, 188 88, 168 96 C 150 103, 135 110, 120 115 Z"
             fill="url(#islandGrad)"
             filter="url(#islandShadow)"
             initial={{ scale: 0.9, opacity: 0 }}
@@ -100,7 +110,7 @@ const TransferMap = () => {
 
           {/* Inner terrain lines */}
           <motion.path
-            d="M 150 180 C 200 160, 280 150, 350 170"
+            d="M 130 180 C 200 165, 300 155, 390 175"
             stroke="hsl(var(--sand) / 0.5)"
             strokeWidth="0.5"
             fill="none"
@@ -109,7 +119,7 @@ const TransferMap = () => {
             transition={{ duration: 1, delay: 0.5 }}
           />
           <motion.path
-            d="M 120 210 C 180 195, 300 190, 400 210"
+            d="M 110 230 C 190 215, 310 210, 400 225"
             stroke="hsl(var(--sand) / 0.4)"
             strokeWidth="0.5"
             fill="none"
@@ -120,7 +130,7 @@ const TransferMap = () => {
 
           {/* Minor roads */}
           <motion.path
-            d="M 215 120 L 215 200 L 310 170"
+            d="M 175 170 L 160 200 L 155 210"
             stroke="hsl(var(--border))"
             strokeWidth="1"
             strokeDasharray="3 3"
@@ -128,6 +138,16 @@ const TransferMap = () => {
             initial={{ pathLength: 0 }}
             animate={isInView ? { pathLength: 1 } : { pathLength: 0 }}
             transition={{ duration: 1.2, delay: 0.4 }}
+          />
+          <motion.path
+            d="M 155 210 L 155 250 L 145 270"
+            stroke="hsl(var(--border))"
+            strokeWidth="1"
+            strokeDasharray="3 3"
+            fill="none"
+            initial={{ pathLength: 0 }}
+            animate={isInView ? { pathLength: 1 } : { pathLength: 0 }}
+            transition={{ duration: 1, delay: 0.5 }}
           />
 
           {/* Main road background */}
@@ -177,19 +197,41 @@ const TransferMap = () => {
             transition={{ duration: 2.5, delay: 1, ease: "easeInOut" }}
           />
 
+          {/* POI markers */}
+          {pois.map((poi, i) => (
+            <motion.g
+              key={`poi-${i}`}
+              initial={{ opacity: 0 }}
+              animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+              transition={{ delay: 0.7 + i * 0.2 }}
+            >
+              <text x={poi.x} y={poi.y} fontSize="12" className="select-none">{poi.icon}</text>
+              <text
+                x={poi.x + 16}
+                y={poi.y + 4}
+                fontSize={poi.size}
+                fill="hsl(var(--muted-foreground))"
+                fontFamily="var(--font-sans)"
+                fontStyle="italic"
+              >
+                {poi.name}
+              </text>
+            </motion.g>
+          ))}
+
           {/* Beach markers */}
           {beaches.map((b, i) => (
             <motion.g
               key={`beach-${i}`}
               initial={{ opacity: 0 }}
               animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-              transition={{ delay: 0.8 + i * 0.2 }}
+              transition={{ delay: 0.8 + i * 0.15 }}
             >
-              <text x={b.x} y={b.y} fontSize="11" className="select-none">🏖</text>
+              <text x={b.x} y={b.y} fontSize="10" className="select-none">{b.icon}</text>
               <text
                 x={b.x + 14}
-                y={b.y + 4}
-                fontSize="6.5"
+                y={b.y + 3}
+                fontSize="6"
                 fill="hsl(var(--muted-foreground))"
                 fontFamily="var(--font-sans)"
                 fontStyle="italic"
@@ -221,14 +263,14 @@ const TransferMap = () => {
             </motion.g>
           ))}
 
-          {/* Airport marker with pulse */}
+          {/* Airport marker (west side, near Rabil) */}
           <motion.g
             initial={{ opacity: 0, scale: 0 }}
             animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0 }}
             transition={{ duration: 0.5, delay: 0.8, type: "spring" }}
           >
             <motion.circle
-              cx="95" cy="215" r="12"
+              cx="148" cy="200" r="12"
               fill="none"
               stroke="hsl(var(--primary) / 0.3)"
               strokeWidth="1.5"
@@ -236,15 +278,15 @@ const TransferMap = () => {
               animate={{ scale: 1.8, opacity: 0 }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
             />
-            <circle cx="95" cy="215" r="9" fill="hsl(var(--primary))" />
-            <circle cx="95" cy="215" r="4.5" fill="hsl(var(--primary-foreground))" />
-            <text x="87" y="200" fontSize="18" className="select-none">✈️</text>
-            <rect x="48" y="228" width="95" height="18" rx="3" fill="hsl(var(--primary))" />
+            <circle cx="148" cy="200" r="9" fill="hsl(var(--primary))" />
+            <circle cx="148" cy="200" r="4.5" fill="hsl(var(--primary-foreground))" />
+            <text x="139" y="185" fontSize="16" className="select-none">✈️</text>
+            <rect x="105" y="215" width="86" height="16" rx="3" fill="hsl(var(--primary))" />
             <text
-              x="96"
-              y="240"
+              x="148"
+              y="226"
               textAnchor="middle"
-              fontSize="8.5"
+              fontSize="8"
               fill="hsl(var(--primary-foreground))"
               fontFamily="var(--font-sans)"
               fontWeight="600"
@@ -254,7 +296,7 @@ const TransferMap = () => {
             </text>
           </motion.g>
 
-          {/* Bazhouse destination marker */}
+          {/* Bazhouse destination marker (east coast) */}
           <motion.g
             initial={{ opacity: 0, scale: 0 }}
             animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0 }}
@@ -262,7 +304,7 @@ const TransferMap = () => {
             filter="url(#glow)"
           >
             <motion.circle
-              cx="388" cy="165" r="14"
+              cx="385" cy="168" r="14"
               fill="none"
               stroke="hsl(var(--accent) / 0.4)"
               strokeWidth="1.5"
@@ -270,13 +312,13 @@ const TransferMap = () => {
               animate={{ scale: 2, opacity: 0 }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeOut", delay: 0.5 }}
             />
-            <circle cx="388" cy="165" r="11" fill="hsl(var(--primary))" />
-            <circle cx="388" cy="165" r="5.5" fill="hsl(var(--accent))" />
-            <text x="379" y="150" fontSize="18" className="select-none">🏠</text>
-            <rect x="340" y="180" width="96" height="28" rx="3" fill="hsl(var(--primary))" />
+            <circle cx="385" cy="168" r="11" fill="hsl(var(--primary))" />
+            <circle cx="385" cy="168" r="5.5" fill="hsl(var(--accent))" />
+            <text x="376" y="153" fontSize="16" className="select-none">🏠</text>
+            <rect x="337" y="183" width="96" height="28" rx="3" fill="hsl(var(--primary))" />
             <text
-              x="388"
-              y="192"
+              x="385"
+              y="195"
               textAnchor="middle"
               fontSize="7.5"
               fill="hsl(var(--primary-foreground))"
@@ -287,8 +329,8 @@ const TransferMap = () => {
               Appartamento
             </text>
             <text
-              x="388"
-              y="203"
+              x="385"
+              y="206"
               textAnchor="middle"
               fontSize="8.5"
               fill="hsl(var(--accent))"
@@ -323,7 +365,6 @@ const TransferMap = () => {
             <circle cx="-7" cy="7" r="1" fill="hsl(var(--foreground) / 0.3)" />
             <circle cx="7" cy="7" r="1" fill="hsl(var(--foreground) / 0.3)" />
           </g>
-
 
           {/* Title */}
           <motion.text
@@ -362,6 +403,27 @@ const TransferMap = () => {
             </text>
             <line x1="455" y1="40" x2="455" y2="52" stroke="hsl(var(--muted-foreground))" strokeWidth="0.8" />
             <polygon points="455,40 452,46 458,46" fill="hsl(var(--muted-foreground) / 0.5)" />
+          </motion.g>
+
+          {/* Scale bar */}
+          <motion.g
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 0.4 } : { opacity: 0 }}
+            transition={{ delay: 1.2 }}
+          >
+            <line x1="380" y1="340" x2="450" y2="340" stroke="hsl(var(--foreground))" strokeWidth="1" />
+            <line x1="380" y1="337" x2="380" y2="343" stroke="hsl(var(--foreground))" strokeWidth="1" />
+            <line x1="450" y1="337" x2="450" y2="343" stroke="hsl(var(--foreground))" strokeWidth="1" />
+            <text
+              x="415"
+              y="352"
+              textAnchor="middle"
+              fontSize="7"
+              fill="hsl(var(--muted-foreground))"
+              fontFamily="var(--font-sans)"
+            >
+              5 km
+            </text>
           </motion.g>
         </svg>
       </motion.div>
