@@ -1,25 +1,119 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { MapPin, Mail, Phone, Send } from "lucide-react";
-import { useState, useRef } from "react";
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
+import { MapPin, Mail, Phone, MessageCircle } from "lucide-react";
+import { useRef, MouseEvent as ReactMouseEvent } from "react";
 import heroImg from "@/assets/hero-contatti.jpg";
 
+/* ── 3D tilt card ── */
+const TiltCard = ({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [12, -12]), { stiffness: 200, damping: 20 });
+  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-12, 12]), { stiffness: 200, damping: 20 });
+
+  const handleMouse = (e: ReactMouseEvent<HTMLDivElement>) => {
+    const rect = ref.current?.getBoundingClientRect();
+    if (!rect) return;
+    x.set((e.clientX - rect.left) / rect.width - 0.5);
+    y.set((e.clientY - rect.top) / rect.height - 0.5);
+  };
+
+  const handleLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouse}
+      onMouseLeave={handleLeave}
+      style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+/* ── Contact items ── */
+const contacts = [
+  {
+    icon: Phone,
+    label: "Telefono",
+    value: "+238 000 0000",
+    sub: "Lun – Sab · 9:00 – 18:00",
+    href: "tel:+2380000000",
+    gradient: "from-primary/20 to-primary/5",
+    iconBg: "bg-primary/15",
+    delay: 0,
+  },
+  {
+    icon: MessageCircle,
+    label: "WhatsApp",
+    value: "Scrivici su WhatsApp",
+    sub: "Risposta entro poche ore",
+    href: "https://wa.me/2380000000",
+    gradient: "from-green-500/15 to-green-500/5",
+    iconBg: "bg-green-500/15",
+    delay: 0.15,
+  },
+  {
+    icon: Mail,
+    label: "Email",
+    value: "info@bazhouse.it",
+    sub: "Ti rispondiamo entro 24h",
+    href: "mailto:info@bazhouse.it",
+    gradient: "from-accent/20 to-accent/5",
+    iconBg: "bg-accent/15",
+    delay: 0.3,
+  },
+];
+
+/* ── Floating orb ── */
+const FloatingOrb = ({
+  size,
+  x,
+  y,
+  duration,
+  delay,
+}: {
+  size: number;
+  x: string;
+  y: string;
+  duration: number;
+  delay: number;
+}) => (
+  <motion.div
+    className="absolute rounded-full bg-primary/10 blur-3xl pointer-events-none"
+    style={{ width: size, height: size, left: x, top: y }}
+    animate={{
+      y: [0, -30, 0, 20, 0],
+      x: [0, 15, -10, 5, 0],
+      scale: [1, 1.1, 0.95, 1.05, 1],
+    }}
+    transition={{ duration, delay, repeat: Infinity, ease: "easeInOut" }}
+  />
+);
+
 const Contatti = () => {
-  const [form, setForm] = useState({ nome: "", email: "", messaggio: "" });
   const heroRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
   });
   const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert("Grazie per il tuo messaggio! Ti risponderemo al più presto.");
-    setForm({ nome: "", email: "", messaggio: "" });
-  };
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   return (
     <PageTransition>
@@ -28,14 +122,14 @@ const Contatti = () => {
         {/* Hero with parallax */}
         <section
           ref={heroRef}
-          className="relative h-[50vh] min-h-[400px] flex items-center justify-center overflow-hidden"
+          className="relative h-[55vh] min-h-[420px] flex items-center justify-center overflow-hidden"
         >
           <motion.div
             className="absolute inset-[-15%] bg-cover bg-center will-change-transform"
-            style={{ backgroundImage: `url(${heroImg})`, y: heroY }}
+            style={{ backgroundImage: `url(${heroImg})`, y: heroY, scale: heroScale }}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[hsl(var(--hero-overlay-from)/0.5)] to-[hsl(var(--hero-overlay-to)/0.7)]" />
-          <div className="relative z-10 text-center px-6 max-w-3xl mx-auto">
+          <motion.div style={{ opacity: heroOpacity }} className="relative z-10 text-center px-6 max-w-3xl mx-auto">
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -50,175 +144,155 @@ const Contatti = () => {
               transition={{ duration: 0.8, delay: 0.1 }}
               className="font-serif text-3xl md:text-5xl font-light text-[hsl(var(--hero-text))] leading-tight"
             >
-              Scopri la disponibilità dei nostri appartamenti vista oceano.
+              Parliamo del tuo soggiorno a Boa Vista.
             </motion.h1>
-          </div>
+          </motion.div>
         </section>
 
-        {/* Content */}
-        <section className="py-20 lg:py-28">
-          <div className="mx-auto max-w-6xl px-6 lg:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-16">
-              {/* Form — 3 cols */}
-              <motion.form
-                onSubmit={handleSubmit}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
-                className="lg:col-span-3 space-y-8"
-              >
-                <div>
-                  <motion.div
-                    initial={{ width: 0 }}
-                    whileInView={{ width: 48 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6, delay: 0.2 }}
-                    className="h-[1px] bg-primary mb-6"
-                  />
-                  <h2 className="font-serif text-2xl md:text-3xl font-light mb-2">
-                    Scrivici un messaggio
-                  </h2>
-                  <p className="font-sans text-sm text-muted-foreground">
-                    Compila il form e ti risponderemo entro 24 ore.
-                  </p>
-                </div>
+        {/* Contact cards section */}
+        <section className="relative py-24 lg:py-32 overflow-hidden">
+          {/* Floating orbs background */}
+          <FloatingOrb size={300} x="10%" y="20%" duration={8} delay={0} />
+          <FloatingOrb size={200} x="70%" y="60%" duration={10} delay={2} />
+          <FloatingOrb size={250} x="50%" y="10%" duration={9} delay={1} />
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div>
-                    <label className="font-sans text-xs tracking-[0.2em] uppercase text-muted-foreground block mb-2">
-                      Nome
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={form.nome}
-                      onChange={(e) => setForm({ ...form, nome: e.target.value })}
-                      className="w-full bg-transparent border-b border-border py-3 font-sans text-sm focus:outline-none focus:border-primary transition-colors"
-                    />
-                  </div>
-                  <div>
-                    <label className="font-sans text-xs tracking-[0.2em] uppercase text-muted-foreground block mb-2">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      value={form.email}
-                      onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      className="w-full bg-transparent border-b border-border py-3 font-sans text-sm focus:outline-none focus:border-primary transition-colors"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="font-sans text-xs tracking-[0.2em] uppercase text-muted-foreground block mb-2">
-                    Messaggio
-                  </label>
-                  <textarea
-                    required
-                    rows={5}
-                    value={form.messaggio}
-                    onChange={(e) => setForm({ ...form, messaggio: e.target.value })}
-                    className="w-full bg-transparent border-b border-border py-3 font-sans text-sm focus:outline-none focus:border-primary transition-colors resize-none"
-                  />
-                </div>
-
-                <motion.button
-                  type="submit"
-                  whileHover={{ scale: 1.03, y: -2 }}
-                  whileTap={{ scale: 0.97 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                  className="inline-flex items-center gap-3 font-sans text-xs tracking-[0.2em] uppercase bg-primary text-primary-foreground px-8 py-4 hover:bg-primary/90 transition-colors duration-300 shadow-md hover:shadow-lg"
-                >
-                  <Send className="w-4 h-4" strokeWidth={1.5} />
-                  Invia Messaggio
-                </motion.button>
-              </motion.form>
-
-              {/* Info — 2 cols */}
+          <div className="relative z-10 mx-auto max-w-5xl px-6 lg:px-8">
+            {/* Section header */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="text-center mb-20"
+            >
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ width: 0 }}
+                whileInView={{ width: 48 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="lg:col-span-2 space-y-8"
-              >
-                <div className="bg-secondary p-8 space-y-8">
-                  <div>
-                    <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-5">
-                      Informazioni
-                    </p>
-                  </div>
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="h-[1px] bg-primary mx-auto mb-6"
+              />
+              <h2 className="font-serif text-2xl md:text-4xl font-light mb-4">
+                Come raggiungerci
+              </h2>
+              <p className="font-sans text-sm text-muted-foreground max-w-md mx-auto">
+                Scegli il canale che preferisci. Siamo sempre disponibili per aiutarti a organizzare la tua esperienza.
+              </p>
+            </motion.div>
 
-                  {[
-                    {
-                      icon: MapPin,
-                      title: "Posizione",
-                      lines: ["Praia Cabral & Praia da Cruz", "Boa Vista, Capo Verde"],
-                    },
-                    {
-                      icon: Mail,
-                      title: "Email",
-                      lines: ["info@bazhouse.it"],
-                    },
-                    {
-                      icon: Phone,
-                      title: "WhatsApp",
-                      lines: ["Disponibile su richiesta"],
-                    },
-                  ].map((item, i) => (
-                    <motion.div
-                      key={item.title}
-                      initial={{ opacity: 0, x: 10 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.5, delay: 0.3 + i * 0.1 }}
-                      className="flex items-start gap-4"
-                    >
-                      <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <item.icon className="w-4 h-4 text-primary" strokeWidth={1.5} />
-                      </div>
-                      <div>
-                        <p className="font-sans text-sm font-medium">{item.title}</p>
-                        {item.lines.map((l) => (
-                          <p key={l} className="font-sans text-sm text-muted-foreground mt-0.5">
-                            {l}
-                          </p>
-                        ))}
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-
+            {/* 3D tilt contact cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {contacts.map((item) => (
                 <motion.div
-                  initial={{ opacity: 0, y: 15 }}
+                  key={item.label}
+                  initial={{ opacity: 0, y: 40 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: 0.5 }}
-                  className="p-8 border border-border"
+                  transition={{ duration: 0.7, delay: item.delay }}
+                  style={{ perspective: 800 }}
                 >
-                  <p className="font-sans text-[10px] tracking-[0.25em] uppercase text-muted-foreground mb-3">
-                    Nota
-                  </p>
-                  <p className="font-sans text-sm text-muted-foreground leading-relaxed">
-                    Il trasferimento aeroporto A/R è incluso nel soggiorno.
-                  </p>
-                </motion.div>
+                  <TiltCard>
+                    <a
+                      href={item.href}
+                      target={item.href.startsWith("http") ? "_blank" : undefined}
+                      rel="noopener noreferrer"
+                      className={`block p-8 bg-gradient-to-br ${item.gradient} border border-border/50 backdrop-blur-sm hover:border-primary/30 transition-colors duration-500 group`}
+                      style={{ transformStyle: "preserve-3d" }}
+                    >
+                      {/* Icon floating above card */}
+                      <motion.div
+                        className={`w-14 h-14 rounded-2xl ${item.iconBg} flex items-center justify-center mb-6`}
+                        style={{ transform: "translateZ(40px)" }}
+                        whileHover={{ rotate: [0, -10, 10, -5, 0] }}
+                        transition={{ duration: 0.6 }}
+                      >
+                        <item.icon className="w-6 h-6 text-foreground" strokeWidth={1.5} />
+                      </motion.div>
 
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8, delay: 0.6 }}
-                  className="pt-4"
-                >
-                  <p className="font-serif text-xl md:text-2xl italic leading-relaxed">
-                    "Vivi Boa Vista dal tuo spazio sull'oceano."
-                  </p>
+                      <div style={{ transform: "translateZ(25px)" }}>
+                        <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-2">
+                          {item.label}
+                        </p>
+                        <p className="font-serif text-lg md:text-xl font-light mb-2 group-hover:text-primary transition-colors duration-300">
+                          {item.value}
+                        </p>
+                        <p className="font-sans text-xs text-muted-foreground">
+                          {item.sub}
+                        </p>
+                      </div>
+
+                      {/* Animated arrow */}
+                      <motion.div
+                        className="mt-6 font-sans text-xs tracking-[0.2em] uppercase text-primary flex items-center gap-2"
+                        style={{ transform: "translateZ(30px)" }}
+                      >
+                        <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          Contattaci
+                        </span>
+                        <motion.span
+                          className="inline-block"
+                          animate={{ x: [0, 4, 0] }}
+                          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                        >
+                          →
+                        </motion.span>
+                      </motion.div>
+                    </a>
+                  </TiltCard>
                 </motion.div>
-              </motion.div>
+              ))}
             </div>
+
+            {/* Location info */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="mt-20"
+              style={{ perspective: 600 }}
+            >
+              <TiltCard className="bg-secondary/50 backdrop-blur-sm border border-border/30 p-10 md:p-14">
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-8">
+                  <motion.div
+                    className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0"
+                    style={{ transform: "translateZ(30px)" }}
+                    animate={{ rotate: [0, 360] }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                  >
+                    <MapPin className="w-7 h-7 text-primary" strokeWidth={1.5} />
+                  </motion.div>
+                  <div style={{ transform: "translateZ(20px)" }}>
+                    <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-3">
+                      Dove siamo
+                    </p>
+                    <p className="font-serif text-xl md:text-2xl font-light mb-2">
+                      Praia Cabral & Praia da Cruz
+                    </p>
+                    <p className="font-sans text-sm text-muted-foreground">
+                      Boa Vista, Capo Verde — Il tuo spazio sull'oceano
+                    </p>
+                  </div>
+                </div>
+              </TiltCard>
+            </motion.div>
+
+            {/* Quote */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1, delay: 0.4 }}
+              className="mt-20 text-center"
+            >
+              <motion.p
+                className="font-serif text-2xl md:text-3xl italic leading-relaxed text-foreground/80"
+                animate={{ y: [0, -5, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              >
+                "Vivi Boa Vista dal tuo spazio sull'oceano."
+              </motion.p>
+            </motion.div>
           </div>
         </section>
       </main>
