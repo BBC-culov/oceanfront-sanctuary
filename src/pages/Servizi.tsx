@@ -82,34 +82,42 @@ interface ServiceCategory {
   tag: string;
   title: string;
   subtitle: string;
-  items: { icon: LucideIcon; label: string; desc: string }[];
+  items: { icon: LucideIcon; label: string; desc: string; hoverAnim?: Record<string, any> }[];
   accent?: boolean;
 }
 
 const extraCategories: ServiceCategory[] = [
   {
-    tag: "Servizi extra",
-    title: "Personalizza il tuo soggiorno.",
-    subtitle: "Servizi aggiuntivi su richiesta per rendere ogni momento indimenticabile.",
+    tag: "Casa & comfort",
+    title: "Il tuo appartamento, ancora più su misura.",
+    subtitle: "Servizi domestici per vivere ogni giorno senza pensieri.",
     accent: true,
     items: [
-      { icon: ShieldCheck, label: "Pulizia extra", desc: "Servizio di housekeeping aggiuntivo su richiesta durante il soggiorno." },
-      { icon: ShieldCheck, label: "Consegna a domicilio", desc: "Servizio espresso di spesa e consegna direttamente in appartamento." },
-      { icon: ShieldCheck, label: "Noleggio biciclette", desc: "Bici a disposizione per esplorare l'isola al tuo ritmo." },
-      { icon: ShieldCheck, label: "Noleggio quad", desc: "Quad per avventurarti nei percorsi off-road di Boa Vista." },
-      { icon: ShieldCheck, label: "Noleggio auto", desc: "Veicoli per muoverti in totale libertà sull'isola." },
-      { icon: ShieldCheck, label: "Noleggio moto", desc: "Moto per esplorare ogni angolo di Boa Vista con agilità." },
+      { icon: ShieldCheck, label: "Pulizia extra", desc: "Servizio di housekeeping aggiuntivo su richiesta durante il soggiorno.", hoverAnim: { rotate: [0, -10, 10, -5, 0] } },
+      { icon: ShieldCheck, label: "Consegna a domicilio", desc: "Servizio espresso di spesa e consegna direttamente in appartamento.", hoverAnim: { x: [0, 6, 0] } },
+    ],
+  },
+  {
+    tag: "Mobilità & avventura",
+    title: "Esplora l'isola in libertà.",
+    subtitle: "Noleggia il mezzo perfetto per le tue giornate a Boa Vista.",
+    items: [
+      { icon: ShieldCheck, label: "Noleggio biciclette", desc: "Bici a disposizione per esplorare l'isola al tuo ritmo.", hoverAnim: { rotate: [0, 15, -15, 0] } },
+      { icon: ShieldCheck, label: "Noleggio quad", desc: "Quad per avventurarti nei percorsi off-road di Boa Vista.", hoverAnim: { y: [0, -4, 2, -2, 0] } },
+      { icon: ShieldCheck, label: "Noleggio auto", desc: "Veicoli per muoverti in totale libertà sull'isola.", hoverAnim: { x: [0, 5, 0] } },
+      { icon: ShieldCheck, label: "Noleggio moto", desc: "Moto per esplorare ogni angolo di Boa Vista con agilità.", hoverAnim: { rotate: [0, -8, 8, 0], y: [0, -2, 0] } },
     ],
   },
   {
     tag: "Benessere & assistenza",
     title: "Prenditi cura di te.",
     subtitle: "Relax e supporto personalizzato per un'esperienza completa.",
+    accent: true,
     items: [
-      { icon: ShieldCheck, label: "Massaggi & SPA", desc: "Prenota sessioni di massaggio e trattamenti SPA sull'isola." },
-      { icon: ShieldCheck, label: "Trattamenti beauty", desc: "Centro estetico e trattamenti di bellezza su prenotazione." },
-      { icon: ShieldCheck, label: "Concierge 24/7", desc: "Assistenza personalizzata in italiano, inglese e portoghese." },
-      { icon: ShieldCheck, label: "Prenotazione attività", desc: "Organizziamo escursioni, ristoranti e transfer per te." },
+      { icon: ShieldCheck, label: "Massaggi & SPA", desc: "Prenota sessioni di massaggio e trattamenti SPA sull'isola.", hoverAnim: { scale: [1, 1.15, 1], rotate: [0, 5, -5, 0] } },
+      { icon: ShieldCheck, label: "Trattamenti beauty", desc: "Centro estetico e trattamenti di bellezza su prenotazione.", hoverAnim: { rotate: [0, 20, 0] } },
+      { icon: ShieldCheck, label: "Concierge 24/7", desc: "Assistenza personalizzata in italiano, inglese e portoghese.", hoverAnim: { y: [0, -3, 0, -2, 0] } },
+      { icon: ShieldCheck, label: "Prenotazione attività", desc: "Organizziamo escursioni, ristoranti e transfer per te.", hoverAnim: { scale: [1, 1.1, 1] } },
     ],
   },
 ];
@@ -126,14 +134,14 @@ import {
   Headset,
   Flower2,
   Scissors,
+  Zap,
 } from "lucide-react";
 
-// Icon per quad e moto riutilizziamo Car con varianti
 const iconMap: Record<string, LucideIcon> = {
   "Pulizia extra": Sparkles,
   "Consegna a domicilio": Truck,
   "Noleggio biciclette": Bike,
-  "Noleggio quad": Car,
+  "Noleggio quad": Zap,
   "Noleggio auto": Car,
   "Noleggio moto": Car,
   "Massaggi & SPA": Flower2,
@@ -337,6 +345,7 @@ const Servizi = () => {
               >
                 {cat.items.map((item) => {
                   const Icon = iconMap[item.label] || ShieldCheck;
+                  const hoverAnim = item.hoverAnim || { rotate: 8 };
                   return (
                     <motion.div
                       key={item.label}
@@ -353,7 +362,7 @@ const Servizi = () => {
                     >
                       <motion.div
                         className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors duration-300"
-                        whileHover={{ rotate: 8 }}
+                        whileHover={{ ...hoverAnim, transition: { duration: 0.5, ease: "easeInOut" } }}
                       >
                         <Icon
                           className="w-5 h-5 text-primary"
