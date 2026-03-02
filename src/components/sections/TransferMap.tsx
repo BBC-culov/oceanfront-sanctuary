@@ -10,6 +10,10 @@ const TransferMap = () => {
   const [animRefLeft, setAnimRefLeft] = useState<SVGAnimateMotionElement | null>(null);
   const [planeRef, setPlaneRef] = useState<SVGAnimateMotionElement | null>(null);
   const [splitVisible, setSplitVisible] = useState(false);
+  const [dotsVisible, setDotsVisible] = useState(false);
+  const [splashes, setSplashes] = useState<{id: number; x: number; y: number}[]>([]);
+  const [hoveredCar, setHoveredCar] = useState<string | null>(null);
+  const splashIdRef = useRef(0);
 
   const animCallbackRef = useCallback((node: SVGAnimateMotionElement | null) => { setAnimRef(node); }, []);
   const animCallbackRefUp = useCallback((node: SVGAnimateMotionElement | null) => { setAnimRefUp(node); }, []);
@@ -86,12 +90,12 @@ const TransferMap = () => {
 
   useEffect(() => {
     if (isInView && animRef) {
-      // Main car starts after plane lands (~2.5s plane + 0.6s delay)
       const timer = setTimeout(() => {
         try { animRef.beginElement(); } catch (e) { /* */ }
       }, 3200);
       const splitTimer = setTimeout(() => { setSplitVisible(true); }, 5700);
-      return () => { clearTimeout(timer); clearTimeout(splitTimer); };
+      const dotsTimer = setTimeout(() => { setDotsVisible(true); }, 7200);
+      return () => { clearTimeout(timer); clearTimeout(splitTimer); clearTimeout(dotsTimer); };
     }
   }, [isInView, animRef]);
 
@@ -103,6 +107,40 @@ const TransferMap = () => {
       return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
     }
   }, [splitVisible, animRefUp, animRefDown, animRefLeft]);
+
+  const handleOceanClick = (e: React.MouseEvent<SVGSVGElement>) => {
+    const svg = e.currentTarget;
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    const svgPt = pt.matrixTransform(svg.getScreenCTM()?.inverse());
+    // Only splash if clicking on ocean (not on island)
+    const id = ++splashIdRef.current;
+    setSplashes(prev => [...prev, { id, x: svgPt.x, y: svgPt.y }]);
+    setTimeout(() => setSplashes(prev => prev.filter(s => s.id !== id)), 1200);
+  };
+
+  const SplashEffect = ({ x, y }: { x: number; y: number }) => (
+    <g>
+      {[0, 1, 2, 3, 4, 5].map(i => {
+        const angle = (i / 6) * Math.PI * 2;
+        const dx = Math.cos(angle) * 18;
+        const dy = Math.sin(angle) * 12;
+        return (
+          <motion.circle key={i} cx={x} cy={y} r="1.5"
+            fill="hsl(var(--ocean) / 0.5)"
+            initial={{ cx: x, cy: y, opacity: 1, r: 1.5 }}
+            animate={{ cx: x + dx, cy: y + dy, opacity: 0, r: 0.5 }}
+            transition={{ duration: 0.8, ease: "easeOut", delay: i * 0.03 }}
+          />
+        );
+      })}
+      <motion.circle cx={x} cy={y} r="3" fill="none" stroke="hsl(var(--ocean) / 0.4)" strokeWidth="1"
+        initial={{ r: 3, opacity: 0.8 }} animate={{ r: 22, opacity: 0 }} transition={{ duration: 0.8 }} />
+      <motion.circle cx={x} cy={y} r="3" fill="none" stroke="hsl(var(--ocean) / 0.25)" strokeWidth="0.7"
+        initial={{ r: 5, opacity: 0.6 }} animate={{ r: 30, opacity: 0 }} transition={{ duration: 1, delay: 0.1 }} />
+    </g>
+  );
 
   const CarShape = () => (
     <>
@@ -117,19 +155,14 @@ const TransferMap = () => {
 
   // Apartment destination dot
   const AptDot = ({ x, y, delay }: { x: number; y: number; delay: number }) => (
-    <motion.g initial={{ opacity: 0, scale: 0 }} animate={isInView ? { opacity: 1, scale: 1 } : {}}
-      transition={{ duration: 0.4, delay, type: "spring", stiffness: 300 }}>
-      {/* Outer pulse */}
+    <motion.g initial={{ opacity: 0, scale: 0 }} animate={dotsVisible ? { opacity: 1, scale: 1 } : {}}
+      transition={{ duration: 0.5, delay, type: "spring", stiffness: 300, damping: 15 }}>
       <motion.circle cx={x} cy={y} r="10" fill="none" stroke="hsl(var(--accent) / 0.35)" strokeWidth="1.5"
-        initial={{ scale: 0.8, opacity: 1 }} animate={{ scale: 2.2, opacity: 0 }}
-        transition={{ duration: 2.5, repeat: Infinity, ease: "easeOut" }} />
-      {/* Outer ring */}
+        initial={{ scale: 0.8, opacity: 0 }} animate={dotsVisible ? { scale: [0.8, 2.2], opacity: [1, 0] } : {}}
+        transition={{ duration: 2.5, repeat: Infinity, ease: "easeOut", delay: delay + 0.5 }} />
       <circle cx={x} cy={y} r="8" fill="hsl(var(--primary) / 0.15)" stroke="hsl(var(--primary) / 0.3)" strokeWidth="1" />
-      {/* Main dot */}
       <circle cx={x} cy={y} r="5" fill="hsl(var(--primary))" />
-      {/* Inner highlight */}
       <circle cx={x} cy={y} r="2.5" fill="hsl(var(--accent))" />
-      {/* Tiny shine */}
       <circle cx={x - 1.5} cy={y - 1.5} r="1" fill="hsl(var(--primary-foreground) / 0.6)" />
     </motion.g>
   );
@@ -142,7 +175,7 @@ const TransferMap = () => {
         transition={{ duration: 1, ease: "easeOut" }}
         style={{ transformStyle: "preserve-3d" }}
       >
-        <svg viewBox="0 0 500 380" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow-xl">
+        <svg viewBox="0 0 500 380" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow-xl cursor-pointer" onClick={handleOceanClick}>
           <defs>
             <radialGradient id="oceanGrad" cx="50%" cy="50%" r="60%">
               <stop offset="0%" stopColor="hsl(var(--ocean) / 0.08)" />
@@ -315,56 +348,74 @@ const TransferMap = () => {
             </text>
           </motion.g>
 
-          {/* Apartment dots at destinations */}
-          <AptDot x={362} y={96} delay={1.2} />
-          <AptDot x={368} y={232} delay={1.4} />
-          <AptDot x={155} y={104} delay={1.6} />
+          {/* Apartment dots at destinations — appear when cars arrive */}
+          <AptDot x={362} y={96} delay={0.2} />
+          <AptDot x={368} y={232} delay={0.4} />
+          <AptDot x={155} y={104} delay={0.6} />
 
           {/* === 3D PLANE (flies to airport) === */}
           <g>
             <animateMotion ref={planeCallbackRef} dur="2.5s" begin="indefinite" fill="freeze" path={planePath}
               keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines="0.3 0 0.7 1" rotate="auto" />
-            {/* Shadow */}
             <ellipse cx="0" cy="10" rx="12" ry="3" fill="hsl(var(--foreground) / 0.06)" />
-            {/* Fuselage */}
             <ellipse cx="0" cy="0" rx="14" ry="4" fill="hsl(var(--foreground) / 0.7)" />
-            {/* Cockpit */}
             <ellipse cx="12" cy="0" rx="4" ry="2.5" fill="hsl(var(--ocean) / 0.5)" />
-            {/* Wings */}
             <polygon points="-2,-3 -6,-14 2,-14 4,-3" fill="hsl(var(--foreground) / 0.55)" />
             <polygon points="-2,3 -6,14 2,14 4,3" fill="hsl(var(--foreground) / 0.55)" />
-            {/* Tail fin */}
             <polygon points="-12,-2 -18,-10 -10,-2" fill="hsl(var(--foreground) / 0.5)" />
-            {/* Tail horizontal */}
             <polygon points="-11,-1 -16,-6 -10,-6 -8,-1" fill="hsl(var(--foreground) / 0.4)" />
             <polygon points="-11,1 -16,6 -10,6 -8,1" fill="hsl(var(--foreground) / 0.4)" />
-            {/* Engine highlight */}
             <ellipse cx="0" cy="0" rx="14" ry="4" fill="none" stroke="hsl(var(--foreground) / 0.15)" strokeWidth="0.5" />
           </g>
 
           {/* === MAIN CAR (airport → split) === */}
-          <g>
+          <g className="cursor-pointer" onMouseEnter={() => setHoveredCar('main')} onMouseLeave={() => setHoveredCar(null)}>
             <animateMotion ref={animCallbackRef} dur="2.5s" begin="indefinite" fill="freeze" path={mainRoute}
               keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines="0.42 0 0.58 1" rotate="auto" />
             <CarShape />
+            {hoveredCar === 'main' && (
+              <>
+                <motion.ellipse cx="0" cy="0" rx="16" ry="12" fill="none" stroke="hsl(var(--primary) / 0.4)" strokeWidth="1"
+                  initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1.3, opacity: [0.6, 0] }} transition={{ duration: 1, repeat: Infinity }} />
+                <motion.rect x="-14" y="-18" width="28" height="12" rx="4" fill="hsl(var(--primary))"
+                  initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: -18 }} transition={{ duration: 0.2 }} />
+                <motion.text x="0" y="-11" textAnchor="middle" fontSize="5" fill="hsl(var(--primary-foreground))" fontFamily="var(--font-sans)" fontWeight="600"
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}>Transfer</motion.text>
+              </>
+            )}
           </g>
 
           {/* === BRANCH CARS === */}
-          <g style={{ opacity: splitVisible ? 1 : 0 }}>
+          <g style={{ opacity: splitVisible ? 1 : 0 }} className="cursor-pointer" onMouseEnter={() => setHoveredCar('up')} onMouseLeave={() => setHoveredCar(null)}>
             <animateMotion ref={animCallbackRefUp} dur="2s" begin="indefinite" fill="freeze" path={branchUp}
               keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines="0.42 0 0.58 1" rotate="auto" />
             <CarShape />
+            {hoveredCar === 'up' && (
+              <motion.ellipse cx="0" cy="0" rx="16" ry="12" fill="none" stroke="hsl(var(--primary) / 0.3)" strokeWidth="1"
+                initial={{ scale: 0.8 }} animate={{ scale: 1.3, opacity: [0.5, 0] }} transition={{ duration: 1, repeat: Infinity }} />
+            )}
           </g>
-          <g style={{ opacity: splitVisible ? 1 : 0 }}>
+          <g style={{ opacity: splitVisible ? 1 : 0 }} className="cursor-pointer" onMouseEnter={() => setHoveredCar('down')} onMouseLeave={() => setHoveredCar(null)}>
             <animateMotion ref={animCallbackRefDown} dur="2s" begin="indefinite" fill="freeze" path={branchDown}
               keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines="0.42 0 0.58 1" rotate="auto" />
             <CarShape />
+            {hoveredCar === 'down' && (
+              <motion.ellipse cx="0" cy="0" rx="16" ry="12" fill="none" stroke="hsl(var(--primary) / 0.3)" strokeWidth="1"
+                initial={{ scale: 0.8 }} animate={{ scale: 1.3, opacity: [0.5, 0] }} transition={{ duration: 1, repeat: Infinity }} />
+            )}
           </g>
-          <g style={{ opacity: splitVisible ? 1 : 0 }}>
+          <g style={{ opacity: splitVisible ? 1 : 0 }} className="cursor-pointer" onMouseEnter={() => setHoveredCar('left')} onMouseLeave={() => setHoveredCar(null)}>
             <animateMotion ref={animCallbackRefLeft} dur="2s" begin="indefinite" fill="freeze" path={branchLeft}
               keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines="0.42 0 0.58 1" rotate="auto" />
             <CarShape />
+            {hoveredCar === 'left' && (
+              <motion.ellipse cx="0" cy="0" rx="16" ry="12" fill="none" stroke="hsl(var(--primary) / 0.3)" strokeWidth="1"
+                initial={{ scale: 0.8 }} animate={{ scale: 1.3, opacity: [0.5, 0] }} transition={{ duration: 1, repeat: Infinity }} />
+            )}
           </g>
+
+          {/* Splash effects on ocean click */}
+          {splashes.map(s => <SplashEffect key={s.id} x={s.x} y={s.y} />)}
 
           {/* Title */}
           <motion.text x="250" y="28" textAnchor="middle" fontSize="11" fill="hsl(var(--muted-foreground))" fontFamily="var(--font-sans)" letterSpacing="0.2em" fontWeight="300"
