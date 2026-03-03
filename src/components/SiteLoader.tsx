@@ -1,26 +1,58 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import logo from "@/assets/logo-bazhouse.png";
+
+// Hero images to preload
+import heroOcean from "@/assets/hero-ocean.jpg";
+import heroAppartamenti from "@/assets/hero-appartamenti.jpg";
+import heroServizi from "@/assets/hero-servizi.jpg";
+import heroContatti from "@/assets/hero-contatti.jpg";
+
+const imagesToPreload = [heroOcean, heroAppartamenti, heroServizi, heroContatti];
+
+const preloadImages = (): Promise<void[]> =>
+  Promise.all(
+    imagesToPreload.map(
+      (src) =>
+        new Promise<void>((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve();
+          img.onerror = () => resolve(); // don't block on error
+          img.src = src;
+        })
+    )
+  );
 
 const SiteLoader = ({ onComplete }: { onComplete: () => void }) => {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    // Simulate resource loading with progressive steps
-    const steps = [10, 25, 40, 55, 70, 85, 95, 100];
-    let i = 0;
+    let cancelled = false;
 
+    // Start preloading images
+    const imagePromise = preloadImages();
+
+    // Animate progress while loading
+    const steps = [10, 25, 40, 55, 70, 85];
+    let i = 0;
     const interval = setInterval(() => {
-      if (i < steps.length) {
+      if (!cancelled && i < steps.length) {
         setProgress(steps[i]);
         i++;
-      } else {
-        clearInterval(interval);
-        setTimeout(onComplete, 400);
       }
-    }, 200);
+    }, 180);
 
-    return () => clearInterval(interval);
+    imagePromise.then(() => {
+      if (cancelled) return;
+      clearInterval(interval);
+      setProgress(100);
+      setTimeout(onComplete, 400);
+    });
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
   }, [onComplete]);
 
   return (
@@ -67,7 +99,7 @@ const SiteLoader = ({ onComplete }: { onComplete: () => void }) => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          Loading
+          Caricamento
         </motion.p>
       </div>
     </motion.div>
