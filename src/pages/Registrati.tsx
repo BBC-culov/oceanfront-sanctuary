@@ -121,13 +121,13 @@ const Registrati = () => {
 
               {/* Tabs */}
               <div className="px-8 pt-4">
-                <div className="relative flex bg-muted rounded-xl p-1">
+                <div className="relative flex bg-muted/70 rounded-full p-1 border border-border/30">
                   <motion.div
-                    className="absolute top-1 bottom-1 rounded-lg bg-background shadow-md"
+                    className="absolute top-1 bottom-1 rounded-full bg-primary shadow-md"
                     initial={false}
                     animate={{
-                      left: activeTab === "login" ? "4px" : "50%",
-                      width: "calc(50% - 8px)",
+                      left: activeTab === "login" ? "4px" : "calc(50% + 0px)",
+                      width: "calc(50% - 4px)",
                     }}
                     transition={{ type: "spring", stiffness: 350, damping: 30 }}
                   />
@@ -135,8 +135,8 @@ const Registrati = () => {
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className={`relative z-10 flex-1 py-2.5 text-sm font-sans tracking-wide uppercase transition-colors duration-300 ${
-                        activeTab === tab ? "text-foreground" : "text-muted-foreground"
+                      className={`relative z-10 flex-1 py-2.5 text-sm font-sans tracking-widest uppercase transition-colors duration-300 rounded-full ${
+                        activeTab === tab ? "text-primary-foreground font-medium" : "text-muted-foreground hover:text-foreground"
                       }`}
                     >
                       {tab === "login" ? "Accedi" : "Registrati"}
@@ -145,9 +145,13 @@ const Registrati = () => {
                 </div>
               </div>
 
-              {/* Form content */}
-              <div className="px-8 pb-8 pt-6">
-                <AnimatePresence mode="wait">
+              {/* Form content with animated height */}
+              <motion.div
+                className="px-8 pb-8 pt-6 overflow-hidden"
+                animate={{ height: "auto" }}
+                transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] }}
+              >
+                <AnimatePresence mode="wait" initial={false}>
                   {activeTab === "login" ? (
                     <motion.form
                       key="login"
