@@ -24,13 +24,13 @@ const inputVariants = {
   visible: (i: number) => ({
     opacity: 1,
     x: 0,
-    transition: { delay: 0.15 * i, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] },
+    transition: { delay: 0.15 * i, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] },
   }),
 };
 
 const tabContentVariants = {
   enter: { opacity: 0, y: 20, scale: 0.98 },
-  center: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] } },
+  center: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] } },
   exit: { opacity: 0, y: -20, scale: 0.98, transition: { duration: 0.3 } },
 };
 
