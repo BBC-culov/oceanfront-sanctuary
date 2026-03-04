@@ -461,7 +461,7 @@ const Registrati = () => {
                     </motion.form>
                   )}
                 </AnimatePresence>
-              </div>
+              </motion.div>
 
               {/* Bottom quote */}
               <motion.div
