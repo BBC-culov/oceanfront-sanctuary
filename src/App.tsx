@@ -13,6 +13,7 @@ import Appartamenti from "./pages/Appartamenti";
 import Contatti from "./pages/Contatti";
 import AppartamentoDetail from "./pages/AppartamentoDetail";
 import NotFound from "./pages/NotFound";
+import Registrati from "./pages/Registrati";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const AnimatedRoutes = () => {
         <Route path="/appartamenti" element={<Appartamenti />} />
         <Route path="/appartamenti/:slug" element={<AppartamentoDetail />} />
         <Route path="/contatti" element={<Contatti />} />
+        <Route path="/registrati" element={<Registrati />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
