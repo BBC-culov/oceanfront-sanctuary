@@ -287,7 +287,7 @@ const Contatti = () => {
             >
               <p className="font-serif text-2xl md:text-3xl italic leading-relaxed text-foreground/80">
                 "Vivi Boa Vista dal tuo spazio sull'oceano."
-              </motion.p>
+              </p>
             </motion.div>
           </div>
         </section>
