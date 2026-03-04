@@ -285,11 +285,7 @@ const Contatti = () => {
               transition={{ duration: 1, delay: 0.4 }}
               className="mt-20 text-center"
             >
-              <motion.p
-                className="font-serif text-2xl md:text-3xl italic leading-relaxed text-foreground/80"
-                animate={{ y: [0, -5, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              >
+              <p className="font-serif text-2xl md:text-3xl italic leading-relaxed text-foreground/80">
                 "Vivi Boa Vista dal tuo spazio sull'oceano."
               </motion.p>
             </motion.div>
