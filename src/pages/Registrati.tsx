@@ -147,7 +147,8 @@ const Registrati = () => {
     if (error) {
       setGlobalMessage({ type: "error", text: error.message });
     } else {
-      setGlobalMessage({ type: "success", text: "Registrazione completata! Controlla la tua email per confermare l'account." });
+      setRegisteredEmail(registerForm.email);
+      setRegistrationSuccess(true);
     }
   };
 
