@@ -3,8 +3,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   User, Mail, Lock, Eye, EyeOff, ArrowRight, 
   Waves, Sun, Palmtree, Shell, Compass, Sparkles,
-  Phone, MapPin
+  Phone, MapPin, Loader2, CheckCircle, AlertCircle
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
@@ -34,11 +37,134 @@ const tabContentVariants = {
   exit: { opacity: 0, y: -20, scale: 0.98, transition: { duration: 0.3 } },
 };
 
+// Validation schemas
+const loginSchema = z.object({
+  email: z.string().trim().email("Inserisci un indirizzo email valido"),
+  password: z.string().min(1, "Inserisci la password"),
+});
+
+const registerSchema = z.object({
+  firstName: z.string().trim().min(2, "Il nome deve avere almeno 2 caratteri").max(50, "Il nome è troppo lungo"),
+  lastName: z.string().trim().min(2, "Il cognome deve avere almeno 2 caratteri").max(50, "Il cognome è troppo lungo"),
+  email: z.string().trim().email("Inserisci un indirizzo email valido"),
+  phone: z.string().trim().regex(/^\+?[0-9\s]{7,15}$/, "Inserisci un numero di telefono valido (es. +39 333 1234567)"),
+  password: z.string().min(8, "La password deve avere almeno 8 caratteri")
+    .regex(/[A-Z]/, "La password deve contenere almeno una lettera maiuscola")
+    .regex(/[0-9]/, "La password deve contenere almeno un numero"),
+  confirmPassword: z.string(),
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Le password non corrispondono",
+  path: ["confirmPassword"],
+});
+
+const errorVariants = {
+  hidden: { opacity: 0, height: 0, y: -5 },
+  visible: { opacity: 1, height: "auto", y: 0, transition: { duration: 0.3 } },
+  exit: { opacity: 0, height: 0, y: -5, transition: { duration: 0.2 } },
+};
+
 const Registrati = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"login" | "register">("register");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [globalMessage, setGlobalMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  // Form state
+  const [loginForm, setLoginForm] = useState({ email: "", password: "" });
+  const [registerForm, setRegisterForm] = useState({
+    firstName: "", lastName: "", email: "", phone: "", password: "", confirmPassword: "",
+  });
+
+  const clearMessages = () => {
+    setErrors({});
+    setGlobalMessage(null);
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    clearMessages();
+
+    const result = loginSchema.safeParse(loginForm);
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.errors.forEach(err => {
+        if (err.path[0]) fieldErrors[String(err.path[0])] = err.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: loginForm.email,
+      password: loginForm.password,
+    });
+    setLoading(false);
+
+    if (error) {
+      setGlobalMessage({ type: "error", text: "Email o password non corretti" });
+    } else {
+      setGlobalMessage({ type: "success", text: "Accesso effettuato! Reindirizzamento..." });
+      setTimeout(() => navigate("/"), 1500);
+    }
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    clearMessages();
+
+    const result = registerSchema.safeParse(registerForm);
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.errors.forEach(err => {
+        if (err.path[0]) fieldErrors[String(err.path[0])] = err.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
+    setLoading(true);
+    const { error } = await supabase.auth.signUp({
+      email: registerForm.email,
+      password: registerForm.password,
+      options: {
+        emailRedirectTo: window.location.origin,
+        data: {
+          first_name: registerForm.firstName,
+          last_name: registerForm.lastName,
+          phone: registerForm.phone,
+        },
+      },
+    });
+    setLoading(false);
+
+    if (error) {
+      setGlobalMessage({ type: "error", text: error.message });
+    } else {
+      setGlobalMessage({ type: "success", text: "Registrazione completata! Controlla la tua email per confermare l'account." });
+    }
+  };
+
+  const FieldError = ({ field }: { field: string }) => (
+    <AnimatePresence>
+      {errors[field] && (
+        <motion.p
+          variants={errorVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          className="text-destructive text-xs mt-1 flex items-center gap-1 font-sans"
+        >
+          <AlertCircle size={12} />
+          {errors[field]}
+        </motion.p>
+      )}
+    </AnimatePresence>
+  );
 
   return (
     <PageTransition>
@@ -119,6 +245,27 @@ const Registrati = () => {
                 </motion.p>
               </div>
 
+              {/* Global message */}
+              <AnimatePresence>
+                {globalMessage && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="px-8"
+                  >
+                    <div className={`flex items-center gap-2 p-3 rounded-lg text-sm font-sans ${
+                      globalMessage.type === "success"
+                        ? "bg-primary/10 text-primary"
+                        : "bg-destructive/10 text-destructive"
+                    }`}>
+                      {globalMessage.type === "success" ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
+                      {globalMessage.text}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {/* Tabs */}
               <div className="px-8 pt-4">
                 <div className="relative flex bg-muted/70 rounded-full p-1 border border-border/30">
@@ -134,7 +281,7 @@ const Registrati = () => {
                   {(["login", "register"] as const).map((tab) => (
                     <button
                       key={tab}
-                      onClick={() => setActiveTab(tab)}
+                      onClick={() => { setActiveTab(tab); clearMessages(); }}
                       className={`relative z-10 flex-1 py-2.5 text-sm font-sans tracking-widest uppercase transition-colors duration-300 rounded-full ${
                         activeTab === tab ? "text-primary-foreground font-medium" : "text-muted-foreground hover:text-foreground"
                       }`}
@@ -160,7 +307,7 @@ const Registrati = () => {
                       animate="center"
                       exit="exit"
                       className="space-y-4"
-                      onSubmit={(e) => e.preventDefault()}
+                      onSubmit={handleLogin}
                     >
                       {/* Email */}
                       <motion.div custom={0} variants={inputVariants} initial="hidden" animate="visible">
@@ -171,12 +318,15 @@ const Registrati = () => {
                           <Mail className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors duration-300 ${focusedField === "login-email" ? "text-primary" : "text-muted-foreground"}`} />
                           <input
                             type="email"
+                            value={loginForm.email}
+                            onChange={e => setLoginForm(f => ({ ...f, email: e.target.value }))}
                             placeholder="tuaemail@esempio.com"
                             onFocus={() => setFocusedField("login-email")}
                             onBlur={() => setFocusedField(null)}
                             className="w-full pl-10 pr-4 py-3 rounded-lg bg-muted/50 border border-border text-foreground text-sm font-sans placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-300"
                           />
                         </div>
+                        <FieldError field="email" />
                       </motion.div>
 
                       {/* Password */}
@@ -188,6 +338,8 @@ const Registrati = () => {
                           <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors duration-300 ${focusedField === "login-pass" ? "text-primary" : "text-muted-foreground"}`} />
                           <input
                             type={showPassword ? "text" : "password"}
+                            value={loginForm.password}
+                            onChange={e => setLoginForm(f => ({ ...f, password: e.target.value }))}
                             placeholder="••••••••"
                             onFocus={() => setFocusedField("login-pass")}
                             onBlur={() => setFocusedField(null)}
@@ -211,6 +363,7 @@ const Registrati = () => {
                             </AnimatePresence>
                           </button>
                         </div>
+                        <FieldError field="password" />
                       </motion.div>
 
                       {/* Forgot password */}
@@ -224,54 +377,25 @@ const Registrati = () => {
                       <motion.div custom={3} variants={inputVariants} initial="hidden" animate="visible">
                         <motion.button
                           type="submit"
-                          whileHover={{ scale: 1.02, boxShadow: "0 8px 30px -8px hsl(160 55% 16% / 0.4)" }}
-                          whileTap={{ scale: 0.98 }}
-                          className="w-full py-3.5 bg-primary text-primary-foreground rounded-lg font-sans text-sm tracking-widest uppercase flex items-center justify-center gap-2 group transition-all duration-300"
+                          disabled={loading}
+                          whileHover={!loading ? { scale: 1.02, boxShadow: "0 8px 30px -8px hsl(160 55% 16% / 0.4)" } : {}}
+                          whileTap={!loading ? { scale: 0.98 } : {}}
+                          className="w-full py-3.5 bg-primary text-primary-foreground rounded-lg font-sans text-sm tracking-widest uppercase flex items-center justify-center gap-2 group transition-all duration-300 disabled:opacity-70"
                         >
-                          Accedi
-                          <motion.span
-                            className="inline-block"
-                            animate={{ x: [0, 4, 0] }}
-                            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                          >
-                            <ArrowRight size={16} />
-                          </motion.span>
-                        </motion.button>
-                      </motion.div>
-
-                      {/* Divider */}
-                      <motion.div custom={4} variants={inputVariants} initial="hidden" animate="visible" className="flex items-center gap-4 pt-2">
-                        <div className="flex-1 h-px bg-border" />
-                        <span className="text-xs text-muted-foreground font-sans">oppure</span>
-                        <div className="flex-1 h-px bg-border" />
-                      </motion.div>
-
-                      {/* Social login */}
-                      <motion.div custom={5} variants={inputVariants} initial="hidden" animate="visible" className="flex gap-3">
-                        <motion.button
-                          type="button"
-                          whileHover={{ scale: 1.05, y: -2 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="flex-1 py-3 rounded-lg border border-border bg-background text-foreground font-sans text-sm flex items-center justify-center gap-2 hover:bg-muted transition-colors"
-                        >
-                          <svg className="w-4 h-4" viewBox="0 0 24 24">
-                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
-                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                          </svg>
-                          Google
-                        </motion.button>
-                        <motion.button
-                          type="button"
-                          whileHover={{ scale: 1.05, y: -2 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="flex-1 py-3 rounded-lg border border-border bg-background text-foreground font-sans text-sm flex items-center justify-center gap-2 hover:bg-muted transition-colors"
-                        >
-                          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-                          </svg>
-                          Apple
+                          {loading ? (
+                            <Loader2 size={16} className="animate-spin" />
+                          ) : (
+                            <>
+                              Accedi
+                              <motion.span
+                                className="inline-block"
+                                animate={{ x: [0, 4, 0] }}
+                                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                              >
+                                <ArrowRight size={16} />
+                              </motion.span>
+                            </>
+                          )}
                         </motion.button>
                       </motion.div>
                     </motion.form>
@@ -283,24 +407,48 @@ const Registrati = () => {
                       animate="center"
                       exit="exit"
                       className="space-y-4"
-                      onSubmit={(e) => e.preventDefault()}
+                      onSubmit={handleRegister}
                     >
-                      {/* Name */}
-                      <motion.div custom={0} variants={inputVariants} initial="hidden" animate="visible">
-                        <label className="block text-xs font-sans uppercase tracking-widest text-muted-foreground mb-1.5">
-                          Nome completo
-                        </label>
-                        <div className={`relative transition-all duration-300 ${focusedField === "reg-name" ? "scale-[1.02]" : ""}`}>
-                          <User className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors duration-300 ${focusedField === "reg-name" ? "text-primary" : "text-muted-foreground"}`} />
-                          <input
-                            type="text"
-                            placeholder="Mario Rossi"
-                            onFocus={() => setFocusedField("reg-name")}
-                            onBlur={() => setFocusedField(null)}
-                            className="w-full pl-10 pr-4 py-3 rounded-lg bg-muted/50 border border-border text-foreground text-sm font-sans placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-300"
-                          />
-                        </div>
-                      </motion.div>
+                      {/* First Name + Last Name */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <motion.div custom={0} variants={inputVariants} initial="hidden" animate="visible">
+                          <label className="block text-xs font-sans uppercase tracking-widest text-muted-foreground mb-1.5">
+                            Nome
+                          </label>
+                          <div className={`relative transition-all duration-300 ${focusedField === "reg-firstName" ? "scale-[1.02]" : ""}`}>
+                            <User className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors duration-300 ${focusedField === "reg-firstName" ? "text-primary" : "text-muted-foreground"}`} />
+                            <input
+                              type="text"
+                              value={registerForm.firstName}
+                              onChange={e => setRegisterForm(f => ({ ...f, firstName: e.target.value }))}
+                              placeholder="Mario"
+                              onFocus={() => setFocusedField("reg-firstName")}
+                              onBlur={() => setFocusedField(null)}
+                              className="w-full pl-10 pr-4 py-3 rounded-lg bg-muted/50 border border-border text-foreground text-sm font-sans placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-300"
+                            />
+                          </div>
+                          <FieldError field="firstName" />
+                        </motion.div>
+
+                        <motion.div custom={0} variants={inputVariants} initial="hidden" animate="visible">
+                          <label className="block text-xs font-sans uppercase tracking-widest text-muted-foreground mb-1.5">
+                            Cognome
+                          </label>
+                          <div className={`relative transition-all duration-300 ${focusedField === "reg-lastName" ? "scale-[1.02]" : ""}`}>
+                            <User className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors duration-300 ${focusedField === "reg-lastName" ? "text-primary" : "text-muted-foreground"}`} />
+                            <input
+                              type="text"
+                              value={registerForm.lastName}
+                              onChange={e => setRegisterForm(f => ({ ...f, lastName: e.target.value }))}
+                              placeholder="Rossi"
+                              onFocus={() => setFocusedField("reg-lastName")}
+                              onBlur={() => setFocusedField(null)}
+                              className="w-full pl-10 pr-4 py-3 rounded-lg bg-muted/50 border border-border text-foreground text-sm font-sans placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-300"
+                            />
+                          </div>
+                          <FieldError field="lastName" />
+                        </motion.div>
+                      </div>
 
                       {/* Email */}
                       <motion.div custom={1} variants={inputVariants} initial="hidden" animate="visible">
@@ -311,12 +459,15 @@ const Registrati = () => {
                           <Mail className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors duration-300 ${focusedField === "reg-email" ? "text-primary" : "text-muted-foreground"}`} />
                           <input
                             type="email"
+                            value={registerForm.email}
+                            onChange={e => setRegisterForm(f => ({ ...f, email: e.target.value }))}
                             placeholder="tuaemail@esempio.com"
                             onFocus={() => setFocusedField("reg-email")}
                             onBlur={() => setFocusedField(null)}
                             className="w-full pl-10 pr-4 py-3 rounded-lg bg-muted/50 border border-border text-foreground text-sm font-sans placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-300"
                           />
                         </div>
+                        <FieldError field="email" />
                       </motion.div>
 
                       {/* Phone */}
@@ -328,12 +479,15 @@ const Registrati = () => {
                           <Phone className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors duration-300 ${focusedField === "reg-phone" ? "text-primary" : "text-muted-foreground"}`} />
                           <input
                             type="tel"
+                            value={registerForm.phone}
+                            onChange={e => setRegisterForm(f => ({ ...f, phone: e.target.value }))}
                             placeholder="+39 333 123 4567"
                             onFocus={() => setFocusedField("reg-phone")}
                             onBlur={() => setFocusedField(null)}
                             className="w-full pl-10 pr-4 py-3 rounded-lg bg-muted/50 border border-border text-foreground text-sm font-sans placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-300"
                           />
                         </div>
+                        <FieldError field="phone" />
                       </motion.div>
 
                       {/* Password */}
@@ -345,7 +499,9 @@ const Registrati = () => {
                           <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors duration-300 ${focusedField === "reg-pass" ? "text-primary" : "text-muted-foreground"}`} />
                           <input
                             type={showPassword ? "text" : "password"}
-                            placeholder="Minimo 8 caratteri"
+                            value={registerForm.password}
+                            onChange={e => setRegisterForm(f => ({ ...f, password: e.target.value }))}
+                            placeholder="Min. 8 caratteri, 1 maiuscola, 1 numero"
                             onFocus={() => setFocusedField("reg-pass")}
                             onBlur={() => setFocusedField(null)}
                             className="w-full pl-10 pr-12 py-3 rounded-lg bg-muted/50 border border-border text-foreground text-sm font-sans placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-300"
@@ -368,6 +524,7 @@ const Registrati = () => {
                             </AnimatePresence>
                           </button>
                         </div>
+                        <FieldError field="password" />
                       </motion.div>
 
                       {/* Confirm Password */}
@@ -379,6 +536,8 @@ const Registrati = () => {
                           <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors duration-300 ${focusedField === "reg-confirm" ? "text-primary" : "text-muted-foreground"}`} />
                           <input
                             type={showConfirmPassword ? "text" : "password"}
+                            value={registerForm.confirmPassword}
+                            onChange={e => setRegisterForm(f => ({ ...f, confirmPassword: e.target.value }))}
                             placeholder="Ripeti la password"
                             onFocus={() => setFocusedField("reg-confirm")}
                             onBlur={() => setFocusedField(null)}
@@ -402,60 +561,32 @@ const Registrati = () => {
                             </AnimatePresence>
                           </button>
                         </div>
+                        <FieldError field="confirmPassword" />
                       </motion.div>
 
                       {/* Submit */}
                       <motion.div custom={5} variants={inputVariants} initial="hidden" animate="visible" className="pt-1">
                         <motion.button
                           type="submit"
-                          whileHover={{ scale: 1.02, boxShadow: "0 8px 30px -8px hsl(160 55% 16% / 0.4)" }}
-                          whileTap={{ scale: 0.98 }}
-                          className="w-full py-3.5 bg-primary text-primary-foreground rounded-lg font-sans text-sm tracking-widest uppercase flex items-center justify-center gap-2 group transition-all duration-300"
+                          disabled={loading}
+                          whileHover={!loading ? { scale: 1.02, boxShadow: "0 8px 30px -8px hsl(160 55% 16% / 0.4)" } : {}}
+                          whileTap={!loading ? { scale: 0.98 } : {}}
+                          className="w-full py-3.5 bg-primary text-primary-foreground rounded-lg font-sans text-sm tracking-widest uppercase flex items-center justify-center gap-2 group transition-all duration-300 disabled:opacity-70"
                         >
-                          Crea Account
-                          <motion.span
-                            className="inline-block"
-                            animate={{ x: [0, 4, 0] }}
-                            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                          >
-                            <Sparkles size={16} />
-                          </motion.span>
-                        </motion.button>
-                      </motion.div>
-
-                      {/* Divider */}
-                      <motion.div custom={6} variants={inputVariants} initial="hidden" animate="visible" className="flex items-center gap-4 pt-1">
-                        <div className="flex-1 h-px bg-border" />
-                        <span className="text-xs text-muted-foreground font-sans">oppure</span>
-                        <div className="flex-1 h-px bg-border" />
-                      </motion.div>
-
-                      {/* Social */}
-                      <motion.div custom={7} variants={inputVariants} initial="hidden" animate="visible" className="flex gap-3">
-                        <motion.button
-                          type="button"
-                          whileHover={{ scale: 1.05, y: -2 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="flex-1 py-3 rounded-lg border border-border bg-background text-foreground font-sans text-sm flex items-center justify-center gap-2 hover:bg-muted transition-colors"
-                        >
-                          <svg className="w-4 h-4" viewBox="0 0 24 24">
-                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
-                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                          </svg>
-                          Google
-                        </motion.button>
-                        <motion.button
-                          type="button"
-                          whileHover={{ scale: 1.05, y: -2 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="flex-1 py-3 rounded-lg border border-border bg-background text-foreground font-sans text-sm flex items-center justify-center gap-2 hover:bg-muted transition-colors"
-                        >
-                          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-                          </svg>
-                          Apple
+                          {loading ? (
+                            <Loader2 size={16} className="animate-spin" />
+                          ) : (
+                            <>
+                              Crea Account
+                              <motion.span
+                                className="inline-block"
+                                animate={{ x: [0, 4, 0] }}
+                                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                              >
+                                <Sparkles size={16} />
+                              </motion.span>
+                            </>
+                          )}
                         </motion.button>
                       </motion.div>
                     </motion.form>
