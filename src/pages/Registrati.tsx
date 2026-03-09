@@ -72,6 +72,8 @@ const Registrati = () => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [globalMessage, setGlobalMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState("");
 
   // Form state
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
