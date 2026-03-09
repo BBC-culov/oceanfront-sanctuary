@@ -694,6 +694,8 @@ const Registrati = () => {
                   Boa Vista, Capo Verde
                 </p>
               </motion.div>
+                </>
+              )}
             </div>
           </motion.div>
         </div>
