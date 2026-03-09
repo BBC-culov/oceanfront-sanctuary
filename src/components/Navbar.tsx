@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Menu, X, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
+import type { User } from "@supabase/supabase-js";
 import logo from "@/assets/logo-bazhouse.png";
 
 const navLinks = [
@@ -15,12 +17,23 @@ const navLinks = [
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
-  // Pages without a full-bleed hero (e.g. apartment detail)
   const mainPages = ["/", "/appartamenti", "/servizi", "/chi-siamo", "/contatti"];
   const noHero = !mainPages.includes(location.pathname);
   const isTransparent = !noHero && !scrolled;
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -29,6 +42,11 @@ const Navbar = () => {
   }, []);
 
   useEffect(() => setMobileOpen(false), [location]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
+  };
 
   return (
     <motion.header
@@ -73,16 +91,30 @@ const Navbar = () => {
           ))}
         </div>
 
-        <Link
-          to="/registrati"
-          className={`hidden lg:inline-flex font-sans text-xs tracking-widest uppercase px-5 py-2.5 border transition-all duration-300 hover:scale-105 active:scale-95 ${
-            !isTransparent
-              ? "border-foreground/30 text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary"
-              : "border-hero-cta-border/40 text-hero-text hover:bg-hero-cta hover:text-hero-cta-foreground hover:border-hero-cta"
-          }`}
-        >
-          Accedi / Registrati
-        </Link>
+        {user ? (
+          <button
+            onClick={handleLogout}
+            className={`hidden lg:inline-flex items-center gap-2 font-sans text-xs tracking-widest uppercase px-5 py-2.5 border transition-all duration-300 hover:scale-105 active:scale-95 ${
+              !isTransparent
+                ? "border-foreground/30 text-foreground hover:bg-destructive hover:text-destructive-foreground hover:border-destructive"
+                : "border-hero-cta-border/40 text-hero-text hover:bg-destructive hover:text-destructive-foreground hover:border-destructive"
+            }`}
+          >
+            <LogOut size={14} />
+            Esci
+          </button>
+        ) : (
+          <Link
+            to="/registrati"
+            className={`hidden lg:inline-flex font-sans text-xs tracking-widest uppercase px-5 py-2.5 border transition-all duration-300 hover:scale-105 active:scale-95 ${
+              !isTransparent
+                ? "border-foreground/30 text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary"
+                : "border-hero-cta-border/40 text-hero-text hover:bg-hero-cta hover:text-hero-cta-foreground hover:border-hero-cta"
+            }`}
+          >
+            Accedi / Registrati
+          </Link>
+        )}
 
         {/* Mobile toggle */}
         <button
@@ -113,12 +145,22 @@ const Navbar = () => {
                   {link.label}
                 </Link>
               ))}
-              <Link
-                to="/registrati"
-                className="font-sans text-xs tracking-widest uppercase border border-foreground/30 px-5 py-2.5 mt-2"
-              >
-                Accedi / Registrati
-              </Link>
+              {user ? (
+                <button
+                  onClick={handleLogout}
+                  className="font-sans text-xs tracking-widest uppercase border border-destructive/30 text-destructive px-5 py-2.5 mt-2 inline-flex items-center gap-2"
+                >
+                  <LogOut size={14} />
+                  Esci
+                </button>
+              ) : (
+                <Link
+                  to="/registrati"
+                  className="font-sans text-xs tracking-widest uppercase border border-foreground/30 px-5 py-2.5 mt-2"
+                >
+                  Accedi / Registrati
+                </Link>
+              )}
             </div>
           </motion.div>
         )}
