@@ -31,6 +31,7 @@ const AnimatedRoutes = () => {
         <Route path="/appartamenti/:slug" element={<AppartamentoDetail />} />
         <Route path="/contatti" element={<Contatti />} />
         <Route path="/registrati" element={<Registrati />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
