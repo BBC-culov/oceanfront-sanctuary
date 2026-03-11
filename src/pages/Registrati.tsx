@@ -459,7 +459,7 @@ const Registrati = () => {
 
                       {/* Forgot password */}
                       <motion.div custom={2} variants={inputVariants} initial="hidden" animate="visible" className="text-right">
-                        <button type="button" className="text-xs text-ocean hover:text-primary transition-colors font-sans">
+                        <button type="button" onClick={() => { setForgotPassword(true); clearMessages(); setForgotSent(false); setForgotEmail(""); }} className="text-xs text-ocean hover:text-primary transition-colors font-sans">
                           Password dimenticata?
                         </button>
                       </motion.div>
