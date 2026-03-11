@@ -292,7 +292,7 @@ const Registrati = () => {
                           }
                           setLoading(true);
                           const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
-                            redirectTo: `${window.location.origin}/reset-password`,
+                            redirectTo: "https://bazhousedemo.vercel.app/reset-password",
                           });
                           setLoading(false);
                           if (error) {
