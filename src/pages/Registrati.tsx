@@ -74,6 +74,9 @@ const Registrati = () => {
   const [globalMessage, setGlobalMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState("");
+  const [forgotPassword, setForgotPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotSent, setForgotSent] = useState(false);
 
   // Form state
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
