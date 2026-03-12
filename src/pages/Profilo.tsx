@@ -5,7 +5,7 @@ import { z } from "zod";
 import {
   User, Phone, Save, Loader2, CheckCircle, AlertCircle,
   Calendar, Clock, Tag, Hash, Trash2, AlertTriangle, X, ChevronRight,
-  Mail, Shield, Edit3, KeyRound, Eye, EyeOff
+  Mail, Shield, Edit3, KeyRound, Eye, EyeOff, Headphones
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
@@ -64,6 +64,7 @@ const AnimatedInput = ({
   label,
   error,
   delay = 0,
+  className: extraClassName,
   ...props
 }: {
   icon?: React.ElementType;
@@ -106,7 +107,7 @@ const AnimatedInput = ({
               : error
                 ? "border-destructive/50"
                 : "border-border"
-          }`}
+          } ${extraClassName || ""}`}
         />
       </motion.div>
       <AnimatePresence>
@@ -338,6 +339,18 @@ const Profilo = () => {
             </div>
 
             <div className="p-6 space-y-5">
+              {/* Email (read-only) */}
+              <AnimatedInput
+                icon={Mail}
+                label="Email"
+                type="email"
+                value={userEmail}
+                readOnly
+                disabled
+                delay={0.05}
+                className="opacity-60 cursor-not-allowed"
+              />
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <AnimatedInput
                   label="Nome"
@@ -545,6 +558,35 @@ const Profilo = () => {
                   Elimina Account
                 </motion.button>
               </div>
+            </div>
+          </AnimatedSection>
+
+          {/* Section 4: Assistenza */}
+          <AnimatedSection delay={0.55} className="bg-card rounded-2xl border border-border/60 shadow-sm overflow-hidden">
+            <div className="px-6 py-5 border-b border-border/40 flex items-center gap-3">
+              <motion.div
+                whileHover={{ rotate: -10, scale: 1.1 }}
+                transition={{ type: "spring", stiffness: 400 }}
+                className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center"
+              >
+                <Headphones className="w-4 h-4 text-primary" />
+              </motion.div>
+              <h2 className="font-serif text-xl text-foreground">Assistenza</h2>
+            </div>
+
+            <div className="p-6">
+              <p className="font-sans text-sm text-muted-foreground mb-4 leading-relaxed">
+                Hai bisogno di aiuto o hai domande sulla tua prenotazione? Il nostro team è a tua disposizione per assisterti.
+              </p>
+              <motion.button
+                onClick={() => navigate("/contatti")}
+                whileHover={{ scale: 1.03, boxShadow: "0 8px 25px -5px hsl(var(--primary) / 0.2)" }}
+                whileTap={{ scale: 0.97 }}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg font-sans text-sm tracking-widest uppercase transition-all duration-300"
+              >
+                <Headphones size={15} />
+                Richiedi Assistenza
+              </motion.button>
             </div>
           </AnimatedSection>
         </div>
