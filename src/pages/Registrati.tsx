@@ -5,7 +5,7 @@ import {
   Waves, Sun, Palmtree, Shell, Compass, Sparkles,
   Phone, MapPin, Loader2, CheckCircle, AlertCircle
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
