@@ -1,6 +1,15 @@
 import { motion } from "framer-motion";
 import interiorImage from "@/assets/apartment-interior.jpg";
 
+const paragraphVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, delay: 0.15 * i, ease: "easeOut" },
+  }),
+};
+
 const WhySection = () => (
   <section className="py-24 lg:py-32">
     <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -19,17 +28,28 @@ const WhySection = () => (
             <br />
             Più esperienza.
           </h2>
-          <p className="font-sans text-base leading-relaxed text-muted-foreground">
-            BAZHOUSE nasce per chi desidera vivere Boa Vista in modo autentico,
-            elegante e indipendente. I nostri appartamenti, recentemente
-            ristrutturati e completamente arredati, si trovano in due delle zone
-            più prestigiose dell'isola: Praia Cabral e Praia da Cruz.
-          </p>
-          <p className="font-sans text-base leading-relaxed text-muted-foreground mt-4">
-            Vista oceano aperta, posizione residenziale tranquilla e a pochi
-            minuti dal centro. Qui non soggiorni in un villaggio turistico. Qui
-            affitti il tuo spazio esclusivo sull'Atlantico.
-          </p>
+
+          <div className="space-y-4">
+            {[
+              "Bazhouse nasce per chi desidera vivere Boa Vista in modo autentico, elegante e indipendente.",
+              "I nostri appartamenti, recentemente ristrutturati e completamente arredati, si trovano in due delle zone più prestigiose dell'isola: Praia Cabral e Praia da Cruz, con splendida vista sull'oceano e a pochi minuti dal centro.",
+              "Qui non soggiorni in un villaggio turistico. Qui hai la libertà di vivere l'isola senza orari, senza programmi imposti e senza limitazioni.",
+              "Goditi il comfort, la qualità degli appartamenti e la vista sull'Atlantico, ma con la possibilità di scoprire Boa Vista nel modo più autentico: esplorando l'isola, incontrando la cultura locale e vivendo un'esperienza davvero immersiva.",
+              "Bazhouse unisce il lusso di una residenza sul mare alla libertà di vivere Boa Vista come un locale.",
+            ].map((text, i) => (
+              <motion.p
+                key={i}
+                custom={i}
+                variants={paragraphVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                className="font-sans text-base leading-relaxed text-muted-foreground"
+              >
+                {text}
+              </motion.p>
+            ))}
+          </div>
         </motion.div>
 
         <motion.div
