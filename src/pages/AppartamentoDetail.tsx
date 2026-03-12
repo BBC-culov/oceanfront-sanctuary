@@ -223,6 +223,9 @@ const AppartamentoDetail = () => {
                 </div>
               </div>
 
+              {/* Availability Calendar */}
+              <AvailabilityCalendar />
+
               {/* CTA */}
               <Link to="/contatti">
                 <motion.span
