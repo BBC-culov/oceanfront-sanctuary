@@ -33,6 +33,7 @@ const AnimatedRoutes = () => {
         <Route path="/contatti" element={<Contatti />} />
         <Route path="/registrati" element={<Registrati />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/profilo" element={<Profilo />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
