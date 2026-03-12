@@ -222,10 +222,36 @@ const Profilo = () => {
   };
 
   const handleDeleteAccount = async () => {
+    if (!deletePassword.trim()) {
+      setDeleteError("Inserisci la tua password per confermare");
+      return;
+    }
+    setDeleteError("");
     setDeleting(true);
-    await supabase.auth.signOut();
-    setDeleting(false);
-    navigate("/");
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/registrati");
+        return;
+      }
+
+      const res = await supabase.functions.invoke("delete-account", {
+        body: { password: deletePassword },
+      });
+
+      if (res.error || res.data?.error) {
+        setDeleteError(res.data?.error || "Errore durante l'eliminazione");
+        setDeleting(false);
+        return;
+      }
+
+      await supabase.auth.signOut();
+      navigate("/");
+    } catch {
+      setDeleteError("Errore di connessione. Riprova.");
+      setDeleting(false);
+    }
   };
 
   if (loading) {
