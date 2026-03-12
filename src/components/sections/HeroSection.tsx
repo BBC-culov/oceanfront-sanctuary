@@ -7,7 +7,7 @@ const headlines = [
   "Il tuo appartamento esclusivo\nvista oceano a Boa Vista.",
   "Svegliati davanti\nall'Atlantico.",
   "Vista mare. Privacy totale.\nComfort assoluto.",
-  "Non un hotel.\nIl tuo spazio sull'oceano.",
+  "Più di un hotel.\nIl tuo spazio sull'oceano.",
 ];
 
 const HeroSection = () => {
