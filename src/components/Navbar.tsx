@@ -138,7 +138,7 @@ const Navbar = () => {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 8, scale: 0.95 }}
                     transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] }}
-                    className="absolute right-0 top-full mt-2 w-56 bg-background/98 backdrop-blur-xl rounded-xl border border-border/60 shadow-xl overflow-hidden"
+                    className="absolute right-0 top-full mt-3 w-60 bg-popover rounded-xl border border-border shadow-2xl overflow-hidden ring-1 ring-black/5"
                   >
                     {/* User email header */}
                     <div className="px-4 py-3 border-b border-border/40">
