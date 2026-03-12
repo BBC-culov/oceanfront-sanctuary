@@ -79,6 +79,17 @@ const Registrati = () => {
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotSent, setForgotSent] = useState(false);
 
+  // Handle navigation state for forgot password
+  useEffect(() => {
+    const state = location.state as { forgotPassword?: boolean } | null;
+    if (state?.forgotPassword) {
+      setActiveTab("login");
+      setForgotPassword(true);
+      // Clear the state to avoid re-triggering
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+
   // Form state
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [registerForm, setRegisterForm] = useState({
