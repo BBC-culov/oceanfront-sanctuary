@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   User, Mail, Lock, Eye, EyeOff, ArrowRight, 
   Waves, Sun, Palmtree, Shell, Compass, Sparkles,
   Phone, MapPin, Loader2, CheckCircle, AlertCircle
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
@@ -65,6 +65,7 @@ const errorVariants = {
 
 const Registrati = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState<"login" | "register">("register");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -77,6 +78,17 @@ const Registrati = () => {
   const [forgotPassword, setForgotPassword] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotSent, setForgotSent] = useState(false);
+
+  // Handle navigation state for forgot password
+  useEffect(() => {
+    const state = location.state as { forgotPassword?: boolean } | null;
+    if (state?.forgotPassword) {
+      setActiveTab("login");
+      setForgotPassword(true);
+      // Clear the state to avoid re-triggering
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   // Form state
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });

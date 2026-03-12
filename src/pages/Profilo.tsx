@@ -5,7 +5,7 @@ import { z } from "zod";
 import {
   User, Phone, Save, Loader2, CheckCircle, AlertCircle,
   Calendar, Clock, Tag, Hash, Trash2, AlertTriangle, X, ChevronRight,
-  Mail, Shield, Edit3
+  Mail, Shield, Edit3, KeyRound, Eye, EyeOff
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
@@ -134,6 +134,9 @@ const Profilo = () => {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteError, setDeleteError] = useState("");
+  const [showDeletePassword, setShowDeletePassword] = useState(false);
   const [saveMessage, setSaveMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [userEmail, setUserEmail] = useState("");
@@ -220,10 +223,36 @@ const Profilo = () => {
   };
 
   const handleDeleteAccount = async () => {
+    if (!deletePassword.trim()) {
+      setDeleteError("Inserisci la tua password per confermare");
+      return;
+    }
+    setDeleteError("");
     setDeleting(true);
-    await supabase.auth.signOut();
-    setDeleting(false);
-    navigate("/");
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/registrati");
+        return;
+      }
+
+      const res = await supabase.functions.invoke("delete-account", {
+        body: { password: deletePassword },
+      });
+
+      if (res.error || res.data?.error) {
+        setDeleteError(res.data?.error || "Errore durante l'eliminazione");
+        setDeleting(false);
+        return;
+      }
+
+      await supabase.auth.signOut();
+      navigate("/");
+    } catch {
+      setDeleteError("Errore di connessione. Riprova.");
+      setDeleting(false);
+    }
   };
 
   if (loading) {
@@ -494,18 +523,28 @@ const Profilo = () => {
 
             <div className="p-6">
               <p className="font-sans text-sm text-muted-foreground mb-4 leading-relaxed">
-                L'eliminazione dell'account è un'azione <strong className="text-foreground">irreversibile</strong>.
-                Tutti i tuoi dati personali e le prenotazioni verranno eliminati permanentemente.
+                Gestisci la sicurezza del tuo account. Puoi aggiornare la password o eliminare definitivamente il tuo account.
               </p>
-              <motion.button
-                onClick={() => setShowDeleteModal(true)}
-                whileHover={{ scale: 1.03, boxShadow: "0 8px 25px -5px hsl(var(--destructive) / 0.2)" }}
-                whileTap={{ scale: 0.97 }}
-                className="inline-flex items-center gap-2 px-5 py-2.5 border border-destructive/30 text-destructive rounded-lg font-sans text-sm tracking-widest uppercase hover:bg-destructive hover:text-destructive-foreground transition-all duration-300"
-              >
-                <Trash2 size={15} />
-                Elimina Account
-              </motion.button>
+              <div className="flex flex-wrap gap-3">
+                <motion.button
+                  onClick={() => navigate("/registrati", { state: { forgotPassword: true } })}
+                  whileHover={{ scale: 1.03, boxShadow: "0 8px 25px -5px hsl(var(--primary) / 0.2)" }}
+                  whileTap={{ scale: 0.97 }}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 border border-primary/30 text-primary rounded-lg font-sans text-sm tracking-widest uppercase hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                >
+                  <KeyRound size={15} />
+                  Aggiorna Password
+                </motion.button>
+                <motion.button
+                  onClick={() => { setShowDeleteModal(true); setDeletePassword(""); setDeleteError(""); }}
+                  whileHover={{ scale: 1.03, boxShadow: "0 8px 25px -5px hsl(var(--destructive) / 0.2)" }}
+                  whileTap={{ scale: 0.97 }}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 border border-destructive/30 text-destructive rounded-lg font-sans text-sm tracking-widest uppercase hover:bg-destructive hover:text-destructive-foreground transition-all duration-300"
+                >
+                  <Trash2 size={15} />
+                  Elimina Account
+                </motion.button>
+              </div>
             </div>
           </AnimatedSection>
         </div>
@@ -567,10 +606,51 @@ const Profilo = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="font-sans text-sm text-muted-foreground mb-6 leading-relaxed"
+                className="font-sans text-sm text-muted-foreground mb-5 leading-relaxed"
               >
-                Questa azione è irreversibile. Il tuo account e tutti i dati associati verranno eliminati permanentemente.
+                Questa azione è irreversibile. Inserisci la tua password per confermare l'eliminazione.
               </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 }}
+                className="mb-5"
+              >
+                <label className="block text-xs font-sans uppercase tracking-widest text-muted-foreground mb-1.5">
+                  Password
+                </label>
+                <div className="relative">
+                  <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type={showDeletePassword ? "text" : "password"}
+                    value={deletePassword}
+                    onChange={(e) => { setDeletePassword(e.target.value); setDeleteError(""); }}
+                    placeholder="Inserisci la tua password"
+                    className="w-full pl-10 pr-10 py-3 rounded-lg bg-muted/50 border border-border text-foreground text-sm font-sans placeholder:text-muted-foreground/60 focus:outline-none focus:border-destructive/50 focus:ring-2 focus:ring-destructive/20 transition-all duration-300"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowDeletePassword(!showDeletePassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showDeletePassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                <AnimatePresence>
+                  {deleteError && (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="text-destructive text-xs mt-1.5 flex items-center gap-1 font-sans"
+                    >
+                      <AlertCircle size={12} />
+                      {deleteError}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </motion.div>
 
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -588,9 +668,9 @@ const Profilo = () => {
                 </motion.button>
                 <motion.button
                   onClick={handleDeleteAccount}
-                  disabled={deleting}
-                  whileHover={!deleting ? { scale: 1.02 } : {}}
-                  whileTap={!deleting ? { scale: 0.98 } : {}}
+                  disabled={deleting || !deletePassword.trim()}
+                  whileHover={!deleting && deletePassword.trim() ? { scale: 1.02 } : {}}
+                  whileTap={!deleting && deletePassword.trim() ? { scale: 0.98 } : {}}
                   className="flex-1 py-3 bg-destructive text-destructive-foreground rounded-lg font-sans text-sm flex items-center justify-center gap-2 disabled:opacity-70 transition-all duration-300"
                 >
                   {deleting ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={15} />}
