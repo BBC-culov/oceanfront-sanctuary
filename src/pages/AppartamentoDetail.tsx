@@ -52,6 +52,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
 import apartments from "@/data/apartments";
+import AvailabilityCalendar from "@/components/AvailabilityCalendar";
 
 const AppartamentoDetail = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -221,6 +222,9 @@ const AppartamentoDetail = () => {
                   </a>
                 </div>
               </div>
+
+              {/* Availability Calendar */}
+              <AvailabilityCalendar />
 
               {/* CTA */}
               <Link to="/contatti">
