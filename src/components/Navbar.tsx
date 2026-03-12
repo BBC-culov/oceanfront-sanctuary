@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, LogOut, UserCircle } from "lucide-react";
+import { Menu, X, LogOut, UserCircle, User, CalendarDays } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import type { User } from "@supabase/supabase-js";
+import type { User as SupaUser } from "@supabase/supabase-js";
 import logo from "@/assets/logo-bazhouse.png";
 
 const navLinks = [
@@ -14,12 +14,19 @@ const navLinks = [
   { label: "Contatti", to: "/contatti" },
 ];
 
+const dropdownItems = [
+  { label: "Profilo", to: "/profilo", icon: User },
+  { label: "Gestisci prenotazioni", to: "/profilo#prenotazioni", icon: CalendarDays },
+];
+
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [user, setUser] = useState<SupaUser | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const mainPages = ["/", "/appartamenti", "/servizi", "/chi-siamo", "/contatti"];
   const noHero = !mainPages.includes(location.pathname);
@@ -41,9 +48,24 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => setMobileOpen(false), [location]);
+  useEffect(() => {
+    setMobileOpen(false);
+    setDropdownOpen(false);
+  }, [location]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
   const handleLogout = async () => {
+    setDropdownOpen(false);
     await supabase.auth.signOut();
     navigate("/");
   };
@@ -70,7 +92,7 @@ const Navbar = () => {
           />
         </Link>
 
-        {/* Desktop */}
+        {/* Desktop nav links */}
         <div className="hidden lg:flex items-center gap-8">
           {navLinks.map((link) => (
             <Link
@@ -91,32 +113,73 @@ const Navbar = () => {
           ))}
         </div>
 
+        {/* Desktop right side */}
         <div className="hidden lg:flex items-center gap-3">
           {user ? (
-            <>
-              <Link
-                to="/profilo"
-                className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
+            <div className="relative" ref={dropdownRef}>
+              <motion.button
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className={`p-2.5 rounded-full transition-all duration-300 ${
                   isTransparent
                     ? "text-hero-text hover:bg-hero-text/10"
                     : "text-foreground hover:bg-muted"
-                }`}
-                aria-label="Profilo"
+                } ${dropdownOpen ? (isTransparent ? "bg-hero-text/10" : "bg-muted") : ""}`}
+                aria-label="Menu utente"
               >
-                <UserCircle size={22} />
-              </Link>
-              <button
-                onClick={handleLogout}
-                className={`inline-flex items-center gap-2 font-sans text-xs tracking-widest uppercase px-5 py-2.5 border transition-all duration-300 hover:scale-105 active:scale-95 ${
-                  !isTransparent
-                    ? "border-foreground/30 text-foreground hover:bg-destructive hover:text-destructive-foreground hover:border-destructive"
-                    : "border-hero-cta-border/40 text-hero-text hover:bg-destructive hover:text-destructive-foreground hover:border-destructive"
-                }`}
-              >
-                <LogOut size={14} />
-                Esci
-              </button>
-            </>
+                <UserCircle size={24} />
+              </motion.button>
+
+              <AnimatePresence>
+                {dropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                    transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] }}
+                    className="absolute right-0 top-full mt-2 w-56 bg-background/98 backdrop-blur-xl rounded-xl border border-border/60 shadow-xl overflow-hidden"
+                  >
+                    {/* User email header */}
+                    <div className="px-4 py-3 border-b border-border/40">
+                      <p className="font-sans text-xs text-muted-foreground truncate">{user.email}</p>
+                    </div>
+
+                    <div className="py-1.5">
+                      {dropdownItems.map((item, idx) => (
+                        <motion.div
+                          key={item.to}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.05 * idx, duration: 0.2 }}
+                        >
+                          <Link
+                            to={item.to}
+                            className="flex items-center gap-3 px-4 py-2.5 font-sans text-sm text-foreground hover:bg-muted/60 transition-colors duration-200"
+                          >
+                            <item.icon size={16} className="text-muted-foreground" />
+                            {item.label}
+                          </Link>
+                        </motion.div>
+                      ))}
+                    </div>
+
+                    <div className="border-t border-border/40 py-1.5">
+                      <motion.button
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.1, duration: 0.2 }}
+                        onClick={handleLogout}
+                        className="flex items-center gap-3 w-full px-4 py-2.5 font-sans text-sm text-destructive hover:bg-destructive/10 transition-colors duration-200"
+                      >
+                        <LogOut size={16} />
+                        Esci
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           ) : (
             <Link
               to="/registrati"
@@ -166,8 +229,15 @@ const Navbar = () => {
                     to="/profilo"
                     className="font-sans text-sm tracking-widest uppercase text-foreground inline-flex items-center gap-2"
                   >
-                    <UserCircle size={16} />
+                    <User size={16} />
                     Profilo
+                  </Link>
+                  <Link
+                    to="/profilo#prenotazioni"
+                    className="font-sans text-sm tracking-widest uppercase text-foreground inline-flex items-center gap-2"
+                  >
+                    <CalendarDays size={16} />
+                    Prenotazioni
                   </Link>
                   <button
                     onClick={handleLogout}
