@@ -522,18 +522,28 @@ const Profilo = () => {
 
             <div className="p-6">
               <p className="font-sans text-sm text-muted-foreground mb-4 leading-relaxed">
-                L'eliminazione dell'account è un'azione <strong className="text-foreground">irreversibile</strong>.
-                Tutti i tuoi dati personali e le prenotazioni verranno eliminati permanentemente.
+                Gestisci la sicurezza del tuo account. Puoi aggiornare la password o eliminare definitivamente il tuo account.
               </p>
-              <motion.button
-                onClick={() => setShowDeleteModal(true)}
-                whileHover={{ scale: 1.03, boxShadow: "0 8px 25px -5px hsl(var(--destructive) / 0.2)" }}
-                whileTap={{ scale: 0.97 }}
-                className="inline-flex items-center gap-2 px-5 py-2.5 border border-destructive/30 text-destructive rounded-lg font-sans text-sm tracking-widest uppercase hover:bg-destructive hover:text-destructive-foreground transition-all duration-300"
-              >
-                <Trash2 size={15} />
-                Elimina Account
-              </motion.button>
+              <div className="flex flex-wrap gap-3">
+                <motion.button
+                  onClick={() => navigate("/registrati", { state: { forgotPassword: true } })}
+                  whileHover={{ scale: 1.03, boxShadow: "0 8px 25px -5px hsl(var(--primary) / 0.2)" }}
+                  whileTap={{ scale: 0.97 }}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 border border-primary/30 text-primary rounded-lg font-sans text-sm tracking-widest uppercase hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                >
+                  <KeyRound size={15} />
+                  Aggiorna Password
+                </motion.button>
+                <motion.button
+                  onClick={() => { setShowDeleteModal(true); setDeletePassword(""); setDeleteError(""); }}
+                  whileHover={{ scale: 1.03, boxShadow: "0 8px 25px -5px hsl(var(--destructive) / 0.2)" }}
+                  whileTap={{ scale: 0.97 }}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 border border-destructive/30 text-destructive rounded-lg font-sans text-sm tracking-widest uppercase hover:bg-destructive hover:text-destructive-foreground transition-all duration-300"
+                >
+                  <Trash2 size={15} />
+                  Elimina Account
+                </motion.button>
+              </div>
             </div>
           </AnimatedSection>
         </div>
