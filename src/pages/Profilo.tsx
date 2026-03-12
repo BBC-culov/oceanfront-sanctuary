@@ -605,10 +605,51 @@ const Profilo = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="font-sans text-sm text-muted-foreground mb-6 leading-relaxed"
+                className="font-sans text-sm text-muted-foreground mb-5 leading-relaxed"
               >
-                Questa azione è irreversibile. Il tuo account e tutti i dati associati verranno eliminati permanentemente.
+                Questa azione è irreversibile. Inserisci la tua password per confermare l'eliminazione.
               </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 }}
+                className="mb-5"
+              >
+                <label className="block text-xs font-sans uppercase tracking-widest text-muted-foreground mb-1.5">
+                  Password
+                </label>
+                <div className="relative">
+                  <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type={showDeletePassword ? "text" : "password"}
+                    value={deletePassword}
+                    onChange={(e) => { setDeletePassword(e.target.value); setDeleteError(""); }}
+                    placeholder="Inserisci la tua password"
+                    className="w-full pl-10 pr-10 py-3 rounded-lg bg-muted/50 border border-border text-foreground text-sm font-sans placeholder:text-muted-foreground/60 focus:outline-none focus:border-destructive/50 focus:ring-2 focus:ring-destructive/20 transition-all duration-300"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowDeletePassword(!showDeletePassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showDeletePassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                <AnimatePresence>
+                  {deleteError && (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="text-destructive text-xs mt-1.5 flex items-center gap-1 font-sans"
+                    >
+                      <AlertCircle size={12} />
+                      {deleteError}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </motion.div>
 
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -626,9 +667,9 @@ const Profilo = () => {
                 </motion.button>
                 <motion.button
                   onClick={handleDeleteAccount}
-                  disabled={deleting}
-                  whileHover={!deleting ? { scale: 1.02 } : {}}
-                  whileTap={!deleting ? { scale: 0.98 } : {}}
+                  disabled={deleting || !deletePassword.trim()}
+                  whileHover={!deleting && deletePassword.trim() ? { scale: 1.02 } : {}}
+                  whileTap={!deleting && deletePassword.trim() ? { scale: 0.98 } : {}}
                   className="flex-1 py-3 bg-destructive text-destructive-foreground rounded-lg font-sans text-sm flex items-center justify-center gap-2 disabled:opacity-70 transition-all duration-300"
                 >
                   {deleting ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={15} />}
