@@ -107,7 +107,7 @@ const AnimatedInput = ({
               : error
                 ? "border-destructive/50"
                 : "border-border"
-          }`}
+          } ${extraClassName || ""}`}
         />
       </motion.div>
       <AnimatePresence>
