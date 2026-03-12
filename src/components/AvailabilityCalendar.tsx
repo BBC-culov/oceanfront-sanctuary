@@ -56,7 +56,7 @@ const AvailabilityCalendar = ({ onDateSelect }: AvailabilityCalendarProps) => {
       setCheckOut(null);
       onDateSelect?.(day, null);
     } else {
-      if (isBefore(day, checkIn)) {
+      if (isBefore(day, checkIn) || isSameDay(day, checkIn)) {
         setCheckIn(day);
         setCheckOut(null);
         onDateSelect?.(day, null);
