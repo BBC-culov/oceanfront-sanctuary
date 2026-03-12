@@ -89,13 +89,9 @@ const AnimatedInput = ({
         transition={{ duration: 0.2 }}
       >
         {Icon && (
-          <motion.div
-            animate={focused ? { color: "hsl(var(--primary))", scale: 1.1 } : { scale: 1 }}
-            transition={{ duration: 0.2 }}
-            className="absolute left-3 top-1/2 -translate-y-1/2"
-          >
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
             <Icon className="w-4 h-4 text-muted-foreground" />
-          </motion.div>
+          </div>
         )}
         <input
           {...props}
