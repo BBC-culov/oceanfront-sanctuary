@@ -161,13 +161,22 @@ const Navbar = () => {
                 </Link>
               ))}
               {user ? (
-                <button
-                  onClick={handleLogout}
-                  className="font-sans text-xs tracking-widest uppercase border border-destructive/30 text-destructive px-5 py-2.5 mt-2 inline-flex items-center gap-2"
-                >
-                  <LogOut size={14} />
-                  Esci
-                </button>
+                <>
+                  <Link
+                    to="/profilo"
+                    className="font-sans text-sm tracking-widest uppercase text-foreground inline-flex items-center gap-2"
+                  >
+                    <UserCircle size={16} />
+                    Profilo
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="font-sans text-xs tracking-widest uppercase border border-destructive/30 text-destructive px-5 py-2.5 mt-2 inline-flex items-center gap-2"
+                  >
+                    <LogOut size={14} />
+                    Esci
+                  </button>
+                </>
               ) : (
                 <Link
                   to="/registrati"
