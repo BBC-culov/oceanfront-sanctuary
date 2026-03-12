@@ -64,6 +64,7 @@ const AnimatedInput = ({
   label,
   error,
   delay = 0,
+  className: extraClassName,
   ...props
 }: {
   icon?: React.ElementType;
