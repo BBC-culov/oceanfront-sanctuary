@@ -15,6 +15,7 @@ import AppartamentoDetail from "./pages/AppartamentoDetail";
 import NotFound from "./pages/NotFound";
 import Registrati from "./pages/Registrati";
 import ResetPassword from "./pages/ResetPassword";
+import Profilo from "./pages/Profilo";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const AnimatedRoutes = () => {
         <Route path="/contatti" element={<Contatti />} />
         <Route path="/registrati" element={<Registrati />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/profilo" element={<Profilo />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>

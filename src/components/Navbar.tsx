@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, LogOut } from "lucide-react";
+import { Menu, X, LogOut, UserCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
@@ -91,30 +91,45 @@ const Navbar = () => {
           ))}
         </div>
 
-        {user ? (
-          <button
-            onClick={handleLogout}
-            className={`hidden lg:inline-flex items-center gap-2 font-sans text-xs tracking-widest uppercase px-5 py-2.5 border transition-all duration-300 hover:scale-105 active:scale-95 ${
-              !isTransparent
-                ? "border-foreground/30 text-foreground hover:bg-destructive hover:text-destructive-foreground hover:border-destructive"
-                : "border-hero-cta-border/40 text-hero-text hover:bg-destructive hover:text-destructive-foreground hover:border-destructive"
-            }`}
-          >
-            <LogOut size={14} />
-            Esci
-          </button>
-        ) : (
-          <Link
-            to="/registrati"
-            className={`hidden lg:inline-flex font-sans text-xs tracking-widest uppercase px-5 py-2.5 border transition-all duration-300 hover:scale-105 active:scale-95 ${
-              !isTransparent
-                ? "border-foreground/30 text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary"
-                : "border-hero-cta-border/40 text-hero-text hover:bg-hero-cta hover:text-hero-cta-foreground hover:border-hero-cta"
-            }`}
-          >
-            Accedi / Registrati
-          </Link>
-        )}
+        <div className="hidden lg:flex items-center gap-3">
+          {user ? (
+            <>
+              <Link
+                to="/profilo"
+                className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
+                  isTransparent
+                    ? "text-hero-text hover:bg-hero-text/10"
+                    : "text-foreground hover:bg-muted"
+                }`}
+                aria-label="Profilo"
+              >
+                <UserCircle size={22} />
+              </Link>
+              <button
+                onClick={handleLogout}
+                className={`inline-flex items-center gap-2 font-sans text-xs tracking-widest uppercase px-5 py-2.5 border transition-all duration-300 hover:scale-105 active:scale-95 ${
+                  !isTransparent
+                    ? "border-foreground/30 text-foreground hover:bg-destructive hover:text-destructive-foreground hover:border-destructive"
+                    : "border-hero-cta-border/40 text-hero-text hover:bg-destructive hover:text-destructive-foreground hover:border-destructive"
+                }`}
+              >
+                <LogOut size={14} />
+                Esci
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/registrati"
+              className={`inline-flex font-sans text-xs tracking-widest uppercase px-5 py-2.5 border transition-all duration-300 hover:scale-105 active:scale-95 ${
+                !isTransparent
+                  ? "border-foreground/30 text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary"
+                  : "border-hero-cta-border/40 text-hero-text hover:bg-hero-cta hover:text-hero-cta-foreground hover:border-hero-cta"
+              }`}
+            >
+              Accedi / Registrati
+            </Link>
+          )}
+        </div>
 
         {/* Mobile toggle */}
         <button
@@ -146,13 +161,22 @@ const Navbar = () => {
                 </Link>
               ))}
               {user ? (
-                <button
-                  onClick={handleLogout}
-                  className="font-sans text-xs tracking-widest uppercase border border-destructive/30 text-destructive px-5 py-2.5 mt-2 inline-flex items-center gap-2"
-                >
-                  <LogOut size={14} />
-                  Esci
-                </button>
+                <>
+                  <Link
+                    to="/profilo"
+                    className="font-sans text-sm tracking-widest uppercase text-foreground inline-flex items-center gap-2"
+                  >
+                    <UserCircle size={16} />
+                    Profilo
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="font-sans text-xs tracking-widest uppercase border border-destructive/30 text-destructive px-5 py-2.5 mt-2 inline-flex items-center gap-2"
+                  >
+                    <LogOut size={14} />
+                    Esci
+                  </button>
+                </>
               ) : (
                 <Link
                   to="/registrati"
