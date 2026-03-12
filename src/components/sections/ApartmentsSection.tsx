@@ -37,10 +37,49 @@ const ApartmentsSection = () => {
           ))}
         </div>
 
+        {/* Decorative connector */}
+        <motion.div
+          className="flex items-center justify-center gap-3 my-12"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1 }}
+        >
+          <motion.div
+            className="h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent flex-1 max-w-[200px]"
+            initial={{ scaleX: 0 }}
+            whileInView={{ scaleX: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1.2, ease: "easeOut" }}
+          />
+          <motion.div
+            className="w-2 h-2 rounded-full bg-primary/30"
+            initial={{ scale: 0 }}
+            whileInView={{ scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+          />
+          <motion.div
+            className="h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent flex-1 max-w-[200px]"
+            initial={{ scaleX: 0 }}
+            whileInView={{ scaleX: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1.2, ease: "easeOut" }}
+          />
+        </motion.div>
+
         {/* Penthouse + Compact */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {penthouse && <ApartmentCard apt={penthouse} delay={0} featured />}
-          {compact && <ApartmentCard apt={compact} delay={0.1} />}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {penthouse && (
+            <div className="md:col-span-2">
+              <ApartmentCard apt={penthouse} delay={0} featured />
+            </div>
+          )}
+          {compact && (
+            <div className="md:col-span-1">
+              <ApartmentCard apt={compact} delay={0.1} />
+            </div>
+          )}
         </div>
       </div>
     </section>
@@ -62,7 +101,7 @@ const ApartmentCard = ({ apt, delay, featured }: ApartmentCardProps) => (
   >
     <Link
       to={`/appartamenti/${apt.slug}`}
-      className="group block bg-background overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-500"
+      className="group block bg-background overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-500 h-full"
     >
       {/* Image */}
       <div className={`relative overflow-hidden ${featured ? "aspect-[16/9]" : "aspect-[4/3]"}`}>
@@ -73,12 +112,13 @@ const ApartmentCard = ({ apt, delay, featured }: ApartmentCardProps) => (
           loading="lazy"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        <motion.div className="absolute bottom-4 right-4 bg-background/90 backdrop-blur-sm px-4 py-2 flex items-center gap-2 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-500">
+        <div className="absolute bottom-4 right-4 bg-background/90 backdrop-blur-sm px-4 py-2 flex items-center gap-2 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-500">
+          <CalendarCheck className="w-3.5 h-3.5 text-primary" strokeWidth={1.5} />
           <span className="font-sans text-xs tracking-[0.15em] uppercase text-foreground">
-            Scopri
+            Verifica Disponibilità
           </span>
           <ArrowRight className="w-3.5 h-3.5 text-foreground" />
-        </motion.div>
+        </div>
       </div>
 
       {/* Content */}
@@ -91,7 +131,7 @@ const ApartmentCard = ({ apt, delay, featured }: ApartmentCardProps) => (
         </h3>
 
         {/* Quick specs */}
-        <div className="flex items-center gap-5 text-muted-foreground mb-5">
+        <div className="flex items-center gap-5 text-muted-foreground">
           <div className="flex items-center gap-1.5">
             <Users className="w-4 h-4" strokeWidth={1.5} />
             <span className="font-sans text-xs">{apt.guests} ospiti</span>
@@ -107,12 +147,6 @@ const ApartmentCard = ({ apt, delay, featured }: ApartmentCardProps) => (
             <span className="font-sans text-xs">{apt.sqm} m²</span>
           </div>
         </div>
-
-        {/* CTA */}
-        <span className="inline-flex items-center gap-2 font-sans text-xs tracking-[0.15em] uppercase text-primary group-hover:text-primary/80 transition-colors">
-          <CalendarCheck className="w-4 h-4" strokeWidth={1.5} />
-          Verifica Disponibilità
-        </span>
       </div>
     </Link>
   </motion.div>
