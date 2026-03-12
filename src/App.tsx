@@ -15,6 +15,7 @@ import AppartamentoDetail from "./pages/AppartamentoDetail";
 import NotFound from "./pages/NotFound";
 import Registrati from "./pages/Registrati";
 import ResetPassword from "./pages/ResetPassword";
+import Profilo from "./pages/Profilo";
 
 const queryClient = new QueryClient();
 
