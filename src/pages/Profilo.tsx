@@ -338,6 +338,18 @@ const Profilo = () => {
             </div>
 
             <div className="p-6 space-y-5">
+              {/* Email (read-only) */}
+              <AnimatedInput
+                icon={Mail}
+                label="Email"
+                type="email"
+                value={userEmail}
+                readOnly
+                disabled
+                delay={0.05}
+                className="opacity-60 cursor-not-allowed"
+              />
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <AnimatedInput
                   label="Nome"
