@@ -11,46 +11,108 @@ const FlowingLine = () => {
     offset: ["start end", "end start"],
   });
   const pathLength = useTransform(scrollYProgress, [0, 0.5], [0, 1]);
-  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
+  const opacity = useTransform(scrollYProgress, [0, 0.15, 0.8, 1], [0, 1, 1, 0]);
+
+  // Particle positions along the wave
+  const particles = [
+    { x: "10%", y: "55%", size: 3, delay: 0 },
+    { x: "20%", y: "30%", size: 4, delay: 0.3 },
+    { x: "30%", y: "45%", size: 2.5, delay: 0.1 },
+    { x: "40%", y: "25%", size: 3.5, delay: 0.5 },
+    { x: "50%", y: "50%", size: 3, delay: 0.2 },
+    { x: "60%", y: "70%", size: 4, delay: 0.4 },
+    { x: "70%", y: "45%", size: 2.5, delay: 0.6 },
+    { x: "80%", y: "30%", size: 3, delay: 0.15 },
+    { x: "90%", y: "55%", size: 3.5, delay: 0.35 },
+  ];
 
   return (
-    <div ref={ref} className="relative h-32 md:h-40 flex items-center justify-center overflow-hidden">
+    <div ref={ref} className="relative h-40 md:h-52 flex items-center justify-center overflow-hidden">
+      {/* Multiple layered wave SVGs */}
       <svg
-        viewBox="0 0 800 100"
-        className="w-full max-w-3xl h-full"
+        viewBox="0 0 1200 120"
+        className="absolute inset-0 w-full h-full"
         preserveAspectRatio="none"
         fill="none"
       >
+        {/* Background glow wave */}
         <motion.path
-          d="M 0 50 Q 200 10, 400 50 Q 600 90, 800 50"
-          stroke="hsl(var(--primary) / 0.25)"
-          strokeWidth="1.5"
+          d="M 0 60 C 150 20, 300 100, 450 60 C 600 20, 750 100, 900 60 C 1050 20, 1150 80, 1200 60"
+          stroke="hsl(var(--primary) / 0.08)"
+          strokeWidth="30"
           strokeLinecap="round"
           fill="none"
           style={{ pathLength, opacity }}
         />
+        {/* Primary wave */}
         <motion.path
-          d="M 0 50 Q 200 10, 400 50 Q 600 90, 800 50"
-          stroke="hsl(var(--primary) / 0.6)"
+          d="M 0 60 C 150 20, 300 100, 450 60 C 600 20, 750 100, 900 60 C 1050 20, 1150 80, 1200 60"
+          stroke="hsl(var(--primary) / 0.3)"
           strokeWidth="2"
           strokeLinecap="round"
           fill="none"
-          strokeDasharray="4 8"
+          style={{ pathLength, opacity }}
+        />
+        {/* Secondary offset wave */}
+        <motion.path
+          d="M 0 55 C 200 95, 350 15, 600 55 C 850 95, 1000 15, 1200 55"
+          stroke="hsl(var(--primary) / 0.15)"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          fill="none"
+          strokeDasharray="6 10"
+          style={{ pathLength, opacity }}
+        />
+        {/* Third subtle wave */}
+        <motion.path
+          d="M 0 65 C 100 35, 250 85, 400 65 C 550 45, 700 85, 850 65 C 1000 45, 1100 75, 1200 65"
+          stroke="hsl(var(--primary) / 0.1)"
+          strokeWidth="1"
+          strokeLinecap="round"
+          fill="none"
           style={{ pathLength, opacity }}
         />
       </svg>
-      {/* Floating dots along the path */}
-      {[0, 1, 2].map((i) => (
+
+      {/* Floating particles */}
+      {particles.map((p, i) => (
         <motion.div
           key={i}
-          className="absolute w-2.5 h-2.5 rounded-full bg-primary/40"
-          style={{ opacity }}
-          initial={{ scale: 0 }}
-          whileInView={{ scale: [0, 1.3, 1] }}
+          className="absolute rounded-full bg-primary/30"
+          style={{
+            left: p.x,
+            top: p.y,
+            width: p.size * 2,
+            height: p.size * 2,
+            opacity,
+          }}
+          initial={{ scale: 0, y: 0 }}
+          whileInView={{
+            scale: [0, 1.4, 0.8, 1],
+            y: [0, -8, 4, 0],
+          }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.3 + i * 0.2 }}
+          transition={{
+            duration: 1.8,
+            delay: p.delay,
+            repeat: Infinity,
+            repeatType: "reverse" as const,
+            repeatDelay: 2 + i * 0.3,
+          }}
         />
       ))}
+
+      {/* Center diamond accent */}
+      <motion.div
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+        style={{ opacity }}
+        initial={{ scale: 0, rotate: 45 }}
+        whileInView={{ scale: [0, 1.2, 1], rotate: 45 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8, delay: 0.5 }}
+      >
+        <div className="w-3 h-3 bg-primary/20 border border-primary/30" />
+      </motion.div>
     </div>
   );
 };
