@@ -193,11 +193,11 @@ const AdminAppartamenti = () => {
                     className={`p-2 transition-colors rounded-md ${
                       isActiveTab 
                         ? "text-muted-foreground hover:text-destructive hover:bg-destructive/10" 
-                        : "text-muted-foreground hover:text-green-600 hover:bg-green-50"
+                        : "text-muted-foreground hover:text-emerald-600 hover:bg-emerald-50"
                     }`}
                     title={isActiveTab ? "Disattiva" : "Attiva"}
                   >
-                    {isActiveTab ? <EyeOff className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4 text-green-600" />}
+                    {isActiveTab ? <EyeOff className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4 text-emerald-600" />}
                   </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.1 }}
