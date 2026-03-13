@@ -3,7 +3,7 @@ import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { AdminSidebar } from "./AdminSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Loader2 } from "lucide-react";
 
 const AdminLayout = () => {
