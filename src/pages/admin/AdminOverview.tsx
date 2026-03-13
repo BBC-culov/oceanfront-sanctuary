@@ -78,7 +78,7 @@ const AdminOverview = () => {
   const statCards = [
     { label: "Prenotazioni", value: stats.totalBookings, icon: CalendarDays, color: "text-primary", link: "/admin/prenotazioni" },
     { label: "Appartamenti", value: stats.totalApartments, icon: Building2, color: "text-ocean", link: "/admin/appartamenti" },
-    { label: "Clienti registrati", value: stats.totalClients, icon: Users, color: "text-accent-foreground", link: null },
+    { label: "Utenti registrati", value: stats.totalClients, icon: Users, color: "text-accent-foreground", link: null },
   ];
 
   return (
