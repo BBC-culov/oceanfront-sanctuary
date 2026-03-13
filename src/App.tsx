@@ -20,6 +20,7 @@ import AdminLayout from "./components/admin/AdminLayout";
 import AdminOverview from "./pages/admin/AdminOverview";
 import AdminPrenotazioni from "./pages/admin/AdminPrenotazioni";
 import AdminAppartamenti from "./pages/admin/AdminAppartamenti";
+import AdminGestione from "./pages/admin/AdminGestione";
 
 const queryClient = new QueryClient();
 
