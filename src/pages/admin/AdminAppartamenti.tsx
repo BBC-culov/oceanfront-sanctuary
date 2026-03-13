@@ -133,8 +133,10 @@ const AdminAppartamenti = () => {
           <ApartmentWizard
             initialData={editing ? { ...editing } : emptyApt}
             initialServices={editing ? editing.services.join(", ") : ""}
+            initialImages={editing ? (Array.isArray((editing as any).images) ? (editing as any).images : []) : []}
             isEditing={!!editing}
             editName={editing?.name}
+            editId={editing?.id}
             onSave={handleSave}
             onClose={closeForm}
           />
