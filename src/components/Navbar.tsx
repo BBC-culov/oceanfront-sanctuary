@@ -249,6 +249,15 @@ const Navbar = () => {
               ))}
               {user ? (
                 <>
+                  {isAdmin && (
+                    <Link
+                      to="/admin"
+                      className="font-sans text-sm tracking-widest uppercase text-primary font-medium inline-flex items-center gap-2"
+                    >
+                      <LayoutDashboard size={16} />
+                      Dashboard
+                    </Link>
+                  )}
                   <Link
                     to="/profilo"
                     className="font-sans text-sm tracking-widest uppercase text-foreground inline-flex items-center gap-2"
