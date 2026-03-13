@@ -295,7 +295,7 @@ const AdminAppartamenti = () => {
               <CheckCircle2 className="w-4 h-4" />
               Attivi
               {activeApartments.length > 0 && (
-                <span className="ml-1 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                <span className="ml-1 text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
                   {activeApartments.length}
                 </span>
               )}
