@@ -11,6 +11,28 @@ const AdminLayout = () => {
   const { isAdmin, loading } = useAdminCheck();
   const navigate = useNavigate();
   const location = useLocation();
+  const [userEmail, setUserEmail] = useState("");
+  const [userRole, setUserRole] = useState("");
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return;
+      setUserEmail(session.user.email ?? "");
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session.user.id);
+      if (data && data.length > 0) {
+        // Pick highest role
+        const roles = data.map(r => r.role);
+        if (roles.includes("amministratore")) setUserRole("Amministratore");
+        else if (roles.includes("admin")) setUserRole("Admin");
+        else setUserRole("Utente");
+      }
+    };
+    fetchUserInfo();
+  }, []);
 
   useEffect(() => {
     if (!loading && !isAdmin) {
