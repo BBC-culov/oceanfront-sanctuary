@@ -13,11 +13,15 @@ export function useAdminCheck() {
         setLoading(false);
         return;
       }
-      const { data } = await supabase.rpc("has_role", {
+      const { data: isAdminRole } = await supabase.rpc("has_role", {
         _user_id: session.user.id,
         _role: "admin",
       });
-      setIsAdmin(!!data);
+      const { data: isAmministratore } = await supabase.rpc("has_role", {
+        _user_id: session.user.id,
+        _role: "amministratore",
+      });
+      setIsAdmin(!!isAdminRole || !!isAmministratore);
       setLoading(false);
     };
     check();
