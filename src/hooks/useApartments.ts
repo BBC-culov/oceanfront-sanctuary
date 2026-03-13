@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import staticApartments from "@/data/apartments";
 
 export interface ApartmentPublic {
   slug: string;
@@ -19,14 +20,27 @@ export interface ApartmentPublic {
 }
 
 function mapRow(row: any): ApartmentPublic {
-  const images: string[] = Array.isArray(row.images) ? row.images : [];
+  const dbImages: string[] = Array.isArray(row.images) ? row.images.filter(Boolean) : [];
+  
+  // If no DB images, fall back to static apartment images
+  let cover = dbImages[0] ?? "";
+  let gallery = dbImages;
+  
+  if (dbImages.length === 0) {
+    const staticMatch = staticApartments.find((s) => s.slug === row.slug);
+    if (staticMatch) {
+      cover = staticMatch.cover;
+      gallery = staticMatch.gallery;
+    }
+  }
+
   return {
     slug: row.slug,
     name: row.name,
     tagline: row.tagline ?? "",
     description: row.description ?? "",
-    cover: images[0] ?? "",
-    gallery: images,
+    cover,
+    gallery,
     guests: row.guests,
     bedrooms: row.bedrooms,
     bathrooms: row.bathrooms,

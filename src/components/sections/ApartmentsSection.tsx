@@ -58,14 +58,13 @@ const cardVariants = {
 };
 
 const ApartmentsSection = () => {
-  const { data: dbApartments, isLoading } = useApartments();
-
-  // Use DB data if available, otherwise fall back to static
+  const { data: dbApartments } = useApartments();
   const apartments = dbApartments && dbApartments.length > 0 ? dbApartments : staticApartments;
 
   const residences = apartments.filter((a) => a.category === "residence");
-  const penthouse = apartments.find((a) => a.category === "penthouse");
-  const compact = apartments.find((a) => a.category === "compact");
+  const penthouses = apartments.filter((a) => a.category === "penthouse");
+  const compacts = apartments.filter((a) => a.category === "compact");
+  const special = [...penthouses, ...compacts];
 
   return (
     <section className="py-24 lg:py-32 bg-secondary">
@@ -74,10 +73,11 @@ const ApartmentsSection = () => {
           <p className="font-sans text-xs tracking-[0.3em] uppercase text-muted-foreground mb-4">Gli Appartamenti</p>
           <h2 className="font-serif text-4xl md:text-5xl font-light mb-6">Eleganza fronte mare.</h2>
           <p className="font-sans text-base text-muted-foreground leading-relaxed">
-            Otto residenze esclusive, ognuna con la propria personalità. Scopri quella perfetta per la tua esperienza a Boa Vista.
+            {apartments.length} residenze esclusive, ognuna con la propria personalità. Scopri quella perfetta per la tua esperienza a Boa Vista.
           </p>
         </motion.div>
 
+        {/* Residences grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {residences.map((apt, i) => (
             <motion.div key={apt.slug} custom={i} variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }}>
@@ -86,20 +86,31 @@ const ApartmentsSection = () => {
           ))}
         </div>
 
-        <FlowingLine />
+        {special.length > 0 && (
+          <>
+            <FlowingLine />
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          {penthouse && (
-            <motion.div className="lg:col-span-3" custom={0} variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }}>
-              <ApartmentCard apt={penthouse} featured />
-            </motion.div>
-          )}
-          {compact && (
-            <motion.div className="lg:col-span-2" custom={1} variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }}>
-              <ApartmentCard apt={compact} />
-            </motion.div>
-          )}
-        </div>
+            {/* Penthouse + Compact section */}
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+              {special.map((apt, i) => {
+                const isPenthouse = apt.category === "penthouse";
+                return (
+                  <motion.div
+                    key={apt.slug}
+                    className={isPenthouse ? "lg:col-span-3" : "lg:col-span-2"}
+                    custom={i}
+                    variants={cardVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, margin: "-50px" }}
+                  >
+                    <ApartmentCard apt={apt} featured={isPenthouse} />
+                  </motion.div>
+                );
+              })}
+            </div>
+          </>
+        )}
       </div>
     </section>
   );
