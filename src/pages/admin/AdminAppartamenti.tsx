@@ -73,9 +73,9 @@ const AdminAppartamenti = () => {
     setCreating(false);
   };
 
-  const handleSave = async (form: Omit<ApartmentRow, "id">, servicesInput: string) => {
+  const handleSave = async (form: Omit<ApartmentRow, "id">, servicesInput: string, images: string[]) => {
     const services = servicesInput.split(",").map((s) => s.trim()).filter(Boolean);
-    const payload = { ...form, services } as any;
+    const payload = { ...form, services, images } as any;
 
     if (creating) {
       const { error } = await supabase.from("apartments").insert(payload);
@@ -133,8 +133,10 @@ const AdminAppartamenti = () => {
           <ApartmentWizard
             initialData={editing ? { ...editing } : emptyApt}
             initialServices={editing ? editing.services.join(", ") : ""}
+            initialImages={editing ? (Array.isArray((editing as any).images) ? (editing as any).images : []) : []}
             isEditing={!!editing}
             editName={editing?.name}
+            editId={editing?.id}
             onSave={handleSave}
             onClose={closeForm}
           />
