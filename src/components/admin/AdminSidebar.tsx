@@ -1,7 +1,8 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LayoutDashboard, CalendarDays, Building2, ArrowLeft, LogOut } from "lucide-react";
+import { LayoutDashboard, CalendarDays, Building2, ArrowLeft, LogOut, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
+import { useAmministratoreCheck } from "@/hooks/useAmministratoreCheck";
 import {
   Sidebar,
   SidebarContent,
