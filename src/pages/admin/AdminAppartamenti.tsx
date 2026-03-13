@@ -124,6 +124,116 @@ const AdminAppartamenti = () => {
 
   const isFormOpen = creating || !!editing;
 
+  const activeApartments = apartments.filter(a => a.is_active);
+  const inactiveApartments = apartments.filter(a => !a.is_active);
+
+  const renderApartmentGrid = (apts: ApartmentRow[], isActiveTab: boolean) => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <AnimatePresence>
+        {apts.map((apt, i) => (
+          <motion.div
+            key={apt.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ delay: i * 0.05, duration: 0.3 }}
+            layout
+          >
+            <Card className={`bg-background overflow-hidden group hover:shadow-lg transition-all duration-300 ${!isActiveTab ? 'opacity-70' : ''}`}>
+              {/* Image cover */}
+              <div className="relative h-36 bg-muted overflow-hidden">
+                {apt.images && apt.images.length > 0 ? (
+                  <motion.img
+                    src={apt.images[0]}
+                    alt={apt.name}
+                    className="w-full h-full object-cover"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.4 }}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Building2 className="w-10 h-10 text-muted-foreground/20" />
+                  </div>
+                )}
+                {/* Category */}
+                <div className="absolute bottom-2 left-2">
+                  <span className="inline-block font-sans text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-background/80 backdrop-blur-sm text-foreground">
+                    {apt.category}
+                  </span>
+                </div>
+              </div>
+
+              <CardContent className="pt-4 pb-4">
+                <h3 className="font-serif text-lg text-foreground">{apt.name}</h3>
+                <p className="font-sans text-xs text-muted-foreground mt-0.5">{apt.slug}</p>
+
+                <div className="flex items-center gap-3 mt-3 font-sans text-xs text-muted-foreground">
+                  <span>€{apt.price_per_night}/notte</span>
+                  <span className="text-border">·</span>
+                  <span>{apt.guests} ospiti</span>
+                  <span className="text-border">·</span>
+                  <span>{apt.sqm}mq</span>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-1 mt-4 pt-3 border-t border-border">
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => openEdit(apt)}
+                    className="p-2 text-muted-foreground hover:text-primary transition-colors rounded-md hover:bg-primary/10"
+                    title="Modifica"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => toggleActive(apt)}
+                    className={`p-2 transition-colors rounded-md ${
+                      isActiveTab 
+                        ? "text-muted-foreground hover:text-destructive hover:bg-destructive/10" 
+                        : "text-muted-foreground hover:text-green-600 hover:bg-green-50"
+                    }`}
+                    title={isActiveTab ? "Disattiva" : "Attiva"}
+                  >
+                    {isActiveTab ? <EyeOff className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => handleDelete(apt.id, apt.name)}
+                    className="p-2 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-destructive/10 ml-auto"
+                    title="Elimina"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </motion.button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </div>
+  );
+
+  const renderEmptyState = (isActiveTab: boolean) => (
+    <Card className="bg-background">
+      <CardContent className="pt-6">
+        <div className="text-center py-12">
+          {isActiveTab ? (
+            <CheckCircle2 className="w-12 h-12 text-primary/30 mx-auto mb-3" />
+          ) : (
+            <XCircle className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+          )}
+          <p className="text-sm text-muted-foreground">
+            {isActiveTab ? "Nessun appartamento attivo" : "Nessun appartamento disattivato"}
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -131,6 +241,10 @@ const AdminAppartamenti = () => {
           <h1 className="font-serif text-3xl font-light text-foreground">Appartamenti</h1>
           <p className="font-sans text-sm text-muted-foreground mt-1">
             Gestisci gli appartamenti · <span className="text-primary">{apartments.length}</span> totali
+            <span className="text-border"> · </span>
+            <span className="text-green-600">{activeApartments.length} attivi</span>
+            <span className="text-border"> · </span>
+            <span className="text-muted-foreground">{inactiveApartments.length} disattivati</span>
           </p>
         </motion.div>
         <motion.button
@@ -162,7 +276,7 @@ const AdminAppartamenti = () => {
         )}
       </AnimatePresence>
 
-      {/* Card Grid */}
+      {/* Tabs */}
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(3)].map((_, i) => (
@@ -174,112 +288,45 @@ const AdminAppartamenti = () => {
             />
           ))}
         </div>
-      ) : apartments.length === 0 ? (
-        <Card className="bg-background">
-          <CardContent className="pt-6">
-            <div className="text-center py-12">
-              <Building2 className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
-              <p className="text-sm text-muted-foreground">Nessun appartamento</p>
-            </div>
-          </CardContent>
-        </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <AnimatePresence>
-            {apartments.map((apt, i) => (
-              <motion.div
-                key={apt.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ delay: i * 0.05, duration: 0.3 }}
-                layout
-              >
-                <Card className="bg-background overflow-hidden group hover:shadow-lg transition-shadow duration-300">
-                  {/* Image cover */}
-                  <div className="relative h-36 bg-muted overflow-hidden">
-                    {apt.images && apt.images.length > 0 ? (
-                      <motion.img
-                        src={apt.images[0]}
-                        alt={apt.name}
-                        className="w-full h-full object-cover"
-                        whileHover={{ scale: 1.05 }}
-                        transition={{ duration: 0.4 }}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Building2 className="w-10 h-10 text-muted-foreground/20" />
-                      </div>
-                    )}
-                    {/* Status badge */}
-                    <div className="absolute top-2 right-2">
-                      <span className={`inline-block font-sans text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full backdrop-blur-sm ${
-                        apt.is_active
-                          ? "bg-primary/80 text-primary-foreground"
-                          : "bg-muted/80 text-muted-foreground"
-                      }`}>
-                        {apt.is_active ? "Attivo" : "Bozza"}
-                      </span>
-                    </div>
-                    {/* Category */}
-                    <div className="absolute bottom-2 left-2">
-                      <span className="inline-block font-sans text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-background/80 backdrop-blur-sm text-foreground">
-                        {apt.category}
-                      </span>
-                    </div>
-                  </div>
-
-                  <CardContent className="pt-4 pb-4">
-                    <h3 className="font-serif text-lg text-foreground">{apt.name}</h3>
-                    <p className="font-sans text-xs text-muted-foreground mt-0.5">{apt.slug}</p>
-
-                    <div className="flex items-center gap-3 mt-3 font-sans text-xs text-muted-foreground">
-                      <span>€{apt.price_per_night}/notte</span>
-                      <span className="text-border">·</span>
-                      <span>{apt.guests} ospiti</span>
-                      <span className="text-border">·</span>
-                      <span>{apt.sqm}mq</span>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-1 mt-4 pt-3 border-t border-border">
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => openEdit(apt)}
-                        className="p-2 text-muted-foreground hover:text-primary transition-colors rounded-md hover:bg-primary/10"
-                        title="Modifica"
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </motion.button>
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => toggleActive(apt)}
-                        className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted"
-                        title={apt.is_active ? "Disattiva" : "Attiva"}
-                      >
-                        {apt.is_active ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </motion.button>
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => handleDelete(apt.id, apt.name)}
-                        className="p-2 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-destructive/10 ml-auto"
-                        title="Elimina"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </motion.button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
+        <Tabs defaultValue="active" className="w-full">
+          <TabsList className="grid w-full max-w-md grid-cols-2 mb-6">
+            <TabsTrigger value="active" className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4" />
+              Attivi
+              {activeApartments.length > 0 && (
+                <span className="ml-1 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                  {activeApartments.length}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="inactive" className="flex items-center gap-2">
+              <XCircle className="w-4 h-4" />
+              Disattivati
+              {inactiveApartments.length > 0 && (
+                <span className="ml-1 text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
+                  {inactiveApartments.length}
+                </span>
+              )}
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="active" className="mt-0">
+            {activeApartments.length === 0 
+              ? renderEmptyState(true) 
+              : renderApartmentGrid(activeApartments, true)}
+          </TabsContent>
+          
+          <TabsContent value="inactive" className="mt-0">
+            {inactiveApartments.length === 0 
+              ? renderEmptyState(false) 
+              : renderApartmentGrid(inactiveApartments, false)}
+          </TabsContent>
+        </Tabs>
       )}
     </div>
   );
+};
 };
 
 export default AdminAppartamenti;
