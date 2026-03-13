@@ -1,15 +1,38 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { AdminSidebar } from "./AdminSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2 } from "lucide-react";
+import { Loader2, UserCircle, Shield, ShieldCheck, User } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const AdminLayout = () => {
   const { isAdmin, loading } = useAdminCheck();
   const navigate = useNavigate();
   const location = useLocation();
+  const [userEmail, setUserEmail] = useState("");
+  const [userRole, setUserRole] = useState("");
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return;
+      setUserEmail(session.user.email ?? "");
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session.user.id);
+      if (data && data.length > 0) {
+        // Pick highest role
+        const roles = data.map(r => r.role);
+        if (roles.includes("amministratore")) setUserRole("Amministratore");
+        else if (roles.includes("admin")) setUserRole("Admin");
+        else setUserRole("Utente");
+      }
+    };
+    fetchUserInfo();
+  }, []);
 
   useEffect(() => {
     if (!loading && !isAdmin) {
@@ -51,28 +74,57 @@ const AdminLayout = () => {
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
-            className="h-14 flex items-center gap-4 border-b border-border bg-background/80 backdrop-blur-sm px-4 sticky top-0 z-40"
+            className="h-14 flex items-center justify-between border-b border-border bg-background/80 backdrop-blur-sm px-4 sticky top-0 z-40"
           >
-            <SidebarTrigger className="text-muted-foreground hover:text-foreground transition-colors" />
-            <div className="flex items-center gap-2">
-              <motion.span
-                className="font-sans text-xs tracking-[0.2em] uppercase text-muted-foreground"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-              >
-                BAZHOUSE
-              </motion.span>
-              <span className="text-muted-foreground/40">|</span>
-              <motion.span
-                className="font-sans text-sm font-medium text-foreground"
-                initial={{ opacity: 0, x: -5 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                Admin Dashboard
-              </motion.span>
+            <div className="flex items-center gap-4">
+              <SidebarTrigger className="text-muted-foreground hover:text-foreground transition-colors" />
+              <div className="flex items-center gap-2">
+                <motion.span
+                  className="font-sans text-xs tracking-[0.2em] uppercase text-muted-foreground"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  BAZHOUSE
+                </motion.span>
+                <span className="text-muted-foreground/40">|</span>
+                <motion.span
+                  className="font-sans text-sm font-medium text-foreground"
+                  initial={{ opacity: 0, x: -5 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  Admin Dashboard
+                </motion.span>
+              </div>
             </div>
+
+            {/* User info */}
+            <motion.div
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 }}
+              className="flex items-center gap-3"
+            >
+              <div className="text-right hidden sm:block">
+                <p className="font-sans text-xs text-foreground truncate max-w-[200px]">{userEmail}</p>
+                <div className="flex items-center justify-end gap-1 mt-0.5">
+                  {userRole === "Amministratore" ? (
+                    <ShieldCheck className="w-3 h-3 text-primary" />
+                  ) : userRole === "Admin" ? (
+                    <Shield className="w-3 h-3 text-primary" />
+                  ) : (
+                    <User className="w-3 h-3 text-muted-foreground" />
+                  )}
+                  <span className="font-sans text-[10px] tracking-wider uppercase text-muted-foreground">
+                    {userRole}
+                  </span>
+                </div>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                <UserCircle className="w-5 h-5 text-muted-foreground" />
+              </div>
+            </motion.div>
           </motion.header>
           <main className="flex-1 p-6 lg:p-8">
             <AnimatePresence mode="wait">
