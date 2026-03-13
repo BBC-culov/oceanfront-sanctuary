@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, CalendarDays, Users, TrendingUp } from "lucide-react";
+import { Building2, CalendarDays, Users, TrendingUp, ArrowUpRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
+import { useNavigate } from "react-router-dom";
 
 interface Stats {
   totalBookings: number;
@@ -38,6 +39,8 @@ const AdminOverview = () => {
   const [stats, setStats] = useState<Stats>({ totalBookings: 0, totalApartments: 0, totalClients: 0 });
   const [recentBookings, setRecentBookings] = useState<RecentBooking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hoveredStat, setHoveredStat] = useState<number | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,7 +58,6 @@ const AdminOverview = () => {
       });
 
       if (recentRes.data) {
-        // Fetch apartment names for recent bookings
         const aptIds = [...new Set(recentRes.data.map((b: any) => b.apartment_id))];
         const { data: apts } = await supabase.from("apartments").select("id, name").in("id", aptIds);
         const aptMap = new Map((apts ?? []).map((a: any) => [a.id, a.name]));
@@ -74,40 +76,79 @@ const AdminOverview = () => {
   }, []);
 
   const statCards = [
-    { label: "Prenotazioni", value: stats.totalBookings, icon: CalendarDays, color: "text-primary" },
-    { label: "Appartamenti", value: stats.totalApartments, icon: Building2, color: "text-ocean" },
-    { label: "Clienti registrati", value: stats.totalClients, icon: Users, color: "text-accent-foreground" },
+    { label: "Prenotazioni", value: stats.totalBookings, icon: CalendarDays, color: "text-primary", link: "/admin/prenotazioni" },
+    { label: "Appartamenti", value: stats.totalApartments, icon: Building2, color: "text-ocean", link: "/admin/appartamenti" },
+    { label: "Clienti registrati", value: stats.totalClients, icon: Users, color: "text-accent-foreground", link: null },
   ];
 
   return (
     <div className="space-y-8">
-      <div>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
         <h1 className="font-serif text-3xl font-light text-foreground">Dashboard</h1>
         <p className="font-sans text-sm text-muted-foreground mt-1">Panoramica generale</p>
-      </div>
+      </motion.div>
 
       {/* Stats cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {statCards.map((card, i) => (
           <motion.div
             key={card.label}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
+            transition={{ delay: i * 0.1, duration: 0.4, ease: "easeOut" }}
+            onHoverStart={() => setHoveredStat(i)}
+            onHoverEnd={() => setHoveredStat(null)}
+            onClick={() => card.link && navigate(card.link)}
+            className={card.link ? "cursor-pointer" : ""}
           >
-            <Card className="bg-background">
-              <CardContent className="pt-6">
+            <Card className="bg-background overflow-hidden relative group">
+              {/* Animated background glow on hover */}
+              <motion.div
+                className="absolute inset-0 bg-primary/5 rounded-lg"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: hoveredStat === i ? 1 : 0 }}
+                transition={{ duration: 0.3 }}
+              />
+              <CardContent className="pt-6 relative">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-sans text-xs text-muted-foreground uppercase tracking-wider">{card.label}</p>
-                    <p className="font-serif text-3xl font-light mt-1">
+                    <motion.p
+                      className="font-serif text-3xl font-light mt-1"
+                      key={loading ? "loading" : card.value}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.2 + i * 0.1 }}
+                    >
                       {loading ? "—" : card.value}
-                    </p>
+                    </motion.p>
                   </div>
-                  <div className={`p-3 rounded-lg bg-muted ${card.color}`}>
+                  <motion.div
+                    className={`p-3 rounded-lg bg-muted ${card.color}`}
+                    animate={{
+                      scale: hoveredStat === i ? 1.1 : 1,
+                      rotate: hoveredStat === i ? 5 : 0,
+                    }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  >
                     <card.icon className="w-5 h-5" />
-                  </div>
+                  </motion.div>
                 </div>
+                {card.link && (
+                  <motion.div
+                    className="flex items-center gap-1 mt-3 font-sans text-xs text-primary"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: hoveredStat === i ? 1 : 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <span>Visualizza</span>
+                    <ArrowUpRight className="w-3 h-3" />
+                  </motion.div>
+                )}
               </CardContent>
             </Card>
           </motion.div>
@@ -118,20 +159,41 @@ const AdminOverview = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
+        transition={{ delay: 0.35, duration: 0.4 }}
       >
         <Card className="bg-background">
           <CardHeader>
             <CardTitle className="font-serif text-xl font-light flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-primary" />
+              <motion.div
+                animate={{ y: [0, -2, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <TrendingUp className="w-5 h-5 text-primary" />
+              </motion.div>
               Ultime prenotazioni
             </CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
-              <p className="text-sm text-muted-foreground">Caricamento...</p>
+              <div className="space-y-3">
+                {[...Array(3)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="h-12 bg-muted/50 rounded-md"
+                    animate={{ opacity: [0.3, 0.6, 0.3] }}
+                    transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
+                  />
+                ))}
+              </div>
             ) : recentBookings.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Nessuna prenotazione ancora.</p>
+              <motion.div
+                className="text-center py-12"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <CalendarDays className="w-12 h-12 text-muted-foreground/20 mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">Nessuna prenotazione ancora.</p>
+              </motion.div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -144,8 +206,14 @@ const AdminOverview = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {recentBookings.map((b) => (
-                      <tr key={b.id} className="border-b border-border/50 last:border-0">
+                    {recentBookings.map((b, i) => (
+                      <motion.tr
+                        key={b.id}
+                        className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors"
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.4 + i * 0.06, duration: 0.3 }}
+                      >
                         <td className="py-3 px-2">
                           <p className="font-sans text-sm text-foreground">{b.guest_name}</p>
                           <p className="font-sans text-xs text-muted-foreground">{b.guest_email}</p>
@@ -155,11 +223,14 @@ const AdminOverview = () => {
                           {format(new Date(b.check_in), "dd MMM yyyy", { locale: it })}
                         </td>
                         <td className="py-3 px-2">
-                          <span className={`inline-block font-sans text-xs px-2.5 py-1 rounded-full ${statusColors[b.status] ?? ""}`}>
+                          <motion.span
+                            className={`inline-block font-sans text-xs px-2.5 py-1 rounded-full ${statusColors[b.status] ?? ""}`}
+                            whileHover={{ scale: 1.05 }}
+                          >
                             {statusLabels[b.status] ?? b.status}
-                          </span>
+                          </motion.span>
                         </td>
-                      </tr>
+                      </motion.tr>
                     ))}
                   </tbody>
                 </table>

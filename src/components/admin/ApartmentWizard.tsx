@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,17 @@ import {
   GripVertical,
   Loader2,
   AlertCircle,
+  MapPin,
+  Wifi,
+  Wind,
+  Tv,
+  Car,
+  UtensilsCrossed,
+  WashingMachine,
+  Waves,
+  Sun,
+  ShieldCheck,
+  Coffee,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -37,6 +48,7 @@ interface ApartmentForm {
   services: string[];
   address: string | null;
   is_active: boolean;
+  map_query?: string | null;
 }
 
 export type { ApartmentForm };
@@ -44,11 +56,24 @@ export type { ApartmentForm };
 type ValidationErrors = Record<string, string>;
 
 const STEPS = [
-  { title: "Identità", subtitle: "Nome e categoria", icon: Building2 },
-  { title: "Spazi", subtitle: "Capienza e dimensioni", icon: Users },
-  { title: "Descrizione", subtitle: "Testi e indirizzo", icon: FileText },
+  { title: "Identità", subtitle: "Nome, categoria e posizione", icon: Building2 },
+  { title: "Spazi", subtitle: "Capienza, dimensioni e prezzo", icon: Users },
+  { title: "Descrizione", subtitle: "Testi e informazioni", icon: FileText },
   { title: "Immagini", subtitle: "Foto dell'appartamento", icon: ImagePlus },
-  { title: "Dettagli", subtitle: "Servizi e pubblicazione", icon: Sparkles },
+  { title: "Servizi", subtitle: "Amenities e pubblicazione", icon: Sparkles },
+];
+
+const PRESET_SERVICES = [
+  { label: "Wi-Fi", icon: Wifi },
+  { label: "Aria condizionata", icon: Wind },
+  { label: "Smart TV", icon: Tv },
+  { label: "Parcheggio", icon: Car },
+  { label: "Cucina attrezzata", icon: UtensilsCrossed },
+  { label: "Lavatrice", icon: WashingMachine },
+  { label: "Vista mare", icon: Waves },
+  { label: "Terrazza", icon: Sun },
+  { label: "Cassaforte", icon: ShieldCheck },
+  { label: "Macchina del caffè", icon: Coffee },
 ];
 
 const slideVariants = {
@@ -140,7 +165,6 @@ const ApartmentWizard = ({
   };
 
   const handleSave = () => {
-    // Validate all steps before saving
     for (let s = 0; s < STEPS.length; s++) {
       const stepErrors = validateStep(s, form);
       if (Object.keys(stepErrors).length > 0) {
@@ -205,9 +229,14 @@ const ApartmentWizard = ({
             >
               {isEditing ? `Modifica: ${editName}` : "Nuovo appartamento"}
             </motion.h2>
-            <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors p-1">
+            <motion.button
+              whileHover={{ scale: 1.1, rotate: 90 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={onClose}
+              className="text-muted-foreground hover:text-foreground transition-colors p-1"
+            >
               <X className="w-5 h-5" />
-            </button>
+            </motion.button>
           </div>
 
           <div className="flex items-center gap-2 mb-4 overflow-x-auto">
@@ -220,12 +249,20 @@ const ApartmentWizard = ({
                   key={i}
                   onClick={() => goToStep(i)}
                   className={`flex items-center gap-2 px-3 py-2 rounded-md text-xs font-sans tracking-wide uppercase transition-all cursor-pointer whitespace-nowrap ${
-                    isActive ? "bg-primary text-primary-foreground" : isDone ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+                    isActive ? "bg-primary text-primary-foreground shadow-md" : isDone ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
                   }`}
-                  whileHover={{ scale: 1.03 }}
+                  whileHover={{ scale: 1.03, y: -1 }}
                   whileTap={{ scale: 0.97 }}
+                  animate={isActive ? { y: [0, -2, 0] } : {}}
+                  transition={isActive ? { duration: 0.4 } : {}}
                 >
-                  {isDone ? <Check className="w-3.5 h-3.5" /> : <StepIcon className="w-3.5 h-3.5" />}
+                  {isDone ? (
+                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring" }}>
+                      <Check className="w-3.5 h-3.5" />
+                    </motion.div>
+                  ) : (
+                    <StepIcon className="w-3.5 h-3.5" />
+                  )}
                   <span className="hidden sm:inline">{s.title}</span>
                 </motion.button>
               );
@@ -248,7 +285,7 @@ const ApartmentWizard = ({
             </motion.p>
           </AnimatePresence>
 
-          <div className="relative min-h-[200px]">
+          <div className="relative min-h-[260px]">
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div
                 key={step}
@@ -277,7 +314,7 @@ const ApartmentWizard = ({
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={step === 0 ? onClose : goPrev}
-              className="flex items-center gap-2 font-sans text-xs tracking-wider uppercase px-5 py-2.5 border border-border text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-2 font-sans text-xs tracking-wider uppercase px-5 py-2.5 border border-border text-muted-foreground hover:text-foreground transition-colors rounded-md"
             >
               <ArrowLeft className="w-4 h-4" />
               {step === 0 ? "Annulla" : "Indietro"}
@@ -285,20 +322,20 @@ const ApartmentWizard = ({
 
             {isLastStep ? (
               <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={handleSave}
-                className="flex items-center gap-2 font-sans text-xs tracking-wider uppercase bg-primary text-primary-foreground px-6 py-2.5 hover:bg-primary/90 transition-colors"
+                className="flex items-center gap-2 font-sans text-xs tracking-wider uppercase bg-primary text-primary-foreground px-6 py-2.5 hover:bg-primary/90 transition-colors rounded-md shadow-md"
               >
                 <Save className="w-4 h-4" />
                 Salva
               </motion.button>
             ) : (
               <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={goNext}
-                className="flex items-center gap-2 font-sans text-xs tracking-wider uppercase bg-primary text-primary-foreground px-6 py-2.5 hover:bg-primary/90 transition-colors"
+                className="flex items-center gap-2 font-sans text-xs tracking-wider uppercase bg-primary text-primary-foreground px-6 py-2.5 hover:bg-primary/90 transition-colors rounded-md"
               >
                 Avanti
                 <ArrowRight className="w-4 h-4" />
@@ -332,13 +369,19 @@ const FieldError = ({ message }: { message?: string }) => {
 /* ─── Step Components ─── */
 
 function StepIdentity({ form, setForm, errors }: { form: ApartmentForm; setForm: React.Dispatch<React.SetStateAction<ApartmentForm>>; errors: ValidationErrors }) {
+  const autoSlug = (name: string) =>
+    name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
       <div className="sm:col-span-2">
         <label className={fieldLabel}>Nome dell'appartamento *</label>
         <Input
           value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          onChange={(e) => {
+            const name = e.target.value;
+            setForm({ ...form, name, slug: form.slug || autoSlug(name) });
+          }}
           placeholder="es. Oceano Suite"
           className={`text-base ${errors.name ? "border-destructive" : ""}`}
         />
@@ -374,6 +417,29 @@ function StepIdentity({ form, setForm, errors }: { form: ApartmentForm; setForm:
           placeholder="Una frase che descrive l'essenza..."
         />
       </div>
+      <div className="sm:col-span-2">
+        <label className={fieldLabel}>
+          <MapPin className="w-3 h-3 inline mr-1" />
+          Indirizzo
+        </label>
+        <Input
+          value={form.address ?? ""}
+          onChange={(e) => setForm({ ...form, address: e.target.value })}
+          placeholder="Via, numero civico, città..."
+        />
+      </div>
+      <div className="sm:col-span-2">
+        <label className={fieldLabel}>
+          <MapPin className="w-3 h-3 inline mr-1" />
+          Query mappa (per Google Maps embed)
+        </label>
+        <Input
+          value={form.map_query ?? ""}
+          onChange={(e) => setForm({ ...form, map_query: e.target.value })}
+          placeholder="es. Praia Cabral, Boa Vista, Capo Verde"
+        />
+        <p className="font-sans text-[10px] text-muted-foreground mt-1">Usata per mostrare la mappa nella pagina dettaglio</p>
+      </div>
     </div>
   );
 }
@@ -389,8 +455,13 @@ function StepSpaces({ form, setForm, errors }: { form: ApartmentForm; setForm: R
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
-      {fields.map((f) => (
-        <div key={f.key}>
+      {fields.map((f, i) => (
+        <motion.div
+          key={f.key}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: i * 0.05 }}
+        >
           <label className={fieldLabel}>{f.label} *</label>
           <Input
             type="number"
@@ -400,28 +471,31 @@ function StepSpaces({ form, setForm, errors }: { form: ApartmentForm; setForm: R
             className={errors[f.key] ? "border-destructive" : ""}
           />
           <FieldError message={errors[f.key]} />
-        </div>
+        </motion.div>
       ))}
     </div>
   );
 }
 
 function StepDescription({ form, setForm }: { form: ApartmentForm; setForm: React.Dispatch<React.SetStateAction<ApartmentForm>> }) {
+  const charCount = (form.description ?? "").length;
+
   return (
     <div className="space-y-5">
       <div>
-        <label className={fieldLabel}>Descrizione</label>
+        <div className="flex items-center justify-between mb-1">
+          <label className={fieldLabel}>Descrizione</label>
+          <span className={`font-sans text-[10px] ${charCount > 500 ? "text-accent-foreground" : "text-muted-foreground"}`}>
+            {charCount} caratteri
+          </span>
+        </div>
         <textarea
           value={form.description ?? ""}
           onChange={(e) => setForm({ ...form, description: e.target.value })}
-          rows={4}
+          rows={5}
           placeholder="Racconta cosa rende unico questo appartamento..."
-          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-sans resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-sans resize-none focus:outline-none focus:ring-2 focus:ring-ring transition-all"
         />
-      </div>
-      <div>
-        <label className={fieldLabel}>Indirizzo</label>
-        <Input value={form.address ?? ""} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="Via, numero civico, città..." />
       </div>
     </div>
   );
@@ -442,7 +516,10 @@ function StepImages({
 }) {
   return (
     <div className="space-y-5">
-      <label className="relative flex flex-col items-center justify-center border-2 border-dashed border-border rounded-lg p-8 cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-colors group">
+      <motion.label
+        className="relative flex flex-col items-center justify-center border-2 border-dashed border-border rounded-lg p-8 cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-colors group"
+        whileHover={{ scale: 1.01 }}
+      >
         <input
           type="file"
           accept="image/*"
@@ -454,13 +531,15 @@ function StepImages({
         {uploading ? (
           <Loader2 className="w-8 h-8 text-primary animate-spin mb-2" />
         ) : (
-          <Upload className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors mb-2" />
+          <motion.div animate={{ y: [0, -3, 0] }} transition={{ duration: 2, repeat: Infinity }}>
+            <Upload className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors mb-2" />
+          </motion.div>
         )}
         <span className="font-sans text-sm text-muted-foreground group-hover:text-foreground transition-colors">
           {uploading ? "Caricamento in corso..." : "Trascina o clicca per caricare immagini"}
         </span>
         <span className="font-sans text-xs text-muted-foreground mt-1">JPG, PNG, WebP — max 5MB per file</span>
-      </label>
+      </motion.label>
 
       {images.length > 0 && (
         <div>
@@ -472,7 +551,7 @@ function StepImages({
               <Reorder.Item
                 key={url}
                 value={url}
-                className="flex items-center gap-3 bg-muted/30 rounded-md p-2 border border-border cursor-grab active:cursor-grabbing"
+                className="flex items-center gap-3 bg-muted/30 rounded-md p-2 border border-border cursor-grab active:cursor-grabbing hover:border-primary/30 transition-colors"
               >
                 <GripVertical className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                 <div className="w-20 h-14 rounded overflow-hidden flex-shrink-0">
@@ -480,9 +559,13 @@ function StepImages({
                 </div>
                 <div className="flex-1 min-w-0">
                   {i === 0 && (
-                    <span className="inline-block font-sans text-[10px] uppercase tracking-wider bg-primary text-primary-foreground px-2 py-0.5 rounded">
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="inline-block font-sans text-[10px] uppercase tracking-wider bg-primary text-primary-foreground px-2 py-0.5 rounded"
+                    >
                       Copertina
-                    </span>
+                    </motion.span>
                   )}
                   <p className="font-sans text-xs text-muted-foreground truncate mt-0.5">Immagine {i + 1}</p>
                 </div>
@@ -516,32 +599,74 @@ function StepDetails({
   servicesInput: string;
   setServicesInput: (v: string) => void;
 }) {
+  const currentServices = servicesInput
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const togglePreset = (label: string) => {
+    if (currentServices.includes(label)) {
+      setServicesInput(currentServices.filter((s) => s !== label).join(", "));
+    } else {
+      setServicesInput([...currentServices, label].join(", "));
+    }
+  };
+
   return (
     <div className="space-y-5">
+      {/* Preset services */}
       <div>
-        <label className={fieldLabel}>Servizi (separati da virgola)</label>
+        <label className={fieldLabel}>Servizi rapidi</label>
+        <div className="flex flex-wrap gap-2 mt-2">
+          {PRESET_SERVICES.map((preset, i) => {
+            const isSelected = currentServices.includes(preset.label);
+            const Icon = preset.icon;
+            return (
+              <motion.button
+                key={preset.label}
+                type="button"
+                onClick={() => togglePreset(preset.label)}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: i * 0.03 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={`flex items-center gap-1.5 font-sans text-xs px-3 py-1.5 rounded-full border transition-all ${
+                  isSelected
+                    ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                    : "bg-background text-muted-foreground border-border hover:border-primary/50"
+                }`}
+              >
+                <Icon className="w-3 h-3" />
+                {preset.label}
+                {isSelected && (
+                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
+                    <Check className="w-3 h-3" />
+                  </motion.div>
+                )}
+              </motion.button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Custom services input */}
+      <div>
+        <label className={fieldLabel}>Servizi personalizzati (separati da virgola)</label>
         <Input value={servicesInput} onChange={(e) => setServicesInput(e.target.value)} placeholder="Wi-Fi, Aria condizionata, Smart TV..." />
-        {servicesInput && (
-          <motion.div className="flex flex-wrap gap-2 mt-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            {servicesInput
-              .split(",")
-              .map((s) => s.trim())
-              .filter(Boolean)
-              .map((s, i) => (
-                <motion.span
-                  key={i}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: i * 0.03 }}
-                  className="inline-block font-sans text-xs bg-primary/10 text-primary px-3 py-1 rounded-full"
-                >
-                  {s}
-                </motion.span>
-              ))}
-          </motion.div>
+        {currentServices.length > 0 && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="font-sans text-[10px] text-primary mt-1.5"
+          >
+            {currentServices.length} servizi selezionati
+          </motion.p>
         )}
       </div>
-      <div className="flex items-center gap-3 pt-2">
+
+      {/* Publish toggle */}
+      <div className="flex items-center gap-3 pt-4 border-t border-border">
         <label className={fieldLabel}>Pubblicare subito?</label>
         <motion.button
           type="button"
@@ -555,7 +680,12 @@ function StepDetails({
             transition={{ type: "spring", stiffness: 500, damping: 30 }}
           />
         </motion.button>
-        <span className="font-sans text-sm text-foreground">{form.is_active ? "Sì, attivo" : "No, bozza"}</span>
+        <motion.span
+          className="font-sans text-sm"
+          animate={{ color: form.is_active ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))" }}
+        >
+          {form.is_active ? "Sì, attivo" : "No, bozza"}
+        </motion.span>
       </div>
     </div>
   );

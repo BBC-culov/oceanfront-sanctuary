@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Pencil, Trash2, Building2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Building2, Eye, EyeOff } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import ApartmentWizard from "@/components/admin/ApartmentWizard";
 
@@ -21,6 +21,8 @@ interface ApartmentRow {
   services: string[];
   address: string | null;
   is_active: boolean;
+  images?: string[];
+  map_query?: string | null;
 }
 
 const emptyApt: Omit<ApartmentRow, "id"> = {
@@ -37,6 +39,7 @@ const emptyApt: Omit<ApartmentRow, "id"> = {
   services: [],
   address: "",
   is_active: true,
+  map_query: "",
 };
 
 const AdminAppartamenti = () => {
@@ -51,6 +54,7 @@ const AdminAppartamenti = () => {
       (data ?? []).map((a: any) => ({
         ...a,
         services: Array.isArray(a.services) ? a.services : [],
+        images: Array.isArray(a.images) ? a.images : [],
       }))
     );
     setLoading(false);
@@ -107,20 +111,34 @@ const AdminAppartamenti = () => {
     }
   };
 
+  const toggleActive = async (apt: ApartmentRow) => {
+    const { error } = await supabase.from("apartments").update({ is_active: !apt.is_active }).eq("id", apt.id);
+    if (error) {
+      toast({ title: "Errore", description: error.message, variant: "destructive" });
+    } else {
+      setApartments((prev) => prev.map((a) => a.id === apt.id ? { ...a, is_active: !a.is_active } : a));
+      toast({ title: apt.is_active ? "Disattivato" : "Attivato" });
+    }
+  };
+
   const isFormOpen = creating || !!editing;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
+        <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
           <h1 className="font-serif text-3xl font-light text-foreground">Appartamenti</h1>
-          <p className="font-sans text-sm text-muted-foreground mt-1">Gestisci gli appartamenti</p>
-        </div>
+          <p className="font-sans text-sm text-muted-foreground mt-1">
+            Gestisci gli appartamenti · <span className="text-primary">{apartments.length}</span> totali
+          </p>
+        </motion.div>
         <motion.button
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={openCreate}
-          className="flex items-center gap-2 font-sans text-xs tracking-[0.15em] uppercase bg-primary text-primary-foreground px-5 py-2.5 hover:bg-primary/90 transition-colors"
+          className="flex items-center gap-2 font-sans text-xs tracking-[0.15em] uppercase bg-primary text-primary-foreground px-5 py-2.5 hover:bg-primary/90 transition-colors rounded-md"
         >
           <Plus className="w-4 h-4" />
           Nuovo
@@ -133,7 +151,7 @@ const AdminAppartamenti = () => {
           <ApartmentWizard
             initialData={editing ? { ...editing } : emptyApt}
             initialServices={editing ? editing.services.join(", ") : ""}
-            initialImages={editing ? (Array.isArray((editing as any).images) ? (editing as any).images : []) : []}
+            initialImages={editing ? (editing.images ?? []) : []}
             isEditing={!!editing}
             editName={editing?.name}
             editId={editing?.id}
@@ -143,69 +161,122 @@ const AdminAppartamenti = () => {
         )}
       </AnimatePresence>
 
-      {/* List */}
-      <Card className="bg-background">
-        <CardContent className="pt-6">
-          {loading ? (
-            <p className="text-sm text-muted-foreground">Caricamento...</p>
-          ) : apartments.length === 0 ? (
+      {/* Card Grid */}
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[...Array(3)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="h-48 bg-muted/30 rounded-lg border border-border"
+              animate={{ opacity: [0.3, 0.6, 0.3] }}
+              transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
+            />
+          ))}
+        </div>
+      ) : apartments.length === 0 ? (
+        <Card className="bg-background">
+          <CardContent className="pt-6">
             <div className="text-center py-12">
               <Building2 className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
               <p className="text-sm text-muted-foreground">Nessun appartamento</p>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-border">
-                    {["Nome", "Categoria", "Prezzo/notte", "Ospiti", "Stato", "Azioni"].map((h) => (
-                      <th key={h} className="text-left font-sans text-xs uppercase tracking-wider text-muted-foreground py-3 px-2">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {apartments.map((apt) => (
-                    <tr key={apt.id} className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors">
-                      <td className="py-3 px-2">
-                        <p className="font-sans text-sm font-medium text-foreground">{apt.name}</p>
-                        <p className="font-sans text-xs text-muted-foreground">{apt.slug}</p>
-                      </td>
-                      <td className="py-3 px-2 font-sans text-sm text-muted-foreground capitalize">{apt.category}</td>
-                      <td className="py-3 px-2 font-sans text-sm text-foreground">€{apt.price_per_night}</td>
-                      <td className="py-3 px-2 font-sans text-sm text-muted-foreground">{apt.guests}</td>
-                      <td className="py-3 px-2">
-                        <span className={`inline-block font-sans text-xs px-2.5 py-1 rounded-full ${
-                          apt.is_active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-                        }`}>
-                          {apt.is_active ? "Attivo" : "Disattivato"}
-                        </span>
-                      </td>
-                      <td className="py-3 px-2">
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => openEdit(apt)}
-                            className="p-2 text-muted-foreground hover:text-primary transition-colors rounded-md hover:bg-primary/10"
-                            title="Modifica"
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(apt.id, apt.name)}
-                            className="p-2 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-destructive/10"
-                            title="Elimina"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <AnimatePresence>
+            {apartments.map((apt, i) => (
+              <motion.div
+                key={apt.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ delay: i * 0.05, duration: 0.3 }}
+                layout
+              >
+                <Card className="bg-background overflow-hidden group hover:shadow-lg transition-shadow duration-300">
+                  {/* Image cover */}
+                  <div className="relative h-36 bg-muted overflow-hidden">
+                    {apt.images && apt.images.length > 0 ? (
+                      <motion.img
+                        src={apt.images[0]}
+                        alt={apt.name}
+                        className="w-full h-full object-cover"
+                        whileHover={{ scale: 1.05 }}
+                        transition={{ duration: 0.4 }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Building2 className="w-10 h-10 text-muted-foreground/20" />
+                      </div>
+                    )}
+                    {/* Status badge */}
+                    <div className="absolute top-2 right-2">
+                      <span className={`inline-block font-sans text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full backdrop-blur-sm ${
+                        apt.is_active
+                          ? "bg-primary/80 text-primary-foreground"
+                          : "bg-muted/80 text-muted-foreground"
+                      }`}>
+                        {apt.is_active ? "Attivo" : "Bozza"}
+                      </span>
+                    </div>
+                    {/* Category */}
+                    <div className="absolute bottom-2 left-2">
+                      <span className="inline-block font-sans text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-background/80 backdrop-blur-sm text-foreground">
+                        {apt.category}
+                      </span>
+                    </div>
+                  </div>
+
+                  <CardContent className="pt-4 pb-4">
+                    <h3 className="font-serif text-lg text-foreground">{apt.name}</h3>
+                    <p className="font-sans text-xs text-muted-foreground mt-0.5">{apt.slug}</p>
+
+                    <div className="flex items-center gap-3 mt-3 font-sans text-xs text-muted-foreground">
+                      <span>€{apt.price_per_night}/notte</span>
+                      <span className="text-border">·</span>
+                      <span>{apt.guests} ospiti</span>
+                      <span className="text-border">·</span>
+                      <span>{apt.sqm}mq</span>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-1 mt-4 pt-3 border-t border-border">
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => openEdit(apt)}
+                        className="p-2 text-muted-foreground hover:text-primary transition-colors rounded-md hover:bg-primary/10"
+                        title="Modifica"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => toggleActive(apt)}
+                        className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted"
+                        title={apt.is_active ? "Disattiva" : "Attiva"}
+                      >
+                        {apt.is_active ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => handleDelete(apt.id, apt.name)}
+                        className="p-2 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-destructive/10 ml-auto"
+                        title="Elimina"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </motion.button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 };
