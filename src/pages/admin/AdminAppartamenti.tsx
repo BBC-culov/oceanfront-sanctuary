@@ -193,7 +193,7 @@ const AdminAppartamenti = () => {
                     className={`p-2 transition-colors rounded-md ${
                       isActiveTab 
                         ? "text-muted-foreground hover:text-destructive hover:bg-destructive/10" 
-                        : "text-muted-foreground hover:text-emerald-600 hover:bg-emerald-50"
+                        : "text-muted-foreground hover:text-success hover:bg-success/10"
                     }`}
                     title={isActiveTab ? "Disattiva" : "Attiva"}
                   >
