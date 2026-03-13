@@ -155,12 +155,27 @@ const Navbar = () => {
                     </div>
 
                     <div className="py-1.5">
+                      {isAdmin && (
+                        <motion.div
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0, duration: 0.2 }}
+                        >
+                          <Link
+                            to="/admin"
+                            className="flex items-center gap-3 px-4 py-2.5 font-sans text-sm text-primary font-medium hover:bg-primary/10 transition-colors duration-200"
+                          >
+                            <LayoutDashboard size={16} />
+                            Dashboard
+                          </Link>
+                        </motion.div>
+                      )}
                       {dropdownItems.map((item, idx) => (
                         <motion.div
                           key={item.to}
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.05 * idx, duration: 0.2 }}
+                          transition={{ delay: 0.05 * (idx + (isAdmin ? 1 : 0)), duration: 0.2 }}
                         >
                           <Link
                             to={item.to}
