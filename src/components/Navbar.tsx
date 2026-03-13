@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, LogOut, UserCircle, User, CalendarDays } from "lucide-react";
+import { Menu, X, LogOut, UserCircle, User, CalendarDays, LayoutDashboard } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import type { User as SupaUser } from "@supabase/supabase-js";
@@ -24,6 +24,7 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [user, setUser] = useState<SupaUser | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -33,11 +34,19 @@ const Navbar = () => {
   const isTransparent = !noHero && !scrolled;
 
   useEffect(() => {
+    const checkAdmin = async (userId: string) => {
+      const { data } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+      setIsAdmin(!!data);
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      if (session?.user) checkAdmin(session.user.id);
+      else setIsAdmin(false);
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+      if (session?.user) checkAdmin(session.user.id);
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -146,12 +155,27 @@ const Navbar = () => {
                     </div>
 
                     <div className="py-1.5">
+                      {isAdmin && (
+                        <motion.div
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0, duration: 0.2 }}
+                        >
+                          <Link
+                            to="/admin"
+                            className="flex items-center gap-3 px-4 py-2.5 font-sans text-sm text-primary font-medium hover:bg-primary/10 transition-colors duration-200"
+                          >
+                            <LayoutDashboard size={16} />
+                            Dashboard
+                          </Link>
+                        </motion.div>
+                      )}
                       {dropdownItems.map((item, idx) => (
                         <motion.div
                           key={item.to}
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.05 * idx, duration: 0.2 }}
+                          transition={{ delay: 0.05 * (idx + (isAdmin ? 1 : 0)), duration: 0.2 }}
                         >
                           <Link
                             to={item.to}
@@ -225,6 +249,15 @@ const Navbar = () => {
               ))}
               {user ? (
                 <>
+                  {isAdmin && (
+                    <Link
+                      to="/admin"
+                      className="font-sans text-sm tracking-widest uppercase text-primary font-medium inline-flex items-center gap-2"
+                    >
+                      <LayoutDashboard size={16} />
+                      Dashboard
+                    </Link>
+                  )}
                   <Link
                     to="/profilo"
                     className="font-sans text-sm tracking-widest uppercase text-foreground inline-flex items-center gap-2"

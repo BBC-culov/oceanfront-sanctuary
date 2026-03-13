@@ -14,6 +14,125 @@ export type Database = {
   }
   public: {
     Tables: {
+      apartments: {
+        Row: {
+          address: string | null
+          bathrooms: number
+          bedrooms: number
+          category: string
+          created_at: string
+          description: string | null
+          guests: number
+          id: string
+          images: Json | null
+          is_active: boolean
+          map_query: string | null
+          name: string
+          price_per_night: number
+          services: Json | null
+          slug: string
+          sqm: number
+          tagline: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          bathrooms?: number
+          bedrooms?: number
+          category?: string
+          created_at?: string
+          description?: string | null
+          guests?: number
+          id?: string
+          images?: Json | null
+          is_active?: boolean
+          map_query?: string | null
+          name: string
+          price_per_night?: number
+          services?: Json | null
+          slug: string
+          sqm?: number
+          tagline?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          bathrooms?: number
+          bedrooms?: number
+          category?: string
+          created_at?: string
+          description?: string | null
+          guests?: number
+          id?: string
+          images?: Json | null
+          is_active?: boolean
+          map_query?: string | null
+          name?: string
+          price_per_night?: number
+          services?: Json | null
+          slug?: string
+          sqm?: number
+          tagline?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      bookings: {
+        Row: {
+          apartment_id: string
+          check_in: string
+          check_out: string
+          created_at: string
+          guest_email: string
+          guest_name: string
+          guest_phone: string | null
+          id: string
+          notes: string | null
+          status: Database["public"]["Enums"]["booking_status"]
+          total_price: number | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          apartment_id: string
+          check_in: string
+          check_out: string
+          created_at?: string
+          guest_email: string
+          guest_name: string
+          guest_phone?: string | null
+          id?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["booking_status"]
+          total_price?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          apartment_id?: string
+          check_in?: string
+          check_out?: string
+          created_at?: string
+          guest_email?: string
+          guest_name?: string
+          guest_phone?: string | null
+          id?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["booking_status"]
+          total_price?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_apartment_id_fkey"
+            columns: ["apartment_id"]
+            isOneToOne: false
+            referencedRelation: "apartments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -80,6 +199,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      booking_status: "pending" | "confirmed" | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -208,6 +328,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      booking_status: ["pending", "confirmed", "cancelled"],
     },
   },
 } as const

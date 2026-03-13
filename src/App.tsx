@@ -16,6 +16,10 @@ import NotFound from "./pages/NotFound";
 import Registrati from "./pages/Registrati";
 import ResetPassword from "./pages/ResetPassword";
 import Profilo from "./pages/Profilo";
+import AdminLayout from "./components/admin/AdminLayout";
+import AdminOverview from "./pages/admin/AdminOverview";
+import AdminPrenotazioni from "./pages/admin/AdminPrenotazioni";
+import AdminAppartamenti from "./pages/admin/AdminAppartamenti";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +38,12 @@ const AnimatedRoutes = () => {
         <Route path="/registrati" element={<Registrati />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/profilo" element={<Profilo />} />
+        {/* Admin routes */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminOverview />} />
+          <Route path="prenotazioni" element={<AdminPrenotazioni />} />
+          <Route path="appartamenti" element={<AdminAppartamenti />} />
+        </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
