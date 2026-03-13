@@ -44,17 +44,17 @@ const AdminOverview = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const [bookingsRes, apartmentsRes, profilesRes, recentRes] = await Promise.all([
+      const [bookingsRes, apartmentsRes, usersRes, recentRes] = await Promise.all([
         supabase.from("bookings").select("id", { count: "exact", head: true }),
         supabase.from("apartments").select("id", { count: "exact", head: true }),
-        supabase.from("profiles").select("id", { count: "exact", head: true }),
+        supabase.from("user_roles").select("user_id", { count: "exact", head: true }),
         supabase.from("bookings").select("id, guest_name, guest_email, check_in, check_out, status, apartment_id").order("created_at", { ascending: false }).limit(5),
       ]);
 
       setStats({
         totalBookings: bookingsRes.count ?? 0,
         totalApartments: apartmentsRes.count ?? 0,
-        totalClients: profilesRes.count ?? 0,
+        totalClients: usersRes.count ?? 0,
       });
 
       if (recentRes.data) {
@@ -78,15 +78,15 @@ const AdminOverview = () => {
   const statCards = [
     { label: "Prenotazioni", value: stats.totalBookings, icon: CalendarDays, color: "text-primary", link: "/admin/prenotazioni" },
     { label: "Appartamenti", value: stats.totalApartments, icon: Building2, color: "text-ocean", link: "/admin/appartamenti" },
-    { label: "Clienti registrati", value: stats.totalClients, icon: Users, color: "text-accent-foreground", link: null },
+    { label: "Utenti registrati", value: stats.totalClients, icon: Users, color: "text-accent-foreground", link: null },
   ];
 
   return (
     <div className="space-y-8">
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
+        transition={{ duration: 0.2 }}
       >
         <h1 className="font-serif text-3xl font-light text-foreground">Dashboard</h1>
         <p className="font-sans text-sm text-muted-foreground mt-1">Panoramica generale</p>
