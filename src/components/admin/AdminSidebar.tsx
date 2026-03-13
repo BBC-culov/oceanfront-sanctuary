@@ -28,6 +28,7 @@ export function AdminSidebar() {
   const navigate = useNavigate();
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+  const { isAmministratore } = useAmministratoreCheck();
 
   const isActive = (path: string) => {
     if (path === "/admin") return location.pathname === "/admin";
