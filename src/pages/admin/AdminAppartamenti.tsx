@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Pencil, Trash2, Building2, X, Save } from "lucide-react";
+import { Plus, Pencil, Trash2, Building2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import ApartmentWizard from "@/components/admin/ApartmentWizard";
 
 interface ApartmentRow {
   id: string;
@@ -44,8 +44,6 @@ const AdminAppartamenti = () => {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<ApartmentRow | null>(null);
   const [creating, setCreating] = useState(false);
-  const [form, setForm] = useState<Omit<ApartmentRow, "id">>(emptyApt);
-  const [servicesInput, setServicesInput] = useState("");
 
   const fetchApartments = async () => {
     const { data } = await supabase.from("apartments").select("*").order("name");
