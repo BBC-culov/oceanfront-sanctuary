@@ -1,27 +1,23 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-export function useAdminCheck() {
-  const [isAdmin, setIsAdmin] = useState(false);
+export function useAmministratoreCheck() {
+  const [isAmministratore, setIsAmministratore] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const check = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) {
-        setIsAdmin(false);
+        setIsAmministratore(false);
         setLoading(false);
         return;
       }
-      const { data: isAdminRole } = await supabase.rpc("has_role", {
-        _user_id: session.user.id,
-        _role: "admin",
-      });
-      const { data: isAmministratore } = await supabase.rpc("has_role", {
+      const { data } = await supabase.rpc("has_role", {
         _user_id: session.user.id,
         _role: "amministratore",
       });
-      setIsAdmin(!!isAdminRole || !!isAmministratore);
+      setIsAmministratore(!!data);
       setLoading(false);
     };
     check();
@@ -32,5 +28,5 @@ export function useAdminCheck() {
     return () => subscription.unsubscribe();
   }, []);
 
-  return { isAdmin, loading };
+  return { isAmministratore, loading };
 }
