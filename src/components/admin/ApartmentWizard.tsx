@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useCallback } from "react";
+import { motion, AnimatePresence, Reorder } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
@@ -18,6 +18,7 @@ import {
   Trash2,
   GripVertical,
   Loader2,
+  AlertCircle,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -40,6 +41,8 @@ interface ApartmentForm {
 
 export type { ApartmentForm };
 
+type ValidationErrors = Record<string, string>;
+
 const STEPS = [
   { title: "Identità", subtitle: "Nome e categoria", icon: Building2 },
   { title: "Spazi", subtitle: "Capienza e dimensioni", icon: Users },
@@ -49,22 +52,27 @@ const STEPS = [
 ];
 
 const slideVariants = {
-  enter: (dir: number) => ({
-    x: dir > 0 ? 120 : -120,
-    opacity: 0,
-    scale: 0.96,
-  }),
-  center: {
-    x: 0,
-    opacity: 1,
-    scale: 1,
-  },
-  exit: (dir: number) => ({
-    x: dir < 0 ? 120 : -120,
-    opacity: 0,
-    scale: 0.96,
-  }),
+  enter: (dir: number) => ({ x: dir > 0 ? 120 : -120, opacity: 0, scale: 0.96 }),
+  center: { x: 0, opacity: 1, scale: 1 },
+  exit: (dir: number) => ({ x: dir < 0 ? 120 : -120, opacity: 0, scale: 0.96 }),
 };
+
+function validateStep(step: number, form: ApartmentForm): ValidationErrors {
+  const errors: ValidationErrors = {};
+  if (step === 0) {
+    if (!form.name.trim()) errors.name = "Il nome è obbligatorio";
+    if (!form.slug.trim()) errors.slug = "Lo slug è obbligatorio";
+    else if (!/^[a-z0-9-]+$/.test(form.slug)) errors.slug = "Solo lettere minuscole, numeri e trattini";
+  }
+  if (step === 1) {
+    if (form.price_per_night < 0) errors.price_per_night = "Il prezzo non può essere negativo";
+    if (form.guests < 1) errors.guests = "Almeno 1 ospite";
+    if (form.bedrooms < 1) errors.bedrooms = "Almeno 1 camera";
+    if (form.bathrooms < 1) errors.bathrooms = "Almeno 1 bagno";
+    if (form.sqm < 1) errors.sqm = "La superficie deve essere positiva";
+  }
+  return errors;
+}
 
 interface ApartmentWizardProps {
   initialData: ApartmentForm;
@@ -93,10 +101,17 @@ const ApartmentWizard = ({
   const [servicesInput, setServicesInput] = useState(initialServices);
   const [images, setImages] = useState<string[]>(initialImages);
   const [uploading, setUploading] = useState(false);
+  const [errors, setErrors] = useState<ValidationErrors>({});
 
   const progress = ((step + 1) / STEPS.length) * 100;
 
   const goNext = () => {
+    const stepErrors = validateStep(step, form);
+    if (Object.keys(stepErrors).length > 0) {
+      setErrors(stepErrors);
+      return;
+    }
+    setErrors({});
     if (step < STEPS.length - 1) {
       setDirection(1);
       setStep((s) => s + 1);
@@ -104,49 +119,63 @@ const ApartmentWizard = ({
   };
 
   const goPrev = () => {
+    setErrors({});
     if (step > 0) {
       setDirection(-1);
       setStep((s) => s - 1);
     }
   };
 
+  const goToStep = (i: number) => {
+    if (i > step) {
+      const stepErrors = validateStep(step, form);
+      if (Object.keys(stepErrors).length > 0) {
+        setErrors(stepErrors);
+        return;
+      }
+    }
+    setErrors({});
+    setDirection(i > step ? 1 : -1);
+    setStep(i);
+  };
+
   const handleSave = () => {
+    // Validate all steps before saving
+    for (let s = 0; s < STEPS.length; s++) {
+      const stepErrors = validateStep(s, form);
+      if (Object.keys(stepErrors).length > 0) {
+        setErrors(stepErrors);
+        setDirection(s > step ? 1 : -1);
+        setStep(s);
+        toast({ title: "Correggi gli errori", description: "Alcuni campi non sono validi", variant: "destructive" });
+        return;
+      }
+    }
     onSave(form, servicesInput, images);
   };
 
   const handleUpload = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     setUploading(true);
-
     const folder = editId || form.slug || `new-${Date.now()}`;
     const newUrls: string[] = [];
 
     for (const file of Array.from(files)) {
       const ext = file.name.split(".").pop();
       const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-
-      const { error } = await supabase.storage
-        .from("apartment-images")
-        .upload(path, file, { upsert: true });
-
+      const { error } = await supabase.storage.from("apartment-images").upload(path, file, { upsert: true });
       if (error) {
         toast({ title: "Errore upload", description: error.message, variant: "destructive" });
         continue;
       }
-
-      const { data: urlData } = supabase.storage
-        .from("apartment-images")
-        .getPublicUrl(path);
-
+      const { data: urlData } = supabase.storage.from("apartment-images").getPublicUrl(path);
       newUrls.push(urlData.publicUrl);
     }
-
     setImages((prev) => [...prev, ...newUrls]);
     setUploading(false);
   };
 
   const removeImage = async (url: string) => {
-    // Extract path from URL for deletion
     const bucketUrl = `/apartment-images/`;
     const pathStart = url.indexOf(bucketUrl);
     if (pathStart !== -1) {
@@ -166,7 +195,6 @@ const ApartmentWizard = ({
       transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
     >
       <Card className="bg-background border-primary/20 overflow-hidden">
-        {/* Header */}
         <div className="relative px-6 pt-6 pb-4">
           <div className="flex items-center justify-between mb-5">
             <motion.h2
@@ -177,49 +205,32 @@ const ApartmentWizard = ({
             >
               {isEditing ? `Modifica: ${editName}` : "Nuovo appartamento"}
             </motion.h2>
-            <button
-              onClick={onClose}
-              className="text-muted-foreground hover:text-foreground transition-colors p-1"
-            >
+            <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors p-1">
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          {/* Step indicators */}
           <div className="flex items-center gap-2 mb-4 overflow-x-auto">
             {STEPS.map((s, i) => {
               const StepIcon = s.icon;
               const isActive = i === step;
               const isDone = i < step;
-
               return (
                 <motion.button
                   key={i}
-                  onClick={() => {
-                    setDirection(i > step ? 1 : -1);
-                    setStep(i);
-                  }}
+                  onClick={() => goToStep(i)}
                   className={`flex items-center gap-2 px-3 py-2 rounded-md text-xs font-sans tracking-wide uppercase transition-all cursor-pointer whitespace-nowrap ${
-                    isActive
-                      ? "bg-primary text-primary-foreground"
-                      : isDone
-                      ? "bg-primary/10 text-primary"
-                      : "bg-muted text-muted-foreground"
+                    isActive ? "bg-primary text-primary-foreground" : isDone ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
                   }`}
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                 >
-                  {isDone ? (
-                    <Check className="w-3.5 h-3.5" />
-                  ) : (
-                    <StepIcon className="w-3.5 h-3.5" />
-                  )}
+                  {isDone ? <Check className="w-3.5 h-3.5" /> : <StepIcon className="w-3.5 h-3.5" />}
                   <span className="hidden sm:inline">{s.title}</span>
                 </motion.button>
               );
             })}
           </div>
-
           <Progress value={progress} className="h-1 bg-muted" />
         </div>
 
@@ -248,30 +259,19 @@ const ApartmentWizard = ({
                 exit="exit"
                 transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
               >
-                {step === 0 && <StepIdentity form={form} setForm={setForm} />}
-                {step === 1 && <StepSpaces form={form} setForm={setForm} />}
+                {step === 0 && <StepIdentity form={form} setForm={setForm} errors={errors} />}
+                {step === 1 && <StepSpaces form={form} setForm={setForm} errors={errors} />}
                 {step === 2 && <StepDescription form={form} setForm={setForm} />}
                 {step === 3 && (
-                  <StepImages
-                    images={images}
-                    uploading={uploading}
-                    onUpload={handleUpload}
-                    onRemove={removeImage}
-                  />
+                  <StepImages images={images} setImages={setImages} uploading={uploading} onUpload={handleUpload} onRemove={removeImage} />
                 )}
                 {step === 4 && (
-                  <StepDetails
-                    form={form}
-                    setForm={setForm}
-                    servicesInput={servicesInput}
-                    setServicesInput={setServicesInput}
-                  />
+                  <StepDetails form={form} setForm={setForm} servicesInput={servicesInput} setServicesInput={setServicesInput} />
                 )}
               </motion.div>
             </AnimatePresence>
           </div>
 
-          {/* Navigation */}
           <div className="flex items-center justify-between pt-6 mt-4 border-t border-border">
             <motion.button
               whileHover={{ scale: 1.03 }}
@@ -311,35 +311,48 @@ const ApartmentWizard = ({
   );
 };
 
-/* ─── Step Components ─── */
+/* ─── Shared ─── */
 
 const fieldLabel = "font-sans text-xs text-muted-foreground uppercase tracking-wider mb-1 block";
 
-function StepIdentity({
-  form,
-  setForm,
-}: {
-  form: ApartmentForm;
-  setForm: React.Dispatch<React.SetStateAction<ApartmentForm>>;
-}) {
+const FieldError = ({ message }: { message?: string }) => {
+  if (!message) return null;
+  return (
+    <motion.p
+      initial={{ opacity: 0, y: -4 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex items-center gap-1 font-sans text-xs text-destructive mt-1"
+    >
+      <AlertCircle className="w-3 h-3" />
+      {message}
+    </motion.p>
+  );
+};
+
+/* ─── Step Components ─── */
+
+function StepIdentity({ form, setForm, errors }: { form: ApartmentForm; setForm: React.Dispatch<React.SetStateAction<ApartmentForm>>; errors: ValidationErrors }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
       <div className="sm:col-span-2">
-        <label className={fieldLabel}>Nome dell'appartamento</label>
+        <label className={fieldLabel}>Nome dell'appartamento *</label>
         <Input
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
           placeholder="es. Oceano Suite"
-          className="text-base"
+          className={`text-base ${errors.name ? "border-destructive" : ""}`}
         />
+        <FieldError message={errors.name} />
       </div>
       <div>
-        <label className={fieldLabel}>Slug (URL)</label>
+        <label className={fieldLabel}>Slug (URL) *</label>
         <Input
           value={form.slug}
-          onChange={(e) => setForm({ ...form, slug: e.target.value })}
+          onChange={(e) => setForm({ ...form, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "") })}
           placeholder="es. oceano-suite"
+          className={errors.slug ? "border-destructive" : ""}
         />
+        <FieldError message={errors.slug} />
       </div>
       <div>
         <label className={fieldLabel}>Categoria</label>
@@ -365,46 +378,35 @@ function StepIdentity({
   );
 }
 
-function StepSpaces({
-  form,
-  setForm,
-}: {
-  form: ApartmentForm;
-  setForm: React.Dispatch<React.SetStateAction<ApartmentForm>>;
-}) {
+function StepSpaces({ form, setForm, errors }: { form: ApartmentForm; setForm: React.Dispatch<React.SetStateAction<ApartmentForm>>; errors: ValidationErrors }) {
   const fields = [
-    { label: "Prezzo / notte (€)", key: "price_per_night" as const },
-    { label: "Ospiti max", key: "guests" as const },
-    { label: "Camere da letto", key: "bedrooms" as const },
-    { label: "Bagni", key: "bathrooms" as const },
-    { label: "Superficie (mq)", key: "sqm" as const },
+    { label: "Prezzo / notte (€)", key: "price_per_night" as const, min: 0 },
+    { label: "Ospiti max", key: "guests" as const, min: 1 },
+    { label: "Camere da letto", key: "bedrooms" as const, min: 1 },
+    { label: "Bagni", key: "bathrooms" as const, min: 1 },
+    { label: "Superficie (mq)", key: "sqm" as const, min: 1 },
   ];
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
       {fields.map((f) => (
         <div key={f.key}>
-          <label className={fieldLabel}>{f.label}</label>
+          <label className={fieldLabel}>{f.label} *</label>
           <Input
             type="number"
+            min={f.min}
             value={form[f.key]}
-            onChange={(e) =>
-              setForm({ ...form, [f.key]: Number(e.target.value) })
-            }
+            onChange={(e) => setForm({ ...form, [f.key]: Number(e.target.value) })}
+            className={errors[f.key] ? "border-destructive" : ""}
           />
+          <FieldError message={errors[f.key]} />
         </div>
       ))}
     </div>
   );
 }
 
-function StepDescription({
-  form,
-  setForm,
-}: {
-  form: ApartmentForm;
-  setForm: React.Dispatch<React.SetStateAction<ApartmentForm>>;
-}) {
+function StepDescription({ form, setForm }: { form: ApartmentForm; setForm: React.Dispatch<React.SetStateAction<ApartmentForm>> }) {
   return (
     <div className="space-y-5">
       <div>
@@ -419,11 +421,7 @@ function StepDescription({
       </div>
       <div>
         <label className={fieldLabel}>Indirizzo</label>
-        <Input
-          value={form.address ?? ""}
-          onChange={(e) => setForm({ ...form, address: e.target.value })}
-          placeholder="Via, numero civico, città..."
-        />
+        <Input value={form.address ?? ""} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="Via, numero civico, città..." />
       </div>
     </div>
   );
@@ -431,18 +429,19 @@ function StepDescription({
 
 function StepImages({
   images,
+  setImages,
   uploading,
   onUpload,
   onRemove,
 }: {
   images: string[];
+  setImages: React.Dispatch<React.SetStateAction<string[]>>;
   uploading: boolean;
   onUpload: (files: FileList | null) => void;
   onRemove: (url: string) => void;
 }) {
   return (
     <div className="space-y-5">
-      {/* Upload area */}
       <label className="relative flex flex-col items-center justify-center border-2 border-dashed border-border rounded-lg p-8 cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-colors group">
         <input
           type="file"
@@ -460,54 +459,47 @@ function StepImages({
         <span className="font-sans text-sm text-muted-foreground group-hover:text-foreground transition-colors">
           {uploading ? "Caricamento in corso..." : "Trascina o clicca per caricare immagini"}
         </span>
-        <span className="font-sans text-xs text-muted-foreground mt-1">
-          JPG, PNG, WebP — max 5MB per file
-        </span>
+        <span className="font-sans text-xs text-muted-foreground mt-1">JPG, PNG, WebP — max 5MB per file</span>
       </label>
 
-      {/* Image grid */}
       {images.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <AnimatePresence>
+        <div>
+          <p className="font-sans text-xs text-muted-foreground mb-2 flex items-center gap-1">
+            <GripVertical className="w-3 h-3" /> Trascina per riordinare — la prima immagine sarà la copertina
+          </p>
+          <Reorder.Group axis="y" values={images} onReorder={setImages} className="space-y-2">
             {images.map((url, i) => (
-              <motion.div
+              <Reorder.Item
                 key={url}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ delay: i * 0.05 }}
-                className="relative group aspect-[4/3] rounded-md overflow-hidden border border-border"
+                value={url}
+                className="flex items-center gap-3 bg-muted/30 rounded-md p-2 border border-border cursor-grab active:cursor-grabbing"
               >
-                <img
-                  src={url}
-                  alt={`Foto ${i + 1}`}
-                  className="w-full h-full object-cover"
-                />
-                {i === 0 && (
-                  <span className="absolute top-2 left-2 font-sans text-[10px] uppercase tracking-wider bg-primary text-primary-foreground px-2 py-0.5 rounded">
-                    Copertina
-                  </span>
-                )}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                  <motion.button
-                    initial={{ opacity: 0 }}
-                    whileHover={{ scale: 1.1 }}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity bg-destructive text-destructive-foreground p-2 rounded-full"
-                    onClick={() => onRemove(url)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </motion.button>
+                <GripVertical className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                <div className="w-20 h-14 rounded overflow-hidden flex-shrink-0">
+                  <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
                 </div>
-              </motion.div>
+                <div className="flex-1 min-w-0">
+                  {i === 0 && (
+                    <span className="inline-block font-sans text-[10px] uppercase tracking-wider bg-primary text-primary-foreground px-2 py-0.5 rounded">
+                      Copertina
+                    </span>
+                  )}
+                  <p className="font-sans text-xs text-muted-foreground truncate mt-0.5">Immagine {i + 1}</p>
+                </div>
+                <button
+                  onClick={() => onRemove(url)}
+                  className="p-1.5 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-destructive/10 flex-shrink-0"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </Reorder.Item>
             ))}
-          </AnimatePresence>
+          </Reorder.Group>
         </div>
       )}
 
       {images.length === 0 && !uploading && (
-        <p className="text-center font-sans text-sm text-muted-foreground py-4">
-          Nessuna immagine caricata
-        </p>
+        <p className="text-center font-sans text-sm text-muted-foreground py-4">Nessuna immagine caricata</p>
       )}
     </div>
   );
@@ -528,17 +520,9 @@ function StepDetails({
     <div className="space-y-5">
       <div>
         <label className={fieldLabel}>Servizi (separati da virgola)</label>
-        <Input
-          value={servicesInput}
-          onChange={(e) => setServicesInput(e.target.value)}
-          placeholder="Wi-Fi, Aria condizionata, Smart TV..."
-        />
+        <Input value={servicesInput} onChange={(e) => setServicesInput(e.target.value)} placeholder="Wi-Fi, Aria condizionata, Smart TV..." />
         {servicesInput && (
-          <motion.div
-            className="flex flex-wrap gap-2 mt-3"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
+          <motion.div className="flex flex-wrap gap-2 mt-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             {servicesInput
               .split(",")
               .map((s) => s.trim())
@@ -562,9 +546,7 @@ function StepDetails({
         <motion.button
           type="button"
           onClick={() => setForm({ ...form, is_active: !form.is_active })}
-          className={`relative w-12 h-6 rounded-full transition-colors ${
-            form.is_active ? "bg-primary" : "bg-muted"
-          }`}
+          className={`relative w-12 h-6 rounded-full transition-colors ${form.is_active ? "bg-primary" : "bg-muted"}`}
           whileTap={{ scale: 0.95 }}
         >
           <motion.div
@@ -573,9 +555,7 @@ function StepDetails({
             transition={{ type: "spring", stiffness: 500, damping: 30 }}
           />
         </motion.button>
-        <span className="font-sans text-sm text-foreground">
-          {form.is_active ? "Sì, attivo" : "No, bozza"}
-        </span>
+        <span className="font-sans text-sm text-foreground">{form.is_active ? "Sì, attivo" : "No, bozza"}</span>
       </div>
     </div>
   );
