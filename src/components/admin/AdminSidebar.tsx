@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { LayoutDashboard, CalendarDays, Building2, ArrowLeft, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { motion } from "framer-motion";
 import {
   Sidebar,
   SidebarContent,
@@ -41,15 +42,21 @@ export function AdminSidebar() {
     <Sidebar collapsible="icon" className="border-r border-border">
       <SidebarContent>
         {/* Logo */}
-        <div className={`px-4 py-5 ${collapsed ? "flex justify-center" : ""}`}>
+        <motion.div
+          className={`px-4 py-5 ${collapsed ? "flex justify-center" : ""}`}
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
           <Link to="/">
-            <img
+            <motion.img
               src={logo}
               alt="BAZHOUSE"
               className={`${collapsed ? "h-6" : "h-8"} w-auto transition-all`}
+              whileHover={{ scale: 1.05 }}
             />
           </Link>
-        </div>
+        </motion.div>
 
         <SidebarGroup>
           <SidebarGroupLabel className="font-sans text-[10px] tracking-[0.25em] uppercase text-muted-foreground">
@@ -57,25 +64,40 @@ export function AdminSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => (
+              {menuItems.map((item, i) => (
                 <SidebarMenuItem key={item.to}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive(item.to)}
-                    tooltip={item.title}
+                  <motion.div
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 + i * 0.05, duration: 0.3 }}
                   >
-                    <Link
-                      to={item.to}
-                      className={`flex items-center gap-3 font-sans text-sm transition-colors ${
-                        isActive(item.to)
-                          ? "text-primary font-medium"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive(item.to)}
+                      tooltip={item.title}
                     >
-                      <item.icon className="w-4 h-4" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </Link>
-                  </SidebarMenuButton>
+                      <Link
+                        to={item.to}
+                        className={`relative flex items-center gap-3 font-sans text-sm transition-all ${
+                          isActive(item.to)
+                            ? "text-primary font-medium"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        <motion.div whileHover={{ rotate: [0, -8, 8, 0] }} transition={{ duration: 0.4 }}>
+                          <item.icon className="w-4 h-4" />
+                        </motion.div>
+                        {!collapsed && <span>{item.title}</span>}
+                        {isActive(item.to) && !collapsed && (
+                          <motion.div
+                            layoutId="admin-sidebar-active"
+                            className="absolute left-0 top-0 bottom-0 w-0.5 bg-primary rounded-full"
+                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                          />
+                        )}
+                      </Link>
+                    </SidebarMenuButton>
+                  </motion.div>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -89,9 +111,11 @@ export function AdminSidebar() {
             <SidebarMenuButton asChild tooltip="Torna al sito">
               <Link
                 to="/"
-                className="flex items-center gap-3 font-sans text-sm text-muted-foreground hover:text-foreground"
+                className="flex items-center gap-3 font-sans text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <motion.div whileHover={{ x: -3 }} transition={{ type: "spring", stiffness: 300 }}>
+                  <ArrowLeft className="w-4 h-4" />
+                </motion.div>
                 {!collapsed && <span>Torna al sito</span>}
               </Link>
             </SidebarMenuButton>
