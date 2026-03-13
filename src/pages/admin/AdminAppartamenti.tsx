@@ -60,16 +60,12 @@ const AdminAppartamenti = () => {
 
   const openCreate = () => {
     setEditing(null);
-    setForm(emptyApt);
-    setServicesInput("");
     setCreating(true);
   };
 
   const openEdit = (apt: ApartmentRow) => {
     setCreating(false);
     setEditing(apt);
-    setForm({ ...apt });
-    setServicesInput(apt.services.join(", "));
   };
 
   const closeForm = () => {
@@ -77,10 +73,9 @@ const AdminAppartamenti = () => {
     setCreating(false);
   };
 
-  const handleSave = async () => {
+  const handleSave = async (form: Omit<ApartmentRow, "id">, servicesInput: string) => {
     const services = servicesInput.split(",").map((s) => s.trim()).filter(Boolean);
     const payload = { ...form, services } as any;
-    delete payload.id;
 
     if (creating) {
       const { error } = await supabase.from("apartments").insert(payload);
@@ -132,122 +127,17 @@ const AdminAppartamenti = () => {
         </motion.button>
       </div>
 
-      {/* Form modal */}
+      {/* Wizard */}
       <AnimatePresence>
         {isFormOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-          >
-            <Card className="bg-background border-primary/20">
-              <CardContent className="pt-6 space-y-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h2 className="font-serif text-xl font-light">
-                    {creating ? "Nuovo appartamento" : `Modifica: ${editing?.name}`}
-                  </h2>
-                  <button onClick={closeForm} className="text-muted-foreground hover:text-foreground">
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div>
-                    <label className="font-sans text-xs text-muted-foreground uppercase tracking-wider">Nome</label>
-                    <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-                  </div>
-                  <div>
-                    <label className="font-sans text-xs text-muted-foreground uppercase tracking-wider">Slug</label>
-                    <Input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} />
-                  </div>
-                  <div>
-                    <label className="font-sans text-xs text-muted-foreground uppercase tracking-wider">Tagline</label>
-                    <Input value={form.tagline ?? ""} onChange={(e) => setForm({ ...form, tagline: e.target.value })} />
-                  </div>
-                  <div>
-                    <label className="font-sans text-xs text-muted-foreground uppercase tracking-wider">Categoria</label>
-                    <select
-                      value={form.category}
-                      onChange={(e) => setForm({ ...form, category: e.target.value })}
-                      className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-sans"
-                    >
-                      <option value="residence">Residence</option>
-                      <option value="penthouse">Penthouse</option>
-                      <option value="compact">Compact</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="font-sans text-xs text-muted-foreground uppercase tracking-wider">Prezzo/notte (€)</label>
-                    <Input type="number" value={form.price_per_night} onChange={(e) => setForm({ ...form, price_per_night: Number(e.target.value) })} />
-                  </div>
-                  <div>
-                    <label className="font-sans text-xs text-muted-foreground uppercase tracking-wider">Ospiti</label>
-                    <Input type="number" value={form.guests} onChange={(e) => setForm({ ...form, guests: Number(e.target.value) })} />
-                  </div>
-                  <div>
-                    <label className="font-sans text-xs text-muted-foreground uppercase tracking-wider">Camere</label>
-                    <Input type="number" value={form.bedrooms} onChange={(e) => setForm({ ...form, bedrooms: Number(e.target.value) })} />
-                  </div>
-                  <div>
-                    <label className="font-sans text-xs text-muted-foreground uppercase tracking-wider">Bagni</label>
-                    <Input type="number" value={form.bathrooms} onChange={(e) => setForm({ ...form, bathrooms: Number(e.target.value) })} />
-                  </div>
-                  <div>
-                    <label className="font-sans text-xs text-muted-foreground uppercase tracking-wider">Mq</label>
-                    <Input type="number" value={form.sqm} onChange={(e) => setForm({ ...form, sqm: Number(e.target.value) })} />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="font-sans text-xs text-muted-foreground uppercase tracking-wider">Descrizione</label>
-                  <textarea
-                    value={form.description ?? ""}
-                    onChange={(e) => setForm({ ...form, description: e.target.value })}
-                    rows={3}
-                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-sans resize-none focus:outline-none focus:ring-2 focus:ring-ring"
-                  />
-                </div>
-
-                <div>
-                  <label className="font-sans text-xs text-muted-foreground uppercase tracking-wider">Indirizzo</label>
-                  <Input value={form.address ?? ""} onChange={(e) => setForm({ ...form, address: e.target.value })} />
-                </div>
-
-                <div>
-                  <label className="font-sans text-xs text-muted-foreground uppercase tracking-wider">Servizi (separati da virgola)</label>
-                  <Input value={servicesInput} onChange={(e) => setServicesInput(e.target.value)} placeholder="Wi-Fi, Aria condizionata, Smart TV..." />
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <label className="font-sans text-xs text-muted-foreground uppercase tracking-wider">Attivo</label>
-                  <input
-                    type="checkbox"
-                    checked={form.is_active}
-                    onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
-                    className="rounded"
-                  />
-                </div>
-
-                <div className="flex justify-end gap-3 pt-2">
-                  <button
-                    onClick={closeForm}
-                    className="font-sans text-xs tracking-wider uppercase px-5 py-2.5 border border-border text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    Annulla
-                  </button>
-                  <motion.button
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={handleSave}
-                    className="flex items-center gap-2 font-sans text-xs tracking-wider uppercase bg-primary text-primary-foreground px-5 py-2.5 hover:bg-primary/90 transition-colors"
-                  >
-                    <Save className="w-4 h-4" />
-                    Salva
-                  </motion.button>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <ApartmentWizard
+            initialData={editing ? { ...editing } : emptyApt}
+            initialServices={editing ? editing.services.join(", ") : ""}
+            isEditing={!!editing}
+            editName={editing?.name}
+            onSave={handleSave}
+            onClose={closeForm}
+          />
         )}
       </AnimatePresence>
 
