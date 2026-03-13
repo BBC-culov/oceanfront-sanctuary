@@ -327,6 +327,5 @@ const AdminAppartamenti = () => {
     </div>
   );
 };
-};
 
 export default AdminAppartamenti;
