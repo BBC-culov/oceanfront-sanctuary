@@ -34,11 +34,19 @@ const Navbar = () => {
   const isTransparent = !noHero && !scrolled;
 
   useEffect(() => {
+    const checkAdmin = async (userId: string) => {
+      const { data } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+      setIsAdmin(!!data);
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      if (session?.user) checkAdmin(session.user.id);
+      else setIsAdmin(false);
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+      if (session?.user) checkAdmin(session.user.id);
     });
     return () => subscription.unsubscribe();
   }, []);
