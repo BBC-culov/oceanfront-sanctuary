@@ -44,6 +44,7 @@ const AnimatedRoutes = () => {
           <Route index element={<AdminOverview />} />
           <Route path="prenotazioni" element={<AdminPrenotazioni />} />
           <Route path="appartamenti" element={<AdminAppartamenti />} />
+          <Route path="gestione" element={<AdminGestione />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

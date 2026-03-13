@@ -105,6 +105,53 @@ export function AdminSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Amministratore-only section */}
+        {isAmministratore && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="font-sans text-[10px] tracking-[0.25em] uppercase text-muted-foreground">
+              Amministratore
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <motion.div
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3, duration: 0.3 }}
+                  >
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive("/admin/gestione")}
+                      tooltip="Gestione Admin"
+                    >
+                      <Link
+                        to="/admin/gestione"
+                        className={`relative flex items-center gap-3 font-sans text-sm transition-all ${
+                          isActive("/admin/gestione")
+                            ? "text-primary font-medium"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        <motion.div whileHover={{ rotate: [0, -8, 8, 0] }} transition={{ duration: 0.4 }}>
+                          <Users className="w-4 h-4" />
+                        </motion.div>
+                        {!collapsed && <span>Gestione Admin</span>}
+                        {isActive("/admin/gestione") && !collapsed && (
+                          <motion.div
+                            layoutId="admin-sidebar-active"
+                            className="absolute left-0 top-0 bottom-0 w-0.5 bg-primary rounded-full"
+                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                          />
+                        )}
+                      </Link>
+                    </SidebarMenuButton>
+                  </motion.div>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="border-t border-border">
