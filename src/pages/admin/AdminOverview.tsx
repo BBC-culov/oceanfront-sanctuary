@@ -44,17 +44,17 @@ const AdminOverview = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const [bookingsRes, apartmentsRes, profilesRes, recentRes] = await Promise.all([
+      const [bookingsRes, apartmentsRes, usersRes, recentRes] = await Promise.all([
         supabase.from("bookings").select("id", { count: "exact", head: true }),
         supabase.from("apartments").select("id", { count: "exact", head: true }),
-        supabase.from("profiles").select("id", { count: "exact", head: true }),
+        supabase.from("user_roles").select("user_id", { count: "exact", head: true }),
         supabase.from("bookings").select("id, guest_name, guest_email, check_in, check_out, status, apartment_id").order("created_at", { ascending: false }).limit(5),
       ]);
 
       setStats({
         totalBookings: bookingsRes.count ?? 0,
         totalApartments: apartmentsRes.count ?? 0,
-        totalClients: profilesRes.count ?? 0,
+        totalClients: usersRes.count ?? 0,
       });
 
       if (recentRes.data) {
