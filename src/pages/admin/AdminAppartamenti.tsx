@@ -197,7 +197,7 @@ const AdminAppartamenti = () => {
                     }`}
                     title={isActiveTab ? "Disattiva" : "Attiva"}
                   >
-                    {isActiveTab ? <EyeOff className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4 text-emerald-600" />}
+                    {isActiveTab ? <EyeOff className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4 text-success" />}
                   </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.1 }}
