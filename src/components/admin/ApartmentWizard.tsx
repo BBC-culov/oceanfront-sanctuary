@@ -12,8 +12,15 @@ import {
   FileText,
   Users,
   Sparkles,
+  ImagePlus,
   Check,
+  Upload,
+  Trash2,
+  GripVertical,
+  Loader2,
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 interface ApartmentForm {
   slug: string;
@@ -31,10 +38,13 @@ interface ApartmentForm {
   is_active: boolean;
 }
 
+export type { ApartmentForm };
+
 const STEPS = [
   { title: "Identità", subtitle: "Nome e categoria", icon: Building2 },
   { title: "Spazi", subtitle: "Capienza e dimensioni", icon: Users },
   { title: "Descrizione", subtitle: "Testi e indirizzo", icon: FileText },
+  { title: "Immagini", subtitle: "Foto dell'appartamento", icon: ImagePlus },
   { title: "Dettagli", subtitle: "Servizi e pubblicazione", icon: Sparkles },
 ];
 
@@ -59,17 +69,21 @@ const slideVariants = {
 interface ApartmentWizardProps {
   initialData: ApartmentForm;
   initialServices: string;
+  initialImages: string[];
   isEditing: boolean;
   editName?: string;
-  onSave: (form: ApartmentForm, servicesInput: string) => void;
+  editId?: string;
+  onSave: (form: ApartmentForm, servicesInput: string, images: string[]) => void;
   onClose: () => void;
 }
 
 const ApartmentWizard = ({
   initialData,
   initialServices,
+  initialImages,
   isEditing,
   editName,
+  editId,
   onSave,
   onClose,
 }: ApartmentWizardProps) => {
@@ -77,6 +91,8 @@ const ApartmentWizard = ({
   const [direction, setDirection] = useState(0);
   const [form, setForm] = useState<ApartmentForm>(initialData);
   const [servicesInput, setServicesInput] = useState(initialServices);
+  const [images, setImages] = useState<string[]>(initialImages);
+  const [uploading, setUploading] = useState(false);
 
   const progress = ((step + 1) / STEPS.length) * 100;
 
@@ -95,7 +111,49 @@ const ApartmentWizard = ({
   };
 
   const handleSave = () => {
-    onSave(form, servicesInput);
+    onSave(form, servicesInput, images);
+  };
+
+  const handleUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    setUploading(true);
+
+    const folder = editId || form.slug || `new-${Date.now()}`;
+    const newUrls: string[] = [];
+
+    for (const file of Array.from(files)) {
+      const ext = file.name.split(".").pop();
+      const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+
+      const { error } = await supabase.storage
+        .from("apartment-images")
+        .upload(path, file, { upsert: true });
+
+      if (error) {
+        toast({ title: "Errore upload", description: error.message, variant: "destructive" });
+        continue;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from("apartment-images")
+        .getPublicUrl(path);
+
+      newUrls.push(urlData.publicUrl);
+    }
+
+    setImages((prev) => [...prev, ...newUrls]);
+    setUploading(false);
+  };
+
+  const removeImage = async (url: string) => {
+    // Extract path from URL for deletion
+    const bucketUrl = `/apartment-images/`;
+    const pathStart = url.indexOf(bucketUrl);
+    if (pathStart !== -1) {
+      const path = url.slice(pathStart + bucketUrl.length);
+      await supabase.storage.from("apartment-images").remove([path]);
+    }
+    setImages((prev) => prev.filter((u) => u !== url));
   };
 
   const isLastStep = step === STEPS.length - 1;
@@ -128,7 +186,7 @@ const ApartmentWizard = ({
           </div>
 
           {/* Step indicators */}
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center gap-2 mb-4 overflow-x-auto">
             {STEPS.map((s, i) => {
               const StepIcon = s.icon;
               const isActive = i === step;
@@ -141,7 +199,7 @@ const ApartmentWizard = ({
                     setDirection(i > step ? 1 : -1);
                     setStep(i);
                   }}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-xs font-sans tracking-wide uppercase transition-all cursor-pointer ${
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-xs font-sans tracking-wide uppercase transition-all cursor-pointer whitespace-nowrap ${
                     isActive
                       ? "bg-primary text-primary-foreground"
                       : isDone
@@ -162,12 +220,10 @@ const ApartmentWizard = ({
             })}
           </div>
 
-          {/* Progress bar */}
           <Progress value={progress} className="h-1 bg-muted" />
         </div>
 
         <CardContent className="pt-2 pb-6">
-          {/* Step subtitle */}
           <AnimatePresence mode="wait">
             <motion.p
               key={step}
@@ -181,7 +237,6 @@ const ApartmentWizard = ({
             </motion.p>
           </AnimatePresence>
 
-          {/* Step content */}
           <div className="relative min-h-[200px]">
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div
@@ -191,21 +246,20 @@ const ApartmentWizard = ({
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{
-                  duration: 0.35,
-                  ease: [0.25, 0.1, 0.25, 1],
-                }}
+                transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
               >
-                {step === 0 && (
-                  <StepIdentity form={form} setForm={setForm} />
-                )}
-                {step === 1 && (
-                  <StepSpaces form={form} setForm={setForm} />
-                )}
-                {step === 2 && (
-                  <StepDescription form={form} setForm={setForm} />
-                )}
+                {step === 0 && <StepIdentity form={form} setForm={setForm} />}
+                {step === 1 && <StepSpaces form={form} setForm={setForm} />}
+                {step === 2 && <StepDescription form={form} setForm={setForm} />}
                 {step === 3 && (
+                  <StepImages
+                    images={images}
+                    uploading={uploading}
+                    onUpload={handleUpload}
+                    onRemove={removeImage}
+                  />
+                )}
+                {step === 4 && (
                   <StepDetails
                     form={form}
                     setForm={setForm}
@@ -371,6 +425,90 @@ function StepDescription({
           placeholder="Via, numero civico, città..."
         />
       </div>
+    </div>
+  );
+}
+
+function StepImages({
+  images,
+  uploading,
+  onUpload,
+  onRemove,
+}: {
+  images: string[];
+  uploading: boolean;
+  onUpload: (files: FileList | null) => void;
+  onRemove: (url: string) => void;
+}) {
+  return (
+    <div className="space-y-5">
+      {/* Upload area */}
+      <label className="relative flex flex-col items-center justify-center border-2 border-dashed border-border rounded-lg p-8 cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-colors group">
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          className="absolute inset-0 opacity-0 cursor-pointer"
+          onChange={(e) => onUpload(e.target.files)}
+          disabled={uploading}
+        />
+        {uploading ? (
+          <Loader2 className="w-8 h-8 text-primary animate-spin mb-2" />
+        ) : (
+          <Upload className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors mb-2" />
+        )}
+        <span className="font-sans text-sm text-muted-foreground group-hover:text-foreground transition-colors">
+          {uploading ? "Caricamento in corso..." : "Trascina o clicca per caricare immagini"}
+        </span>
+        <span className="font-sans text-xs text-muted-foreground mt-1">
+          JPG, PNG, WebP — max 5MB per file
+        </span>
+      </label>
+
+      {/* Image grid */}
+      {images.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <AnimatePresence>
+            {images.map((url, i) => (
+              <motion.div
+                key={url}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ delay: i * 0.05 }}
+                className="relative group aspect-[4/3] rounded-md overflow-hidden border border-border"
+              >
+                <img
+                  src={url}
+                  alt={`Foto ${i + 1}`}
+                  className="w-full h-full object-cover"
+                />
+                {i === 0 && (
+                  <span className="absolute top-2 left-2 font-sans text-[10px] uppercase tracking-wider bg-primary text-primary-foreground px-2 py-0.5 rounded">
+                    Copertina
+                  </span>
+                )}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                  <motion.button
+                    initial={{ opacity: 0 }}
+                    whileHover={{ scale: 1.1 }}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity bg-destructive text-destructive-foreground p-2 rounded-full"
+                    onClick={() => onRemove(url)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </motion.button>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+      )}
+
+      {images.length === 0 && !uploading && (
+        <p className="text-center font-sans text-sm text-muted-foreground py-4">
+          Nessuna immagine caricata
+        </p>
+      )}
     </div>
   );
 }

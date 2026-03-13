@@ -73,9 +73,9 @@ const AdminAppartamenti = () => {
     setCreating(false);
   };
 
-  const handleSave = async (form: Omit<ApartmentRow, "id">, servicesInput: string) => {
+  const handleSave = async (form: Omit<ApartmentRow, "id">, servicesInput: string, images: string[]) => {
     const services = servicesInput.split(",").map((s) => s.trim()).filter(Boolean);
-    const payload = { ...form, services } as any;
+    const payload = { ...form, services, images } as any;
 
     if (creating) {
       const { error } = await supabase.from("apartments").insert(payload);
