@@ -242,7 +242,7 @@ const AdminAppartamenti = () => {
           <p className="font-sans text-sm text-muted-foreground mt-1">
             Gestisci gli appartamenti · <span className="text-primary">{apartments.length}</span> totali
             <span className="text-border"> · </span>
-            <span className="text-green-600">{activeApartments.length} attivi</span>
+            <span className="text-emerald-600">{activeApartments.length} attivi</span>
             <span className="text-border"> · </span>
             <span className="text-muted-foreground">{inactiveApartments.length} disattivati</span>
           </p>
