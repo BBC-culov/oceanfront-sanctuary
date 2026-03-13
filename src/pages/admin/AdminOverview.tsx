@@ -84,9 +84,9 @@ const AdminOverview = () => {
   return (
     <div className="space-y-8">
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
+        transition={{ duration: 0.2 }}
       >
         <h1 className="font-serif text-3xl font-light text-foreground">Dashboard</h1>
         <p className="font-sans text-sm text-muted-foreground mt-1">Panoramica generale</p>
