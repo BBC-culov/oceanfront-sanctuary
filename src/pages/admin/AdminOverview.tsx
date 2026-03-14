@@ -105,7 +105,7 @@ const AdminOverview = () => {
             onClick={() => card.link && navigate(card.link)}
             className={card.link ? "cursor-pointer" : ""}
           >
-            <Card className="bg-background overflow-hidden relative group">
+            <Card className="bg-background overflow-hidden relative group h-full">
               {/* Animated background glow on hover */}
               <motion.div
                 className="absolute inset-0 bg-primary/5 rounded-lg"
