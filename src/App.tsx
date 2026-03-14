@@ -6,6 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import SiteLoader from "@/components/SiteLoader";
+import { useMaintenanceMode } from "@/hooks/useMaintenanceMode";
+import MaintenancePage from "@/components/MaintenancePage";
 import Index from "./pages/Index";
 import ChiSiamo from "./pages/ChiSiamo";
 import Servizi from "./pages/Servizi";
@@ -21,11 +23,20 @@ import AdminOverview from "./pages/admin/AdminOverview";
 import AdminPrenotazioni from "./pages/admin/AdminPrenotazioni";
 import AdminAppartamenti from "./pages/admin/AdminAppartamenti";
 import AdminGestione from "./pages/admin/AdminGestione";
+import AdminGestioneSito from "./pages/admin/AdminGestioneSito";
 
 const queryClient = new QueryClient();
 
 const AnimatedRoutes = () => {
   const location = useLocation();
+  const { maintenance, loading: maintenanceLoading } = useMaintenanceMode();
+
+  const isAdminRoute = location.pathname.startsWith("/admin");
+
+  // Show maintenance page for non-admin routes when maintenance is enabled
+  if (!maintenanceLoading && maintenance.enabled && !isAdminRoute) {
+    return <MaintenancePage message={maintenance.message} />;
+  }
 
   return (
     <AnimatePresence mode="wait">
@@ -45,6 +56,7 @@ const AnimatedRoutes = () => {
           <Route path="prenotazioni" element={<AdminPrenotazioni />} />
           <Route path="appartamenti" element={<AdminAppartamenti />} />
           <Route path="gestione" element={<AdminGestione />} />
+          <Route path="sito" element={<AdminGestioneSito />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
