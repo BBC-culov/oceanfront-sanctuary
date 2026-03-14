@@ -68,7 +68,7 @@ const AdminGestioneSito = () => {
     const newData = { ...maintenance, enabled: pendingToggle };
     const { error } = await supabase
       .from("site_settings")
-      .update({ value: newData as unknown as Record<string, unknown>, updated_at: new Date().toISOString() })
+      .update({ value: newData as any, updated_at: new Date().toISOString() })
       .eq("key", "maintenance_mode");
     if (error) {
       toast({ title: "Errore", description: "Impossibile aggiornare le impostazioni.", variant: "destructive" });
