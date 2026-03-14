@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Globe, Server, Shield, AlertTriangle, CheckCircle2, Wrench, ExternalLink } from "lucide-react";
+import { Globe, Shield, AlertTriangle, CheckCircle2, Wrench, ExternalLink } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import {
@@ -99,7 +99,6 @@ const AdminGestioneSito = () => {
   const siteInfo = [
     { label: "Dominio", value: window.location.hostname, icon: Globe },
     { label: "Protocollo", value: window.location.protocol === "https:" ? "HTTPS (Sicuro)" : "HTTP", icon: Shield },
-    { label: "Piattaforma", value: "Lovable Cloud", icon: Server },
     { label: "Stato", value: maintenance.enabled ? "Manutenzione" : "Online", icon: maintenance.enabled ? AlertTriangle : CheckCircle2 },
   ];
 
