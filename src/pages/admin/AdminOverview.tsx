@@ -113,7 +113,7 @@ const AdminOverview = () => {
                 animate={{ opacity: hoveredStat === i ? 1 : 0 }}
                 transition={{ duration: 0.3 }}
               />
-              <CardContent className="pt-6 relative">
+              <CardContent className="pt-6 pb-6 relative h-full flex flex-col justify-between">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-sans text-xs text-muted-foreground uppercase tracking-wider">{card.label}</p>
@@ -138,17 +138,19 @@ const AdminOverview = () => {
                     <card.icon className="w-5 h-5" />
                   </motion.div>
                 </div>
-                {card.link && (
-                  <motion.div
-                    className="flex items-center gap-1 mt-3 font-sans text-xs text-primary"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: hoveredStat === i ? 1 : 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <span>Visualizza</span>
-                    <ArrowUpRight className="w-3 h-3" />
-                  </motion.div>
-                )}
+                <div className="h-6 mt-3">
+                  {card.link ? (
+                    <motion.div
+                      className="flex items-center gap-1 font-sans text-xs text-primary"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: hoveredStat === i ? 1 : 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <span>Visualizza</span>
+                      <ArrowUpRight className="w-3 h-3" />
+                    </motion.div>
+                  ) : null}
+                </div>
               </CardContent>
             </Card>
           </motion.div>
