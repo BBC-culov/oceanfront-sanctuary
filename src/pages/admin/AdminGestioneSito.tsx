@@ -99,7 +99,6 @@ const AdminGestioneSito = () => {
   const siteInfo = [
     { label: "Dominio", value: window.location.hostname, icon: Globe },
     { label: "Protocollo", value: window.location.protocol === "https:" ? "HTTPS (Sicuro)" : "HTTP", icon: Shield },
-    { label: "Piattaforma", value: "Lovable Cloud", icon: Server },
     { label: "Stato", value: maintenance.enabled ? "Manutenzione" : "Online", icon: maintenance.enabled ? AlertTriangle : CheckCircle2 },
   ];
 
