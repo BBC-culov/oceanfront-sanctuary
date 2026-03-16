@@ -221,7 +221,9 @@ const Navbar = () => {
         {/* Mobile toggle */}
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className={`lg:hidden transition-colors duration-300 ${isTransparent ? "text-hero-text" : "text-foreground"}`}
+          className={`lg:hidden transition-colors duration-300 ${
+            mobileOpen || !isTransparent ? "text-foreground" : "text-hero-text"
+          }`}
           aria-label="Menu"
         >
           {mobileOpen ? <X size={24} /> : <Menu size={24} />}
