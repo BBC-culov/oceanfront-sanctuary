@@ -85,9 +85,9 @@ const Navbar = () => {
       animate={{ y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        isTransparent
-          ? "bg-primary/50 backdrop-blur-sm lg:bg-primary/30 lg:backdrop-blur-[2px]"
-          : "bg-background/95 backdrop-blur-md shadow-sm"
+        mobileOpen || !isTransparent
+          ? "bg-background/95 backdrop-blur-md shadow-sm"
+          : "bg-primary/50 backdrop-blur-sm lg:bg-primary/30 lg:backdrop-blur-[2px]"
       }`}
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
@@ -221,7 +221,9 @@ const Navbar = () => {
         {/* Mobile toggle */}
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className={`lg:hidden transition-colors duration-300 ${isTransparent ? "text-hero-text" : "text-foreground"}`}
+          className={`lg:hidden transition-colors duration-300 ${
+            mobileOpen || !isTransparent ? "text-foreground" : "text-hero-text"
+          }`}
           aria-label="Menu"
         >
           {mobileOpen ? <X size={24} /> : <Menu size={24} />}
