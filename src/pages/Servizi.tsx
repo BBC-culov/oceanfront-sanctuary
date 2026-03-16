@@ -350,25 +350,20 @@ const Servizi = () => {
                     <motion.div
                       key={item.label}
                       variants={cardVariants}
-                      whileHover={{
-                        y: -6,
-                        transition: { type: "spring", stiffness: 400, damping: 25 },
-                      }}
                       className={`group p-6 border border-border ${
                         cat.accent
                           ? "bg-background hover:shadow-lg"
                           : "bg-card hover:shadow-lg"
-                      } transition-all duration-500`}
+                      } transition-all duration-500 hover:-translate-y-1.5`}
                     >
-                      <motion.div
+                      <div
                         className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors duration-300"
-                        whileHover={{ ...hoverAnim, transition: { duration: 0.5, ease: "easeInOut" } }}
                       >
                         <Icon
-                          className="w-5 h-5 text-primary"
+                          className="w-5 h-5 text-primary transition-transform duration-500 group-hover:scale-110"
                           strokeWidth={1.5}
                         />
-                      </motion.div>
+                      </div>
                       <h3 className="font-sans text-sm font-medium mb-1.5 text-foreground">
                         {item.label}
                       </h3>
