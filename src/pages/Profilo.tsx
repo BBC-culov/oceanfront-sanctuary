@@ -5,7 +5,7 @@ import { z } from "zod";
 import {
   User, Phone, Save, Loader2, CheckCircle, AlertCircle,
   Calendar, Clock, Tag, Hash, Trash2, AlertTriangle, X, ChevronRight,
-  Mail, Shield, Edit3, KeyRound, Eye, EyeOff, Headphones
+  Mail, Shield, Edit3, KeyRound, Eye, EyeOff, Headphones, Building2, CalendarCheck
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
