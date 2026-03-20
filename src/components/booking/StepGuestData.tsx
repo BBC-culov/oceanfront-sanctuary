@@ -39,10 +39,10 @@ const emptyAdditionalGuest: AdditionalGuestData = {
 };
 
 const FloatingInput = ({
-  label, value, onChange, type = "text", placeholder, required = true, delay = 0,
+  label, value, onChange, type = "text", placeholder, required = true, delay = 0, disabled = false,
 }: {
   label: string; value: string; onChange: (v: string) => void;
-  type?: string; placeholder?: string; required?: boolean; delay?: number;
+  type?: string; placeholder?: string; required?: boolean; delay?: number; disabled?: boolean;
 }) => (
   <motion.div
     initial={{ opacity: 0, y: 10 }}
