@@ -306,24 +306,24 @@ const Prenota = () => {
           </AnimatePresence>
 
           {/* Navigation buttons */}
-          {step < 3 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="flex justify-between mt-10 pt-8 border-t border-border"
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="flex justify-between mt-10 pt-8 border-t border-border"
+          >
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={prevStep}
+              disabled={step === 0}
+              className="flex items-center gap-2 font-sans text-xs tracking-[0.15em] uppercase text-muted-foreground hover:text-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed px-6 py-3 border border-border hover:border-foreground/20"
             >
-              <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={prevStep}
-                disabled={step === 0}
-                className="flex items-center gap-2 font-sans text-xs tracking-[0.15em] uppercase text-muted-foreground hover:text-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed px-6 py-3 border border-border hover:border-foreground/20"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Indietro
-              </motion.button>
+              <ArrowLeft className="w-4 h-4" />
+              Indietro
+            </motion.button>
 
+            {step < 3 && (
               <motion.button
                 whileHover={{ scale: 1.03, y: -1 }}
                 whileTap={{ scale: 0.97 }}
@@ -333,8 +333,8 @@ const Prenota = () => {
                 Avanti
                 <ArrowRight className="w-4 h-4" />
               </motion.button>
-            </motion.div>
-          )}
+            )}
+          </motion.div>
         </div>
       </main>
       <Footer />
