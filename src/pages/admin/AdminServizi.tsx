@@ -27,6 +27,23 @@ const AdminServizi = () => {
   const [editing, setEditing] = useState<ServiceRow | null>(null);
   const [form, setForm] = useState<Omit<ServiceRow, "id">>(emptyService);
   const [saving, setSaving] = useState(false);
+  const [reordering, setReordering] = useState(false);
+
+  const handleReorder = async (newOrder: ServiceRow[]) => {
+    setServices(newOrder);
+    setReordering(true);
+    try {
+      const updates = newOrder.map((s, i) =>
+        supabase.from("additional_services").update({ sort_order: i }).eq("id", s.id)
+      );
+      await Promise.all(updates);
+    } catch (err: any) {
+      toast({ title: "Errore riordino", description: err.message, variant: "destructive" });
+      fetchServices();
+    } finally {
+      setReordering(false);
+    }
+  };
 
   const fetchServices = async () => {
     const { data, error } = await supabase
