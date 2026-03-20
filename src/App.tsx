@@ -25,6 +25,7 @@ import AdminPrenotazioni from "./pages/admin/AdminPrenotazioni";
 import AdminAppartamenti from "./pages/admin/AdminAppartamenti";
 import AdminGestione from "./pages/admin/AdminGestione";
 import AdminGestioneSito from "./pages/admin/AdminGestioneSito";
+import AdminServizi from "./pages/admin/AdminServizi";
 
 const queryClient = new QueryClient({
   defaultOptions: {
