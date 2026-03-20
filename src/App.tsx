@@ -68,6 +68,7 @@ const AnimatedRoutes = () => {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminOverview />} />
           <Route path="prenotazioni" element={<AdminPrenotazioni />} />
+          <Route path="prenotazioni/:id" element={<AdminPrenotazioneDetail />} />
           <Route path="appartamenti" element={<AdminAppartamenti />} />
           <Route path="servizi" element={<AdminServizi />} />
           <Route path="gestione" element={<AdminGestione />} />
