@@ -178,6 +178,20 @@ const Profilo = () => {
           phone: data.phone || "",
         });
       }
+      // Fetch bookings
+      const { data: bData } = await supabase
+        .from("bookings")
+        .select("id, check_in, check_out, status, total_price, guest_name, guest_last_name, apartment_id, created_at")
+        .eq("user_id", session.user.id)
+        .order("created_at", { ascending: false });
+
+      if (bData && bData.length > 0) {
+        const aptIds = [...new Set(bData.map((b: any) => b.apartment_id))];
+        const { data: apts } = await supabase.from("apartments").select("id, name").in("id", aptIds);
+        const aptMap = new Map((apts ?? []).map((a: any) => [a.id, a.name]));
+        setBookings(bData.map((b: any) => ({ ...b, apartment_name: aptMap.get(b.apartment_id) ?? "—" })));
+      }
+      setBookingsLoading(false);
       setLoading(false);
     };
 
