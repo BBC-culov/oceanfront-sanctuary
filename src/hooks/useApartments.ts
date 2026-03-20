@@ -64,6 +64,8 @@ export function useApartments() {
       if (error) throw error;
       return (data ?? []).map(mapRow);
     },
+    staleTime: 15 * 60 * 1000, // 15 min
+    gcTime: 60 * 60 * 1000,    // 1 ora
   });
 }
 
