@@ -57,6 +57,7 @@ const AnimatedRoutes = () => {
         <Route path="/servizi" element={<Servizi />} />
         <Route path="/appartamenti" element={<Appartamenti />} />
         <Route path="/appartamenti/:slug" element={<AppartamentoDetail />} />
+        <Route path="/prenota" element={<Prenota />} />
         <Route path="/contatti" element={<Contatti />} />
         <Route path="/registrati" element={<Registrati />} />
         <Route path="/reset-password" element={<ResetPassword />} />

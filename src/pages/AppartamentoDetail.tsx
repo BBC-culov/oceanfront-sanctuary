@@ -141,12 +141,7 @@ const AppartamentoDetail = () => {
                   </div>
                 </div>
               )}
-              <AvailabilityCalendar />
-              <Link to="/contatti">
-                <motion.span whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 17 }} className="block text-center font-sans text-xs tracking-[0.2em] uppercase bg-primary text-primary-foreground px-8 py-4 hover:bg-primary/90 transition-colors shadow-md hover:shadow-lg">
-                  Richiedi Disponibilità
-                </motion.span>
-              </Link>
+              <AvailabilityCalendar apartmentSlug={slug} />
             </motion.div>
           </div>
         </section>
