@@ -73,10 +73,8 @@ const Prenota = () => {
 
   // Auto-fill from user profile
   useEffect(() => {
+    if (!user) return;
     const fillFromProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
       const { data: profile } = await supabase
         .from("profiles")
         .select("*")
@@ -99,7 +97,7 @@ const Prenota = () => {
       }
     };
     fillFromProfile();
-  }, []);
+  }, [user]);
 
   const nights = useMemo(() => {
     if (!checkIn || !checkOut) return 0;
