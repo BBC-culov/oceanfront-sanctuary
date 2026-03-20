@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { PlaneTakeoff, PlaneLanding, Sparkles, Clock, Building2, Check } from "lucide-react";
+import { PlaneTakeoff, PlaneLanding, Sparkles, Clock, Building2, Check, Ban } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useAdditionalServices, type AdditionalService } from "@/hooks/useAdditionalServices";
 
 export interface FlightData {
@@ -20,13 +21,16 @@ interface StepFlightServicesProps {
   notes: string;
   setNotes: (n: string) => void;
   nights: number;
+  noTransfer: boolean;
+  setNoTransfer: (v: boolean) => void;
+  errors?: Record<string, boolean>;
 }
 
 const FloatingInput = ({
-  label, value, onChange, type = "text", placeholder, icon: Icon, delay = 0,
+  label, value, onChange, type = "text", placeholder, icon: Icon, delay = 0, error = false,
 }: {
   label: string; value: string; onChange: (v: string) => void;
-  type?: string; placeholder?: string; icon?: React.ElementType; delay?: number;
+  type?: string; placeholder?: string; icon?: React.ElementType; delay?: number; error?: boolean;
 }) => (
   <motion.div
     initial={{ opacity: 0, y: 10 }}
@@ -36,19 +40,26 @@ const FloatingInput = ({
     <label className="flex items-center gap-1.5 font-sans text-[11px] tracking-wide text-muted-foreground mb-1.5">
       {Icon && <Icon className="w-3 h-3" strokeWidth={1.5} />}
       {label}
+      <span className="text-primary/70">*</span>
     </label>
     <Input
       type={type}
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className="bg-card/50 border-border/60 font-sans text-sm h-11 focus:border-primary/40 focus:bg-background transition-all duration-200"
+      className={`bg-card/50 font-sans text-sm h-11 focus:border-primary/40 focus:bg-background transition-all duration-200 ${
+        error ? "border-destructive/70 bg-destructive/5" : "border-border/60"
+      }`}
     />
+    {error && (
+      <p className="font-sans text-[10px] text-destructive mt-1">Campo obbligatorio</p>
+    )}
   </motion.div>
 );
 
 const StepFlightServices = ({
   flightData, setFlightData, selectedServices, setSelectedServices, notes, setNotes, nights,
+  noTransfer, setNoTransfer, errors = {},
 }: StepFlightServicesProps) => {
   const { data: services = [] } = useAdditionalServices();
 
@@ -81,6 +92,7 @@ const StepFlightServices = ({
     >
       {/* Flight info card */}
       <motion.div
+        id="flight-section"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
@@ -93,62 +105,103 @@ const StepFlightServices = ({
           <h3 className="font-serif text-lg text-foreground">Informazioni di viaggio</h3>
         </div>
 
-        {/* Airline */}
-        <FloatingInput
-          label="Compagnia aerea"
-          icon={Building2}
-          value={flightData.airline}
-          onChange={(v) => updateFlight("airline", v)}
-          placeholder="es. TAP Portugal, Ryanair..."
-          delay={0.05}
-        />
-
-        {/* Flights grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {/* Outbound */}
-          <div className="space-y-3 p-4 bg-background/50 border border-border/30 rounded-sm">
-            <span className="font-sans text-[10px] tracking-[0.15em] uppercase text-primary font-medium flex items-center gap-1.5">
-              <PlaneTakeoff className="w-3 h-3" /> Andata
-            </span>
-            <FloatingInput
-              label="Numero volo"
-              value={flightData.flight_outbound}
-              onChange={(v) => updateFlight("flight_outbound", v)}
-              placeholder="es. TP 1234"
-              delay={0.1}
-            />
-            <FloatingInput
-              label="Orario arrivo stimato"
-              icon={Clock}
-              value={flightData.arrival_time}
-              onChange={(v) => updateFlight("arrival_time", v)}
-              type="time"
-              delay={0.15}
-            />
+        {/* No transfer checkbox */}
+        <motion.label
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.05 }}
+          className="flex items-start gap-3 p-4 border border-border/40 bg-background/50 cursor-pointer hover:border-primary/30 transition-colors group"
+        >
+          <Checkbox
+            checked={noTransfer}
+            onCheckedChange={(checked) => setNoTransfer(checked === true)}
+            className="mt-0.5"
+          />
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <Ban className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={1.5} />
+              <span className="font-sans text-sm font-medium text-foreground">
+                Non voglio usufruire del servizio trasporto A/R Aeroporto
+              </span>
+            </div>
+            <p className="font-sans text-[11px] text-muted-foreground mt-1 leading-relaxed">
+              Seleziona se non hai bisogno del trasferimento aeroportuale
+            </p>
           </div>
+        </motion.label>
 
-          {/* Return */}
-          <div className="space-y-3 p-4 bg-background/50 border border-border/30 rounded-sm">
-            <span className="font-sans text-[10px] tracking-[0.15em] uppercase text-primary font-medium flex items-center gap-1.5">
-              <PlaneLanding className="w-3 h-3" /> Ritorno
-            </span>
+        {/* Flight fields — shown only if noTransfer is false */}
+        {!noTransfer && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-5"
+          >
+            {/* Airline */}
             <FloatingInput
-              label="Numero volo"
-              value={flightData.flight_return}
-              onChange={(v) => updateFlight("flight_return", v)}
-              placeholder="es. TP 4321"
-              delay={0.2}
+              label="Compagnia aerea"
+              icon={Building2}
+              value={flightData.airline}
+              onChange={(v) => updateFlight("airline", v)}
+              placeholder="es. TAP Portugal, Ryanair..."
+              delay={0.05}
+              error={errors.airline}
             />
-            <FloatingInput
-              label="Orario partenza stimato"
-              icon={Clock}
-              value={flightData.departure_time}
-              onChange={(v) => updateFlight("departure_time", v)}
-              type="time"
-              delay={0.25}
-            />
-          </div>
-        </div>
+
+            {/* Flights grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              {/* Outbound */}
+              <div className="space-y-3 p-4 bg-background/50 border border-border/30 rounded-sm">
+                <span className="font-sans text-[10px] tracking-[0.15em] uppercase text-primary font-medium flex items-center gap-1.5">
+                  <PlaneTakeoff className="w-3 h-3" /> Andata
+                </span>
+                <FloatingInput
+                  label="Numero volo"
+                  value={flightData.flight_outbound}
+                  onChange={(v) => updateFlight("flight_outbound", v)}
+                  placeholder="es. TP 1234"
+                  delay={0.1}
+                  error={errors.flight_outbound}
+                />
+                <FloatingInput
+                  label="Orario arrivo stimato"
+                  icon={Clock}
+                  value={flightData.arrival_time}
+                  onChange={(v) => updateFlight("arrival_time", v)}
+                  type="time"
+                  delay={0.15}
+                  error={errors.arrival_time}
+                />
+              </div>
+
+              {/* Return */}
+              <div className="space-y-3 p-4 bg-background/50 border border-border/30 rounded-sm">
+                <span className="font-sans text-[10px] tracking-[0.15em] uppercase text-primary font-medium flex items-center gap-1.5">
+                  <PlaneLanding className="w-3 h-3" /> Ritorno
+                </span>
+                <FloatingInput
+                  label="Numero volo"
+                  value={flightData.flight_return}
+                  onChange={(v) => updateFlight("flight_return", v)}
+                  placeholder="es. TP 4321"
+                  delay={0.2}
+                  error={errors.flight_return}
+                />
+                <FloatingInput
+                  label="Orario partenza stimato"
+                  icon={Clock}
+                  value={flightData.departure_time}
+                  onChange={(v) => updateFlight("departure_time", v)}
+                  type="time"
+                  delay={0.25}
+                  error={errors.departure_time}
+                />
+              </div>
+            </div>
+          </motion.div>
+        )}
       </motion.div>
 
       {/* Additional services */}
@@ -187,14 +240,10 @@ const StepFlightServices = ({
                     : "border-border/40 hover:border-primary/25 bg-background/50 hover:bg-primary/[0.02]"
                 }`}
               >
-                {/* Tick indicator — positioned in the top-right corner, outside of text flow */}
                 <div className="absolute top-3 right-3 z-10">
                   <motion.div
                     initial={false}
-                    animate={{
-                      scale: isSelected ? 1 : 0,
-                      opacity: isSelected ? 1 : 0,
-                    }}
+                    animate={{ scale: isSelected ? 1 : 0, opacity: isSelected ? 1 : 0 }}
                     transition={{ type: "spring", stiffness: 500, damping: 30 }}
                     className="w-5 h-5 rounded-full bg-primary flex items-center justify-center"
                   >
