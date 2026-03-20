@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, Reorder } from "framer-motion";
 import { Plus, Pencil, Trash2, Sparkles, GripVertical, ToggleLeft, ToggleRight } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
@@ -27,6 +27,23 @@ const AdminServizi = () => {
   const [editing, setEditing] = useState<ServiceRow | null>(null);
   const [form, setForm] = useState<Omit<ServiceRow, "id">>(emptyService);
   const [saving, setSaving] = useState(false);
+  const [reordering, setReordering] = useState(false);
+
+  const handleReorder = async (newOrder: ServiceRow[]) => {
+    setServices(newOrder);
+    setReordering(true);
+    try {
+      const updates = newOrder.map((s, i) =>
+        supabase.from("additional_services").update({ sort_order: i }).eq("id", s.id)
+      );
+      await Promise.all(updates);
+    } catch (err: any) {
+      toast({ title: "Errore riordino", description: err.message, variant: "destructive" });
+      fetchServices();
+    } finally {
+      setReordering(false);
+    }
+  };
 
   const fetchServices = async () => {
     const { data, error } = await supabase
@@ -145,69 +162,69 @@ const AdminServizi = () => {
           <p className="font-sans text-sm">Nessun servizio aggiuntivo configurato</p>
         </div>
       ) : (
-        <div className="space-y-2">
-          <AnimatePresence>
-            {services.map((s, i) => (
-              <motion.div
-                key={s.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3, delay: i * 0.04 }}
-                className={`group flex items-center gap-4 p-4 border transition-all duration-200 ${
-                  s.is_active
-                    ? "border-border/50 bg-card/40 hover:border-primary/30"
-                    : "border-border/30 bg-muted/20 opacity-60"
-                }`}
-              >
-                <GripVertical className="w-4 h-4 text-muted-foreground/40 flex-shrink-0" />
+        <Reorder.Group axis="y" values={services} onReorder={handleReorder} className="space-y-2">
+          {services.map((s, i) => (
+            <Reorder.Item
+              key={s.id}
+              value={s}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3, delay: i * 0.04 }}
+              whileDrag={{ scale: 1.02, boxShadow: "0 8px 24px rgba(0,0,0,0.12)", zIndex: 50 }}
+              className={`group flex items-center gap-4 p-4 border transition-all duration-200 cursor-grab active:cursor-grabbing ${
+                s.is_active
+                  ? "border-border/50 bg-card/40 hover:border-primary/30"
+                  : "border-border/30 bg-muted/20 opacity-60"
+              }`}
+            >
+              <GripVertical className="w-4 h-4 text-muted-foreground/40 flex-shrink-0" />
 
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="font-sans text-sm font-medium text-foreground truncate">{s.name}</p>
-                    {!s.is_active && (
-                      <span className="font-sans text-[10px] tracking-wide uppercase text-muted-foreground bg-muted px-2 py-0.5 rounded-sm">
-                        Disattivo
-                      </span>
-                    )}
-                  </div>
-                  {s.description && (
-                    <p className="font-sans text-xs text-muted-foreground mt-0.5 truncate">{s.description}</p>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="font-sans text-sm font-medium text-foreground truncate">{s.name}</p>
+                  {!s.is_active && (
+                    <span className="font-sans text-[10px] tracking-wide uppercase text-muted-foreground bg-muted px-2 py-0.5 rounded-sm">
+                      Disattivo
+                    </span>
                   )}
                 </div>
+                {s.description && (
+                  <p className="font-sans text-xs text-muted-foreground mt-0.5 truncate">{s.description}</p>
+                )}
+              </div>
 
-                <span className="font-sans text-sm font-semibold text-foreground flex-shrink-0">
-                  €{s.price}
-                </span>
+              <span className="font-sans text-sm font-semibold text-foreground flex-shrink-0">
+                €{s.price}
+              </span>
 
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => toggleActive(s)}
-                    className="p-2 text-muted-foreground hover:text-primary transition-colors"
-                    title={s.is_active ? "Disattiva" : "Attiva"}
-                  >
-                    {s.is_active ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
-                  </motion.button>
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => openEdit(s)}
-                    className="p-2 text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </motion.button>
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => handleDelete(s.id)}
-                    className="p-2 text-muted-foreground hover:text-destructive transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </motion.button>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
+              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => toggleActive(s)}
+                  className="p-2 text-muted-foreground hover:text-primary transition-colors"
+                  title={s.is_active ? "Disattiva" : "Attiva"}
+                >
+                  {s.is_active ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
+                </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => openEdit(s)}
+                  className="p-2 text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <Pencil className="w-4 h-4" />
+                </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => handleDelete(s.id)}
+                  className="p-2 text-muted-foreground hover:text-destructive transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </motion.button>
+              </div>
+            </Reorder.Item>
+          ))}
+        </Reorder.Group>
       )}
 
       {/* Edit / Create Dialog */}
