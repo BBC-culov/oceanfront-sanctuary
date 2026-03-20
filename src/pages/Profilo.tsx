@@ -1,16 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { z } from "zod";
 import {
   User, Phone, Save, Loader2, CheckCircle, AlertCircle,
   Calendar, Clock, Tag, Hash, Trash2, AlertTriangle, X, ChevronRight,
-  Mail, Shield, Edit3, KeyRound, Eye, EyeOff, Headphones
+  Mail, Shield, Edit3, KeyRound, Eye, EyeOff, Headphones, Building2, CalendarCheck
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
+import { format, differenceInDays } from "date-fns";
+import { it } from "date-fns/locale";
 
 const profileSchema = z.object({
   firstName: z.string().trim().min(2, "Il nome deve avere almeno 2 caratteri").max(50),
@@ -20,15 +22,18 @@ const profileSchema = z.object({
 
 type BookingStatus = "confirmed" | "pending" | "cancelled";
 
-interface Booking {
+interface RealBooking {
   id: string;
-  date: string;
-  time: string;
-  service: string;
+  check_in: string;
+  check_out: string;
   status: BookingStatus;
+  total_price: number | null;
+  guest_name: string;
+  guest_last_name: string | null;
+  apartment_id: string;
+  apartment_name?: string;
+  created_at: string;
 }
-
-const mockBookings: Booking[] = [];
 
 const statusConfig: Record<BookingStatus, { label: string; color: string; bg: string }> = {
   confirmed: { label: "Confermata", color: "text-primary", bg: "bg-primary/10" },
@@ -138,7 +143,8 @@ const Profilo = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [userEmail, setUserEmail] = useState("");
   const [form, setForm] = useState({ firstName: "", lastName: "", phone: "" });
-  const [bookings] = useState<Booking[]>(mockBookings);
+  const [bookings, setBookings] = useState<RealBooking[]>([]);
+  const [bookingsLoading, setBookingsLoading] = useState(true);
   const bookingsRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bookings section if hash is #prenotazioni
@@ -172,6 +178,20 @@ const Profilo = () => {
           phone: data.phone || "",
         });
       }
+      // Fetch bookings
+      const { data: bData } = await supabase
+        .from("bookings")
+        .select("id, check_in, check_out, status, total_price, guest_name, guest_last_name, apartment_id, created_at")
+        .eq("user_id", session.user.id)
+        .order("created_at", { ascending: false });
+
+      if (bData && bData.length > 0) {
+        const aptIds = [...new Set(bData.map((b: any) => b.apartment_id))];
+        const { data: apts } = await supabase.from("apartments").select("id, name").in("id", aptIds);
+        const aptMap = new Map((apts ?? []).map((a: any) => [a.id, a.name]));
+        setBookings(bData.map((b: any) => ({ ...b, apartment_name: aptMap.get(b.apartment_id) ?? "—" })));
+      }
+      setBookingsLoading(false);
       setLoading(false);
     };
 
@@ -448,7 +468,13 @@ const Profilo = () => {
               </div>
 
               <div className="p-6">
-                {bookings.length === 0 ? (
+                {bookingsLoading ? (
+                  <div className="space-y-3">
+                    {[1, 2].map((i) => (
+                      <div key={i} className="h-20 bg-muted/30 animate-pulse rounded-xl" />
+                    ))}
+                  </div>
+                ) : bookings.length === 0 ? (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -468,6 +494,7 @@ const Profilo = () => {
                   <div className="space-y-3">
                     {bookings.map((booking, idx) => {
                       const status = statusConfig[booking.status];
+                      const nights = differenceInDays(new Date(booking.check_out), new Date(booking.check_in));
                       return (
                         <motion.div
                           key={booking.id}
@@ -482,23 +509,21 @@ const Profilo = () => {
                               <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-sans ${status.bg} ${status.color}`}>
                                 {status.label}
                               </span>
-                              <span className="text-xs text-muted-foreground font-sans flex items-center gap-1">
-                                <Hash size={10} />
-                                {booking.id}
-                              </span>
+                              {booking.total_price && (
+                                <span className="text-xs font-sans font-semibold text-foreground">€{booking.total_price}</span>
+                              )}
                             </div>
                             <p className="font-sans text-sm text-foreground font-medium flex items-center gap-1.5">
-                              <Tag size={13} className="text-muted-foreground" />
-                              {booking.service}
+                              <Building2 size={13} className="text-muted-foreground" />
+                              {booking.apartment_name || "Appartamento"}
                             </p>
                             <div className="flex items-center gap-3 mt-1">
                               <span className="text-xs text-muted-foreground font-sans flex items-center gap-1">
-                                <Calendar size={11} />
-                                {booking.date}
+                                <CalendarCheck size={11} />
+                                {format(new Date(booking.check_in), "d MMM", { locale: it })} → {format(new Date(booking.check_out), "d MMM yyyy", { locale: it })}
                               </span>
-                              <span className="text-xs text-muted-foreground font-sans flex items-center gap-1">
-                                <Clock size={11} />
-                                {booking.time}
+                              <span className="text-xs text-muted-foreground font-sans">
+                                {nights} notti
                               </span>
                             </div>
                           </div>
