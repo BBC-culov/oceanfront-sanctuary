@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      additional_services: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          price: number
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          price?: number
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          price?: number
+          sort_order?: number
+        }
+        Relationships: []
+      }
       apartments: {
         Row: {
           address: string | null
@@ -77,17 +107,82 @@ export type Database = {
         }
         Relationships: []
       }
+      booking_guests: {
+        Row: {
+          booking_id: string
+          created_at: string
+          date_of_birth: string
+          first_name: string
+          id: string
+          id_card_expiry: string
+          id_card_issued: string
+          id_card_number: string
+          last_name: string
+          nationality: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          date_of_birth: string
+          first_name: string
+          id?: string
+          id_card_expiry: string
+          id_card_issued: string
+          id_card_number: string
+          last_name: string
+          nationality: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          date_of_birth?: string
+          first_name?: string
+          id?: string
+          id_card_expiry?: string
+          id_card_issued?: string
+          id_card_number?: string
+          last_name?: string
+          nationality?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_guests_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           apartment_id: string
+          arrival_time: string | null
+          billing_address: string | null
+          billing_city: string | null
+          billing_country: string | null
+          billing_fiscal_code: string | null
+          billing_name: string | null
+          billing_zip: string | null
           check_in: string
           check_out: string
           created_at: string
+          departure_time: string | null
+          flight_outbound: string | null
+          flight_return: string | null
+          guest_date_of_birth: string | null
           guest_email: string
+          guest_id_card_expiry: string | null
+          guest_id_card_issued: string | null
+          guest_id_card_number: string | null
+          guest_last_name: string | null
           guest_name: string
+          guest_nationality: string | null
           guest_phone: string | null
+          guest_place_of_birth: string | null
           id: string
           notes: string | null
+          selected_services: Json | null
           status: Database["public"]["Enums"]["booking_status"]
           total_price: number | null
           updated_at: string
@@ -95,14 +190,32 @@ export type Database = {
         }
         Insert: {
           apartment_id: string
+          arrival_time?: string | null
+          billing_address?: string | null
+          billing_city?: string | null
+          billing_country?: string | null
+          billing_fiscal_code?: string | null
+          billing_name?: string | null
+          billing_zip?: string | null
           check_in: string
           check_out: string
           created_at?: string
+          departure_time?: string | null
+          flight_outbound?: string | null
+          flight_return?: string | null
+          guest_date_of_birth?: string | null
           guest_email: string
+          guest_id_card_expiry?: string | null
+          guest_id_card_issued?: string | null
+          guest_id_card_number?: string | null
+          guest_last_name?: string | null
           guest_name: string
+          guest_nationality?: string | null
           guest_phone?: string | null
+          guest_place_of_birth?: string | null
           id?: string
           notes?: string | null
+          selected_services?: Json | null
           status?: Database["public"]["Enums"]["booking_status"]
           total_price?: number | null
           updated_at?: string
@@ -110,14 +223,32 @@ export type Database = {
         }
         Update: {
           apartment_id?: string
+          arrival_time?: string | null
+          billing_address?: string | null
+          billing_city?: string | null
+          billing_country?: string | null
+          billing_fiscal_code?: string | null
+          billing_name?: string | null
+          billing_zip?: string | null
           check_in?: string
           check_out?: string
           created_at?: string
+          departure_time?: string | null
+          flight_outbound?: string | null
+          flight_return?: string | null
+          guest_date_of_birth?: string | null
           guest_email?: string
+          guest_id_card_expiry?: string | null
+          guest_id_card_issued?: string | null
+          guest_id_card_number?: string | null
+          guest_last_name?: string | null
           guest_name?: string
+          guest_nationality?: string | null
           guest_phone?: string | null
+          guest_place_of_birth?: string | null
           id?: string
           notes?: string | null
+          selected_services?: Json | null
           status?: Database["public"]["Enums"]["booking_status"]
           total_price?: number | null
           updated_at?: string
