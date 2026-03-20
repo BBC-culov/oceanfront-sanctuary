@@ -109,8 +109,62 @@ const Prenota = () => {
   }
 
   const pricePerNight = (dbApt as any)?.price_per_night ?? 0;
-
   const cover = apt.gallery?.[0] || apt.cover;
+
+  // Auth gate: require login
+  if (authLoading) {
+    return (
+      <PageTransition>
+        <Navbar />
+        <main className="pt-24 pb-24 flex items-center justify-center min-h-[60vh]">
+          <p className="font-sans text-sm text-muted-foreground">Caricamento...</p>
+        </main>
+        <Footer />
+      </PageTransition>
+    );
+  }
+
+  if (!user) {
+    const returnUrl = `/prenota?${searchParams.toString()}`;
+    return (
+      <PageTransition>
+        <Navbar />
+        <main className="pt-24 pb-24">
+          <div className="mx-auto max-w-md px-6 text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="space-y-6"
+            >
+              <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
+                <LogIn className="w-7 h-7 text-primary" strokeWidth={1.5} />
+              </div>
+              <h1 className="font-serif text-3xl font-light text-foreground">Accedi per prenotare</h1>
+              <p className="font-sans text-sm text-muted-foreground leading-relaxed">
+                Per completare la prenotazione è necessario accedere al tuo account o registrarti. I tuoi dati verranno compilati automaticamente.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+                <Link
+                  to={`/registrati?redirect=${encodeURIComponent(returnUrl)}`}
+                  className="font-sans text-xs tracking-[0.2em] uppercase bg-primary text-primary-foreground px-8 py-3.5 hover:bg-primary/90 transition-colors"
+                >
+                  Accedi o Registrati
+                </Link>
+                <Link
+                  to={`/appartamenti/${slug}`}
+                  className="font-sans text-xs tracking-[0.2em] uppercase border border-border text-muted-foreground px-8 py-3.5 hover:border-foreground/20 hover:text-foreground transition-colors"
+                >
+                  Torna all'appartamento
+                </Link>
+              </div>
+            </motion.div>
+          </div>
+        </main>
+        <Footer />
+      </PageTransition>
+    );
+  }
 
   const validateStep = (s: number): boolean => {
     if (s === 0) {
