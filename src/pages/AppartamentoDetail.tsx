@@ -22,15 +22,22 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
 import staticApartments from "@/data/apartments";
-import { useApartmentBySlug } from "@/hooks/useApartments";
+import { useApartmentBySlug, useApartments } from "@/hooks/useApartments";
 import AvailabilityCalendar from "@/components/AvailabilityCalendar";
 
 const AppartamentoDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: dbApt, isLoading } = useApartmentBySlug(slug);
+  const { data: allApartments = [] } = useApartments();
   const staticApt = staticApartments.find((a) => a.slug === slug);
   const apt = dbApt || staticApt;
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  // Get alternative apartments (different from current, sorted by price ascending, take 2)
+  const alternatives = allApartments
+    .filter((a) => a.slug !== slug)
+    .sort((a, b) => a.pricePerNight - b.pricePerNight)
+    .slice(0, 2);
 
   if (isLoading) {
     return (
@@ -141,11 +148,94 @@ const AppartamentoDetail = () => {
                   </div>
                 </div>
               )}
-              <AvailabilityCalendar apartmentSlug={slug} />
+              <AvailabilityCalendar apartmentSlug={slug} apartmentId={"id" in apt ? (apt as any).id : undefined} />
             </motion.div>
           </div>
         </section>
       </main>
+
+      {/* Alternative apartments section */}
+      {alternatives.length > 0 && (
+        <section className="bg-secondary py-20">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.6 }}
+              className="text-center mb-12"
+            >
+              <p className="font-sans text-xs tracking-[0.3em] uppercase text-muted-foreground mb-3">Esplora altre opzioni</p>
+              <h2 className="font-serif text-2xl md:text-3xl font-light text-foreground">
+                Non è quello che stavi cercando?
+              </h2>
+              <p className="font-sans text-sm text-muted-foreground mt-3 max-w-md mx-auto">
+                Ecco altre soluzioni che potrebbero fare al caso tuo
+              </p>
+            </motion.div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              {alternatives.map((alt, i) => (
+                <motion.div
+                  key={alt.slug}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                >
+                  <Link to={`/appartamenti/${alt.slug}`} className="group block">
+                    <div className="overflow-hidden mb-4">
+                      <img
+                        src={alt.cover}
+                        alt={alt.name}
+                        className="w-full aspect-[4/3] object-cover transition-transform duration-700 group-hover:scale-105"
+                        loading="lazy"
+                      />
+                    </div>
+                    <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-1">{alt.tagline}</p>
+                    <h3 className="font-serif text-xl font-light text-foreground mb-2 group-hover:text-primary transition-colors">{alt.name}</h3>
+                    <div className="flex items-center gap-4 text-muted-foreground font-sans text-xs">
+                      <span>{alt.guests} ospiti</span>
+                      <span>·</span>
+                      <span>{alt.bedrooms} {alt.bedrooms > 1 ? "camere" : "camera"}</span>
+                      <span>·</span>
+                      <span>{alt.sqm} m²</span>
+                    </div>
+                    {alt.pricePerNight > 0 && (
+                      <p className="font-sans text-sm text-primary mt-2">
+                        da €{alt.pricePerNight}<span className="text-muted-foreground text-xs"> / notte</span>
+                      </p>
+                    )}
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="text-center mt-10"
+            >
+              <Link to="/appartamenti">
+                <motion.span whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="inline-block font-sans text-xs tracking-[0.2em] uppercase border border-primary text-primary px-8 py-3.5 hover:bg-primary hover:text-primary-foreground transition-colors">
+                  Vedi tutti gli appartamenti
+                </motion.span>
+              </Link>
+            </motion.div>
+          </div>
+        </section>
+      )}
+
+      <div className="bg-secondary py-16">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 text-center">
+          <p className="font-serif text-2xl md:text-3xl font-light text-foreground mb-6">Pronto a vivere Boa Vista?</p>
+          <Link to="/contatti">
+            <motion.span whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="inline-block font-sans text-xs tracking-[0.2em] uppercase bg-primary text-primary-foreground px-10 py-4 hover:bg-primary/90 transition-colors">Contattaci</motion.span>
+          </Link>
+        </div>
+      </div>
 
       <AnimatePresence>
         {lightboxIndex !== null && (
@@ -163,14 +253,6 @@ const AppartamentoDetail = () => {
         )}
       </AnimatePresence>
 
-      <div className="bg-secondary py-16">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 text-center">
-          <p className="font-serif text-2xl md:text-3xl font-light text-foreground mb-6">Pronto a vivere Boa Vista?</p>
-          <Link to="/contatti">
-            <motion.span whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="inline-block font-sans text-xs tracking-[0.2em] uppercase bg-primary text-primary-foreground px-10 py-4 hover:bg-primary/90 transition-colors">Contattaci</motion.span>
-          </Link>
-        </div>
-      </div>
       <Footer />
     </PageTransition>
   );
