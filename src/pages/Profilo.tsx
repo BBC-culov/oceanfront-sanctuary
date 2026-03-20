@@ -496,44 +496,45 @@ const Profilo = () => {
                       const status = statusConfig[booking.status];
                       const nights = differenceInDays(new Date(booking.check_out), new Date(booking.check_in));
                       return (
-                        <motion.div
-                          key={booking.id}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.1 * idx, duration: 0.4 }}
-                          whileHover={{ x: 4, boxShadow: "0 4px 15px -3px hsl(var(--primary) / 0.1)" }}
-                          className="group flex items-center justify-between p-4 rounded-xl bg-muted/30 border border-border/40 hover:border-primary/20 transition-all duration-300 cursor-pointer"
-                        >
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1.5">
-                              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-sans ${status.bg} ${status.color}`}>
-                                {status.label}
-                              </span>
-                              {booking.total_price && (
-                                <span className="text-xs font-sans font-semibold text-foreground">€{booking.total_price}</span>
-                              )}
-                            </div>
-                            <p className="font-sans text-sm text-foreground font-medium flex items-center gap-1.5">
-                              <Building2 size={13} className="text-muted-foreground" />
-                              {booking.apartment_name || "Appartamento"}
-                            </p>
-                            <div className="flex items-center gap-3 mt-1">
-                              <span className="text-xs text-muted-foreground font-sans flex items-center gap-1">
-                                <CalendarCheck size={11} />
-                                {format(new Date(booking.check_in), "d MMM", { locale: it })} → {format(new Date(booking.check_out), "d MMM yyyy", { locale: it })}
-                              </span>
-                              <span className="text-xs text-muted-foreground font-sans">
-                                {nights} notti
-                              </span>
-                            </div>
-                          </div>
+                        <Link to={`/prenotazione/${booking.id}`} key={booking.id}>
                           <motion.div
-                            className="ml-4 p-2 rounded-lg text-muted-foreground group-hover:text-primary transition-colors"
-                            whileHover={{ x: 3 }}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.1 * idx, duration: 0.4 }}
+                            whileHover={{ x: 4, boxShadow: "0 4px 15px -3px hsl(var(--primary) / 0.1)" }}
+                            className="group flex items-center justify-between p-4 rounded-xl bg-muted/30 border border-border/40 hover:border-primary/20 transition-all duration-300 cursor-pointer"
                           >
-                            <ChevronRight size={18} />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1.5">
+                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-sans ${status.bg} ${status.color}`}>
+                                  {status.label}
+                                </span>
+                                {booking.total_price && (
+                                  <span className="text-xs font-sans font-semibold text-foreground">€{booking.total_price}</span>
+                                )}
+                              </div>
+                              <p className="font-sans text-sm text-foreground font-medium flex items-center gap-1.5">
+                                <Building2 size={13} className="text-muted-foreground" />
+                                {booking.apartment_name || "Appartamento"}
+                              </p>
+                              <div className="flex items-center gap-3 mt-1">
+                                <span className="text-xs text-muted-foreground font-sans flex items-center gap-1">
+                                  <CalendarCheck size={11} />
+                                  {format(new Date(booking.check_in), "d MMM", { locale: it })} → {format(new Date(booking.check_out), "d MMM yyyy", { locale: it })}
+                                </span>
+                                <span className="text-xs text-muted-foreground font-sans">
+                                  {nights} notti
+                                </span>
+                              </div>
+                            </div>
+                            <motion.div
+                              className="ml-4 p-2 rounded-lg text-muted-foreground group-hover:text-primary transition-colors"
+                              whileHover={{ x: 3 }}
+                            >
+                              <ChevronRight size={18} />
+                            </motion.div>
                           </motion.div>
-                        </motion.div>
+                        </Link>
                       );
                     })}
                   </div>
