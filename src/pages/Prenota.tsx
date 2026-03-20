@@ -56,6 +56,8 @@ const Prenota = () => {
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
   const [billing, setBilling] = useState<BillingData>(emptyBilling);
+  const [noTransfer, setNoTransfer] = useState(false);
+  const [flightErrors, setFlightErrors] = useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Check auth

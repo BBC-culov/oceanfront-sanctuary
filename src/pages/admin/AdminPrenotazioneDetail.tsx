@@ -219,8 +219,14 @@ const AdminPrenotazioneDetail = () => {
 
         {/* Flight */}
         <Section icon={PlaneTakeoff} title="Informazioni volo" delay={0.14}>
-          {booking.flight_outbound || booking.flight_return ? (
+          {booking.no_transfer ? (
+            <div className="flex items-center gap-2 py-4">
+              <XCircle className="w-4 h-4 text-amber-500" strokeWidth={1.5} />
+              <p className="font-sans text-sm text-amber-700 font-medium">Il cliente non ha richiesto il servizio trasporto A/R Aeroporto</p>
+            </div>
+          ) : booking.flight_outbound || booking.flight_return ? (
             <div className="space-y-0">
+              <InfoRow icon={Building2} label="Compagnia aerea" value={booking.airline} />
               <InfoRow icon={PlaneTakeoff} label="Volo andata" value={booking.flight_outbound} />
               <InfoRow icon={Clock} label="Arrivo stimato" value={booking.arrival_time} />
               <InfoRow icon={PlaneLanding} label="Volo ritorno" value={booking.flight_return} />
