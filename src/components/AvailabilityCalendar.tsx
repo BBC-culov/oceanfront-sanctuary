@@ -1,25 +1,65 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, CalendarCheck } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarCheck, Info } from "lucide-react";
 import {
   format, startOfMonth, endOfMonth, startOfWeek, endOfWeek,
   addMonths, subMonths, eachDayOfInterval, isSameMonth,
-  isSameDay, isToday, isBefore, startOfDay,
+  isSameDay, isToday, isBefore, startOfDay, addDays,
 } from "date-fns";
 import { it } from "date-fns/locale";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AvailabilityCalendarProps {
   apartmentSlug?: string;
+  apartmentId?: string;
   onDateSelect?: (checkIn: Date | null, checkOut: Date | null) => void;
 }
 
-const AvailabilityCalendar = ({ apartmentSlug, onDateSelect }: AvailabilityCalendarProps) => {
+interface BookedRange {
+  checkIn: Date;
+  checkOut: Date;
+}
+
+const AvailabilityCalendar = ({ apartmentSlug, apartmentId, onDateSelect }: AvailabilityCalendarProps) => {
   const navigate = useNavigate();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [checkIn, setCheckIn] = useState<Date | null>(null);
   const [checkOut, setCheckOut] = useState<Date | null>(null);
   const [direction, setDirection] = useState(0);
+
+  const { data: bookedRanges = [] } = useQuery({
+    queryKey: ["apartment-bookings", apartmentId],
+    queryFn: async () => {
+      if (!apartmentId) return [];
+      const { data, error } = await supabase
+        .from("bookings")
+        .select("check_in, check_out")
+        .eq("apartment_id", apartmentId)
+        .in("status", ["confirmed", "pending"]);
+      if (error) throw error;
+      return (data ?? []).map((b) => ({
+        checkIn: startOfDay(new Date(b.check_in)),
+        checkOut: startOfDay(new Date(b.check_out)),
+      })) as BookedRange[];
+    },
+    enabled: !!apartmentId,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const isDateBooked = (day: Date) =>
+    bookedRanges.some((r) => day >= r.checkIn && day < r.checkOut);
+
+  const nextAvailableDate = useMemo(() => {
+    const start = startOfDay(new Date());
+    for (let i = 0; i < 365; i++) {
+      const d = addDays(start, i);
+      if (!isDateBooked(d)) return d;
+    }
+    return null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bookedRanges]);
 
   const today = startOfDay(new Date());
   const monthStart = startOfMonth(currentMonth);
@@ -32,15 +72,29 @@ const AvailabilityCalendar = ({ apartmentSlug, onDateSelect }: AvailabilityCalen
   const goNext = () => { setDirection(1); setCurrentMonth((m) => addMonths(m, 1)); };
   const goPrev = () => { setDirection(-1); setCurrentMonth((m) => subMonths(m, 1)); };
 
+  const rangeOverlapsBooking = (start: Date, end: Date) =>
+    bookedRanges.some((r) => start < r.checkOut && end > r.checkIn);
+
   const handleDayClick = (day: Date) => {
-    if (isBefore(day, today)) return;
+    if (isBefore(day, today) || isDateBooked(day)) return;
     if (!checkIn || (checkIn && checkOut)) {
       setCheckIn(day); setCheckOut(null); onDateSelect?.(day, null);
     } else {
       if (isBefore(day, checkIn) || isSameDay(day, checkIn)) {
         setCheckIn(day); setCheckOut(null); onDateSelect?.(day, null);
       } else {
-        setCheckOut(day); onDateSelect?.(checkIn, day);
+        if (rangeOverlapsBooking(checkIn, day)) {
+          let lastAvailable = checkIn;
+          for (let d = addDays(checkIn, 1); d <= day; d = addDays(d, 1)) {
+            if (isDateBooked(d)) break;
+            lastAvailable = d;
+          }
+          if (!isSameDay(lastAvailable, checkIn)) {
+            setCheckOut(lastAvailable); onDateSelect?.(checkIn, lastAvailable);
+          }
+        } else {
+          setCheckOut(day); onDateSelect?.(checkIn, day);
+        }
       }
     }
   };
@@ -66,6 +120,8 @@ const AvailabilityCalendar = ({ apartmentSlug, onDateSelect }: AvailabilityCalen
     exit: (dir: number) => ({ x: dir > 0 ? -80 : 80, opacity: 0 }),
   };
 
+  const hasBookedDatesThisMonth = days.some((d) => isSameMonth(d, currentMonth) && isDateBooked(d));
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -78,7 +134,6 @@ const AvailabilityCalendar = ({ apartmentSlug, onDateSelect }: AvailabilityCalen
         <h3 className="font-serif text-lg font-light text-foreground">Disponibilità</h3>
       </div>
 
-      {/* Month nav */}
       <div className="flex items-center justify-between">
         <motion.button whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }} onClick={goPrev} className="p-1.5 text-muted-foreground hover:text-foreground transition-colors">
           <ChevronLeft className="w-4 h-4" />
@@ -95,19 +150,19 @@ const AvailabilityCalendar = ({ apartmentSlug, onDateSelect }: AvailabilityCalen
         </motion.button>
       </div>
 
-      {/* Weekday headers */}
       <div className="grid grid-cols-7 gap-0">
         {weekDays.map((d) => (
           <div key={d} className="text-center font-sans text-[10px] tracking-wider uppercase text-muted-foreground py-1">{d}</div>
         ))}
       </div>
 
-      {/* Days */}
       <AnimatePresence mode="popLayout" custom={direction}>
         <motion.div key={format(currentMonth, "yyyy-MM")} custom={direction} variants={monthVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.25, ease: "easeInOut" }} className="grid grid-cols-7 gap-0">
           {days.map((day, i) => {
             const outside = !isSameMonth(day, currentMonth);
             const past = isPast(day);
+            const booked = isDateBooked(day);
+            const disabled = past || outside || booked;
             const selected = isRangeStart(day) || isRangeEnd(day);
             const inRange = isInRange(day);
             const todayDay = isToday(day);
@@ -118,13 +173,14 @@ const AvailabilityCalendar = ({ apartmentSlug, onDateSelect }: AvailabilityCalen
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.2, delay: i * 0.008 }}
-                onClick={() => !outside && handleDayClick(day)}
-                disabled={past || outside}
+                onClick={() => !disabled && handleDayClick(day)}
+                disabled={disabled}
                 className={`
                   relative h-9 w-full font-sans text-xs transition-all duration-200
                   ${outside ? "text-transparent pointer-events-none" : ""}
                   ${past && !outside ? "text-muted-foreground/40 cursor-not-allowed" : ""}
-                  ${!past && !outside && !selected ? "text-foreground hover:bg-primary/10 cursor-pointer" : ""}
+                  ${booked && !outside ? "text-muted-foreground/40 cursor-not-allowed line-through decoration-destructive/50" : ""}
+                  ${!disabled && !selected ? "text-foreground hover:bg-primary/10 cursor-pointer" : ""}
                   ${selected ? "bg-primary text-primary-foreground font-medium z-10" : ""}
                   ${inRange ? "bg-primary/15 text-foreground" : ""}
                   ${todayDay && !selected ? "font-semibold" : ""}
@@ -143,7 +199,26 @@ const AvailabilityCalendar = ({ apartmentSlug, onDateSelect }: AvailabilityCalen
         </motion.div>
       </AnimatePresence>
 
-      {/* Selection summary + booking button */}
+      {hasBookedDatesThisMonth && (
+        <div className="flex items-center gap-2 text-[10px] font-sans text-muted-foreground">
+          <span className="line-through decoration-destructive/50">00</span>
+          <span>= non disponibile</span>
+        </div>
+      )}
+
+      {bookedRanges.length > 0 && nextAvailableDate && !checkIn && (
+        <motion.div
+          initial={{ opacity: 0, y: -5 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-start gap-2 p-3 bg-primary/5 rounded-md"
+        >
+          <Info className="w-3.5 h-3.5 text-primary mt-0.5 flex-shrink-0" />
+          <p className="font-sans text-xs text-muted-foreground">
+            Prossima data disponibile: <span className="text-foreground font-medium">{format(nextAvailableDate, "d MMMM yyyy", { locale: it })}</span>
+          </p>
+        </motion.div>
+      )}
+
       <AnimatePresence>
         {checkIn && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.3 }} className="overflow-hidden">
@@ -171,7 +246,7 @@ const AvailabilityCalendar = ({ apartmentSlug, onDateSelect }: AvailabilityCalen
                     onClick={handleBooking}
                     className="w-full mt-3 font-sans text-xs tracking-[0.2em] uppercase bg-primary text-primary-foreground px-6 py-3.5 hover:bg-primary/90 transition-colors shadow-md hover:shadow-lg"
                   >
-                    Verifica disponibilità e prenota
+                    Prenota
                   </motion.button>
                 </>
               )}
