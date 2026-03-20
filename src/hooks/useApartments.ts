@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import staticApartments from "@/data/apartments";
 
 export interface ApartmentPublic {
+  id: string;
   slug: string;
   name: string;
   tagline: string;
@@ -17,6 +18,7 @@ export interface ApartmentPublic {
   address: string;
   mapQuery: string;
   category: "residence" | "penthouse" | "compact";
+  pricePerNight: number;
 }
 
 function mapRow(row: any): ApartmentPublic {
@@ -35,6 +37,7 @@ function mapRow(row: any): ApartmentPublic {
   }
 
   return {
+    id: row.id,
     slug: row.slug,
     name: row.name,
     tagline: row.tagline ?? "",
@@ -49,6 +52,7 @@ function mapRow(row: any): ApartmentPublic {
     address: row.address ?? "",
     mapQuery: row.map_query ?? "",
     category: row.category as ApartmentPublic["category"],
+    pricePerNight: row.price_per_night ?? 0,
   };
 }
 
