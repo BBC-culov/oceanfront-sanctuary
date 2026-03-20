@@ -11,6 +11,8 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
+import { format, differenceInDays } from "date-fns";
+import { it } from "date-fns/locale";
 
 const profileSchema = z.object({
   firstName: z.string().trim().min(2, "Il nome deve avere almeno 2 caratteri").max(50),
