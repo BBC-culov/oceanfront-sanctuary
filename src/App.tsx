@@ -14,6 +14,7 @@ import Servizi from "./pages/Servizi";
 import Appartamenti from "./pages/Appartamenti";
 import Contatti from "./pages/Contatti";
 import AppartamentoDetail from "./pages/AppartamentoDetail";
+import Prenota from "./pages/Prenota";
 import NotFound from "./pages/NotFound";
 import Registrati from "./pages/Registrati";
 import ResetPassword from "./pages/ResetPassword";
@@ -56,6 +57,7 @@ const AnimatedRoutes = () => {
         <Route path="/servizi" element={<Servizi />} />
         <Route path="/appartamenti" element={<Appartamenti />} />
         <Route path="/appartamenti/:slug" element={<AppartamentoDetail />} />
+        <Route path="/prenota" element={<Prenota />} />
         <Route path="/contatti" element={<Contatti />} />
         <Route path="/registrati" element={<Registrati />} />
         <Route path="/reset-password" element={<ResetPassword />} />
