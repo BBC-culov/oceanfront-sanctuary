@@ -47,6 +47,8 @@ const Prenota = () => {
 
   const { data: services = [] } = useAdditionalServices();
 
+  const [user, setUser] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [step, setStep] = useState(0);
   const [mainGuest, setMainGuest] = useState<GuestData>(emptyMainGuest);
   const [additionalGuests, setAdditionalGuests] = useState<AdditionalGuestData[]>([]);
@@ -55,6 +57,19 @@ const Prenota = () => {
   const [notes, setNotes] = useState("");
   const [billing, setBilling] = useState<BillingData>(emptyBilling);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Check auth
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Auto-fill from user profile
   useEffect(() => {
