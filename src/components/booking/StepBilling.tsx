@@ -16,35 +16,27 @@ interface StepBillingProps {
   setBilling: (b: BillingData) => void;
 }
 
-const fieldAnim = {
-  initial: { opacity: 0, y: 12 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.35 },
-};
-
-const LabeledInput = ({
-  label,
-  value,
-  onChange,
-  placeholder,
-  required = true,
+const FloatingInput = ({
+  label, value, onChange, placeholder, required = true, delay = 0, span2 = false,
 }: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-  required?: boolean;
+  label: string; value: string; onChange: (v: string) => void;
+  placeholder?: string; required?: boolean; delay?: number; span2?: boolean;
 }) => (
-  <motion.div {...fieldAnim} className="space-y-1.5">
-    <label className="font-sans text-xs tracking-wider uppercase text-muted-foreground">
-      {label} {required && <span className="text-primary">*</span>}
+  <motion.div
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.4, delay, ease: [0.16, 1, 0.3, 1] }}
+    className={span2 ? "sm:col-span-2" : ""}
+  >
+    <label className="block font-sans text-[11px] tracking-wide text-muted-foreground mb-1.5">
+      {label} {required && <span className="text-primary/70">*</span>}
     </label>
     <Input
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       required={required}
-      className="bg-background border-border font-sans text-sm"
+      className="bg-card/50 border-border/60 font-sans text-sm h-11 focus:border-primary/40 focus:bg-background transition-all duration-200"
     />
   </motion.div>
 );
@@ -56,31 +48,36 @@ const StepBilling = ({ billing, setBilling }: StepBillingProps) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: 40 }}
+      initial={{ opacity: 0, x: 30 }}
       animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -40 }}
-      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      className="space-y-6"
+      exit={{ opacity: 0, x: -30 }}
+      transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
     >
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-          <Receipt className="w-4 h-4 text-primary" />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+        className="bg-card/40 border border-border/50 p-6 sm:p-7 space-y-5"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-primary/8 flex items-center justify-center">
+            <Receipt className="w-[18px] h-[18px] text-primary" strokeWidth={1.5} />
+          </div>
+          <div>
+            <h3 className="font-serif text-lg text-foreground">Dati di fatturazione</h3>
+            <p className="font-sans text-[11px] text-muted-foreground mt-0.5">Per la fattura del soggiorno</p>
+          </div>
         </div>
-        <h3 className="font-serif text-xl font-light text-foreground">Dati di fatturazione</h3>
-      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="sm:col-span-2">
-          <LabeledInput label="Intestatario" value={billing.billing_name} onChange={(v) => update("billing_name", v)} placeholder="Mario Rossi / Azienda SRL" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3.5">
+          <FloatingInput span2 label="Intestatario" value={billing.billing_name} onChange={(v) => update("billing_name", v)} placeholder="Mario Rossi / Azienda SRL" delay={0.05} />
+          <FloatingInput label="Codice Fiscale / P.IVA" value={billing.billing_fiscal_code} onChange={(v) => update("billing_fiscal_code", v)} placeholder="RSSMRA85M01H501Z" delay={0.08} />
+          <FloatingInput label="Paese" value={billing.billing_country} onChange={(v) => update("billing_country", v)} placeholder="Italia" delay={0.11} />
+          <FloatingInput span2 label="Indirizzo" value={billing.billing_address} onChange={(v) => update("billing_address", v)} placeholder="Via Roma 1" delay={0.14} />
+          <FloatingInput label="Città" value={billing.billing_city} onChange={(v) => update("billing_city", v)} placeholder="Roma" delay={0.17} />
+          <FloatingInput label="CAP" value={billing.billing_zip} onChange={(v) => update("billing_zip", v)} placeholder="00100" delay={0.2} />
         </div>
-        <LabeledInput label="Codice fiscale / P.IVA" value={billing.billing_fiscal_code} onChange={(v) => update("billing_fiscal_code", v)} placeholder="RSSMRA85M01H501Z" />
-        <LabeledInput label="Paese" value={billing.billing_country} onChange={(v) => update("billing_country", v)} placeholder="Italia" />
-        <div className="sm:col-span-2">
-          <LabeledInput label="Indirizzo" value={billing.billing_address} onChange={(v) => update("billing_address", v)} placeholder="Via Roma 1" />
-        </div>
-        <LabeledInput label="Città" value={billing.billing_city} onChange={(v) => update("billing_city", v)} placeholder="Roma" />
-        <LabeledInput label="CAP" value={billing.billing_zip} onChange={(v) => update("billing_zip", v)} placeholder="00100" />
-      </div>
+      </motion.div>
     </motion.div>
   );
 };
