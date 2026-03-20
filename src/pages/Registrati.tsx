@@ -66,6 +66,8 @@ const errorVariants = {
 const Registrati = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParamsReg] = useState(() => new URLSearchParams(location.search));
+  const redirectTo = searchParamsReg.get("redirect") || "/";
   const [activeTab, setActiveTab] = useState<"login" | "register">("register");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
