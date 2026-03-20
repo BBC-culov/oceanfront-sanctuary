@@ -468,7 +468,13 @@ const Profilo = () => {
               </div>
 
               <div className="p-6">
-                {bookings.length === 0 ? (
+                {bookingsLoading ? (
+                  <div className="space-y-3">
+                    {[1, 2].map((i) => (
+                      <div key={i} className="h-20 bg-muted/30 animate-pulse rounded-xl" />
+                    ))}
+                  </div>
+                ) : bookings.length === 0 ? (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -488,6 +494,7 @@ const Profilo = () => {
                   <div className="space-y-3">
                     {bookings.map((booking, idx) => {
                       const status = statusConfig[booking.status];
+                      const nights = differenceInDays(new Date(booking.check_out), new Date(booking.check_in));
                       return (
                         <motion.div
                           key={booking.id}
@@ -502,23 +509,21 @@ const Profilo = () => {
                               <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-sans ${status.bg} ${status.color}`}>
                                 {status.label}
                               </span>
-                              <span className="text-xs text-muted-foreground font-sans flex items-center gap-1">
-                                <Hash size={10} />
-                                {booking.id}
-                              </span>
+                              {booking.total_price && (
+                                <span className="text-xs font-sans font-semibold text-foreground">€{booking.total_price}</span>
+                              )}
                             </div>
                             <p className="font-sans text-sm text-foreground font-medium flex items-center gap-1.5">
-                              <Tag size={13} className="text-muted-foreground" />
-                              {booking.service}
+                              <Building2 size={13} className="text-muted-foreground" />
+                              {booking.apartment_name || "Appartamento"}
                             </p>
                             <div className="flex items-center gap-3 mt-1">
                               <span className="text-xs text-muted-foreground font-sans flex items-center gap-1">
-                                <Calendar size={11} />
-                                {booking.date}
+                                <CalendarCheck size={11} />
+                                {format(new Date(booking.check_in), "d MMM", { locale: it })} → {format(new Date(booking.check_out), "d MMM yyyy", { locale: it })}
                               </span>
-                              <span className="text-xs text-muted-foreground font-sans flex items-center gap-1">
-                                <Clock size={11} />
-                                {booking.time}
+                              <span className="text-xs text-muted-foreground font-sans">
+                                {nights} notti
                               </span>
                             </div>
                           </div>
