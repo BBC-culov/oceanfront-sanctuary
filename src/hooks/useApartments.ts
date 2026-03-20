@@ -37,6 +37,7 @@ function mapRow(row: any): ApartmentPublic {
   }
 
   return {
+    id: row.id,
     slug: row.slug,
     name: row.name,
     tagline: row.tagline ?? "",
@@ -51,6 +52,7 @@ function mapRow(row: any): ApartmentPublic {
     address: row.address ?? "",
     mapQuery: row.map_query ?? "",
     category: row.category as ApartmentPublic["category"],
+    pricePerNight: row.price_per_night ?? 0,
   };
 }
 
