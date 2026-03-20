@@ -128,7 +128,7 @@ const Registrati = () => {
       setGlobalMessage({ type: "error", text: "Email o password non corretti" });
     } else {
       setGlobalMessage({ type: "success", text: "Accesso effettuato! Reindirizzamento..." });
-      setTimeout(() => navigate("/"), 1500);
+      setTimeout(() => navigate(redirectTo), 1500);
     }
   };
 
