@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams, Link, Navigate, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, LogIn } from "lucide-react";
 import { differenceInDays, parseISO } from "date-fns";
 import { toast } from "sonner";
 
@@ -47,6 +47,8 @@ const Prenota = () => {
 
   const { data: services = [] } = useAdditionalServices();
 
+  const [user, setUser] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [step, setStep] = useState(0);
   const [mainGuest, setMainGuest] = useState<GuestData>(emptyMainGuest);
   const [additionalGuests, setAdditionalGuests] = useState<AdditionalGuestData[]>([]);
@@ -56,12 +58,23 @@ const Prenota = () => {
   const [billing, setBilling] = useState<BillingData>(emptyBilling);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Check auth
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
   // Auto-fill from user profile
   useEffect(() => {
+    if (!user) return;
     const fillFromProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
       const { data: profile } = await supabase
         .from("profiles")
         .select("*")
@@ -84,7 +97,7 @@ const Prenota = () => {
       }
     };
     fillFromProfile();
-  }, []);
+  }, [user]);
 
   const nights = useMemo(() => {
     if (!checkIn || !checkOut) return 0;
@@ -96,8 +109,62 @@ const Prenota = () => {
   }
 
   const pricePerNight = (dbApt as any)?.price_per_night ?? 0;
-
   const cover = apt.gallery?.[0] || apt.cover;
+
+  // Auth gate: require login
+  if (authLoading) {
+    return (
+      <PageTransition>
+        <Navbar />
+        <main className="pt-24 pb-24 flex items-center justify-center min-h-[60vh]">
+          <p className="font-sans text-sm text-muted-foreground">Caricamento...</p>
+        </main>
+        <Footer />
+      </PageTransition>
+    );
+  }
+
+  if (!user) {
+    const returnUrl = `/prenota?${searchParams.toString()}`;
+    return (
+      <PageTransition>
+        <Navbar />
+        <main className="pt-24 pb-24">
+          <div className="mx-auto max-w-md px-6 text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="space-y-6"
+            >
+              <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
+                <LogIn className="w-7 h-7 text-primary" strokeWidth={1.5} />
+              </div>
+              <h1 className="font-serif text-3xl font-light text-foreground">Accedi per prenotare</h1>
+              <p className="font-sans text-sm text-muted-foreground leading-relaxed">
+                Per completare la prenotazione è necessario accedere al tuo account o registrarti. I tuoi dati verranno compilati automaticamente.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+                <Link
+                  to={`/registrati?redirect=${encodeURIComponent(returnUrl)}`}
+                  className="font-sans text-xs tracking-[0.2em] uppercase bg-primary text-primary-foreground px-8 py-3.5 hover:bg-primary/90 transition-colors"
+                >
+                  Accedi o Registrati
+                </Link>
+                <Link
+                  to={`/appartamenti/${slug}`}
+                  className="font-sans text-xs tracking-[0.2em] uppercase border border-border text-muted-foreground px-8 py-3.5 hover:border-foreground/20 hover:text-foreground transition-colors"
+                >
+                  Torna all'appartamento
+                </Link>
+              </div>
+            </motion.div>
+          </div>
+        </main>
+        <Footer />
+      </PageTransition>
+    );
+  }
 
   const validateStep = (s: number): boolean => {
     if (s === 0) {

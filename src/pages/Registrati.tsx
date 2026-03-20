@@ -66,6 +66,8 @@ const errorVariants = {
 const Registrati = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParamsReg] = useState(() => new URLSearchParams(location.search));
+  const redirectTo = searchParamsReg.get("redirect") || "/";
   const [activeTab, setActiveTab] = useState<"login" | "register">("register");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -126,7 +128,7 @@ const Registrati = () => {
       setGlobalMessage({ type: "error", text: "Email o password non corretti" });
     } else {
       setGlobalMessage({ type: "success", text: "Accesso effettuato! Reindirizzamento..." });
-      setTimeout(() => navigate("/"), 1500);
+      setTimeout(() => navigate(redirectTo), 1500);
     }
   };
 
