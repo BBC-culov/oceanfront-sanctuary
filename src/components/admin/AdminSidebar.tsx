@@ -114,6 +114,8 @@ export function AdminSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 {[
+                  { title: "Appartamenti", to: "/admin/appartamenti", icon: Building2 },
+                  { title: "Servizi Extra", to: "/admin/servizi", icon: Sparkles },
                   { title: "Gestione Admin", to: "/admin/gestione", icon: Users },
                   { title: "Gestione Sito", to: "/admin/sito", icon: Settings },
                 ].map((item, idx) => (
