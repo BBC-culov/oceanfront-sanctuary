@@ -14,6 +14,7 @@ import Servizi from "./pages/Servizi";
 import Appartamenti from "./pages/Appartamenti";
 import Contatti from "./pages/Contatti";
 import AppartamentoDetail from "./pages/AppartamentoDetail";
+import Prenota from "./pages/Prenota";
 import NotFound from "./pages/NotFound";
 import Registrati from "./pages/Registrati";
 import ResetPassword from "./pages/ResetPassword";
