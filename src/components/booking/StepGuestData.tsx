@@ -59,7 +59,8 @@ const FloatingInput = ({
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       required={required}
-      className="bg-card/50 border-border/60 font-sans text-sm h-11 focus:border-primary/40 focus:bg-background transition-all duration-200"
+      disabled={disabled}
+      className={`bg-card/50 border-border/60 font-sans text-sm h-11 focus:border-primary/40 focus:bg-background transition-all duration-200 ${disabled ? "opacity-60 cursor-not-allowed" : ""}`}
     />
   </motion.div>
 );
