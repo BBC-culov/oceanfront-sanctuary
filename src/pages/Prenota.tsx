@@ -26,7 +26,7 @@ const emptyMainGuest: GuestData = {
 };
 
 const emptyFlightData: FlightData = {
-  flight_outbound: "", flight_return: "", arrival_time: "", departure_time: "",
+  flight_outbound: "", flight_return: "", arrival_time: "", departure_time: "", airline: "",
 };
 
 const emptyBilling: BillingData = {
