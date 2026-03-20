@@ -22,15 +22,18 @@ const profileSchema = z.object({
 
 type BookingStatus = "confirmed" | "pending" | "cancelled";
 
-interface Booking {
+interface RealBooking {
   id: string;
-  date: string;
-  time: string;
-  service: string;
+  check_in: string;
+  check_out: string;
   status: BookingStatus;
+  total_price: number | null;
+  guest_name: string;
+  guest_last_name: string | null;
+  apartment_id: string;
+  apartment_name?: string;
+  created_at: string;
 }
-
-const mockBookings: Booking[] = [];
 
 const statusConfig: Record<BookingStatus, { label: string; color: string; bg: string }> = {
   confirmed: { label: "Confermata", color: "text-primary", bg: "bg-primary/10" },
