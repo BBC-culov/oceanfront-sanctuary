@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LayoutDashboard, CalendarDays, Building2, ArrowLeft, LogOut, Users, Settings } from "lucide-react";
+import { LayoutDashboard, CalendarDays, Building2, ArrowLeft, LogOut, Users, Settings, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import { useAmministratoreCheck } from "@/hooks/useAmministratoreCheck";
@@ -20,7 +20,6 @@ import logo from "@/assets/logo-bazhouse.png";
 const menuItems = [
   { title: "Overview", to: "/admin", icon: LayoutDashboard },
   { title: "Prenotazioni", to: "/admin/prenotazioni", icon: CalendarDays },
-  { title: "Appartamenti", to: "/admin/appartamenti", icon: Building2 },
 ];
 
 export function AdminSidebar() {
@@ -115,6 +114,8 @@ export function AdminSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 {[
+                  { title: "Appartamenti", to: "/admin/appartamenti", icon: Building2 },
+                  { title: "Servizi Extra", to: "/admin/servizi", icon: Sparkles },
                   { title: "Gestione Admin", to: "/admin/gestione", icon: Users },
                   { title: "Gestione Sito", to: "/admin/sito", icon: Settings },
                 ].map((item, idx) => (
