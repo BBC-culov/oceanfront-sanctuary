@@ -20,7 +20,6 @@ import logo from "@/assets/logo-bazhouse.png";
 const menuItems = [
   { title: "Overview", to: "/admin", icon: LayoutDashboard },
   { title: "Prenotazioni", to: "/admin/prenotazioni", icon: CalendarDays },
-  { title: "Appartamenti", to: "/admin/appartamenti", icon: Building2 },
 ];
 
 export function AdminSidebar() {
