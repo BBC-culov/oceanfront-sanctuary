@@ -2,8 +2,6 @@ import { useState, useEffect, useMemo } from "react";
 import { useSearchParams, Link, Navigate, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, LogIn } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight } from "lucide-react";
 import { differenceInDays, parseISO } from "date-fns";
 import { toast } from "sonner";
 
