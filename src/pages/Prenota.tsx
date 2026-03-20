@@ -56,6 +56,8 @@ const Prenota = () => {
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
   const [billing, setBilling] = useState<BillingData>(emptyBilling);
+  const [noTransfer, setNoTransfer] = useState(false);
+  const [flightErrors, setFlightErrors] = useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Check auth
@@ -171,6 +173,8 @@ const Prenota = () => {
       const { first_name, last_name, date_of_birth, nationality, id_card_number, id_card_issued, id_card_expiry, email, phone } = mainGuest;
       if (!first_name || !last_name || !date_of_birth || !nationality || !id_card_number || !id_card_issued || !id_card_expiry || !email || !phone) {
         toast.error("Compila tutti i campi obbligatori dell'ospite principale");
+        // Scroll to the guest section
+        document.getElementById("step-guest-data")?.scrollIntoView({ behavior: "smooth", block: "start" });
         return false;
       }
       for (let i = 0; i < additionalGuests.length; i++) {
@@ -180,6 +184,27 @@ const Prenota = () => {
           return false;
         }
       }
+      return true;
+    }
+    if (s === 1) {
+      if (!noTransfer) {
+        const errs: Record<string, boolean> = {};
+        const fields: (keyof FlightData)[] = ["airline", "flight_outbound", "arrival_time", "flight_return", "departure_time"];
+        let hasError = false;
+        for (const f of fields) {
+          if (!flightData[f]) {
+            errs[f] = true;
+            hasError = true;
+          }
+        }
+        if (hasError) {
+          setFlightErrors(errs);
+          toast.error("Compila tutti i campi del volo oppure seleziona la casella per non usufruire del trasporto");
+          document.getElementById("flight-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+          return false;
+        }
+      }
+      setFlightErrors({});
       return true;
     }
     if (s === 2) {
@@ -229,10 +254,12 @@ const Prenota = () => {
           guest_id_card_number: mainGuest.id_card_number,
           guest_id_card_issued: mainGuest.id_card_issued,
           guest_id_card_expiry: mainGuest.id_card_expiry,
-          flight_outbound: flightData.flight_outbound,
-          flight_return: flightData.flight_return,
-          arrival_time: flightData.arrival_time,
-          departure_time: flightData.departure_time,
+          flight_outbound: noTransfer ? null : flightData.flight_outbound,
+          flight_return: noTransfer ? null : flightData.flight_return,
+          arrival_time: noTransfer ? null : flightData.arrival_time,
+          departure_time: noTransfer ? null : flightData.departure_time,
+          airline: noTransfer ? null : flightData.airline,
+          no_transfer: noTransfer,
           billing_name: billing.billing_name,
           billing_address: billing.billing_address,
           billing_city: billing.billing_city,
@@ -342,6 +369,9 @@ const Prenota = () => {
                 notes={notes}
                 setNotes={setNotes}
                 nights={nights}
+                noTransfer={noTransfer}
+                setNoTransfer={setNoTransfer}
+                errors={flightErrors}
               />
             )}
             {step === 2 && (
