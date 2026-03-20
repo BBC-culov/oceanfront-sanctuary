@@ -143,7 +143,8 @@ const Profilo = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [userEmail, setUserEmail] = useState("");
   const [form, setForm] = useState({ firstName: "", lastName: "", phone: "" });
-  const [bookings] = useState<Booking[]>(mockBookings);
+  const [bookings, setBookings] = useState<RealBooking[]>([]);
+  const [bookingsLoading, setBookingsLoading] = useState(true);
   const bookingsRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bookings section if hash is #prenotazioni
