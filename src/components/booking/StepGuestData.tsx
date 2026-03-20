@@ -39,10 +39,10 @@ const emptyAdditionalGuest: AdditionalGuestData = {
 };
 
 const FloatingInput = ({
-  label, value, onChange, type = "text", placeholder, required = true, delay = 0,
+  label, value, onChange, type = "text", placeholder, required = true, delay = 0, disabled = false,
 }: {
   label: string; value: string; onChange: (v: string) => void;
-  type?: string; placeholder?: string; required?: boolean; delay?: number;
+  type?: string; placeholder?: string; required?: boolean; delay?: number; disabled?: boolean;
 }) => (
   <motion.div
     initial={{ opacity: 0, y: 10 }}
@@ -59,7 +59,8 @@ const FloatingInput = ({
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       required={required}
-      className="bg-card/50 border-border/60 font-sans text-sm h-11 focus:border-primary/40 focus:bg-background transition-all duration-200"
+      disabled={disabled}
+      className={`bg-card/50 border-border/60 font-sans text-sm h-11 focus:border-primary/40 focus:bg-background transition-all duration-200 ${disabled ? "opacity-60 cursor-not-allowed" : ""}`}
     />
   </motion.div>
 );
@@ -138,7 +139,7 @@ const StepGuestData = ({
           <FloatingInput label="Data di nascita" value={mainGuest.date_of_birth} onChange={(v) => updateMain("date_of_birth", v)} type="date" delay={0.11} />
           <FloatingInput label="Luogo di nascita" value={mainGuest.place_of_birth} onChange={(v) => updateMain("place_of_birth", v)} placeholder="Roma" delay={0.14} />
           <FloatingInput label="Telefono" value={mainGuest.phone} onChange={(v) => updateMain("phone", v)} type="tel" placeholder="+39 333 1234567" delay={0.17} />
-          <FloatingInput label="Email" value={mainGuest.email} onChange={(v) => updateMain("email", v)} type="email" placeholder="mario@email.com" delay={0.2} />
+          <FloatingInput label="Email" value={mainGuest.email} onChange={(v) => updateMain("email", v)} type="email" placeholder="mario@email.com" delay={0.2} disabled />
           <FloatingInput label="Nazionalità" value={mainGuest.nationality} onChange={(v) => updateMain("nationality", v)} placeholder="Italiana" delay={0.23} />
         </div>
 
