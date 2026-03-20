@@ -26,6 +26,7 @@ import AdminAppartamenti from "./pages/admin/AdminAppartamenti";
 import AdminGestione from "./pages/admin/AdminGestione";
 import AdminGestioneSito from "./pages/admin/AdminGestioneSito";
 import AdminServizi from "./pages/admin/AdminServizi";
+import AdminPrenotazioneDetail from "./pages/admin/AdminPrenotazioneDetail";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -67,6 +68,7 @@ const AnimatedRoutes = () => {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminOverview />} />
           <Route path="prenotazioni" element={<AdminPrenotazioni />} />
+          <Route path="prenotazioni/:id" element={<AdminPrenotazioneDetail />} />
           <Route path="appartamenti" element={<AdminAppartamenti />} />
           <Route path="servizi" element={<AdminServizi />} />
           <Route path="gestione" element={<AdminGestione />} />
