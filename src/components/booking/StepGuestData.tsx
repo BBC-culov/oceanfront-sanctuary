@@ -139,7 +139,7 @@ const StepGuestData = ({
           <FloatingInput label="Data di nascita" value={mainGuest.date_of_birth} onChange={(v) => updateMain("date_of_birth", v)} type="date" delay={0.11} />
           <FloatingInput label="Luogo di nascita" value={mainGuest.place_of_birth} onChange={(v) => updateMain("place_of_birth", v)} placeholder="Roma" delay={0.14} />
           <FloatingInput label="Telefono" value={mainGuest.phone} onChange={(v) => updateMain("phone", v)} type="tel" placeholder="+39 333 1234567" delay={0.17} />
-          <FloatingInput label="Email" value={mainGuest.email} onChange={(v) => updateMain("email", v)} type="email" placeholder="mario@email.com" delay={0.2} />
+          <FloatingInput label="Email" value={mainGuest.email} onChange={(v) => updateMain("email", v)} type="email" placeholder="mario@email.com" delay={0.2} disabled />
           <FloatingInput label="Nazionalità" value={mainGuest.nationality} onChange={(v) => updateMain("nationality", v)} placeholder="Italiana" delay={0.23} />
         </div>
 
