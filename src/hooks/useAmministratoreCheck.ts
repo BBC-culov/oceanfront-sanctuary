@@ -1,32 +1,31 @@
-import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 
 export function useAmministratoreCheck() {
-  const [isAmministratore, setIsAmministratore] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    const check = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) {
-        setIsAmministratore(false);
-        setLoading(false);
-        return;
-      }
-      const { data } = await supabase.rpc("has_role", {
-        _user_id: session.user.id,
-        _role: "amministratore",
-      });
-      setIsAmministratore(!!data);
-      setLoading(false);
-    };
-    check();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
-      check();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUserId(session?.user?.id ?? null);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      setUserId(session?.user?.id ?? null);
     });
     return () => subscription.unsubscribe();
   }, []);
 
-  return { isAmministratore, loading };
+  const { data: isAmministratore = false, isLoading: loading } = useQuery({
+    queryKey: ["amministratore-check", userId],
+    queryFn: async () => {
+      if (!userId) return false;
+      const { data } = await supabase.rpc("has_role", { _user_id: userId, _role: "amministratore" });
+      return !!data;
+    },
+    enabled: !!userId,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
+
+  return { isAmministratore: userId ? isAmministratore : false, loading: userId === null ? true : loading };
 }
