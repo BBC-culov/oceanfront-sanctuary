@@ -1,6 +1,6 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { motion, AnimatePresence, Reorder } from "framer-motion";
+import { motion, Reorder } from "framer-motion";
 import { Plus, Pencil, Trash2, Sparkles, GripVertical, ToggleLeft, ToggleRight } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
