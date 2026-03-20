@@ -156,6 +156,7 @@ export type Database = {
       }
       bookings: {
         Row: {
+          airline: string | null
           apartment_id: string
           arrival_time: string | null
           billing_address: string | null
@@ -181,6 +182,7 @@ export type Database = {
           guest_phone: string | null
           guest_place_of_birth: string | null
           id: string
+          no_transfer: boolean
           notes: string | null
           selected_services: Json | null
           status: Database["public"]["Enums"]["booking_status"]
@@ -189,6 +191,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          airline?: string | null
           apartment_id: string
           arrival_time?: string | null
           billing_address?: string | null
@@ -214,6 +217,7 @@ export type Database = {
           guest_phone?: string | null
           guest_place_of_birth?: string | null
           id?: string
+          no_transfer?: boolean
           notes?: string | null
           selected_services?: Json | null
           status?: Database["public"]["Enums"]["booking_status"]
@@ -222,6 +226,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          airline?: string | null
           apartment_id?: string
           arrival_time?: string | null
           billing_address?: string | null
@@ -247,6 +252,7 @@ export type Database = {
           guest_phone?: string | null
           guest_place_of_birth?: string | null
           id?: string
+          no_transfer?: boolean
           notes?: string | null
           selected_services?: Json | null
           status?: Database["public"]["Enums"]["booking_status"]
