@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 interface MaintenanceData {
@@ -7,39 +7,25 @@ interface MaintenanceData {
 }
 
 export function useMaintenanceMode() {
-  const [maintenance, setMaintenance] = useState<MaintenanceData>({ enabled: false, message: "" });
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetch = async () => {
+  const { data, isLoading } = useQuery({
+    queryKey: ["maintenance-mode"],
+    queryFn: async () => {
       const { data } = await supabase
         .from("site_settings")
         .select("value")
         .eq("key", "maintenance_mode")
         .single();
       if (data?.value) {
-        const val = data.value as unknown as MaintenanceData;
-        setMaintenance(val);
+        return data.value as unknown as MaintenanceData;
       }
-      setLoading(false);
-    };
-    fetch();
+      return { enabled: false, message: "" };
+    },
+    staleTime: 10 * 60 * 1000,  // 10 min — raramente cambia
+    gcTime: 60 * 60 * 1000,     // 1 ora in cache
+  });
 
-    // Realtime subscription
-    const channel = supabase
-      .channel("site_settings_maintenance")
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "site_settings", filter: "key=eq.maintenance_mode" },
-        (payload) => {
-          const val = payload.new.value as unknown as MaintenanceData;
-          setMaintenance(val);
-        }
-      )
-      .subscribe();
-
-    return () => { supabase.removeChannel(channel); };
-  }, []);
-
-  return { maintenance, loading };
+  return {
+    maintenance: data ?? { enabled: false, message: "" },
+    loading: isLoading,
+  };
 }

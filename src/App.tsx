@@ -25,7 +25,17 @@ import AdminAppartamenti from "./pages/admin/AdminAppartamenti";
 import AdminGestione from "./pages/admin/AdminGestione";
 import AdminGestioneSito from "./pages/admin/AdminGestioneSito";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,   // 5 min — dati "freschi", nessun refetch
+      gcTime: 30 * 60 * 1000,     // 30 min in cache
+      refetchOnWindowFocus: false, // evita refetch al focus della finestra
+      refetchOnReconnect: false,
+      retry: 1,
+    },
+  },
+});
 
 const AnimatedRoutes = () => {
   const location = useLocation();

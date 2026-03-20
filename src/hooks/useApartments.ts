@@ -85,5 +85,7 @@ export function useApartmentBySlug(slug: string | undefined) {
       return mapRow(data);
     },
     enabled: !!slug,
+    staleTime: 15 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
   });
 }
