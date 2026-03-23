@@ -5,15 +5,19 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import sunsetImg from "@/assets/boavista-sunset.jpg";
 import aerialImg from "@/assets/boavista-aerial.jpg";
-
-const values = [
-  { num: "3", label: "Residenze esclusive" },
-  { num: "5★", label: "Standard di qualità" },
-  { num: "24/7", label: "Assistenza dedicata" },
-  { num: "100%", label: "Soddisfazione ospiti" },
-];
+import { useApartments } from "@/hooks/useApartments";
 
 const ChiSiamo = () => {
+  const { data: apartments } = useApartments();
+  const apartmentCount = apartments?.length ?? 0;
+
+  const values = [
+    { num: String(apartmentCount), label: "Residenze esclusive" },
+    { num: "5★", label: "Standard di qualità" },
+    { num: "24/7", label: "Assistenza dedicata" },
+    { num: "100%", label: "Soddisfazione ospiti" },
+  ];
+
   const heroRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: heroRef,
