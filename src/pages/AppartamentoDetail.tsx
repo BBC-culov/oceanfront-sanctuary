@@ -72,29 +72,38 @@ const AppartamentoDetail = () => {
           </Link>
         </div>
 
-        {apt.gallery.length > 0 && (
-          <section className="mx-auto max-w-7xl px-6 lg:px-8 mb-16">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              {apt.gallery.map((img, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className={`overflow-hidden cursor-pointer group ${i === 0 ? "md:col-span-2 md:row-span-2" : ""}`}
-                  onClick={() => openLightbox(i)}
-                >
-                  <img
-                    src={img}
-                    alt={`${apt.name} — foto ${i + 1}`}
-                    className={`w-full object-cover transition-transform duration-700 group-hover:scale-105 ${i === 0 ? "aspect-[4/3] md:aspect-auto md:h-full" : "aspect-[4/3]"}`}
-                    loading={i === 0 ? "eager" : "lazy"}
-                  />
-                </motion.div>
-              ))}
-            </div>
-          </section>
-        )}
+        {apt.gallery.length > 0 && (() => {
+          const visibleImages = apt.gallery.slice(0, 3);
+          const extraCount = apt.gallery.length - 3;
+          return (
+            <section className="mx-auto max-w-7xl px-6 lg:px-8 mb-16">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {visibleImages.map((img, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: i * 0.1 }}
+                    className={`overflow-hidden cursor-pointer group relative ${i === 0 ? "md:col-span-2 md:row-span-2" : ""}`}
+                    onClick={() => openLightbox(i)}
+                  >
+                    <img
+                      src={img}
+                      alt={`${apt.name} — foto ${i + 1}`}
+                      className={`w-full object-cover transition-transform duration-700 group-hover:scale-105 ${i === 0 ? "aspect-[4/3] md:aspect-auto md:h-full" : "aspect-[4/3]"}`}
+                      loading={i === 0 ? "eager" : "lazy"}
+                    />
+                    {i === 2 && extraCount > 0 && (
+                      <div className="absolute inset-0 bg-foreground/40 flex items-center justify-center transition-colors group-hover:bg-foreground/50">
+                        <span className="font-sans text-2xl font-light text-background">+{extraCount}</span>
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+            </section>
+          );
+        })()}
 
         <section className="mx-auto max-w-7xl px-6 lg:px-8 pb-24">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
