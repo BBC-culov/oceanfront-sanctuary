@@ -8,6 +8,16 @@ import aerialImg from "@/assets/boavista-aerial.jpg";
 import { useApartments } from "@/hooks/useApartments";
 
 const ChiSiamo = () => {
+  const { data: apartments } = useApartments();
+  const apartmentCount = apartments?.length ?? 0;
+
+  const values = [
+    { num: String(apartmentCount), label: "Residenze esclusive" },
+    { num: "5★", label: "Standard di qualità" },
+    { num: "24/7", label: "Assistenza dedicata" },
+    { num: "100%", label: "Soddisfazione ospiti" },
+  ];
+
   const heroRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: heroRef,
