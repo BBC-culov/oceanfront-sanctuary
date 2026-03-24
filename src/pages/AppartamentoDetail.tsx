@@ -177,74 +177,84 @@ const AppartamentoDetail = () => {
 
       {/* Alternative apartments section */}
       {alternatives.length > 0 && (
-        <section className="bg-secondary py-20">
+        <section className="bg-background py-24 border-t border-border/30">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.6 }}
-              className="text-center mb-12"
+              className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-14"
             >
-              <p className="font-sans text-xs tracking-[0.3em] uppercase text-muted-foreground mb-3">Esplora altre opzioni</p>
-              <h2 className="font-serif text-2xl md:text-3xl font-light text-foreground">
-                Non è quello che stavi cercando?
-              </h2>
-              <p className="font-sans text-sm text-muted-foreground mt-3 max-w-md mx-auto">
-                Ecco altre soluzioni che potrebbero fare al caso tuo
-              </p>
+              <div>
+                <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-primary mb-2">Esplora</p>
+                <h2 className="font-serif text-3xl md:text-4xl font-light text-foreground leading-tight">
+                  Altre residenze
+                </h2>
+              </div>
+              <Link to="/appartamenti">
+                <motion.span
+                  whileHover={{ x: 4 }}
+                  className="inline-flex items-center gap-2 font-sans text-xs tracking-[0.15em] uppercase text-primary hover:text-primary/80 transition-colors"
+                >
+                  Vedi tutte
+                  <ChevronRight className="w-4 h-4" />
+                </motion.span>
+              </Link>
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl">
               {alternatives.map((alt, i) => (
                 <motion.div
                   key={alt.slug}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 24 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, amount: 0.2 }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                  transition={{ duration: 0.5, delay: i * 0.12 }}
                 >
                   <Link to={`/appartamenti/${alt.slug}`} className="group block">
-                    <div className="overflow-hidden mb-4">
+                    <div className="relative overflow-hidden">
                       <img
                         src={alt.cover}
                         alt={alt.name}
-                        className="w-full aspect-[4/3] object-cover transition-transform duration-700 group-hover:scale-105"
+                        className="w-full aspect-[16/10] object-cover transition-all duration-700 group-hover:scale-105"
                         loading="lazy"
                       />
+                      {/* Hover overlay */}
+                      <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition-colors duration-500" />
+                      {/* Price tag */}
+                      {alt.pricePerNight > 0 && (
+                        <div className="absolute top-4 right-4 bg-background/90 backdrop-blur-sm px-3 py-1.5 shadow-sm">
+                          <span className="font-sans text-xs font-semibold text-foreground">€{alt.pricePerNight}</span>
+                          <span className="font-sans text-[10px] text-muted-foreground"> / notte</span>
+                        </div>
+                      )}
                     </div>
-                    <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-1">{alt.tagline}</p>
-                    <h3 className="font-serif text-xl font-light text-foreground mb-2 group-hover:text-primary transition-colors">{alt.name}</h3>
-                    <div className="flex items-center gap-4 text-muted-foreground font-sans text-xs">
-                      <span>{alt.guests} ospiti</span>
-                      <span>·</span>
-                      <span>{alt.bedrooms} {alt.bedrooms > 1 ? "camere" : "camera"}</span>
-                      <span>·</span>
-                      <span>{alt.sqm} m²</span>
+                    <div className="pt-5 pb-2">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-sans text-[10px] tracking-[0.25em] uppercase text-muted-foreground mb-1.5">{alt.tagline}</p>
+                          <h3 className="font-serif text-xl font-light text-foreground group-hover:text-primary transition-colors duration-300">{alt.name}</h3>
+                        </div>
+                        <motion.div
+                          className="w-10 h-10 rounded-full border border-border/60 flex items-center justify-center flex-shrink-0 group-hover:border-primary/40 group-hover:bg-primary/5 transition-all duration-300"
+                          whileHover={{ scale: 1.1 }}
+                        >
+                          <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                        </motion.div>
+                      </div>
+                      <div className="flex items-center gap-3 mt-3 text-muted-foreground font-sans text-xs">
+                        <span className="flex items-center gap-1"><Users className="w-3 h-3" />{alt.guests}</span>
+                        <span className="w-px h-3 bg-border" />
+                        <span className="flex items-center gap-1"><BedDouble className="w-3 h-3" />{alt.bedrooms}</span>
+                        <span className="w-px h-3 bg-border" />
+                        <span className="flex items-center gap-1"><Maximize className="w-3 h-3" />{alt.sqm} m²</span>
+                      </div>
                     </div>
-                    {alt.pricePerNight > 0 && (
-                      <p className="font-sans text-sm text-primary mt-2">
-                        da €{alt.pricePerNight}<span className="text-muted-foreground text-xs"> / notte</span>
-                      </p>
-                    )}
                   </Link>
                 </motion.div>
               ))}
             </div>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="text-center mt-10"
-            >
-              <Link to="/appartamenti">
-                <motion.span whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="inline-block font-sans text-xs tracking-[0.2em] uppercase border border-primary text-primary px-8 py-3.5 hover:bg-primary hover:text-primary-foreground transition-colors">
-                  Vedi tutti gli appartamenti
-                </motion.span>
-              </Link>
-            </motion.div>
           </div>
         </section>
       )}
