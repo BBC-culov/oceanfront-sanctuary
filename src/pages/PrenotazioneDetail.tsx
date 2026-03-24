@@ -166,9 +166,16 @@ const PrenotazioneDetail = () => {
                   <h1 className="font-serif text-2xl text-foreground">{apartment?.name || "Appartamento"}</h1>
                 </div>
               )}
-              <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${status.bg} ${status.text} border ${status.border}`}>
-                <StatusIcon className="w-4 h-4" strokeWidth={2} />
-                <span className="font-sans text-sm font-medium">{status.label}</span>
+              <div className="flex items-center gap-3 flex-wrap">
+                <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${status.bg} ${status.text} border ${status.border}`}>
+                  <StatusIcon className="w-4 h-4" strokeWidth={2} />
+                  <span className="font-sans text-sm font-medium">{status.label}</span>
+                </div>
+                {booking.booking_code && (
+                  <span className="font-mono text-xs tracking-wider text-primary bg-primary/10 px-2.5 py-1 rounded-full">
+                    #{booking.booking_code}
+                  </span>
+                )}
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-5">
                 <div>

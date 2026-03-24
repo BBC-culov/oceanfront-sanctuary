@@ -33,6 +33,7 @@ interface RealBooking {
   apartment_id: string;
   apartment_name?: string;
   created_at: string;
+  booking_code?: string;
 }
 
 const statusConfig: Record<BookingStatus, { label: string; color: string; bg: string }> = {
@@ -181,7 +182,7 @@ const Profilo = () => {
       // Fetch bookings
       const { data: bData } = await supabase
         .from("bookings")
-        .select("id, check_in, check_out, status, total_price, guest_name, guest_last_name, apartment_id, created_at")
+        .select("id, check_in, check_out, status, total_price, guest_name, guest_last_name, apartment_id, created_at, booking_code")
         .eq("user_id", session.user.id)
         .order("created_at", { ascending: false });
 
@@ -506,6 +507,11 @@ const Profilo = () => {
                           >
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1.5">
+                                {booking.booking_code && (
+                                  <span className="font-mono text-[10px] tracking-wider text-primary/70 bg-primary/5 px-1.5 py-0.5 rounded-full">
+                                    #{booking.booking_code}
+                                  </span>
+                                )}
                                 <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-sans ${status.bg} ${status.color}`}>
                                   {status.label}
                                 </span>
