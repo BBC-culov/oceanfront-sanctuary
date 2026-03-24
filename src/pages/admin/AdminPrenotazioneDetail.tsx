@@ -140,7 +140,7 @@ const AdminPrenotazioneDetail = () => {
             <div className="flex items-start justify-between gap-4 flex-wrap">
               <div>
                 <p className="font-sans text-[10px] tracking-[0.2em] uppercase text-muted-foreground">
-                  Prenotazione #{booking.id.slice(0, 8).toUpperCase()}
+                  Prenotazione <span className="font-semibold text-foreground/80">#{booking.booking_code}</span>
                 </p>
                 <h1 className="font-serif text-2xl text-foreground mt-1 leading-tight">
                   {booking.guest_name} {booking.guest_last_name || ""}

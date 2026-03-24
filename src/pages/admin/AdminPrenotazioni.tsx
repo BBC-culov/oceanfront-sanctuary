@@ -25,6 +25,7 @@ interface Booking {
   apartment_id: string;
   apartment_name?: string;
   created_at: string;
+  booking_code?: string;
 }
 
 const statusConfig: Record<string, { label: string; icon: React.ElementType; bg: string; text: string }> = {
@@ -60,9 +61,11 @@ const AdminPrenotazioni = () => {
   const filtered = useMemo(() => {
     return bookings.filter((b) => {
       const fullName = `${b.guest_name} ${b.guest_last_name || ""}`.toLowerCase();
+      const q = search.toLowerCase();
       const matchSearch = !search ||
-        fullName.includes(search.toLowerCase()) ||
-        b.guest_email.toLowerCase().includes(search.toLowerCase());
+        fullName.includes(q) ||
+        b.guest_email.toLowerCase().includes(q) ||
+        (b.booking_code && b.booking_code.toLowerCase().includes(q));
       const matchStatus = !filterStatus || b.status === filterStatus;
       const matchApt = !filterApartment || b.apartment_id === filterApartment;
       return matchSearch && matchStatus && matchApt;
@@ -147,7 +150,7 @@ const AdminPrenotazioni = () => {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Cerca per nome o email..."
+            placeholder="Cerca per nome, email o codice..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10 bg-card/50 border-border/60 h-10"
@@ -219,6 +222,11 @@ const AdminPrenotazioni = () => {
                   {/* Main info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
+                      {b.booking_code && (
+                        <span className="font-mono text-[10px] tracking-wider text-primary/70 bg-primary/5 px-1.5 py-0.5 rounded-sm flex-shrink-0">
+                          #{b.booking_code}
+                        </span>
+                      )}
                       <p className="font-sans text-sm font-medium text-foreground truncate">
                         {b.guest_name} {b.guest_last_name || ""}
                       </p>
