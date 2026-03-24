@@ -165,6 +165,7 @@ export type Database = {
           billing_fiscal_code: string | null
           billing_name: string | null
           billing_zip: string | null
+          booking_code: string
           check_in: string
           check_out: string
           created_at: string
@@ -200,6 +201,7 @@ export type Database = {
           billing_fiscal_code?: string | null
           billing_name?: string | null
           billing_zip?: string | null
+          booking_code: string
           check_in: string
           check_out: string
           created_at?: string
@@ -235,6 +237,7 @@ export type Database = {
           billing_fiscal_code?: string | null
           billing_name?: string | null
           billing_zip?: string | null
+          booking_code?: string
           check_in?: string
           check_out?: string
           created_at?: string
