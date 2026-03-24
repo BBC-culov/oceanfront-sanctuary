@@ -5,7 +5,7 @@ import {
   ArrowLeft, MapPin, Users, BedDouble, Bath, Maximize,
   ChevronLeft, ChevronRight, X, Waves, TreePalm, CookingPot,
   Wifi, AirVent, Tv, ShieldCheck, CarFront, Droplets, Flame,
-  Clapperboard, ConciergeBell, PlaneTakeoff, type LucideIcon,
+  Clapperboard, ConciergeBell, PlaneTakeoff, Clock, type LucideIcon,
 } from "lucide-react";
 
 const serviceIconMap: Record<string, LucideIcon> = {
@@ -125,6 +125,18 @@ const AppartamentoDetail = () => {
                   ))}
                 </div>
                 <p className="font-sans text-base text-muted-foreground leading-relaxed">{apt.description}</p>
+
+                {/* Check-in / Check-out times */}
+                <div className="flex flex-wrap gap-6 mt-6 pt-6 border-t border-border/40">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Clock className="w-5 h-5 text-primary" strokeWidth={1.5} />
+                    <span className="font-sans text-sm"><span className="font-medium text-foreground">Check-in:</span> {"checkInTime" in apt ? (apt as any).checkInTime : "15:00"}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Clock className="w-5 h-5 text-primary" strokeWidth={1.5} />
+                    <span className="font-sans text-sm"><span className="font-medium text-foreground">Check-out:</span> {"checkOutTime" in apt ? (apt as any).checkOutTime : "10:00"}</span>
+                  </div>
+                </div>
               </motion.div>
 
               {apt.services.length > 0 && (

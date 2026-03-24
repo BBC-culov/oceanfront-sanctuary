@@ -50,6 +50,8 @@ export type Database = {
           bathrooms: number
           bedrooms: number
           category: string
+          check_in_time: string
+          check_out_time: string
           created_at: string
           description: string | null
           guests: number
@@ -70,6 +72,8 @@ export type Database = {
           bathrooms?: number
           bedrooms?: number
           category?: string
+          check_in_time?: string
+          check_out_time?: string
           created_at?: string
           description?: string | null
           guests?: number
@@ -90,6 +94,8 @@ export type Database = {
           bathrooms?: number
           bedrooms?: number
           category?: string
+          check_in_time?: string
+          check_out_time?: string
           created_at?: string
           description?: string | null
           guests?: number
