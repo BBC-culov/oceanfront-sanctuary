@@ -19,6 +19,8 @@ export interface ApartmentPublic {
   mapQuery: string;
   category: "residence" | "penthouse" | "compact";
   pricePerNight: number;
+  checkInTime: string;
+  checkOutTime: string;
 }
 
 function mapRow(row: any): ApartmentPublic {
@@ -53,6 +55,8 @@ function mapRow(row: any): ApartmentPublic {
     mapQuery: row.map_query ?? "",
     category: row.category as ApartmentPublic["category"],
     pricePerNight: row.price_per_night ?? 0,
+    checkInTime: row.check_in_time ?? "15:00",
+    checkOutTime: row.check_out_time ?? "10:00",
   };
 }
 

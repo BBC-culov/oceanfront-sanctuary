@@ -49,6 +49,8 @@ interface ApartmentForm {
   address: string | null;
   is_active: boolean;
   map_query?: string | null;
+  check_in_time: string;
+  check_out_time: string;
 }
 
 export type { ApartmentForm };
@@ -95,6 +97,8 @@ function validateStep(step: number, form: ApartmentForm): ValidationErrors {
     if (form.bedrooms < 1) errors.bedrooms = "Almeno 1 camera";
     if (form.bathrooms < 1) errors.bathrooms = "Almeno 1 bagno";
     if (form.sqm < 1) errors.sqm = "La superficie deve essere positiva";
+    if (!form.check_in_time.trim()) errors.check_in_time = "Orario check-in obbligatorio";
+    if (!form.check_out_time.trim()) errors.check_out_time = "Orario check-out obbligatorio";
   }
   return errors;
 }
@@ -454,25 +458,49 @@ function StepSpaces({ form, setForm, errors }: { form: ApartmentForm; setForm: R
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
-      {fields.map((f, i) => (
-        <motion.div
-          key={f.key}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: i * 0.05 }}
-        >
-          <label className={fieldLabel}>{f.label} *</label>
+    <div className="space-y-5">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
+        {fields.map((f, i) => (
+          <motion.div
+            key={f.key}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.05 }}
+          >
+            <label className={fieldLabel}>{f.label} *</label>
+            <Input
+              type="number"
+              min={f.min}
+              value={form[f.key]}
+              onChange={(e) => setForm({ ...form, [f.key]: Number(e.target.value) })}
+              className={errors[f.key] ? "border-destructive" : ""}
+            />
+            <FieldError message={errors[f.key]} />
+          </motion.div>
+        ))}
+      </div>
+      <div className="grid grid-cols-2 gap-5">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+          <label className={fieldLabel}>Orario Check-in *</label>
           <Input
-            type="number"
-            min={f.min}
-            value={form[f.key]}
-            onChange={(e) => setForm({ ...form, [f.key]: Number(e.target.value) })}
-            className={errors[f.key] ? "border-destructive" : ""}
+            type="time"
+            value={form.check_in_time}
+            onChange={(e) => setForm({ ...form, check_in_time: e.target.value })}
+            className={errors.check_in_time ? "border-destructive" : ""}
           />
-          <FieldError message={errors[f.key]} />
+          <FieldError message={errors.check_in_time} />
         </motion.div>
-      ))}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
+          <label className={fieldLabel}>Orario Check-out *</label>
+          <Input
+            type="time"
+            value={form.check_out_time}
+            onChange={(e) => setForm({ ...form, check_out_time: e.target.value })}
+            className={errors.check_out_time ? "border-destructive" : ""}
+          />
+          <FieldError message={errors.check_out_time} />
+        </motion.div>
+      </div>
     </div>
   );
 }

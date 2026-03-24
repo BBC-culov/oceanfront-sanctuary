@@ -24,6 +24,8 @@ interface ApartmentRow {
   is_active: boolean;
   images?: string[];
   map_query?: string | null;
+  check_in_time: string;
+  check_out_time: string;
 }
 
 const emptyApt: Omit<ApartmentRow, "id"> = {
@@ -41,6 +43,8 @@ const emptyApt: Omit<ApartmentRow, "id"> = {
   address: "",
   is_active: true,
   map_query: "",
+  check_in_time: "15:00",
+  check_out_time: "10:00",
 };
 
 const AdminAppartamenti = () => {
