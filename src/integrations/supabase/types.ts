@@ -66,6 +66,7 @@ export type Database = {
           sqm: number
           tagline: string | null
           updated_at: string
+          videos: Json | null
         }
         Insert: {
           address?: string | null
@@ -88,6 +89,7 @@ export type Database = {
           sqm?: number
           tagline?: string | null
           updated_at?: string
+          videos?: Json | null
         }
         Update: {
           address?: string | null
@@ -110,6 +112,7 @@ export type Database = {
           sqm?: number
           tagline?: string | null
           updated_at?: string
+          videos?: Json | null
         }
         Relationships: []
       }

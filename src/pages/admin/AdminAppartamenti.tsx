@@ -23,6 +23,7 @@ interface ApartmentRow {
   address: string | null;
   is_active: boolean;
   images?: string[];
+  videos?: string[];
   map_query?: string | null;
   check_in_time: string;
   check_out_time: string;
@@ -60,6 +61,7 @@ const AdminAppartamenti = () => {
         ...a,
         services: Array.isArray(a.services) ? a.services : [],
         images: Array.isArray(a.images) ? a.images : [],
+        videos: Array.isArray(a.videos) ? a.videos : [],
       }))
     );
     setLoading(false);
@@ -100,9 +102,9 @@ const AdminAppartamenti = () => {
     setCreating(false);
   };
 
-  const handleSave = async (form: Omit<ApartmentRow, "id">, servicesInput: string, images: string[]) => {
+  const handleSave = async (form: Omit<ApartmentRow, "id">, servicesInput: string, images: string[], videos: string[]) => {
     const services = servicesInput.split(",").map((s) => s.trim()).filter(Boolean);
-    const payload = { ...form, services, images } as any;
+    const payload = { ...form, services, images, videos } as any;
 
     if (creating) {
       const { error } = await supabase.from("apartments").insert(payload);
@@ -289,6 +291,7 @@ const AdminAppartamenti = () => {
             initialData={editing ? { ...editing } : emptyApt}
             initialServices={editing ? editing.services.join(", ") : ""}
             initialImages={editing ? (editing.images ?? []) : []}
+            initialVideos={editing ? (editing.videos ?? []) : []}
             isEditing={!!editing}
             editName={editing?.name}
             editId={editing?.id}
