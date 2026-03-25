@@ -105,30 +105,18 @@ const StepFlightServices = ({
           <h3 className="font-serif text-lg text-foreground">Informazioni di viaggio</h3>
         </div>
 
-        {/* No transfer checkbox */}
-        <motion.label
+        {/* Info banner about included transfer */}
+        <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.05 }}
-          className="flex items-start gap-3 p-4 border border-border/40 bg-background/50 cursor-pointer hover:border-primary/30 transition-colors group"
+          className="flex items-start gap-3 p-4 border border-primary/20 bg-primary/[0.04] rounded-sm"
         >
-          <Checkbox
-            checked={noTransfer}
-            onCheckedChange={(checked) => setNoTransfer(checked === true)}
-            className="mt-0.5"
-          />
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <Ban className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={1.5} />
-              <span className="font-sans text-sm font-medium text-foreground">
-                Non voglio usufruire del servizio trasporto A/R Aeroporto
-              </span>
-            </div>
-            <p className="font-sans text-[11px] text-muted-foreground mt-1 leading-relaxed">
-              Seleziona se non hai bisogno del trasferimento aeroportuale
-            </p>
-          </div>
-        </motion.label>
+          <PlaneTakeoff className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" strokeWidth={1.5} />
+          <p className="font-sans text-[12px] text-foreground/80 leading-relaxed">
+            Tutti i nostri appartamenti includono il <span className="font-medium text-foreground">servizio di trasporto andata e ritorno</span> dall'appartamento all'aeroporto e viceversa. Inserisci le informazioni del tuo volo per organizzare il trasferimento.
+          </p>
+        </motion.div>
 
         {/* Flight fields — shown only if noTransfer is false */}
         {!noTransfer && (
@@ -202,6 +190,31 @@ const StepFlightServices = ({
             </div>
           </motion.div>
         )}
+
+        {/* No transfer checkbox — at the bottom */}
+        <motion.label
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.1 }}
+          className="flex items-start gap-3 p-4 border border-border/40 bg-background/50 cursor-pointer hover:border-primary/30 transition-colors group"
+        >
+          <Checkbox
+            checked={noTransfer}
+            onCheckedChange={(checked) => setNoTransfer(checked === true)}
+            className="mt-0.5"
+          />
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <Ban className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={1.5} />
+              <span className="font-sans text-sm font-medium text-foreground">
+                Non voglio usufruire del servizio trasporto A/R Aeroporto
+              </span>
+            </div>
+            <p className="font-sans text-[11px] text-muted-foreground mt-1 leading-relaxed">
+              Seleziona se non hai bisogno del trasferimento aeroportuale
+            </p>
+          </div>
+        </motion.label>
       </motion.div>
 
       {/* Additional services */}
