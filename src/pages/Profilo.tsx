@@ -344,7 +344,7 @@ const Profilo = () => {
           </motion.div>
 
           {/* Section 1: Profile Info */}
-          <AnimatedSection delay={0.15} className="bg-card rounded-2xl border border-border/60 shadow-sm overflow-hidden group">
+          <AnimatedSection delay={0.15} className="bg-card rounded-2xl border border-border/60 shadow-sm group">
             <div className="px-6 py-5 border-b border-border/40 flex items-center gap-3">
               <motion.div
                 whileHover={{ rotate: 10, scale: 1.1 }}
