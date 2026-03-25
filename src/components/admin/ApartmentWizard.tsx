@@ -186,7 +186,7 @@ const ApartmentWizard = ({
         return;
       }
     }
-    onSave(form, servicesInput, images);
+    onSave(form, servicesInput, images, videos);
   };
 
   const handleUpload = async (files: FileList | null) => {
@@ -208,6 +208,37 @@ const ApartmentWizard = ({
     }
     setImages((prev) => [...prev, ...newUrls]);
     setUploading(false);
+  };
+
+  const handleVideoUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    setUploadingVideo(true);
+    const folder = editId || form.slug || `new-${Date.now()}`;
+    const newUrls: string[] = [];
+
+    for (const file of Array.from(files)) {
+      const ext = file.name.split(".").pop();
+      const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error } = await supabase.storage.from("apartment-videos").upload(path, file, { upsert: true });
+      if (error) {
+        toast({ title: "Errore upload video", description: error.message, variant: "destructive" });
+        continue;
+      }
+      const { data: urlData } = supabase.storage.from("apartment-videos").getPublicUrl(path);
+      newUrls.push(urlData.publicUrl);
+    }
+    setVideos((prev) => [...prev, ...newUrls]);
+    setUploadingVideo(false);
+  };
+
+  const removeVideo = async (url: string) => {
+    const bucketUrl = `/apartment-videos/`;
+    const pathStart = url.indexOf(bucketUrl);
+    if (pathStart !== -1) {
+      const path = url.slice(pathStart + bucketUrl.length);
+      await supabase.storage.from("apartment-videos").remove([path]);
+    }
+    setVideos((prev) => prev.filter((u) => u !== url));
   };
 
   const removeImage = async (url: string) => {
@@ -314,6 +345,9 @@ const ApartmentWizard = ({
                   <StepImages images={images} setImages={setImages} uploading={uploading} onUpload={handleUpload} onRemove={removeImage} />
                 )}
                 {step === 4 && (
+                  <StepVideos videos={videos} uploading={uploadingVideo} onUpload={handleVideoUpload} onRemove={removeVideo} />
+                )}
+                {step === 5 && (
                   <StepDetails form={form} setForm={setForm} servicesInput={servicesInput} setServicesInput={setServicesInput} />
                 )}
               </motion.div>
