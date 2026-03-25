@@ -110,10 +110,11 @@ interface ApartmentWizardProps {
   initialData: ApartmentForm;
   initialServices: string;
   initialImages: string[];
+  initialVideos: string[];
   isEditing: boolean;
   editName?: string;
   editId?: string;
-  onSave: (form: ApartmentForm, servicesInput: string, images: string[]) => void;
+  onSave: (form: ApartmentForm, servicesInput: string, images: string[], videos: string[]) => void;
   onClose: () => void;
 }
 
@@ -121,6 +122,7 @@ const ApartmentWizard = ({
   initialData,
   initialServices,
   initialImages,
+  initialVideos,
   isEditing,
   editName,
   editId,
@@ -132,7 +134,9 @@ const ApartmentWizard = ({
   const [form, setForm] = useState<ApartmentForm>(initialData);
   const [servicesInput, setServicesInput] = useState(initialServices);
   const [images, setImages] = useState<string[]>(initialImages);
+  const [videos, setVideos] = useState<string[]>(initialVideos);
   const [uploading, setUploading] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
   const [errors, setErrors] = useState<ValidationErrors>({});
 
   const progress = ((step + 1) / STEPS.length) * 100;
