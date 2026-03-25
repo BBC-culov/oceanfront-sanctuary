@@ -10,6 +10,7 @@ export interface ApartmentPublic {
   description: string;
   cover: string;
   gallery: string[];
+  videos: string[];
   guests: number;
   bedrooms: number;
   bathrooms: number;
@@ -38,6 +39,8 @@ function mapRow(row: any): ApartmentPublic {
     }
   }
 
+  const videos: string[] = Array.isArray(row.videos) ? row.videos.filter(Boolean) : [];
+
   return {
     id: row.id,
     slug: row.slug,
@@ -46,6 +49,7 @@ function mapRow(row: any): ApartmentPublic {
     description: row.description ?? "",
     cover,
     gallery,
+    videos,
     guests: row.guests,
     bedrooms: row.bedrooms,
     bathrooms: row.bathrooms,

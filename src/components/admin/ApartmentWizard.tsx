@@ -30,6 +30,8 @@ import {
   Sun,
   ShieldCheck,
   Coffee,
+  Clapperboard,
+  Video,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -62,6 +64,7 @@ const STEPS = [
   { title: "Spazi", subtitle: "Capienza, dimensioni e prezzo", icon: Users },
   { title: "Descrizione", subtitle: "Testi e informazioni", icon: FileText },
   { title: "Immagini", subtitle: "Foto dell'appartamento", icon: ImagePlus },
+  { title: "Video", subtitle: "Video house tour", icon: Clapperboard },
   { title: "Servizi", subtitle: "Amenities e pubblicazione", icon: Sparkles },
 ];
 
