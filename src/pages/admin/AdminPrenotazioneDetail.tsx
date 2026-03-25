@@ -208,7 +208,9 @@ const AdminPrenotazioneDetail = () => {
             <div className="mt-4 pt-4 border-t border-border/40">
               <div className="flex items-center gap-2 mb-2">
                 <Shield className="w-3.5 h-3.5 text-primary/60" strokeWidth={1.5} />
-                <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-muted-foreground font-medium">Documento d'identità</span>
+                <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-muted-foreground font-medium">
+                  {booking.guest_id_type === "passport" ? "Passaporto" : "Carta d'identità"}
+                </span>
               </div>
               <InfoRow label="Numero" value={booking.guest_id_card_number} />
               <InfoRow label="Emissione" value={booking.guest_id_card_issued ? format(new Date(booking.guest_id_card_issued), "d MMM yyyy", { locale: it }) : null} />
@@ -249,7 +251,10 @@ const AdminPrenotazioneDetail = () => {
                   <div className="space-y-0">
                     <InfoRow label="Nascita" value={g.date_of_birth ? format(new Date(g.date_of_birth), "d MMM yyyy", { locale: it }) : null} />
                     <InfoRow label="Nazionalità" value={g.nationality} />
-                    <InfoRow label="Documento" value={g.id_card_number} />
+                    <InfoRow label="Tipo documento" value={g.id_type === "passport" ? "Passaporto" : "Carta d'identità"} />
+                    <InfoRow label="N° documento" value={g.id_card_number} />
+                    <InfoRow label="Emissione" value={g.id_card_issued ? format(new Date(g.id_card_issued), "d MMM yyyy", { locale: it }) : null} />
+                    <InfoRow label="Scadenza" value={g.id_card_expiry ? format(new Date(g.id_card_expiry), "d MMM yyyy", { locale: it }) : null} />
                   </div>
                 </div>
               ))}
