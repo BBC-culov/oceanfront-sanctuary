@@ -725,8 +725,7 @@ function StepVideos({
     </div>
   );
 }
-
-
+function StepDetails({
   form,
   setForm,
   servicesInput,
