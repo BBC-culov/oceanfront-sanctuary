@@ -143,7 +143,7 @@ const PhonePrefixInput = ({
                 }`
           } ${disabled ? "opacity-60 cursor-not-allowed" : "hover:bg-muted/80 cursor-pointer"}`}
         >
-          <span className="text-base leading-none">{currentPrefix.flag}</span>
+          <span className="text-base leading-none" role="img" aria-label={currentPrefix.label}>{currentPrefix.flag}</span>
           <span className="font-sans text-xs text-foreground">{currentPrefix.code}</span>
           {!disabled && <ChevronDown className={`w-3 h-3 text-muted-foreground transition-transform duration-200 ${open ? "rotate-180" : ""}`} />}
         </button>
@@ -209,7 +209,7 @@ const PhonePrefixInput = ({
                       p.code === selectedPrefix ? "bg-primary/10 text-primary font-medium" : "text-foreground"
                     }`}
                   >
-                    <span className="text-base">{p.flag}</span>
+                    <span className="text-base" role="img" aria-label={p.label}>{p.flag}</span>
                     <span className="flex-1 text-left">{p.label}</span>
                     <span className="text-xs text-muted-foreground">{p.code}</span>
                   </button>
