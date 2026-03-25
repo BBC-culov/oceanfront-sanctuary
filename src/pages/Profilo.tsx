@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
+import PhonePrefixInput from "@/components/PhonePrefixInput";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
 import { format, differenceInDays } from "date-fns";
@@ -387,16 +388,33 @@ const Profilo = () => {
                 />
               </div>
 
-              <AnimatedInput
-                icon={Phone}
-                label="Telefono"
-                type="tel"
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                placeholder="+39 333 1234567"
-                error={errors.phone}
-                delay={0.2}
-              />
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2, duration: 0.4, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] }}
+              >
+                <label className="block text-xs font-sans uppercase tracking-widest text-muted-foreground mb-1.5">
+                  Telefono
+                </label>
+                <PhonePrefixInput
+                  value={form.phone}
+                  onChange={(v) => setForm({ ...form, phone: v })}
+                />
+                <AnimatePresence>
+                  {errors.phone && (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0, y: -5 }}
+                      animate={{ opacity: 1, height: "auto", y: 0 }}
+                      exit={{ opacity: 0, height: 0, y: -5 }}
+                      transition={{ duration: 0.2 }}
+                      className="text-destructive text-xs mt-1 flex items-center gap-1 font-sans"
+                    >
+                      <AlertCircle size={12} />
+                      {errors.phone}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </motion.div>
 
               {/* Save button */}
               <motion.div

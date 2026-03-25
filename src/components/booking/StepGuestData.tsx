@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Trash2, User, UserPlus, Shield } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import PhonePrefixInput from "@/components/PhonePrefixInput";
 
 export interface GuestData {
   first_name: string;
@@ -138,7 +139,21 @@ const StepGuestData = ({
           <FloatingInput label="Cognome" value={mainGuest.last_name} onChange={(v) => updateMain("last_name", v)} placeholder="Rossi" delay={0.08} />
           <FloatingInput label="Data di nascita" value={mainGuest.date_of_birth} onChange={(v) => updateMain("date_of_birth", v)} type="date" delay={0.11} />
           <FloatingInput label="Luogo di nascita" value={mainGuest.place_of_birth} onChange={(v) => updateMain("place_of_birth", v)} placeholder="Roma" delay={0.14} />
-          <FloatingInput label="Telefono" value={mainGuest.phone} onChange={(v) => updateMain("phone", v)} type="tel" placeholder="+39 333 1234567" delay={0.17} />
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.17, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <label className="block font-sans text-[11px] tracking-wide text-muted-foreground mb-1.5">
+              Telefono <span className="text-primary/70">*</span>
+            </label>
+            <PhonePrefixInput
+              value={mainGuest.phone}
+              onChange={(v) => updateMain("phone", v)}
+              variant="compact"
+              placeholder="333 1234567"
+            />
+          </motion.div>
           <FloatingInput label="Email" value={mainGuest.email} onChange={(v) => updateMain("email", v)} type="email" placeholder="mario@email.com" delay={0.2} disabled />
           <FloatingInput label="Nazionalità" value={mainGuest.nationality} onChange={(v) => updateMain("nationality", v)} placeholder="Italiana" delay={0.23} />
         </div>

@@ -65,7 +65,25 @@ const AdminAppartamenti = () => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchApartments(); }, []);
+  useEffect(() => {
+    fetchApartments();
+
+    // Realtime subscription
+    const channel = supabase
+      .channel("apartments-realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "apartments" },
+        () => {
+          fetchApartments();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const openCreate = () => {
     setEditing(null);
