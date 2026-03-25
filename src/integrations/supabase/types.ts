@@ -202,7 +202,7 @@ export type Database = {
           status: Database["public"]["Enums"]["booking_status"]
           total_price: number | null
           updated_at: string
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           airline?: string | null
@@ -239,7 +239,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["booking_status"]
           total_price?: number | null
           updated_at?: string
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           airline?: string | null
@@ -276,7 +276,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["booking_status"]
           total_price?: number | null
           updated_at?: string
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: [
           {
