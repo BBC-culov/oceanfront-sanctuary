@@ -21,7 +21,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const emptyMainGuest: GuestData = {
   first_name: "", last_name: "", date_of_birth: "", place_of_birth: "",
-  phone: "", email: "", nationality: "", id_card_number: "",
+  phone: "", email: "", nationality: "", id_type: "id_card", id_card_number: "",
   id_card_issued: "", id_card_expiry: "",
 };
 
@@ -251,6 +251,7 @@ const Prenota = () => {
           guest_date_of_birth: mainGuest.date_of_birth,
           guest_place_of_birth: mainGuest.place_of_birth,
           guest_nationality: mainGuest.nationality,
+          guest_id_type: mainGuest.id_type,
           guest_id_card_number: mainGuest.id_card_number,
           guest_id_card_issued: mainGuest.id_card_issued,
           guest_id_card_expiry: mainGuest.id_card_expiry,
@@ -287,6 +288,7 @@ const Prenota = () => {
               last_name: g.last_name,
               date_of_birth: g.date_of_birth,
               nationality: g.nationality,
+              id_type: g.id_type,
               id_card_number: g.id_card_number,
               id_card_issued: g.id_card_issued,
               id_card_expiry: g.id_card_expiry,

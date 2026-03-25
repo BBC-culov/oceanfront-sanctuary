@@ -126,6 +126,7 @@ export type Database = {
           id_card_expiry: string
           id_card_issued: string
           id_card_number: string
+          id_type: string
           last_name: string
           nationality: string
         }
@@ -138,6 +139,7 @@ export type Database = {
           id_card_expiry: string
           id_card_issued: string
           id_card_number: string
+          id_type?: string
           last_name: string
           nationality: string
         }
@@ -150,6 +152,7 @@ export type Database = {
           id_card_expiry?: string
           id_card_issued?: string
           id_card_number?: string
+          id_type?: string
           last_name?: string
           nationality?: string
         }
@@ -186,6 +189,7 @@ export type Database = {
           guest_id_card_expiry: string | null
           guest_id_card_issued: string | null
           guest_id_card_number: string | null
+          guest_id_type: string | null
           guest_last_name: string | null
           guest_name: string
           guest_nationality: string | null
@@ -222,6 +226,7 @@ export type Database = {
           guest_id_card_expiry?: string | null
           guest_id_card_issued?: string | null
           guest_id_card_number?: string | null
+          guest_id_type?: string | null
           guest_last_name?: string | null
           guest_name: string
           guest_nationality?: string | null
@@ -258,6 +263,7 @@ export type Database = {
           guest_id_card_expiry?: string | null
           guest_id_card_issued?: string | null
           guest_id_card_number?: string | null
+          guest_id_type?: string | null
           guest_last_name?: string | null
           guest_name?: string
           guest_nationality?: string | null

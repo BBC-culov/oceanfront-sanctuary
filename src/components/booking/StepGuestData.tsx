@@ -1,7 +1,10 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Trash2, User, UserPlus, Shield } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import PhonePrefixInput from "@/components/PhonePrefixInput";
+
+export type IdDocumentType = "id_card" | "passport";
 
 export interface GuestData {
   first_name: string;
@@ -11,6 +14,7 @@ export interface GuestData {
   phone: string;
   email: string;
   nationality: string;
+  id_type: IdDocumentType;
   id_card_number: string;
   id_card_issued: string;
   id_card_expiry: string;
@@ -21,6 +25,7 @@ export interface AdditionalGuestData {
   last_name: string;
   date_of_birth: string;
   nationality: string;
+  id_type: IdDocumentType;
   id_card_number: string;
   id_card_issued: string;
   id_card_expiry: string;
@@ -36,7 +41,12 @@ interface StepGuestDataProps {
 
 const emptyAdditionalGuest: AdditionalGuestData = {
   first_name: "", last_name: "", date_of_birth: "",
-  nationality: "", id_card_number: "", id_card_issued: "", id_card_expiry: "",
+  nationality: "", id_type: "id_card", id_card_number: "", id_card_issued: "", id_card_expiry: "",
+};
+
+const docTypeLabels: Record<IdDocumentType, string> = {
+  id_card: "Carta d'identità",
+  passport: "Passaporto",
 };
 
 const FloatingInput = ({
@@ -162,7 +172,24 @@ const StepGuestData = ({
         <div className="pt-3 mt-3 border-t border-border/30">
           <div className="flex items-center gap-2 mb-3.5">
             <Shield className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={1.5} />
-            <span className="font-sans text-[11px] tracking-wide uppercase text-muted-foreground">Documento d'identità</span>
+            <span className="font-sans text-[11px] tracking-wide uppercase text-muted-foreground">Documento</span>
+          </div>
+          <div className="mb-3.5">
+            <label className="block font-sans text-[11px] tracking-wide text-muted-foreground mb-2">
+              Tipo di documento <span className="text-primary/70">*</span>
+            </label>
+            <RadioGroup
+              value={mainGuest.id_type}
+              onValueChange={(v) => updateMain("id_type", v)}
+              className="flex gap-4"
+            >
+              {(["id_card", "passport"] as IdDocumentType[]).map((t) => (
+                <label key={t} className="flex items-center gap-2 cursor-pointer">
+                  <RadioGroupItem value={t} />
+                  <span className="font-sans text-sm text-foreground">{docTypeLabels[t]}</span>
+                </label>
+              ))}
+            </RadioGroup>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-3.5">
             <FloatingInput label="Numero" value={mainGuest.id_card_number} onChange={(v) => updateMain("id_card_number", v)} placeholder="CA00000AA" delay={0.26} />
@@ -192,6 +219,23 @@ const StepGuestData = ({
               <div className="flex items-center gap-2 mb-3.5">
                 <Shield className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={1.5} />
                 <span className="font-sans text-[11px] tracking-wide uppercase text-muted-foreground">Documento</span>
+              </div>
+              <div className="mb-3.5">
+                <label className="block font-sans text-[11px] tracking-wide text-muted-foreground mb-2">
+                  Tipo di documento <span className="text-primary/70">*</span>
+                </label>
+                <RadioGroup
+                  value={guest.id_type}
+                  onValueChange={(v) => updateGuest(i, "id_type", v)}
+                  className="flex gap-4"
+                >
+                  {(["id_card", "passport"] as IdDocumentType[]).map((t) => (
+                    <label key={t} className="flex items-center gap-2 cursor-pointer">
+                      <RadioGroupItem value={t} />
+                      <span className="font-sans text-sm text-foreground">{docTypeLabels[t]}</span>
+                    </label>
+                  ))}
+                </RadioGroup>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-3.5">
                 <FloatingInput label="Numero" value={guest.id_card_number} onChange={(v) => updateGuest(i, "id_card_number", v)} placeholder="CA00000AA" />
