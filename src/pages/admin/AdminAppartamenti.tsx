@@ -23,6 +23,7 @@ interface ApartmentRow {
   address: string | null;
   is_active: boolean;
   images?: string[];
+  videos?: string[];
   map_query?: string | null;
   check_in_time: string;
   check_out_time: string;
