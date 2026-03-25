@@ -1,7 +1,10 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Trash2, User, UserPlus, Shield } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import PhonePrefixInput from "@/components/PhonePrefixInput";
+
+export type IdDocumentType = "id_card" | "passport";
 
 export interface GuestData {
   first_name: string;
@@ -11,6 +14,7 @@ export interface GuestData {
   phone: string;
   email: string;
   nationality: string;
+  id_type: IdDocumentType;
   id_card_number: string;
   id_card_issued: string;
   id_card_expiry: string;
@@ -21,6 +25,7 @@ export interface AdditionalGuestData {
   last_name: string;
   date_of_birth: string;
   nationality: string;
+  id_type: IdDocumentType;
   id_card_number: string;
   id_card_issued: string;
   id_card_expiry: string;
@@ -36,7 +41,12 @@ interface StepGuestDataProps {
 
 const emptyAdditionalGuest: AdditionalGuestData = {
   first_name: "", last_name: "", date_of_birth: "",
-  nationality: "", id_card_number: "", id_card_issued: "", id_card_expiry: "",
+  nationality: "", id_type: "id_card", id_card_number: "", id_card_issued: "", id_card_expiry: "",
+};
+
+const docTypeLabels: Record<IdDocumentType, string> = {
+  id_card: "Carta d'identità",
+  passport: "Passaporto",
 };
 
 const FloatingInput = ({
