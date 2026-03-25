@@ -9,6 +9,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
+import PhonePrefixInput from "@/components/PhonePrefixInput";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
 import heroImg from "@/assets/boavista-sunset.jpg";
@@ -696,16 +697,13 @@ const Registrati = () => {
                         <label className="block text-xs font-sans uppercase tracking-widest text-muted-foreground mb-1.5">
                           Telefono
                         </label>
-                        <div className={`relative transition-all duration-300 ${focusedField === "reg-phone" ? "scale-[1.02]" : ""}`}>
-                          <Phone className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors duration-300 ${focusedField === "reg-phone" ? "text-primary" : "text-muted-foreground"}`} />
-                          <input
-                            type="tel"
+                        <div className={`transition-all duration-300 ${focusedField === "reg-phone" ? "scale-[1.02]" : ""}`}>
+                          <PhonePrefixInput
                             value={registerForm.phone}
-                            onChange={e => setRegisterForm(f => ({ ...f, phone: e.target.value }))}
-                            placeholder="+39 333 123 4567"
+                            onChange={(v) => setRegisterForm(f => ({ ...f, phone: v }))}
                             onFocus={() => setFocusedField("reg-phone")}
                             onBlur={() => setFocusedField(null)}
-                            className="w-full pl-10 pr-4 py-3 rounded-lg bg-muted/50 border border-border text-foreground text-sm font-sans placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-300"
+                            focused={focusedField === "reg-phone"}
                           />
                         </div>
                         <FieldError field="phone" />
