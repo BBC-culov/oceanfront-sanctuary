@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import SiteLoader from "@/components/SiteLoader";
+import WhatsAppButton from "@/components/WhatsAppButton";
 import { useMaintenanceMode } from "@/hooks/useMaintenanceMode";
 import MaintenancePage from "@/components/MaintenancePage";
 import Index from "./pages/Index";
@@ -53,32 +54,35 @@ const AnimatedRoutes = () => {
   }
 
   return (
-    <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<Index />} />
-        <Route path="/chi-siamo" element={<ChiSiamo />} />
-        <Route path="/servizi" element={<Servizi />} />
-        <Route path="/appartamenti" element={<Appartamenti />} />
-        <Route path="/appartamenti/:slug" element={<AppartamentoDetail />} />
-        <Route path="/prenota" element={<Prenota />} />
-        <Route path="/contatti" element={<Contatti />} />
-        <Route path="/registrati" element={<Registrati />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/profilo" element={<Profilo />} />
-        <Route path="/prenotazione/:id" element={<PrenotazioneDetail />} />
-        {/* Admin routes */}
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<AdminOverview />} />
-          <Route path="prenotazioni" element={<AdminPrenotazioni />} />
-          <Route path="prenotazioni/:id" element={<AdminPrenotazioneDetail />} />
-          <Route path="appartamenti" element={<AdminAppartamenti />} />
-          <Route path="servizi" element={<AdminServizi />} />
-          <Route path="gestione" element={<AdminGestione />} />
-          <Route path="sito" element={<AdminGestioneSito />} />
-        </Route>
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </AnimatePresence>
+    <>
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route path="/" element={<Index />} />
+          <Route path="/chi-siamo" element={<ChiSiamo />} />
+          <Route path="/servizi" element={<Servizi />} />
+          <Route path="/appartamenti" element={<Appartamenti />} />
+          <Route path="/appartamenti/:slug" element={<AppartamentoDetail />} />
+          <Route path="/prenota" element={<Prenota />} />
+          <Route path="/contatti" element={<Contatti />} />
+          <Route path="/registrati" element={<Registrati />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/profilo" element={<Profilo />} />
+          <Route path="/prenotazione/:id" element={<PrenotazioneDetail />} />
+          {/* Admin routes */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminOverview />} />
+            <Route path="prenotazioni" element={<AdminPrenotazioni />} />
+            <Route path="prenotazioni/:id" element={<AdminPrenotazioneDetail />} />
+            <Route path="appartamenti" element={<AdminAppartamenti />} />
+            <Route path="servizi" element={<AdminServizi />} />
+            <Route path="gestione" element={<AdminGestione />} />
+            <Route path="sito" element={<AdminGestioneSito />} />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </AnimatePresence>
+      {!isAdminRoute && <WhatsAppButton />}
+    </>
   );
 };
 
