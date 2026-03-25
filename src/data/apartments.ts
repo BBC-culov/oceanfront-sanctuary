@@ -15,6 +15,7 @@ export interface Apartment {
   description: string;
   cover: string;
   gallery: string[];
+  videos?: string[];
   guests: number;
   bedrooms: number;
   bathrooms: number;
