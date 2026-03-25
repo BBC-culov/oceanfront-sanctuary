@@ -5,7 +5,8 @@ import {
   ArrowLeft, MapPin, Users, BedDouble, Bath, Maximize,
   ChevronLeft, ChevronRight, X, Waves, TreePalm, CookingPot,
   Wifi, AirVent, Tv, ShieldCheck, CarFront, Droplets, Flame,
-  Clapperboard, ConciergeBell, PlaneTakeoff, Clock, type LucideIcon,
+  Clapperboard, ConciergeBell, PlaneTakeoff, Clock, Play,
+  type LucideIcon,
 } from "lucide-react";
 
 const serviceIconMap: Record<string, LucideIcon> = {
@@ -138,6 +139,31 @@ const AppartamentoDetail = () => {
                   </div>
                 </div>
               </motion.div>
+
+              {/* Video House Tour */}
+              {apt.videos && apt.videos.length > 0 && (
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4 }}>
+                  <h2 className="font-serif text-2xl font-light mb-6 text-foreground flex items-center gap-3">
+                    <Play className="w-5 h-5 text-primary" />
+                    Video House Tour
+                  </h2>
+                  <div className="space-y-4">
+                    {apt.videos.map((videoUrl, i) => (
+                      <div key={i} className="rounded-lg overflow-hidden bg-foreground/5 border border-border/40">
+                        <video
+                          controls
+                          preload="metadata"
+                          className="w-full aspect-video"
+                          poster=""
+                        >
+                          <source src={videoUrl} type="video/mp4" />
+                          Il tuo browser non supporta la riproduzione video.
+                        </video>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
 
               {apt.services.length > 0 && (
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.45 }}>
