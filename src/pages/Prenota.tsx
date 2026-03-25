@@ -127,7 +127,7 @@ const Prenota = () => {
   }
 
   if (!user) {
-    const returnUrl = `/prenota?${searchParams.toString()}`;
+    const returnUrl = `/appartamenti/${slug}`;
     return (
       <PageTransition>
         <Navbar />
