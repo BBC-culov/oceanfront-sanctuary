@@ -17,6 +17,7 @@ import Contatti from "./pages/Contatti";
 import AppartamentoDetail from "./pages/AppartamentoDetail";
 import Prenota from "./pages/Prenota";
 import PrenotazioneDetail from "./pages/PrenotazioneDetail";
+import PagamentoFallito from "./pages/PagamentoFallito";
 import NotFound from "./pages/NotFound";
 import Registrati from "./pages/Registrati";
 import ResetPassword from "./pages/ResetPassword";
@@ -68,6 +69,7 @@ const AnimatedRoutes = () => {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/profilo" element={<Profilo />} />
           <Route path="/prenotazione/:id" element={<PrenotazioneDetail />} />
+          <Route path="/pagamento-fallito" element={<PagamentoFallito />} />
           {/* Admin routes */}
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminOverview />} />

@@ -57,18 +57,26 @@ const InfoRow = ({ icon: Icon, label, value }: { icon?: React.ElementType; label
 const PrenotazioneDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [booking, setBooking] = useState<any>(null);
   const [apartment, setApartment] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // Show payment result toast
+  // Show payment result toast and confirm booking on success
   useEffect(() => {
     const payment = searchParams.get("payment");
-    if (payment === "success") {
-      toast.success("Pagamento completato con successo! La tua prenotazione è stata confermata.");
-    } else if (payment === "cancelled") {
-      toast.info("Pagamento annullato. La prenotazione è stata salvata, potrai completare il pagamento in seguito.");
+    if (payment === "success" && id) {
+      // Update booking status to confirmed
+      supabase
+        .from("bookings")
+        .update({ status: "confirmed" })
+        .eq("id", id)
+        .eq("status", "pending")
+        .then(() => {
+          toast.success("Pagamento completato con successo! La tua prenotazione è stata confermata.");
+          // Remove query param
+          setSearchParams({}, { replace: true });
+        });
     }
   }, [searchParams]);
 
