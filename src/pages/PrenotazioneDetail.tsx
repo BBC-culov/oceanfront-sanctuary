@@ -57,7 +57,7 @@ const InfoRow = ({ icon: Icon, label, value }: { icon?: React.ElementType; label
 const PrenotazioneDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [booking, setBooking] = useState<any>(null);
   const [apartment, setApartment] = useState<any>(null);
   const [loading, setLoading] = useState(true);
