@@ -110,7 +110,7 @@ const Prenota = () => {
     return <Navigate to="/appartamenti" replace />;
   }
 
-  const pricePerNight = (dbApt as any)?.price_per_night ?? 0;
+  const pricePerNight = dbApt?.pricePerNight ?? 0;
   const cover = apt.gallery?.[0] || apt.cover;
 
   // Auth gate: require login
