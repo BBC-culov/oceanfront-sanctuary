@@ -156,7 +156,7 @@ serve(async (req) => {
       line_items: lineItems,
       mode: "payment",
       success_url: `${origin}/prenotazione/${booking.id}?payment=success`,
-      cancel_url: `${origin}/prenotazione/${booking.id}?payment=cancelled`,
+      cancel_url: `${origin}/pagamento-fallito?booking_id=${booking.id}`,
       metadata: {
         booking_id: booking.id,
         booking_code: booking.booking_code,
