@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { format, differenceInDays } from "date-fns";
 import { it } from "date-fns/locale";
@@ -56,9 +57,20 @@ const InfoRow = ({ icon: Icon, label, value }: { icon?: React.ElementType; label
 const PrenotazioneDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [booking, setBooking] = useState<any>(null);
   const [apartment, setApartment] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  // Show payment result toast
+  useEffect(() => {
+    const payment = searchParams.get("payment");
+    if (payment === "success") {
+      toast.success("Pagamento completato con successo! La tua prenotazione è stata confermata.");
+    } else if (payment === "cancelled") {
+      toast.info("Pagamento annullato. La prenotazione è stata salvata, potrai completare il pagamento in seguito.");
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const load = async () => {
