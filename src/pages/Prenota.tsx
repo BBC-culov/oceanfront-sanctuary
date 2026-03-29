@@ -232,16 +232,28 @@ const Prenota = () => {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-
       const selectedServicesData = services
         .filter((s) => selectedServices.includes(s.id))
         .map((s) => ({ id: s.id, name: s.name, price: s.price }));
 
-      const { data: booking, error } = await supabase
-        .from("bookings")
-        .insert({
+      // Build services line items for Stripe
+      const selectedSvcObjects = services.filter((s) => selectedServices.includes(s.id));
+      const servicesLineItems = selectedSvcObjects.map((s) => {
+        const isPerNight = s.name.toLowerCase().includes("noleggio") || s.name.toLowerCase().includes("giorno");
+        return {
+          name: s.name,
+          unit_price: s.price,
+          quantity: isPerNight ? nights : 1,
+        };
+      });
+      const servicesTotal = servicesLineItems.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
+      const accommodationTotal = pricePerNight * nights;
+      const totalPrice = accommodationTotal + servicesTotal;
+
+      const { data, error } = await supabase.functions.invoke("create-booking-payment", {
+        body: {
           apartment_id: (dbApt as any)?.id || "",
+          apartment_name: apt.name,
           check_in: checkIn,
           check_out: checkOut,
           guest_name: mainGuest.first_name,
@@ -255,11 +267,11 @@ const Prenota = () => {
           guest_id_card_number: mainGuest.id_card_number,
           guest_id_card_issued: mainGuest.id_card_issued,
           guest_id_card_expiry: mainGuest.id_card_expiry,
-          flight_outbound: noTransfer ? null : flightData.flight_outbound,
-          flight_return: noTransfer ? null : flightData.flight_return,
-          arrival_time: noTransfer ? null : flightData.arrival_time,
-          departure_time: noTransfer ? null : flightData.departure_time,
-          airline: noTransfer ? null : flightData.airline,
+          flight_outbound: flightData.flight_outbound,
+          flight_return: flightData.flight_return,
+          arrival_time: flightData.arrival_time,
+          departure_time: flightData.departure_time,
+          airline: flightData.airline,
           no_transfer: noTransfer,
           billing_name: billing.billing_name,
           billing_address: billing.billing_address,
@@ -267,38 +279,26 @@ const Prenota = () => {
           billing_zip: billing.billing_zip,
           billing_country: billing.billing_country,
           billing_fiscal_code: billing.billing_fiscal_code,
-          selected_services: selectedServicesData as any,
+          selected_services: selectedServicesData,
           notes,
-          user_id: user?.id || null,
-          status: "pending",
-        } as any)
-        .select()
-        .single();
+          additional_guests: additionalGuests,
+          price_per_night: pricePerNight,
+          nights,
+          total_price: totalPrice,
+          services_total: servicesTotal,
+          services_line_items: servicesLineItems,
+        },
+      });
 
-      if (error) throw error;
+      if (error) throw new Error(error.message || "Errore durante la creazione del pagamento");
+      if (data?.error) throw new Error(data.error);
 
-      // Insert additional guests
-      if (additionalGuests.length > 0 && booking) {
-        const { error: guestsError } = await supabase
-          .from("booking_guests")
-          .insert(
-            additionalGuests.map((g) => ({
-              booking_id: (booking as any).id,
-              first_name: g.first_name,
-              last_name: g.last_name,
-              date_of_birth: g.date_of_birth,
-              nationality: g.nationality,
-              id_type: g.id_type,
-              id_card_number: g.id_card_number,
-              id_card_issued: g.id_card_issued,
-              id_card_expiry: g.id_card_expiry,
-            })) as any
-          );
-        if (guestsError) console.error("Error inserting guests:", guestsError);
+      if (data?.url) {
+        // Redirect to Stripe Checkout
+        window.location.href = data.url;
+      } else {
+        throw new Error("URL di pagamento non ricevuto");
       }
-
-      toast.success("Prenotazione creata con successo! Il pagamento verrà configurato a breve.");
-      navigate(`/appartamenti/${slug}`);
     } catch (err: any) {
       console.error(err);
       toast.error(err.message || "Errore durante la prenotazione");
