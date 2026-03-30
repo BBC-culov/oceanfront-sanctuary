@@ -45,16 +45,9 @@ const AdminGestioneSito = () => {
     };
     fetchSettings();
 
-    const channel = supabase
-      .channel("admin_site_settings")
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "site_settings" }, (payload) => {
-        if (payload.new.key === "maintenance_mode") {
-          setMaintenance(payload.new.value as unknown as MaintenanceData);
-        }
-      })
-      .subscribe();
-
-    return () => { supabase.removeChannel(channel); };
+    // Poll for settings changes every 30s (realtime removed for security)
+    const interval = setInterval(fetchSettings, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleToggle = (checked: boolean) => {
