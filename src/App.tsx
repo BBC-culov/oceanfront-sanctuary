@@ -22,6 +22,8 @@ import NotFound from "./pages/NotFound";
 import Registrati from "./pages/Registrati";
 import ResetPassword from "./pages/ResetPassword";
 import Profilo from "./pages/Profilo";
+import Privacy from "./pages/Privacy";
+import CookieBanner from "./components/CookieBanner";
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminOverview from "./pages/admin/AdminOverview";
 import AdminPrenotazioni from "./pages/admin/AdminPrenotazioni";
@@ -68,6 +70,7 @@ const AnimatedRoutes = () => {
           <Route path="/registrati" element={<Registrati />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/profilo" element={<Profilo />} />
+          <Route path="/privacy" element={<Privacy />} />
           <Route path="/prenotazione/:id" element={<PrenotazioneDetail />} />
           <Route path="/pagamento-fallito" element={<PagamentoFallito />} />
           {/* Admin routes */}
@@ -84,6 +87,7 @@ const AnimatedRoutes = () => {
         </Routes>
       </AnimatePresence>
       {!isAdminRoute && <WhatsAppButton />}
+      {!isAdminRoute && <CookieBanner />}
     </>
   );
 };

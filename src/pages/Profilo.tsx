@@ -5,7 +5,8 @@ import { z } from "zod";
 import {
   User, Phone, Save, Loader2, CheckCircle, AlertCircle,
   Calendar, Clock, Tag, Hash, Trash2, AlertTriangle, X, ChevronRight,
-  Mail, Shield, Edit3, KeyRound, Eye, EyeOff, Headphones, Building2, CalendarCheck
+  Mail, Shield, Edit3, KeyRound, Eye, EyeOff, Headphones, Building2, CalendarCheck,
+  Download
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
@@ -567,7 +568,58 @@ const Profilo = () => {
             </AnimatedSection>
           </div>
 
-          {/* Section 3: Account Management */}
+          {/* Section 3: Export Data (GDPR) */}
+          <AnimatedSection delay={0.38} className="bg-card rounded-2xl border border-border/60 shadow-sm overflow-hidden">
+            <div className="px-6 py-5 border-b border-border/40 flex items-center gap-3">
+              <motion.div
+                whileHover={{ rotate: -10, scale: 1.1 }}
+                transition={{ type: "spring", stiffness: 400 }}
+                className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center"
+              >
+                <Download className="w-4 h-4 text-primary" />
+              </motion.div>
+              <h2 className="font-serif text-xl text-foreground">Esporta i Tuoi Dati</h2>
+            </div>
+            <div className="p-6">
+              <p className="font-sans text-sm text-muted-foreground mb-4 leading-relaxed">
+                Ai sensi del GDPR, puoi scaricare una copia di tutti i tuoi dati personali in formato JSON.
+              </p>
+              <motion.button
+                onClick={async () => {
+                  const { data: { session } } = await supabase.auth.getSession();
+                  if (!session) return;
+                  const uid = session.user.id;
+                  const [profileRes, bookingsRes, guestsRes] = await Promise.all([
+                    supabase.from("profiles").select("*").eq("user_id", uid).single(),
+                    supabase.from("bookings").select("*").eq("user_id", uid),
+                    supabase.from("booking_guests").select("*, bookings!inner(user_id)").eq("bookings.user_id", uid),
+                  ]);
+                  const exportData = {
+                    exported_at: new Date().toISOString(),
+                    email: session.user.email,
+                    profile: profileRes.data,
+                    bookings: bookingsRes.data,
+                    booking_guests: guestsRes.data,
+                  };
+                  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `bazhouse-dati-${format(new Date(), "yyyy-MM-dd")}.json`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+                whileHover={{ scale: 1.03, boxShadow: "0 8px 25px -5px hsl(var(--primary) / 0.3)" }}
+                whileTap={{ scale: 0.97 }}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg font-sans text-sm tracking-widest uppercase transition-all duration-300"
+              >
+                <Download size={15} />
+                Scarica i miei dati
+              </motion.button>
+            </div>
+          </AnimatedSection>
+
+          {/* Section 4: Account Management */}
           <AnimatedSection delay={0.45} className="bg-card rounded-2xl border border-destructive/20 shadow-sm overflow-hidden">
             <div className="px-6 py-5 border-b border-border/40 flex items-center gap-3">
               <motion.div

@@ -21,6 +21,7 @@ const Footer = () => (
               { label: "Servizi", to: "/servizi" },
               { label: "Chi Siamo", to: "/chi-siamo" },
               { label: "Contatti", to: "/contatti" },
+              { label: "Privacy Policy", to: "/privacy" },
             ].map((l) => (
               <Link
                 key={l.to}
