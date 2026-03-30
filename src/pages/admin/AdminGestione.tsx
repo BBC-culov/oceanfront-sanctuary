@@ -72,19 +72,11 @@ const AdminGestione = () => {
     if (isAmministratore) fetchUsers();
   }, [isAmministratore, fetchUsers]);
 
-  // Realtime subscription on user_roles
+  // Poll for user/role changes every 30s (realtime removed for security)
   useEffect(() => {
     if (!isAmministratore) return;
-    const channel = supabase
-      .channel("admin-roles-realtime")
-      .on("postgres_changes", { event: "*", schema: "public", table: "user_roles" }, () => {
-        fetchUsers();
-      })
-      .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
-        fetchUsers();
-      })
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    const interval = setInterval(fetchUsers, 30000);
+    return () => clearInterval(interval);
   }, [isAmministratore, fetchUsers]);
 
   const resetForm = () => {
