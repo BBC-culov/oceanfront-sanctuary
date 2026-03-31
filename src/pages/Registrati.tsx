@@ -53,6 +53,7 @@ const registerSchema = z.object({
     .regex(/[A-Z]/, "La password deve contenere almeno una lettera maiuscola")
     .regex(/[0-9]/, "La password deve contenere almeno un numero"),
   confirmPassword: z.string(),
+  acceptPrivacy: z.literal(true, { errorMap: () => ({ message: "Devi accettare la Privacy Policy e i Termini di Servizio" }) }),
 }).refine(data => data.password === data.confirmPassword, {
   message: "Le password non corrispondono",
   path: ["confirmPassword"],
@@ -96,7 +97,7 @@ const Registrati = () => {
   // Form state
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [registerForm, setRegisterForm] = useState({
-    firstName: "", lastName: "", email: "", phone: "", password: "", confirmPassword: "",
+    firstName: "", lastName: "", email: "", phone: "", password: "", confirmPassword: "", acceptPrivacy: false as boolean,
   });
 
   const clearMessages = () => {
@@ -783,8 +784,57 @@ const Registrati = () => {
                         <FieldError field="confirmPassword" />
                       </motion.div>
 
+                      {/* Privacy checkbox */}
+                      <motion.div custom={5} variants={inputVariants} initial="hidden" animate="visible">
+                        <label className="flex items-start gap-3 cursor-pointer group">
+                          <div className="relative mt-0.5">
+                            <input
+                              type="checkbox"
+                              checked={registerForm.acceptPrivacy as boolean}
+                              onChange={e => setRegisterForm(f => ({ ...f, acceptPrivacy: e.target.checked }))}
+                              className="peer sr-only"
+                            />
+                            <div className={`w-5 h-5 rounded border-2 transition-all duration-200 flex items-center justify-center ${
+                              registerForm.acceptPrivacy 
+                                ? "bg-primary border-primary" 
+                                : errors.acceptPrivacy 
+                                  ? "border-destructive bg-destructive/5" 
+                                  : "border-border bg-muted/50 group-hover:border-primary/50"
+                            }`}>
+                              {registerForm.acceptPrivacy && (
+                                <motion.svg
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                                  className="w-3 h-3 text-primary-foreground"
+                                  viewBox="0 0 12 12"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
+                                  <path d="M2 6l3 3 5-5" />
+                                </motion.svg>
+                              )}
+                            </div>
+                          </div>
+                          <span className="text-xs text-muted-foreground font-sans leading-relaxed">
+                            Accetto la{" "}
+                            <a href="/privacy" target="_blank" className="text-primary hover:underline font-medium">
+                              Privacy Policy
+                            </a>{" "}
+                            e i{" "}
+                            <a href="/privacy" target="_blank" className="text-primary hover:underline font-medium">
+                              Termini di Servizio
+                            </a>
+                          </span>
+                        </label>
+                        <FieldError field="acceptPrivacy" />
+                      </motion.div>
+
                       {/* Submit */}
-                      <motion.div custom={5} variants={inputVariants} initial="hidden" animate="visible" className="pt-1">
+                      <motion.div custom={6} variants={inputVariants} initial="hidden" animate="visible" className="pt-1">
                         <motion.button
                           type="submit"
                           disabled={loading}
