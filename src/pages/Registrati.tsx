@@ -53,6 +53,7 @@ const registerSchema = z.object({
     .regex(/[A-Z]/, "La password deve contenere almeno una lettera maiuscola")
     .regex(/[0-9]/, "La password deve contenere almeno un numero"),
   confirmPassword: z.string(),
+  acceptPrivacy: z.literal(true, { errorMap: () => ({ message: "Devi accettare la Privacy Policy e i Termini di Servizio" }) }),
 }).refine(data => data.password === data.confirmPassword, {
   message: "Le password non corrispondono",
   path: ["confirmPassword"],
