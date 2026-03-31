@@ -97,7 +97,7 @@ const Registrati = () => {
   // Form state
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [registerForm, setRegisterForm] = useState({
-    firstName: "", lastName: "", email: "", phone: "", password: "", confirmPassword: "",
+    firstName: "", lastName: "", email: "", phone: "", password: "", confirmPassword: "", acceptPrivacy: false as boolean,
   });
 
   const clearMessages = () => {
