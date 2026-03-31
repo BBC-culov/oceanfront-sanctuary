@@ -786,48 +786,52 @@ const Registrati = () => {
 
                       {/* Privacy checkbox */}
                       <motion.div custom={5} variants={inputVariants} initial="hidden" animate="visible">
-                        <label className="flex items-start gap-3 cursor-pointer group">
-                          <div className="relative mt-0.5">
+                        <label className="flex items-start gap-3 cursor-pointer group p-3 rounded-xl border border-border/50 bg-muted/30 hover:bg-muted/60 hover:border-primary/30 transition-all duration-300">
+                          <div className="relative mt-0.5 shrink-0">
                             <input
                               type="checkbox"
                               checked={registerForm.acceptPrivacy as boolean}
                               onChange={e => setRegisterForm(f => ({ ...f, acceptPrivacy: e.target.checked }))}
                               className="peer sr-only"
                             />
-                            <div className={`w-5 h-5 rounded border-2 transition-all duration-200 flex items-center justify-center ${
+                            <div className={`w-6 h-6 rounded-md border-2 transition-all duration-300 flex items-center justify-center shadow-sm ${
                               registerForm.acceptPrivacy 
-                                ? "bg-primary border-primary" 
+                                ? "bg-primary border-primary shadow-primary/25" 
                                 : errors.acceptPrivacy 
-                                  ? "border-destructive bg-destructive/5" 
-                                  : "border-border bg-muted/50 group-hover:border-primary/50"
+                                  ? "border-destructive bg-destructive/10 shadow-destructive/10" 
+                                  : "border-muted-foreground/40 bg-background group-hover:border-primary/60"
                             }`}>
-                              {registerForm.acceptPrivacy && (
-                                <motion.svg
-                                  initial={{ scale: 0 }}
-                                  animate={{ scale: 1 }}
-                                  transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                                  className="w-3 h-3 text-primary-foreground"
-                                  viewBox="0 0 12 12"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                >
-                                  <path d="M2 6l3 3 5-5" />
-                                </motion.svg>
-                              )}
+                              <AnimatePresence>
+                                {registerForm.acceptPrivacy && (
+                                  <motion.svg
+                                    initial={{ scale: 0, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    exit={{ scale: 0, opacity: 0 }}
+                                    transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                                    className="w-3.5 h-3.5 text-primary-foreground"
+                                    viewBox="0 0 12 12"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2.5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  >
+                                    <path d="M2 6l3 3 5-5" />
+                                  </motion.svg>
+                                )}
+                              </AnimatePresence>
                             </div>
                           </div>
-                          <span className="text-xs text-muted-foreground font-sans leading-relaxed">
+                          <span className="text-sm text-foreground/80 font-sans leading-relaxed">
                             Accetto la{" "}
-                            <a href="/privacy" target="_blank" className="text-primary hover:underline font-medium">
+                            <a href="/privacy" target="_blank" onClick={e => e.stopPropagation()} className="text-primary hover:underline font-semibold">
                               Privacy Policy
                             </a>{" "}
                             e i{" "}
-                            <a href="/privacy" target="_blank" className="text-primary hover:underline font-medium">
+                            <a href="/privacy" target="_blank" onClick={e => e.stopPropagation()} className="text-primary hover:underline font-semibold">
                               Termini di Servizio
-                            </a>
+                            </a>{" "}
+                            <span className="text-destructive">*</span>
                           </span>
                         </label>
                         <FieldError field="acceptPrivacy" />
