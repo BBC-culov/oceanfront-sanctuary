@@ -23,6 +23,9 @@ import Registrati from "./pages/Registrati";
 import ResetPassword from "./pages/ResetPassword";
 import Profilo from "./pages/Profilo";
 import Privacy from "./pages/Privacy";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import RefundPolicy from "./pages/RefundPolicy";
+import RentalAgreement from "./pages/RentalAgreement";
 import CookieBanner from "./components/CookieBanner";
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminOverview from "./pages/admin/AdminOverview";
@@ -71,6 +74,9 @@ const AnimatedRoutes = () => {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/profilo" element={<Profilo />} />
           <Route path="/privacy" element={<Privacy />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/refund-policy" element={<RefundPolicy />} />
+          <Route path="/rental-agreement" element={<RentalAgreement />} />
           <Route path="/prenotazione/:id" element={<PrenotazioneDetail />} />
           <Route path="/pagamento-fallito" element={<PagamentoFallito />} />
           {/* Admin routes */}
