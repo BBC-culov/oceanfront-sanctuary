@@ -74,6 +74,9 @@ const AnimatedRoutes = () => {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/profilo" element={<Profilo />} />
           <Route path="/privacy" element={<Privacy />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/refund-policy" element={<RefundPolicy />} />
+          <Route path="/rental-agreement" element={<RentalAgreement />} />
           <Route path="/prenotazione/:id" element={<PrenotazioneDetail />} />
           <Route path="/pagamento-fallito" element={<PagamentoFallito />} />
           {/* Admin routes */}
