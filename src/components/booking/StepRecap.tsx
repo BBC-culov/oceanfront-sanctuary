@@ -62,6 +62,8 @@ const StepRecap = ({
   selectedServiceIds, services, billing, notes,
   pricePerNight, onSubmit, isSubmitting,
 }: StepRecapProps) => {
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [showTermsError, setShowTermsError] = useState(false);
   const nights = differenceInDays(parseISO(checkOut), parseISO(checkIn));
   const accommodationTotal = pricePerNight * nights;
   const selectedServices = services.filter((s) => selectedServiceIds.includes(s.id));
