@@ -824,12 +824,14 @@ const Registrati = () => {
                           </div>
                           <span className="text-sm text-foreground/80 font-sans leading-relaxed">
                             Accetto la{" "}
-                            <a href="/privacy" target="_blank" onClick={e => e.stopPropagation()} className="text-primary hover:underline font-semibold">
+                            <a href="/privacy-policy" target="_blank" onClick={e => e.stopPropagation()} className="text-primary hover:underline font-semibold">
                               Privacy Policy
-                            </a>{" "}
-                            e i{" "}
-                            <a href="/privacy" target="_blank" onClick={e => e.stopPropagation()} className="text-primary hover:underline font-semibold">
-                              Termini di Servizio
+                            </a>, il{" "}
+                            <a href="/rental-agreement" target="_blank" onClick={e => e.stopPropagation()} className="text-primary hover:underline font-semibold">
+                              Rental Agreement
+                            </a>{" "}e la{" "}
+                            <a href="/refund-policy" target="_blank" onClick={e => e.stopPropagation()} className="text-primary hover:underline font-semibold">
+                              Refund &amp; Cancellation Policy
                             </a>{" "}
                             <span className="text-destructive">*</span>
                           </span>
