@@ -67,39 +67,22 @@ const PrenotazioneDetail = () => {
   useEffect(() => {
     const payment = searchParams.get("payment");
     if (payment === "success" && id) {
-      supabase
-        .from("bookings")
-        .update({ status: "confirmed", amount_paid: 0 } as any)
-        .eq("id", id)
-        .eq("status", "pending")
-        .then(async () => {
-          // Now fetch booking to set correct amount_paid based on payment_type
-          const { data: b } = await supabase.from("bookings").select("*").eq("id", id).single();
-          if (b) {
-            const paid = (b as any).payment_type === "deposit" ? (b as any).deposit_amount : b.total_price;
-            await supabase.from("bookings").update({ amount_paid: paid } as any).eq("id", id);
-          }
-          toast.success("Pagamento completato con successo! La tua prenotazione è stata confermata.");
-          setSearchParams({}, { replace: true });
-          // reload booking data
-          window.location.replace(`/prenotazione/${id}`);
-        });
+      supabase.functions.invoke("confirm-booking-payment", {
+        body: { booking_id: id, type: "initial" },
+      }).then(() => {
+        toast.success("Pagamento completato con successo! La tua prenotazione è stata confermata.");
+        setSearchParams({}, { replace: true });
+        window.location.replace(`/prenotazione/${id}`);
+      });
     }
     if (payment === "balance_success" && id) {
-      // Update amount_paid to total_price and change payment_type to full
-      supabase
-        .from("bookings")
-        .select("total_price")
-        .eq("id", id)
-        .single()
-        .then(async ({ data: b }) => {
-          if (b) {
-            await supabase.from("bookings").update({ amount_paid: b.total_price, payment_type: "full" } as any).eq("id", id);
-          }
-          toast.success("Saldo completato con successo!");
-          setSearchParams({}, { replace: true });
-          window.location.replace(`/prenotazione/${id}`);
-        });
+      supabase.functions.invoke("confirm-booking-payment", {
+        body: { booking_id: id, type: "balance" },
+      }).then(() => {
+        toast.success("Saldo completato con successo!");
+        setSearchParams({}, { replace: true });
+        window.location.replace(`/prenotazione/${id}`);
+      });
     }
   }, [searchParams]);
 
