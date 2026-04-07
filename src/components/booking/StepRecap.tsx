@@ -64,6 +64,7 @@ const StepRecap = ({
 }: StepRecapProps) => {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [showTermsError, setShowTermsError] = useState(false);
+  const [paymentType, setPaymentType] = useState<"full" | "deposit">("full");
   const nights = differenceInDays(parseISO(checkOut), parseISO(checkIn));
   const accommodationTotal = pricePerNight * nights;
   const selectedServices = services.filter((s) => selectedServiceIds.includes(s.id));
@@ -72,6 +73,8 @@ const StepRecap = ({
       ? s.price * nights : s.price;
   const servicesTotal = selectedServices.reduce((sum, s) => sum + getServiceTotal(s), 0);
   const grandTotal = accommodationTotal + servicesTotal;
+  const depositAmount = Math.round(grandTotal * 0.2 * 100) / 100;
+  const amountToPay = paymentType === "deposit" ? depositAmount : grandTotal;
 
   return (
     <motion.div
