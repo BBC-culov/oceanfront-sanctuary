@@ -61,6 +61,7 @@ const PrenotazioneDetail = () => {
   const [booking, setBooking] = useState<any>(null);
   const [apartment, setApartment] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [payingBalance, setPayingBalance] = useState(false);
 
   // Show payment result toast and confirm booking on success
   useEffect(() => {
