@@ -242,12 +242,28 @@ const AdminPrenotazioni = () => {
                     </p>
                   </div>
 
-                  {/* Price */}
-                  {b.total_price && (
-                    <span className="font-sans text-sm font-semibold text-foreground flex-shrink-0 hidden sm:block">
-                      €{b.total_price}
-                    </span>
-                  )}
+                  {/* Price & Payment */}
+                  <div className="flex-shrink-0 hidden sm:flex flex-col items-end gap-0.5">
+                    {b.total_price && (
+                      <span className="font-sans text-sm font-semibold text-foreground">
+                        €{b.total_price}
+                      </span>
+                    )}
+                    {b.total_price && (
+                      <span className={`font-sans text-[10px] tracking-wide uppercase px-1.5 py-0.5 rounded-sm ${
+                        b.amount_paid >= (b.total_price || 0)
+                          ? "bg-primary/10 text-primary"
+                          : "bg-accent/15 text-accent-foreground"
+                      }`}>
+                        {b.amount_paid >= (b.total_price || 0)
+                          ? "Saldato"
+                          : b.payment_type === "deposit"
+                            ? `Caparra €${b.amount_paid} · Saldo €${((b.total_price || 0) - b.amount_paid).toFixed(0)}`
+                            : `Pagato €${b.amount_paid}`
+                        }
+                      </span>
+                    )}
+                  </div>
 
                   {/* Actions */}
                   <div className="flex items-center gap-1 flex-shrink-0">
