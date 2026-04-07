@@ -169,6 +169,7 @@ export type Database = {
       bookings: {
         Row: {
           airline: string | null
+          amount_paid: number
           apartment_id: string
           arrival_time: string | null
           billing_address: string | null
@@ -182,6 +183,7 @@ export type Database = {
           check_out: string
           created_at: string
           departure_time: string | null
+          deposit_amount: number
           flight_outbound: string | null
           flight_return: string | null
           guest_date_of_birth: string | null
@@ -198,6 +200,7 @@ export type Database = {
           id: string
           no_transfer: boolean
           notes: string | null
+          payment_type: string
           selected_services: Json | null
           status: Database["public"]["Enums"]["booking_status"]
           total_price: number | null
@@ -206,6 +209,7 @@ export type Database = {
         }
         Insert: {
           airline?: string | null
+          amount_paid?: number
           apartment_id: string
           arrival_time?: string | null
           billing_address?: string | null
@@ -219,6 +223,7 @@ export type Database = {
           check_out: string
           created_at?: string
           departure_time?: string | null
+          deposit_amount?: number
           flight_outbound?: string | null
           flight_return?: string | null
           guest_date_of_birth?: string | null
@@ -235,6 +240,7 @@ export type Database = {
           id?: string
           no_transfer?: boolean
           notes?: string | null
+          payment_type?: string
           selected_services?: Json | null
           status?: Database["public"]["Enums"]["booking_status"]
           total_price?: number | null
@@ -243,6 +249,7 @@ export type Database = {
         }
         Update: {
           airline?: string | null
+          amount_paid?: number
           apartment_id?: string
           arrival_time?: string | null
           billing_address?: string | null
@@ -256,6 +263,7 @@ export type Database = {
           check_out?: string
           created_at?: string
           departure_time?: string | null
+          deposit_amount?: number
           flight_outbound?: string | null
           flight_return?: string | null
           guest_date_of_birth?: string | null
@@ -272,6 +280,7 @@ export type Database = {
           id?: string
           no_transfer?: boolean
           notes?: string | null
+          payment_type?: string
           selected_services?: Json | null
           status?: Database["public"]["Enums"]["booking_status"]
           total_price?: number | null

@@ -229,7 +229,7 @@ const Prenota = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (paymentType: "full" | "deposit" = "full") => {
     setIsSubmitting(true);
     try {
       const selectedServicesData = services
@@ -287,6 +287,7 @@ const Prenota = () => {
           total_price: totalPrice,
           services_total: servicesTotal,
           services_line_items: servicesLineItems,
+          payment_type: paymentType,
         },
       });
 

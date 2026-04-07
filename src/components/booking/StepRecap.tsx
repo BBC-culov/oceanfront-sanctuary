@@ -24,7 +24,7 @@ interface StepRecapProps {
   billing: BillingData;
   notes: string;
   pricePerNight: number;
-  onSubmit: () => void;
+  onSubmit: (paymentType: "full" | "deposit") => void;
   isSubmitting: boolean;
 }
 
@@ -64,6 +64,7 @@ const StepRecap = ({
 }: StepRecapProps) => {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [showTermsError, setShowTermsError] = useState(false);
+  const [paymentType, setPaymentType] = useState<"full" | "deposit">("full");
   const nights = differenceInDays(parseISO(checkOut), parseISO(checkIn));
   const accommodationTotal = pricePerNight * nights;
   const selectedServices = services.filter((s) => selectedServiceIds.includes(s.id));
@@ -72,6 +73,8 @@ const StepRecap = ({
       ? s.price * nights : s.price;
   const servicesTotal = selectedServices.reduce((sum, s) => sum + getServiceTotal(s), 0);
   const grandTotal = accommodationTotal + servicesTotal;
+  const depositAmount = Math.round(grandTotal * 0.2 * 100) / 100;
+  const amountToPay = paymentType === "deposit" ? depositAmount : grandTotal;
 
   return (
     <motion.div
@@ -168,6 +171,83 @@ const StepRecap = ({
         </div>
       </motion.div>
 
+      {/* Payment type selector */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.37 }}
+        className="mt-4 space-y-3"
+      >
+        <p className="font-sans text-[11px] tracking-[0.15em] uppercase text-muted-foreground font-medium">Modalità di pagamento</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <label
+            className={`relative cursor-pointer p-4 border rounded-lg transition-all duration-300 ${
+              paymentType === "full"
+                ? "border-primary bg-primary/5 shadow-sm"
+                : "border-border/50 bg-card hover:border-primary/30"
+            }`}
+          >
+            <input
+              type="radio"
+              name="payment_type"
+              value="full"
+              checked={paymentType === "full"}
+              onChange={() => setPaymentType("full")}
+              className="sr-only"
+            />
+            <div className="flex items-center gap-3">
+              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${
+                paymentType === "full" ? "border-primary" : "border-muted-foreground/40"
+              }`}>
+                {paymentType === "full" && <div className="w-2 h-2 rounded-full bg-primary" />}
+              </div>
+              <div>
+                <p className="font-sans text-sm font-medium text-foreground">Pagamento intero</p>
+                <p className="font-sans text-xs text-muted-foreground mt-0.5">€{grandTotal}</p>
+              </div>
+            </div>
+          </label>
+          <label
+            className={`relative cursor-pointer p-4 border rounded-lg transition-all duration-300 ${
+              paymentType === "deposit"
+                ? "border-primary bg-primary/5 shadow-sm"
+                : "border-border/50 bg-card hover:border-primary/30"
+            }`}
+          >
+            <input
+              type="radio"
+              name="payment_type"
+              value="deposit"
+              checked={paymentType === "deposit"}
+              onChange={() => setPaymentType("deposit")}
+              className="sr-only"
+            />
+            <div className="flex items-center gap-3">
+              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${
+                paymentType === "deposit" ? "border-primary" : "border-muted-foreground/40"
+              }`}>
+                {paymentType === "deposit" && <div className="w-2 h-2 rounded-full bg-primary" />}
+              </div>
+              <div>
+                <p className="font-sans text-sm font-medium text-foreground">Caparra 20%</p>
+                <p className="font-sans text-xs text-muted-foreground mt-0.5">€{depositAmount} ora · €{Math.round((grandTotal - depositAmount) * 100) / 100} entro 7gg dal check-in</p>
+              </div>
+            </div>
+          </label>
+        </div>
+        {paymentType === "deposit" && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3"
+          >
+            <p className="font-sans text-xs text-amber-800 leading-relaxed">
+              Pagherai ora <strong>€{depositAmount}</strong> come caparra. Il saldo di <strong>€{Math.round((grandTotal - depositAmount) * 100) / 100}</strong> dovrà essere completato almeno 7 giorni prima del check-in dalla sezione "Le mie prenotazioni".
+            </p>
+          </motion.div>
+        )}
+      </motion.div>
+
       {/* Terms acceptance */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
@@ -251,13 +331,13 @@ const StepRecap = ({
             setShowTermsError(true);
             return;
           }
-          onSubmit();
+          onSubmit(paymentType);
         }}
         disabled={isSubmitting}
         className="w-full flex items-center justify-center gap-3 bg-primary text-primary-foreground font-sans text-[11px] tracking-[0.2em] uppercase px-8 py-5 mt-4 hover:bg-primary/90 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <CreditCard className="w-4 h-4" strokeWidth={1.5} />
-        {isSubmitting ? "Elaborazione in corso..." : "Procedi al pagamento"}
+        {isSubmitting ? "Elaborazione in corso..." : `Paga €${amountToPay}${paymentType === "deposit" ? " (caparra)" : ""}`}
       </motion.button>
 
       <p className="text-center font-sans text-[10px] text-muted-foreground/60 mt-3 pb-2">
