@@ -20,7 +20,6 @@ serve(async (req) => {
   );
 
   try {
-    // Authenticate user
     const authHeader = req.headers.get("Authorization")!;
     const token = authHeader.replace("Bearer ", "");
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
@@ -38,11 +37,16 @@ serve(async (req) => {
       selected_services, notes, additional_guests,
       price_per_night, nights, total_price,
       services_total, services_line_items,
+      payment_type, // "deposit" or "full"
     } = body;
 
     if (!apartment_id || !check_in || !check_out || !guest_name || !guest_email) {
       throw new Error("Dati mancanti nella richiesta");
     }
+
+    const chosenPaymentType = payment_type === "deposit" ? "deposit" : "full";
+    const depositAmount = chosenPaymentType === "deposit" ? Math.round(total_price * 0.2 * 100) / 100 : total_price;
+    const amountToCharge = depositAmount;
 
     // 1. Create booking in DB with status "pending"
     const { data: booking, error: bookingError } = await supabaseClient
@@ -79,6 +83,9 @@ serve(async (req) => {
         user_id: user.id,
         status: "pending",
         total_price,
+        payment_type: chosenPaymentType,
+        amount_paid: 0,
+        deposit_amount: chosenPaymentType === "deposit" ? depositAmount : total_price,
       })
       .select()
       .single();
@@ -110,16 +117,31 @@ serve(async (req) => {
       apiVersion: "2025-08-27.basil",
     });
 
-    // Check if Stripe customer exists
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     let customerId: string | undefined;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
     }
 
-    // Build line items
-    const lineItems: any[] = [
-      {
+    // Build line items based on payment type
+    const lineItems: any[] = [];
+
+    if (chosenPaymentType === "deposit") {
+      // Single line item for the deposit
+      lineItems.push({
+        price_data: {
+          currency: "eur",
+          unit_amount: Math.round(amountToCharge * 100),
+          product_data: {
+            name: `Caparra — ${apartment_name}`,
+            description: `Caparra 20% per soggiorno ${nights} notti (${check_in} → ${check_out})`,
+          },
+        },
+        quantity: 1,
+      });
+    } else {
+      // Full payment: accommodation + services
+      lineItems.push({
         price_data: {
           currency: "eur",
           unit_amount: Math.round(price_per_night * 100),
@@ -129,22 +151,19 @@ serve(async (req) => {
           },
         },
         quantity: nights,
-      },
-    ];
+      });
 
-    // Add service line items
-    if (services_line_items && services_line_items.length > 0) {
-      for (const svc of services_line_items) {
-        lineItems.push({
-          price_data: {
-            currency: "eur",
-            unit_amount: Math.round(svc.unit_price * 100),
-            product_data: {
-              name: svc.name,
+      if (services_line_items && services_line_items.length > 0) {
+        for (const svc of services_line_items) {
+          lineItems.push({
+            price_data: {
+              currency: "eur",
+              unit_amount: Math.round(svc.unit_price * 100),
+              product_data: { name: svc.name },
             },
-          },
-          quantity: svc.quantity,
-        });
+            quantity: svc.quantity,
+          });
+        }
       }
     }
 
@@ -160,6 +179,7 @@ serve(async (req) => {
       metadata: {
         booking_id: booking.id,
         booking_code: booking.booking_code,
+        payment_type: chosenPaymentType,
       },
     });
 
