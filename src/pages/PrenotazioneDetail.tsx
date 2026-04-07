@@ -67,16 +67,38 @@ const PrenotazioneDetail = () => {
   useEffect(() => {
     const payment = searchParams.get("payment");
     if (payment === "success" && id) {
-      // Update booking status to confirmed
       supabase
         .from("bookings")
-        .update({ status: "confirmed" })
+        .update({ status: "confirmed", amount_paid: 0 } as any)
         .eq("id", id)
         .eq("status", "pending")
-        .then(() => {
+        .then(async () => {
+          // Now fetch booking to set correct amount_paid based on payment_type
+          const { data: b } = await supabase.from("bookings").select("*").eq("id", id).single();
+          if (b) {
+            const paid = (b as any).payment_type === "deposit" ? (b as any).deposit_amount : b.total_price;
+            await supabase.from("bookings").update({ amount_paid: paid } as any).eq("id", id);
+          }
           toast.success("Pagamento completato con successo! La tua prenotazione è stata confermata.");
-          // Remove query param
           setSearchParams({}, { replace: true });
+          // reload booking data
+          window.location.replace(`/prenotazione/${id}`);
+        });
+    }
+    if (payment === "balance_success" && id) {
+      // Update amount_paid to total_price and change payment_type to full
+      supabase
+        .from("bookings")
+        .select("total_price")
+        .eq("id", id)
+        .single()
+        .then(async ({ data: b }) => {
+          if (b) {
+            await supabase.from("bookings").update({ amount_paid: b.total_price, payment_type: "full" } as any).eq("id", id);
+          }
+          toast.success("Saldo completato con successo!");
+          setSearchParams({}, { replace: true });
+          window.location.replace(`/prenotazione/${id}`);
         });
     }
   }, [searchParams]);
