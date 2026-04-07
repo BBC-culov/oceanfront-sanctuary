@@ -331,13 +331,13 @@ const StepRecap = ({
             setShowTermsError(true);
             return;
           }
-          onSubmit();
+          onSubmit(paymentType);
         }}
         disabled={isSubmitting}
         className="w-full flex items-center justify-center gap-3 bg-primary text-primary-foreground font-sans text-[11px] tracking-[0.2em] uppercase px-8 py-5 mt-4 hover:bg-primary/90 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <CreditCard className="w-4 h-4" strokeWidth={1.5} />
-        {isSubmitting ? "Elaborazione in corso..." : "Procedi al pagamento"}
+        {isSubmitting ? "Elaborazione in corso..." : `Paga €${amountToPay}${paymentType === "deposit" ? " (caparra)" : ""}`}
       </motion.button>
 
       <p className="text-center font-sans text-[10px] text-muted-foreground/60 mt-3 pb-2">
