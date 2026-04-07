@@ -26,6 +26,9 @@ interface Booking {
   apartment_name?: string;
   created_at: string;
   booking_code?: string;
+  payment_type: string;
+  amount_paid: number;
+  deposit_amount: number;
 }
 
 const statusConfig: Record<string, { label: string; icon: React.ElementType; bg: string; text: string }> = {
