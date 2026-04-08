@@ -27,7 +27,6 @@ serve(async (req) => {
     const { booking_id, type } = await req.json();
     if (!booking_id) throw new Error("ID prenotazione mancante");
 
-    // Use service role for updates that cross RLS boundaries
     const serviceClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
@@ -36,15 +35,16 @@ serve(async (req) => {
     // Verify user owns this booking
     const { data: booking, error: bErr } = await serviceClient
       .from("bookings")
-      .select("*")
+      .select("*, apartments(name)")
       .eq("id", booking_id)
       .eq("user_id", user.id)
       .single();
 
     if (bErr || !booking) throw new Error("Prenotazione non trovata");
 
+    const apartmentName = (booking as any).apartments?.name || "Appartamento";
+
     if (type === "initial") {
-      // Confirm booking after initial payment (deposit or full)
       if (booking.status !== "pending") {
         return new Response(JSON.stringify({ ok: true }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -60,8 +60,29 @@ serve(async (req) => {
 
       if (updateErr) throw new Error(`Errore aggiornamento: ${updateErr.message}`);
 
+      // Send booking confirmation email
+      try {
+        await serviceClient.functions.invoke("send-email", {
+          body: {
+            type: "booking_confirmation",
+            data: {
+              guestName: booking.guest_name,
+              guestEmail: booking.guest_email,
+              apartmentName,
+              checkIn: booking.check_in,
+              checkOut: booking.check_out,
+              bookingCode: booking.booking_code,
+              totalPrice: booking.total_price || 0,
+              amountPaid: amountPaid || 0,
+              paymentType: booking.payment_type,
+            },
+          },
+        });
+      } catch (emailErr) {
+        console.error("Email send failed (non-blocking):", emailErr);
+      }
+
     } else if (type === "balance") {
-      // Mark balance as paid
       if (booking.status !== "confirmed") throw new Error("Prenotazione non confermata");
 
       const { error: updateErr } = await serviceClient
@@ -70,6 +91,28 @@ serve(async (req) => {
         .eq("id", booking_id);
 
       if (updateErr) throw new Error(`Errore aggiornamento: ${updateErr.message}`);
+
+      // Send balance paid email
+      try {
+        await serviceClient.functions.invoke("send-email", {
+          body: {
+            type: "balance_paid",
+            data: {
+              guestName: booking.guest_name,
+              guestEmail: booking.guest_email,
+              apartmentName,
+              bookingCode: booking.booking_code,
+              totalPrice: booking.total_price || 0,
+              amountPaid: booking.total_price || 0,
+              paymentType: "full",
+              checkIn: booking.check_in,
+              checkOut: booking.check_out,
+            },
+          },
+        });
+      } catch (emailErr) {
+        console.error("Email send failed (non-blocking):", emailErr);
+      }
     }
 
     return new Response(JSON.stringify({ ok: true }), {
