@@ -18,50 +18,55 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // Find confirmed bookings with deposit payment where check-in is exactly 10 days from now
-    // and amount_paid < total_price
+    // Calculate date range: 7-10 days from now
+    const now = new Date();
+    const in7days = new Date(now);
+    in7days.setDate(in7days.getDate() + 7);
+    const in10days = new Date(now);
+    in10days.setDate(in10days.getDate() + 10);
+
+    const dateFrom = in7days.toISOString().split("T")[0];
+    const dateTo = in10days.toISOString().split("T")[0];
+
+    // Find confirmed deposit bookings with check-in between 7-10 days from now
     const { data: bookings, error } = await serviceClient
       .from("bookings")
       .select("*, apartments(name)")
       .eq("status", "confirmed")
       .eq("payment_type", "deposit")
-      .lt("amount_paid", serviceClient.rpc ? undefined : 999999999);
+      .gte("check_in", dateFrom)
+      .lte("check_in", dateTo);
 
     if (error) throw new Error(`Query error: ${error.message}`);
 
-    const now = new Date();
     const reminders: string[] = [];
 
     for (const booking of bookings || []) {
-      // Check if amount_paid < total_price
+      // Only send if there's still a balance
       if (booking.amount_paid >= (booking.total_price || 0)) continue;
 
       const checkInDate = new Date(booking.check_in);
-      const diffMs = checkInDate.getTime() - now.getTime();
-      const daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      const daysLeft = Math.ceil((checkInDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
-      // Send reminder at 10 days before check-in
-      if (daysLeft <= 10 && daysLeft >= 7) {
-        try {
-          await serviceClient.functions.invoke("send-email", {
-            body: {
-              type: "balance_reminder",
-              data: {
-                guestName: booking.guest_name,
-                guestEmail: booking.guest_email,
-                apartmentName: (booking as any).apartments?.name || "Appartamento",
-                bookingCode: booking.booking_code,
-                totalPrice: booking.total_price || 0,
-                amountPaid: booking.amount_paid || 0,
-                checkIn: booking.check_in,
-                daysLeft,
-              },
+      try {
+        await serviceClient.functions.invoke("send-email", {
+          body: {
+            type: "balance_reminder",
+            data: {
+              guestName: booking.guest_name,
+              guestEmail: booking.guest_email,
+              apartmentName: (booking as any).apartments?.name || "Appartamento",
+              bookingCode: booking.booking_code,
+              totalPrice: booking.total_price || 0,
+              amountPaid: booking.amount_paid || 0,
+              checkIn: booking.check_in,
+              daysLeft,
             },
-          });
-          reminders.push(booking.booking_code);
-        } catch (emailErr) {
-          console.error(`Failed to send reminder for ${booking.booking_code}:`, emailErr);
-        }
+          },
+        });
+        reminders.push(booking.booking_code);
+      } catch (emailErr) {
+        console.error(`Failed to send reminder for ${booking.booking_code}:`, emailErr);
       }
     }
 
