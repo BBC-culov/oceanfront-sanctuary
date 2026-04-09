@@ -168,6 +168,21 @@ const Registrati = () => {
     } else {
       setRegisteredEmail(registerForm.email);
       setRegistrationSuccess(true);
+
+      // Send welcome email (non-blocking)
+      try {
+        await supabase.functions.invoke("send-email", {
+          body: {
+            type: "welcome",
+            data: {
+              guestName: registerForm.firstName,
+              guestEmail: registerForm.email,
+            },
+          },
+        });
+      } catch (e) {
+        console.error("Welcome email failed (non-blocking):", e);
+      }
     }
   };
 
