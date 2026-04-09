@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { format, differenceInDays } from "date-fns";
 import { it } from "date-fns/locale";
 import {
   ArrowLeft, CalendarCheck, Building2, Users, PlaneTakeoff, PlaneLanding,
   Receipt, Clock, CheckCircle2, XCircle, Phone, Mail, MapPin,
-  CreditCard, Headphones, MessageCircle, Sparkles,
+  CreditCard, Headphones, MessageCircle, Sparkles, AlertTriangle, Ban,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
