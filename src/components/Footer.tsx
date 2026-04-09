@@ -22,6 +22,8 @@ const Footer = () => (
               { label: "Chi Siamo", to: "/chi-siamo" },
               { label: "Contatti", to: "/contatti" },
               { label: "Privacy Policy", to: "/privacy" },
+              { label: "Rental Agreement", to: "/rental-agreement" },
+              { label: "Refund Policy", to: "/refund-policy" },
             ].map((l) => (
               <Link
                 key={l.to}
