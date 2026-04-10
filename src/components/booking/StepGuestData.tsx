@@ -146,8 +146,8 @@ const StepGuestData = ({
       {/* Main guest */}
       <GuestCard title="Ospite principale" icon={User}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3.5">
-          <FloatingInput label="Nome" value={mainGuest.first_name} onChange={(v) => updateMain("first_name", v)} placeholder="Mario" delay={0.05} />
-          <FloatingInput label="Cognome" value={mainGuest.last_name} onChange={(v) => updateMain("last_name", v)} placeholder="Rossi" delay={0.08} />
+          <FloatingInput label="Nome" value={mainGuest.first_name} onChange={(v) => updateMain("first_name", onlyLetters(v))} placeholder="Mario" delay={0.05} />
+          <FloatingInput label="Cognome" value={mainGuest.last_name} onChange={(v) => updateMain("last_name", onlyLetters(v))} placeholder="Rossi" delay={0.08} />
           <FloatingInput label="Data di nascita" value={mainGuest.date_of_birth} onChange={(v) => updateMain("date_of_birth", v)} type="date" delay={0.11} />
           <FloatingInput label="Luogo di nascita" value={mainGuest.place_of_birth} onChange={(v) => updateMain("place_of_birth", v)} placeholder="Roma" delay={0.14} />
           <motion.div
@@ -211,8 +211,8 @@ const StepGuestData = ({
             onRemove={() => removeGuest(i)}
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3.5">
-              <FloatingInput label="Nome" value={guest.first_name} onChange={(v) => updateGuest(i, "first_name", v)} placeholder="Nome" />
-              <FloatingInput label="Cognome" value={guest.last_name} onChange={(v) => updateGuest(i, "last_name", v)} placeholder="Cognome" />
+              <FloatingInput label="Nome" value={guest.first_name} onChange={(v) => updateGuest(i, "first_name", onlyLetters(v))} placeholder="Nome" />
+              <FloatingInput label="Cognome" value={guest.last_name} onChange={(v) => updateGuest(i, "last_name", onlyLetters(v))} placeholder="Cognome" />
               <FloatingInput label="Data di nascita" value={guest.date_of_birth} onChange={(v) => updateGuest(i, "date_of_birth", v)} type="date" />
               <FloatingInput label="Nazionalità" value={guest.nationality} onChange={(v) => updateGuest(i, "nationality", v)} placeholder="Nazionalità" />
             </div>
