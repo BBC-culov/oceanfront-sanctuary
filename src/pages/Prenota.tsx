@@ -15,6 +15,7 @@ import StepBilling, { type BillingData } from "@/components/booking/StepBilling"
 import StepRecap from "@/components/booking/StepRecap";
 
 import staticApartments from "@/data/apartments";
+import { isValidPhone, isValidDocumentNumber, isValidZip, isValidFiscalCode } from "@/lib/bookingValidation";
 import { useApartmentBySlug } from "@/hooks/useApartments";
 import { useAdditionalServices } from "@/hooks/useAdditionalServices";
 import { supabase } from "@/integrations/supabase/client";
