@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Receipt } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { onlyDigits, onlyAlphanumeric } from "@/lib/bookingValidation";
 
 export interface BillingData {
   billing_name: string;
@@ -71,11 +72,11 @@ const StepBilling = ({ billing, setBilling }: StepBillingProps) => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3.5">
           <FloatingInput span2 label="Intestatario" value={billing.billing_name} onChange={(v) => update("billing_name", v)} placeholder="Mario Rossi / Azienda SRL" delay={0.05} />
-          <FloatingInput label="Codice Fiscale / P.IVA" value={billing.billing_fiscal_code} onChange={(v) => update("billing_fiscal_code", v)} placeholder="RSSMRA85M01H501Z" delay={0.08} />
+          <FloatingInput label="Codice Fiscale / P.IVA" value={billing.billing_fiscal_code} onChange={(v) => update("billing_fiscal_code", onlyAlphanumeric(v).toUpperCase())} placeholder="RSSMRA85M01H501Z" delay={0.08} />
           <FloatingInput label="Paese" value={billing.billing_country} onChange={(v) => update("billing_country", v)} placeholder="Italia" delay={0.11} />
           <FloatingInput span2 label="Indirizzo" value={billing.billing_address} onChange={(v) => update("billing_address", v)} placeholder="Via Roma 1" delay={0.14} />
           <FloatingInput label="Città" value={billing.billing_city} onChange={(v) => update("billing_city", v)} placeholder="Roma" delay={0.17} />
-          <FloatingInput label="CAP" value={billing.billing_zip} onChange={(v) => update("billing_zip", v)} placeholder="00100" delay={0.2} />
+          <FloatingInput label="CAP" value={billing.billing_zip} onChange={(v) => update("billing_zip", onlyDigits(v))} placeholder="00100" delay={0.2} />
         </div>
       </motion.div>
     </motion.div>
