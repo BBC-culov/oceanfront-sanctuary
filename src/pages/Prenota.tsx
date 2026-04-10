@@ -15,6 +15,7 @@ import StepBilling, { type BillingData } from "@/components/booking/StepBilling"
 import StepRecap from "@/components/booking/StepRecap";
 
 import staticApartments from "@/data/apartments";
+import { isValidPhone, isValidDocumentNumber, isValidZip, isValidFiscalCode } from "@/lib/bookingValidation";
 import { useApartmentBySlug } from "@/hooks/useApartments";
 import { useAdditionalServices } from "@/hooks/useAdditionalServices";
 import { supabase } from "@/integrations/supabase/client";
@@ -173,14 +174,27 @@ const Prenota = () => {
       const { first_name, last_name, date_of_birth, nationality, id_card_number, id_card_issued, id_card_expiry, email, phone } = mainGuest;
       if (!first_name || !last_name || !date_of_birth || !nationality || !id_card_number || !id_card_issued || !id_card_expiry || !email || !phone) {
         toast.error("Compila tutti i campi obbligatori dell'ospite principale");
-        // Scroll to the guest section
         document.getElementById("step-guest-data")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        return false;
+      }
+      if (!isValidPhone(phone)) {
+        toast.error("Numero di telefono non valido: inserisci solo cifre (6-15 cifre)");
+        return false;
+      }
+      if (!isValidDocumentNumber(id_card_number, mainGuest.id_type)) {
+        const docLabel = mainGuest.id_type === "passport" ? "passaporto" : "carta d'identità";
+        toast.error(`Numero di ${docLabel} non valido: solo lettere e numeri, ${mainGuest.id_type === "passport" ? "6-9" : "7-9"} caratteri`);
         return false;
       }
       for (let i = 0; i < additionalGuests.length; i++) {
         const g = additionalGuests[i];
         if (!g.first_name || !g.last_name || !g.date_of_birth || !g.nationality || !g.id_card_number || !g.id_card_issued || !g.id_card_expiry) {
           toast.error(`Compila tutti i campi dell'ospite ${i + 2}`);
+          return false;
+        }
+        if (!isValidDocumentNumber(g.id_card_number, g.id_type)) {
+          const docLabel = g.id_type === "passport" ? "passaporto" : "carta d'identità";
+          toast.error(`Ospite ${i + 2}: numero di ${docLabel} non valido`);
           return false;
         }
       }
@@ -211,6 +225,14 @@ const Prenota = () => {
       const { billing_name, billing_address, billing_city, billing_zip, billing_country, billing_fiscal_code } = billing;
       if (!billing_name || !billing_address || !billing_city || !billing_zip || !billing_country || !billing_fiscal_code) {
         toast.error("Compila tutti i dati di fatturazione");
+        return false;
+      }
+      if (!isValidZip(billing_zip)) {
+        toast.error("CAP non valido: inserisci solo cifre (3-10 cifre)");
+        return false;
+      }
+      if (!isValidFiscalCode(billing_fiscal_code)) {
+        toast.error("Codice Fiscale / P.IVA non valido: 11-16 caratteri alfanumerici");
         return false;
       }
       return true;

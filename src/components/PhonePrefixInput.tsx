@@ -104,8 +104,9 @@ const PhonePrefixInput = ({
   }, [open]);
 
   const handleNumberChange = (num: string) => {
-    setLocalNumber(num);
-    onChange(`${selectedPrefix} ${num}`);
+    const digitsOnly = num.replace(/\D/g, "");
+    setLocalNumber(digitsOnly);
+    onChange(`${selectedPrefix} ${digitsOnly}`);
   };
 
   const handlePrefixChange = (code: string) => {
