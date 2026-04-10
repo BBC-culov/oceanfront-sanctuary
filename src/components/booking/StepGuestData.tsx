@@ -3,6 +3,7 @@ import { Plus, Trash2, User, UserPlus, Shield } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import PhonePrefixInput from "@/components/PhonePrefixInput";
+import { onlyAlphanumeric } from "@/lib/bookingValidation";
 
 export type IdDocumentType = "id_card" | "passport";
 
@@ -192,7 +193,7 @@ const StepGuestData = ({
             </RadioGroup>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-3.5">
-            <FloatingInput label="Numero" value={mainGuest.id_card_number} onChange={(v) => updateMain("id_card_number", v)} placeholder="CA00000AA" delay={0.26} />
+            <FloatingInput label="Numero" value={mainGuest.id_card_number} onChange={(v) => updateMain("id_card_number", onlyAlphanumeric(v).toUpperCase())} placeholder="CA00000AA" delay={0.26} />
             <FloatingInput label="Data emissione" value={mainGuest.id_card_issued} onChange={(v) => updateMain("id_card_issued", v)} type="date" delay={0.29} />
             <FloatingInput label="Data scadenza" value={mainGuest.id_card_expiry} onChange={(v) => updateMain("id_card_expiry", v)} type="date" delay={0.32} />
           </div>
@@ -238,7 +239,7 @@ const StepGuestData = ({
                 </RadioGroup>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-3.5">
-                <FloatingInput label="Numero" value={guest.id_card_number} onChange={(v) => updateGuest(i, "id_card_number", v)} placeholder="CA00000AA" />
+                <FloatingInput label="Numero" value={guest.id_card_number} onChange={(v) => updateGuest(i, "id_card_number", onlyAlphanumeric(v).toUpperCase())} placeholder="CA00000AA" />
                 <FloatingInput label="Emissione" value={guest.id_card_issued} onChange={(v) => updateGuest(i, "id_card_issued", v)} type="date" />
                 <FloatingInput label="Scadenza" value={guest.id_card_expiry} onChange={(v) => updateGuest(i, "id_card_expiry", v)} type="date" />
               </div>
