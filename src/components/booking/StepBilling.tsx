@@ -1,7 +1,8 @@
+import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Receipt } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { onlyDigits, onlyAlphanumeric } from "@/lib/bookingValidation";
+import { onlyDigits, onlyAlphanumeric, isValidZip, isValidFiscalCode } from "@/lib/bookingValidation";
 
 export interface BillingData {
   billing_name: string;
@@ -18,10 +19,10 @@ interface StepBillingProps {
 }
 
 const FloatingInput = ({
-  label, value, onChange, placeholder, required = true, delay = 0, span2 = false,
+  label, value, onChange, placeholder, required = true, delay = 0, span2 = false, error,
 }: {
   label: string; value: string; onChange: (v: string) => void;
-  placeholder?: string; required?: boolean; delay?: number; span2?: boolean;
+  placeholder?: string; required?: boolean; delay?: number; span2?: boolean; error?: string;
 }) => (
   <motion.div
     initial={{ opacity: 0, y: 10 }}
@@ -37,14 +38,43 @@ const FloatingInput = ({
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       required={required}
-      className="bg-card/50 border-border/60 font-sans text-sm h-11 focus:border-primary/40 focus:bg-background transition-all duration-200"
+      className={`bg-card/50 border-border/60 font-sans text-sm h-11 focus:border-primary/40 focus:bg-background transition-all duration-200 ${error ? "border-destructive focus:border-destructive ring-1 ring-destructive/30" : ""}`}
     />
+    {error && (
+      <p className="mt-1 font-sans text-[10px] text-destructive">{error}</p>
+    )}
   </motion.div>
 );
 
 const StepBilling = ({ billing, setBilling }: StepBillingProps) => {
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  const touch = useCallback((key: string) => {
+    setTouched((prev) => (prev[key] ? prev : { ...prev, [key]: true }));
+  }, []);
+
   const update = (field: keyof BillingData, value: string) => {
+    touch(field);
     setBilling({ ...billing, [field]: value });
+  };
+
+  const t = (key: string) => touched[key] ?? false;
+
+  const reqErr = (val: string, key: string) => {
+    if (!t(key)) return undefined;
+    return !val.trim() ? "Campo obbligatorio" : undefined;
+  };
+
+  const zipErr = () => {
+    if (!t("billing_zip") || !billing.billing_zip) return reqErr(billing.billing_zip, "billing_zip");
+    if (!isValidZip(billing.billing_zip)) return "3-10 cifre richieste";
+    return undefined;
+  };
+
+  const fiscalErr = () => {
+    if (!t("billing_fiscal_code") || !billing.billing_fiscal_code) return reqErr(billing.billing_fiscal_code, "billing_fiscal_code");
+    if (!isValidFiscalCode(billing.billing_fiscal_code)) return "11-16 caratteri alfanumerici";
+    return undefined;
   };
 
   return (
@@ -71,12 +101,12 @@ const StepBilling = ({ billing, setBilling }: StepBillingProps) => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3.5">
-          <FloatingInput span2 label="Intestatario" value={billing.billing_name} onChange={(v) => update("billing_name", v)} placeholder="Mario Rossi / Azienda SRL" delay={0.05} />
-          <FloatingInput label="Codice Fiscale / P.IVA" value={billing.billing_fiscal_code} onChange={(v) => update("billing_fiscal_code", onlyAlphanumeric(v).toUpperCase())} placeholder="RSSMRA85M01H501Z" delay={0.08} />
-          <FloatingInput label="Paese" value={billing.billing_country} onChange={(v) => update("billing_country", v)} placeholder="Italia" delay={0.11} />
-          <FloatingInput span2 label="Indirizzo" value={billing.billing_address} onChange={(v) => update("billing_address", v)} placeholder="Via Roma 1" delay={0.14} />
-          <FloatingInput label="Città" value={billing.billing_city} onChange={(v) => update("billing_city", v)} placeholder="Roma" delay={0.17} />
-          <FloatingInput label="CAP" value={billing.billing_zip} onChange={(v) => update("billing_zip", onlyDigits(v))} placeholder="00100" delay={0.2} />
+          <FloatingInput span2 label="Intestatario" value={billing.billing_name} onChange={(v) => update("billing_name", v)} placeholder="Mario Rossi / Azienda SRL" delay={0.05} error={reqErr(billing.billing_name, "billing_name")} />
+          <FloatingInput label="Codice Fiscale / P.IVA" value={billing.billing_fiscal_code} onChange={(v) => update("billing_fiscal_code", onlyAlphanumeric(v).toUpperCase())} placeholder="RSSMRA85M01H501Z" delay={0.08} error={fiscalErr()} />
+          <FloatingInput label="Paese" value={billing.billing_country} onChange={(v) => update("billing_country", v)} placeholder="Italia" delay={0.11} error={reqErr(billing.billing_country, "billing_country")} />
+          <FloatingInput span2 label="Indirizzo" value={billing.billing_address} onChange={(v) => update("billing_address", v)} placeholder="Via Roma 1" delay={0.14} error={reqErr(billing.billing_address, "billing_address")} />
+          <FloatingInput label="Città" value={billing.billing_city} onChange={(v) => update("billing_city", v)} placeholder="Roma" delay={0.17} error={reqErr(billing.billing_city, "billing_city")} />
+          <FloatingInput label="CAP" value={billing.billing_zip} onChange={(v) => update("billing_zip", onlyDigits(v))} placeholder="00100" delay={0.2} error={zipErr()} />
         </div>
       </motion.div>
     </motion.div>

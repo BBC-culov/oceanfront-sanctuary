@@ -1,9 +1,12 @@
+import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Trash2, User, UserPlus, Shield } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import PhonePrefixInput from "@/components/PhonePrefixInput";
-import { onlyAlphanumeric, onlyLetters } from "@/lib/bookingValidation";
+import {
+  onlyAlphanumeric, onlyLetters, isValidPhone, isValidDocumentNumber,
+} from "@/lib/bookingValidation";
 
 export type IdDocumentType = "id_card" | "passport";
 
@@ -50,11 +53,13 @@ const docTypeLabels: Record<IdDocumentType, string> = {
   passport: "Passaporto",
 };
 
+/* ── Floating Input with error state ── */
 const FloatingInput = ({
-  label, value, onChange, type = "text", placeholder, required = true, delay = 0, disabled = false,
+  label, value, onChange, type = "text", placeholder, required = true, delay = 0, disabled = false, error,
 }: {
   label: string; value: string; onChange: (v: string) => void;
   type?: string; placeholder?: string; required?: boolean; delay?: number; disabled?: boolean;
+  error?: string;
 }) => (
   <motion.div
     initial={{ opacity: 0, y: 10 }}
@@ -72,11 +77,15 @@ const FloatingInput = ({
       placeholder={placeholder}
       required={required}
       disabled={disabled}
-      className={`bg-card/50 border-border/60 font-sans text-sm h-11 focus:border-primary/40 focus:bg-background transition-all duration-200 ${disabled ? "opacity-60 cursor-not-allowed" : ""}`}
+      className={`bg-card/50 border-border/60 font-sans text-sm h-11 focus:border-primary/40 focus:bg-background transition-all duration-200 ${disabled ? "opacity-60 cursor-not-allowed" : ""} ${error ? "border-destructive focus:border-destructive ring-1 ring-destructive/30" : ""}`}
     />
+    {error && (
+      <p className="mt-1 font-sans text-[10px] text-destructive">{error}</p>
+    )}
   </motion.div>
 );
 
+/* ── Guest Card ── */
 const GuestCard = ({
   title, icon: Icon, children, index = 0, onRemove,
 }: {
@@ -112,10 +121,40 @@ const GuestCard = ({
   </motion.div>
 );
 
+/* ── Validation helpers ── */
+const getDocError = (value: string, type: IdDocumentType, touched: boolean): string | undefined => {
+  if (!touched || !value) return undefined;
+  if (!isValidDocumentNumber(value, type)) {
+    return type === "passport" ? "6-9 caratteri alfanumerici" : "7-9 caratteri alfanumerici";
+  }
+  return undefined;
+};
+
+const getPhoneError = (value: string, touched: boolean): string | undefined => {
+  if (!touched || !value) return undefined;
+  if (!isValidPhone(value)) return "6-15 cifre richieste";
+  return undefined;
+};
+
+const getRequiredError = (value: string, touched: boolean): string | undefined => {
+  if (!touched) return undefined;
+  if (!value.trim()) return "Campo obbligatorio";
+  return undefined;
+};
+
+/* ── Main Component ── */
 const StepGuestData = ({
   mainGuest, setMainGuest, additionalGuests, setAdditionalGuests, maxGuests,
 }: StepGuestDataProps) => {
+  // Track which fields have been interacted with
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  const touch = useCallback((key: string) => {
+    setTouched((prev) => (prev[key] ? prev : { ...prev, [key]: true }));
+  }, []);
+
   const updateMain = (field: keyof GuestData, value: string) => {
+    touch(`main_${field}`);
     setMainGuest({ ...mainGuest, [field]: value });
   };
 
@@ -130,10 +169,13 @@ const StepGuestData = ({
   };
 
   const updateGuest = (index: number, field: keyof AdditionalGuestData, value: string) => {
+    touch(`guest_${index}_${field}`);
     const updated = [...additionalGuests];
     updated[index] = { ...updated[index], [field]: value };
     setAdditionalGuests(updated);
   };
+
+  const t = (key: string) => touched[key] ?? false;
 
   return (
     <motion.div
@@ -146,9 +188,9 @@ const StepGuestData = ({
       {/* Main guest */}
       <GuestCard title="Ospite principale" icon={User}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3.5">
-          <FloatingInput label="Nome" value={mainGuest.first_name} onChange={(v) => updateMain("first_name", onlyLetters(v))} placeholder="Mario" delay={0.05} />
-          <FloatingInput label="Cognome" value={mainGuest.last_name} onChange={(v) => updateMain("last_name", onlyLetters(v))} placeholder="Rossi" delay={0.08} />
-          <FloatingInput label="Data di nascita" value={mainGuest.date_of_birth} onChange={(v) => updateMain("date_of_birth", v)} type="date" delay={0.11} />
+          <FloatingInput label="Nome" value={mainGuest.first_name} onChange={(v) => updateMain("first_name", onlyLetters(v))} placeholder="Mario" delay={0.05} error={getRequiredError(mainGuest.first_name, t("main_first_name"))} />
+          <FloatingInput label="Cognome" value={mainGuest.last_name} onChange={(v) => updateMain("last_name", onlyLetters(v))} placeholder="Rossi" delay={0.08} error={getRequiredError(mainGuest.last_name, t("main_last_name"))} />
+          <FloatingInput label="Data di nascita" value={mainGuest.date_of_birth} onChange={(v) => updateMain("date_of_birth", v)} type="date" delay={0.11} error={getRequiredError(mainGuest.date_of_birth, t("main_date_of_birth"))} />
           <FloatingInput label="Luogo di nascita" value={mainGuest.place_of_birth} onChange={(v) => updateMain("place_of_birth", v)} placeholder="Roma" delay={0.14} />
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -164,9 +206,12 @@ const StepGuestData = ({
               variant="compact"
               placeholder="333 1234567"
             />
+            {getPhoneError(mainGuest.phone, t("main_phone")) && (
+              <p className="mt-1 font-sans text-[10px] text-destructive">{getPhoneError(mainGuest.phone, t("main_phone"))}</p>
+            )}
           </motion.div>
           <FloatingInput label="Email" value={mainGuest.email} onChange={(v) => updateMain("email", v)} type="email" placeholder="mario@email.com" delay={0.2} disabled />
-          <FloatingInput label="Nazionalità" value={mainGuest.nationality} onChange={(v) => updateMain("nationality", v)} placeholder="Italiana" delay={0.23} />
+          <FloatingInput label="Nazionalità" value={mainGuest.nationality} onChange={(v) => updateMain("nationality", v)} placeholder="Italiana" delay={0.23} error={getRequiredError(mainGuest.nationality, t("main_nationality"))} />
         </div>
 
         {/* Document sub-section */}
@@ -184,18 +229,18 @@ const StepGuestData = ({
               onValueChange={(v) => updateMain("id_type", v)}
               className="flex gap-4"
             >
-              {(["id_card", "passport"] as IdDocumentType[]).map((t) => (
-                <label key={t} className="flex items-center gap-2 cursor-pointer">
-                  <RadioGroupItem value={t} />
-                  <span className="font-sans text-sm text-foreground">{docTypeLabels[t]}</span>
+              {(["id_card", "passport"] as IdDocumentType[]).map((tp) => (
+                <label key={tp} className="flex items-center gap-2 cursor-pointer">
+                  <RadioGroupItem value={tp} />
+                  <span className="font-sans text-sm text-foreground">{docTypeLabels[tp]}</span>
                 </label>
               ))}
             </RadioGroup>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-3.5">
-            <FloatingInput label="Numero" value={mainGuest.id_card_number} onChange={(v) => updateMain("id_card_number", onlyAlphanumeric(v).toUpperCase())} placeholder="CA00000AA" delay={0.26} />
-            <FloatingInput label="Data emissione" value={mainGuest.id_card_issued} onChange={(v) => updateMain("id_card_issued", v)} type="date" delay={0.29} />
-            <FloatingInput label="Data scadenza" value={mainGuest.id_card_expiry} onChange={(v) => updateMain("id_card_expiry", v)} type="date" delay={0.32} />
+            <FloatingInput label="Numero" value={mainGuest.id_card_number} onChange={(v) => updateMain("id_card_number", onlyAlphanumeric(v).toUpperCase())} placeholder="CA00000AA" delay={0.26} error={getDocError(mainGuest.id_card_number, mainGuest.id_type, t("main_id_card_number"))} />
+            <FloatingInput label="Data emissione" value={mainGuest.id_card_issued} onChange={(v) => updateMain("id_card_issued", v)} type="date" delay={0.29} error={getRequiredError(mainGuest.id_card_issued, t("main_id_card_issued"))} />
+            <FloatingInput label="Data scadenza" value={mainGuest.id_card_expiry} onChange={(v) => updateMain("id_card_expiry", v)} type="date" delay={0.32} error={getRequiredError(mainGuest.id_card_expiry, t("main_id_card_expiry"))} />
           </div>
         </div>
       </GuestCard>
@@ -211,10 +256,10 @@ const StepGuestData = ({
             onRemove={() => removeGuest(i)}
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3.5">
-              <FloatingInput label="Nome" value={guest.first_name} onChange={(v) => updateGuest(i, "first_name", onlyLetters(v))} placeholder="Nome" />
-              <FloatingInput label="Cognome" value={guest.last_name} onChange={(v) => updateGuest(i, "last_name", onlyLetters(v))} placeholder="Cognome" />
-              <FloatingInput label="Data di nascita" value={guest.date_of_birth} onChange={(v) => updateGuest(i, "date_of_birth", v)} type="date" />
-              <FloatingInput label="Nazionalità" value={guest.nationality} onChange={(v) => updateGuest(i, "nationality", v)} placeholder="Nazionalità" />
+              <FloatingInput label="Nome" value={guest.first_name} onChange={(v) => updateGuest(i, "first_name", onlyLetters(v))} placeholder="Nome" error={getRequiredError(guest.first_name, t(`guest_${i}_first_name`))} />
+              <FloatingInput label="Cognome" value={guest.last_name} onChange={(v) => updateGuest(i, "last_name", onlyLetters(v))} placeholder="Cognome" error={getRequiredError(guest.last_name, t(`guest_${i}_last_name`))} />
+              <FloatingInput label="Data di nascita" value={guest.date_of_birth} onChange={(v) => updateGuest(i, "date_of_birth", v)} type="date" error={getRequiredError(guest.date_of_birth, t(`guest_${i}_date_of_birth`))} />
+              <FloatingInput label="Nazionalità" value={guest.nationality} onChange={(v) => updateGuest(i, "nationality", v)} placeholder="Nazionalità" error={getRequiredError(guest.nationality, t(`guest_${i}_nationality`))} />
             </div>
             <div className="pt-3 mt-1 border-t border-border/30">
               <div className="flex items-center gap-2 mb-3.5">
@@ -230,18 +275,18 @@ const StepGuestData = ({
                   onValueChange={(v) => updateGuest(i, "id_type", v)}
                   className="flex gap-4"
                 >
-                  {(["id_card", "passport"] as IdDocumentType[]).map((t) => (
-                    <label key={t} className="flex items-center gap-2 cursor-pointer">
-                      <RadioGroupItem value={t} />
-                      <span className="font-sans text-sm text-foreground">{docTypeLabels[t]}</span>
+                  {(["id_card", "passport"] as IdDocumentType[]).map((tp) => (
+                    <label key={tp} className="flex items-center gap-2 cursor-pointer">
+                      <RadioGroupItem value={tp} />
+                      <span className="font-sans text-sm text-foreground">{docTypeLabels[tp]}</span>
                     </label>
                   ))}
                 </RadioGroup>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-3.5">
-                <FloatingInput label="Numero" value={guest.id_card_number} onChange={(v) => updateGuest(i, "id_card_number", onlyAlphanumeric(v).toUpperCase())} placeholder="CA00000AA" />
-                <FloatingInput label="Emissione" value={guest.id_card_issued} onChange={(v) => updateGuest(i, "id_card_issued", v)} type="date" />
-                <FloatingInput label="Scadenza" value={guest.id_card_expiry} onChange={(v) => updateGuest(i, "id_card_expiry", v)} type="date" />
+                <FloatingInput label="Numero" value={guest.id_card_number} onChange={(v) => updateGuest(i, "id_card_number", onlyAlphanumeric(v).toUpperCase())} placeholder="CA00000AA" error={getDocError(guest.id_card_number, guest.id_type, t(`guest_${i}_id_card_number`))} />
+                <FloatingInput label="Emissione" value={guest.id_card_issued} onChange={(v) => updateGuest(i, "id_card_issued", v)} type="date" error={getRequiredError(guest.id_card_issued, t(`guest_${i}_id_card_issued`))} />
+                <FloatingInput label="Scadenza" value={guest.id_card_expiry} onChange={(v) => updateGuest(i, "id_card_expiry", v)} type="date" error={getRequiredError(guest.id_card_expiry, t(`guest_${i}_id_card_expiry`))} />
               </div>
             </div>
           </GuestCard>
