@@ -3,7 +3,7 @@ import { Plus, Trash2, User, UserPlus, Shield } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import PhonePrefixInput from "@/components/PhonePrefixInput";
-import { onlyAlphanumeric } from "@/lib/bookingValidation";
+import { onlyAlphanumeric, onlyLetters } from "@/lib/bookingValidation";
 
 export type IdDocumentType = "id_card" | "passport";
 
