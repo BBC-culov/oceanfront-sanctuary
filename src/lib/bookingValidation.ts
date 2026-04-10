@@ -42,3 +42,6 @@ export const onlyDigits = (value: string): string => value.replace(/\D/g, "");
 
 /** Filter to allow only alphanumeric */
 export const onlyAlphanumeric = (value: string): string => value.replace(/[^a-zA-Z0-9]/g, "");
+
+/** Filter to allow only letters, spaces, accents and apostrophes (for names) */
+export const onlyLetters = (value: string): string => value.replace(/[^a-zA-ZÀ-ÿ\s'-]/g, "");
