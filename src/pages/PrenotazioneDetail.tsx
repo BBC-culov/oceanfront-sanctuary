@@ -61,32 +61,18 @@ const PrenotazioneDetail = () => {
   const [booking, setBooking] = useState<any>(null);
   const [apartment, setApartment] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [payingBalance, setPayingBalance] = useState(false);
+  const [cancelStep, setCancelStep] = useState(0);
   const [cancelStep, setCancelStep] = useState(0); // 0=hidden, 1=warning, 2=confirm, 3=processing
   const [cancelConfirmText, setCancelConfirmText] = useState("");
 
-  // Show payment result toast and confirm booking on success
+  // Handle payment success redirect (legacy support)
   useEffect(() => {
     const payment = searchParams.get("payment");
     if (payment === "success" && id) {
-      supabase.functions.invoke("confirm-booking-payment", {
-        body: { booking_id: id, type: "initial" },
-      }).then(() => {
-        toast.success("Pagamento completato con successo! La tua prenotazione è stata confermata.");
-        setSearchParams({}, { replace: true });
-        window.location.replace(`/prenotazione/${id}`);
-      });
+      // Redirect to new success page
+      navigate(`/prenotazione-successo/${id}?payment=success`, { replace: true });
     }
-    if (payment === "balance_success" && id) {
-      supabase.functions.invoke("confirm-booking-payment", {
-        body: { booking_id: id, type: "balance" },
-      }).then(() => {
-        toast.success("Saldo completato con successo!");
-        setSearchParams({}, { replace: true });
-        window.location.replace(`/prenotazione/${id}`);
-      });
-    }
-  }, [searchParams]);
+  }, [searchParams, id, navigate]);
 
   useEffect(() => {
     const load = async () => {
@@ -310,64 +296,27 @@ const PrenotazioneDetail = () => {
             </Section>
           )}
 
-          {/* Pay balance button */}
+          {/* Remaining balance info (no pay button) */}
           {booking.status === "confirmed" && (booking as any).payment_type === "deposit" && ((booking as any).amount_paid || 0) < booking.total_price && (() => {
-            const checkInDate = new Date(booking.check_in);
-            const now = new Date();
-            const daysUntilCheckIn = Math.ceil((checkInDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
             const remaining = Math.round((booking.total_price - ((booking as any).amount_paid || 0)) * 100) / 100;
             return (
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.55 }}
-                className="bg-card border border-primary/30 rounded-2xl shadow-sm overflow-hidden"
+                className="bg-primary/5 border border-primary/20 rounded-2xl shadow-sm overflow-hidden"
               >
-                <div className="p-6 text-center space-y-4">
+                <div className="p-6 text-center space-y-3">
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
                     <CreditCard className="w-5 h-5 text-primary" strokeWidth={1.5} />
                   </div>
                   <div>
-                    <h3 className="font-serif text-lg text-foreground mb-1">Completa il pagamento</h3>
-                    <p className="font-sans text-sm text-muted-foreground">
-                      Saldo rimanente: <strong className="text-foreground">€{remaining}</strong>
-                    </p>
-                    {daysUntilCheckIn >= 7 ? (
-                      <p className="font-sans text-xs text-muted-foreground mt-1">
-                        Da completare entro il {format(new Date(checkInDate.getTime() - 7 * 24 * 60 * 60 * 1000), "d MMMM yyyy", { locale: it })}
-                      </p>
-                    ) : (
-                      <p className="font-sans text-xs text-destructive mt-1">
-                        Il termine per il saldo online è scaduto. Contattaci per assistenza.
-                      </p>
-                    )}
+                    <p className="font-sans text-sm text-muted-foreground">Saldo rimanente</p>
+                    <p className="font-serif text-2xl text-foreground font-medium">€{remaining}</p>
                   </div>
-                  {daysUntilCheckIn >= 7 && (
-                    <motion.button
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.97 }}
-                      disabled={payingBalance}
-                      onClick={async () => {
-                        setPayingBalance(true);
-                        try {
-                          const { data, error } = await supabase.functions.invoke("pay-booking-balance", {
-                            body: { booking_id: booking.id },
-                          });
-                          if (error) throw new Error(error.message);
-                          if (data?.error) throw new Error(data.error);
-                          if (data?.url) window.location.href = data.url;
-                        } catch (err: any) {
-                          toast.error(err.message || "Errore durante il pagamento");
-                        } finally {
-                          setPayingBalance(false);
-                        }
-                      }}
-                      className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-primary text-primary-foreground rounded-lg font-sans text-sm tracking-wider uppercase transition-all duration-300 hover:shadow-lg disabled:opacity-50"
-                    >
-                      <CreditCard className="w-4 h-4" />
-                      {payingBalance ? "Elaborazione..." : `Paga €${remaining}`}
-                    </motion.button>
-                  )}
+                  <p className="font-sans text-xs text-muted-foreground leading-relaxed max-w-sm mx-auto">
+                    La contatteremo per organizzare il pagamento del saldo finale prima del check-in.
+                  </p>
                 </div>
               </motion.div>
             );
