@@ -24,7 +24,7 @@ interface StepRecapProps {
   billing: BillingData;
   notes: string;
   pricePerNight: number;
-  onSubmit: (paymentType: "full" | "deposit") => void;
+  onSubmit: () => void;
   isSubmitting: boolean;
 }
 
