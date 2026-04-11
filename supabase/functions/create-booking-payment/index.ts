@@ -44,8 +44,8 @@ serve(async (req) => {
       throw new Error("Dati mancanti nella richiesta");
     }
 
-    const chosenPaymentType = payment_type === "deposit" ? "deposit" : "full";
-    const depositAmount = chosenPaymentType === "deposit" ? Math.round(total_price * 0.2 * 100) / 100 : total_price;
+    const chosenPaymentType = "deposit";
+    const depositAmount = Math.round(total_price * 0.2 * 100) / 100;
     const amountToCharge = depositAmount;
 
     // 1. Create booking in DB with status "pending"
@@ -174,7 +174,7 @@ serve(async (req) => {
       customer_email: customerId ? undefined : user.email,
       line_items: lineItems,
       mode: "payment",
-      success_url: `${origin}/prenotazione/${booking.id}?payment=success`,
+      success_url: `${origin}/prenotazione-successo/${booking.id}?payment=success`,
       cancel_url: `${origin}/pagamento-fallito?booking_id=${booking.id}`,
       metadata: {
         booking_id: booking.id,
