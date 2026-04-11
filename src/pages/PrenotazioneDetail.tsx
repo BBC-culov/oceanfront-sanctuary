@@ -61,7 +61,6 @@ const PrenotazioneDetail = () => {
   const [booking, setBooking] = useState<any>(null);
   const [apartment, setApartment] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [cancelStep, setCancelStep] = useState(0);
   const [cancelStep, setCancelStep] = useState(0); // 0=hidden, 1=warning, 2=confirm, 3=processing
   const [cancelConfirmText, setCancelConfirmText] = useState("");
 
