@@ -534,7 +534,7 @@ const AdminPrenotazioneDetail = () => {
                 </>
               )}
             </motion.button>
-          )}
+          )})()}
         </motion.div>
       )}
 
