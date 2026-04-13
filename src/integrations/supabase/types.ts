@@ -172,6 +172,9 @@ export type Database = {
           amount_paid: number
           apartment_id: string
           arrival_time: string | null
+          balance_link_expires_at: number | null
+          balance_payment_url: string | null
+          balance_session_id: string | null
           billing_address: string | null
           billing_city: string | null
           billing_country: string | null
@@ -212,6 +215,9 @@ export type Database = {
           amount_paid?: number
           apartment_id: string
           arrival_time?: string | null
+          balance_link_expires_at?: number | null
+          balance_payment_url?: string | null
+          balance_session_id?: string | null
           billing_address?: string | null
           billing_city?: string | null
           billing_country?: string | null
@@ -252,6 +258,9 @@ export type Database = {
           amount_paid?: number
           apartment_id?: string
           arrival_time?: string | null
+          balance_link_expires_at?: number | null
+          balance_payment_url?: string | null
+          balance_session_id?: string | null
           billing_address?: string | null
           billing_city?: string | null
           billing_country?: string | null
