@@ -36,7 +36,7 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 }
 
 // Configuration
-const SITE_NAME = "Oceanfront Sanctuary"
+const SITE_NAME = "Bazhouse"
 const SENDER_DOMAIN = "notify.bazhouse.it"
 const ROOT_DOMAIN = "bazhouse.it"
 const FROM_DOMAIN = "bazhouse.it" // Domain shown in From address (may be root or sender subdomain)
