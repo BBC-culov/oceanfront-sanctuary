@@ -61,6 +61,7 @@ const AdminPrenotazioneDetail = () => {
   const [loading, setLoading] = useState(true);
   const [generatingLink, setGeneratingLink] = useState(false);
   const [balanceLink, setBalanceLink] = useState<string | null>(null);
+  const [balanceSessionId, setBalanceSessionId] = useState<string | null>(null);
   const [linkExpiresAt, setLinkExpiresAt] = useState<number | null>(null);
   const [sendingEmail, setSendingEmail] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
@@ -445,13 +446,14 @@ const AdminPrenotazioneDetail = () => {
                     setEmailSent(false);
                     try {
                       const { data, error } = await supabase.functions.invoke("create-balance-payment-link", {
-                        body: { booking_id: booking.id },
+                        body: { booking_id: booking.id, expire_session_id: balanceSessionId },
                       });
                       if (error) throw error;
                       if (data?.error) throw new Error(data.error);
                       setBalanceLink(data.url);
+                      setBalanceSessionId(data.session_id);
                       setLinkExpiresAt(data.expires_at);
-                      toast({ title: "Link rigenerato!", description: "Nuovo link valido per 24 ore." });
+                      toast({ title: "Link rigenerato!", description: "Il link precedente è stato invalidato. Nuovo link valido per 24 ore." });
                     } catch (e: any) {
                       toast({ title: "Errore", description: e.message || "Errore nella rigenerazione del link", variant: "destructive" });
                     } finally {
@@ -484,6 +486,7 @@ const AdminPrenotazioneDetail = () => {
                   if (error) throw error;
                   if (data?.error) throw new Error(data.error);
                   setBalanceLink(data.url);
+                  setBalanceSessionId(data.session_id);
                   setLinkExpiresAt(data.expires_at);
                   toast({ title: "Link generato!", description: "Copialo e invialo al cliente." });
                 } catch (e: any) {

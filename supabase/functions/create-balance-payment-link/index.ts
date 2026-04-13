@@ -34,7 +34,7 @@ serve(async (req) => {
     if (!isAdmin) throw new Error("Accesso non autorizzato");
 
     const body = await req.json();
-    const { booking_id, action, payment_link } = body;
+    const { booking_id, action, payment_link, expire_session_id } = body;
     if (!booking_id) throw new Error("ID prenotazione mancante");
 
     // Fetch booking
@@ -111,6 +111,16 @@ serve(async (req) => {
       apiVersion: "2025-08-27.basil",
     });
 
+    // Expire previous session if provided
+    if (expire_session_id) {
+      try {
+        await stripe.checkout.sessions.expire(expire_session_id);
+        console.log("Expired previous session:", expire_session_id);
+      } catch (e) {
+        console.warn("Could not expire previous session:", e);
+      }
+    }
+
     const customers = await stripe.customers.list({ email: booking.guest_email, limit: 1 });
     let customerId: string | undefined;
     if (customers.data.length > 0) {
@@ -150,7 +160,7 @@ serve(async (req) => {
     });
 
     return new Response(
-      JSON.stringify({ url: session.url, expires_at: expiresAt }),
+      JSON.stringify({ url: session.url, expires_at: expiresAt, session_id: session.id }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
   } catch (error) {
