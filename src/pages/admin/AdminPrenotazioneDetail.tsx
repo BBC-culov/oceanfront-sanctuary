@@ -383,9 +383,93 @@ const AdminPrenotazioneDetail = () => {
                   Copia
                 </button>
               </div>
-              <p className="font-sans text-[10px] text-muted-foreground">
-                Il link è valido per 24 ore. Una volta pagato, lo stato si aggiornerà automaticamente.
-              </p>
+
+              {/* Expiry info */}
+              {linkExpiresAt && (
+                <p className="font-sans text-[10px] text-muted-foreground">
+                  Il link scade il {new Date(linkExpiresAt * 1000).toLocaleString("it-IT", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}. 
+                  Dopo la scadenza sarà necessario generarne uno nuovo.
+                </p>
+              )}
+
+              {/* Action buttons */}
+              <div className="flex gap-2">
+                {/* Send email button */}
+                {!emailSent ? (
+                  <motion.button
+                    whileTap={{ scale: 0.97 }}
+                    disabled={sendingEmail}
+                    onClick={async () => {
+                      setSendingEmail(true);
+                      try {
+                        const { data, error } = await supabase.functions.invoke("create-balance-payment-link", {
+                          body: { booking_id: booking.id, action: "send_email", payment_link: balanceLink },
+                        });
+                        if (error) throw error;
+                        if (data?.error) throw new Error(data.error);
+                        setEmailSent(true);
+                        toast({ title: "Email inviata!", description: `Email con link di pagamento inviata a ${booking.guest_email}` });
+                      } catch (e: any) {
+                        toast({ title: "Errore invio email", description: e.message || "Errore nell'invio dell'email", variant: "destructive" });
+                      } finally {
+                        setSendingEmail(false);
+                      }
+                    }}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground font-sans text-xs font-semibold uppercase tracking-wide rounded-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
+                  >
+                    {sendingEmail ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        Invio in corso...
+                      </>
+                    ) : (
+                      <>
+                        <Mail className="w-3.5 h-3.5" />
+                        Invia email automatica
+                      </>
+                    )}
+                  </motion.button>
+                ) : (
+                  <div className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-50 border border-emerald-200 text-emerald-700 font-sans text-xs font-semibold uppercase tracking-wide rounded-sm">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    Email inviata a {booking.guest_email}
+                  </div>
+                )}
+
+                {/* Regenerate button */}
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  disabled={generatingLink}
+                  onClick={async () => {
+                    setGeneratingLink(true);
+                    setEmailSent(false);
+                    try {
+                      const { data, error } = await supabase.functions.invoke("create-balance-payment-link", {
+                        body: { booking_id: booking.id },
+                      });
+                      if (error) throw error;
+                      if (data?.error) throw new Error(data.error);
+                      setBalanceLink(data.url);
+                      setLinkExpiresAt(data.expires_at);
+                      toast({ title: "Link rigenerato!", description: "Nuovo link valido per 24 ore." });
+                    } catch (e: any) {
+                      toast({ title: "Errore", description: e.message || "Errore nella rigenerazione del link", variant: "destructive" });
+                    } finally {
+                      setGeneratingLink(false);
+                    }
+                  }}
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 border border-border text-foreground font-sans text-xs font-semibold uppercase tracking-wide rounded-sm hover:bg-secondary/50 transition-colors disabled:opacity-50"
+                >
+                  {generatingLink ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <>
+                      <LinkIcon className="w-3.5 h-3.5" />
+                      Rigenera
+                    </>
+                  )}
+                </motion.button>
+              </div>
             </div>
           ) : (
             <motion.button
@@ -400,6 +484,7 @@ const AdminPrenotazioneDetail = () => {
                   if (error) throw error;
                   if (data?.error) throw new Error(data.error);
                   setBalanceLink(data.url);
+                  setLinkExpiresAt(data.expires_at);
                   toast({ title: "Link generato!", description: "Copialo e invialo al cliente." });
                 } catch (e: any) {
                   toast({ title: "Errore", description: e.message || "Errore nella generazione del link", variant: "destructive" });
