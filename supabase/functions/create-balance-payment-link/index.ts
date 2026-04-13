@@ -159,6 +159,13 @@ serve(async (req) => {
       },
     });
 
+    // Save link info to booking for persistence
+    await serviceClient.from("bookings").update({
+      balance_payment_url: session.url,
+      balance_session_id: session.id,
+      balance_link_expires_at: expiresAt,
+    } as any).eq("id", booking.id);
+
     return new Response(
       JSON.stringify({ url: session.url, expires_at: expiresAt, session_id: session.id }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
