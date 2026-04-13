@@ -67,20 +67,28 @@ const AdminPrenotazioneDetail = () => {
   const [emailSent, setEmailSent] = useState(false);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchData = async () => {
       const { data: b } = await supabase.from("bookings").select("*").eq("id", id!).single();
       if (!b) { navigate("/admin/prenotazioni"); return; }
       setBooking(b);
 
+      // Restore persisted balance link
+      const bAny = b as any;
+      if (bAny.balance_payment_url && bAny.balance_link_expires_at) {
+        setBalanceLink(bAny.balance_payment_url);
+        setBalanceSessionId(bAny.balance_session_id || null);
+        setLinkExpiresAt(bAny.balance_link_expires_at);
+      }
+
       const [aptRes, guestsRes] = await Promise.all([
-        supabase.from("apartments").select("name, slug, images").eq("id", (b as any).apartment_id).single(),
-        supabase.from("booking_guests").select("*").eq("booking_id", (b as any).id),
+        supabase.from("apartments").select("name, slug, images").eq("id", bAny.apartment_id).single(),
+        supabase.from("booking_guests").select("*").eq("booking_id", bAny.id),
       ]);
       setApartment(aptRes.data);
       setGuests(guestsRes.data ?? []);
       setLoading(false);
     };
-    fetch();
+    fetchData();
   }, [id]);
 
   const updateStatus = async (status: string) => {
