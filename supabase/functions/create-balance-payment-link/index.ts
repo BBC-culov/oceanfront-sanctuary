@@ -66,8 +66,17 @@ serve(async (req) => {
         return date.toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" });
       };
 
-      await serviceClient.functions.invoke("send-transactional-email", {
-        body: {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+      const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+      
+      const emailRes = await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${serviceRoleKey}`,
+          "apikey": Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+        },
+        body: JSON.stringify({
           templateName: "balance-payment-request",
           recipientEmail: booking.guest_email,
           idempotencyKey: `balance-req-${booking_id}-${Date.now()}`,
@@ -81,8 +90,15 @@ serve(async (req) => {
             checkOut: formatDate(booking.check_out),
             paymentLink: payment_link,
           },
-        },
+        }),
       });
+      
+      if (!emailRes.ok) {
+        const errBody = await emailRes.text();
+        console.error("Email send failed:", emailRes.status, errBody);
+        throw new Error(`Invio email fallito: ${errBody}`);
+      }
+      await emailRes.json();
 
       return new Response(
         JSON.stringify({ ok: true }),
