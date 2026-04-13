@@ -60,14 +60,15 @@ serve(async (req) => {
 
       if (updateErr) throw new Error(`Errore aggiornamento: ${updateErr.message}`);
 
-      // Send booking confirmation email
+      // Send booking confirmation email (guest)
       try {
-        await serviceClient.functions.invoke("send-email", {
+        await serviceClient.functions.invoke("send-transactional-email", {
           body: {
-            type: "booking_confirmation",
-            data: {
+            templateName: "booking-confirmation",
+            recipientEmail: booking.guest_email,
+            idempotencyKey: `booking-confirm-${booking_id}`,
+            templateData: {
               guestName: booking.guest_name,
-              guestEmail: booking.guest_email,
               apartmentName,
               checkIn: booking.check_in,
               checkOut: booking.check_out,
@@ -82,6 +83,31 @@ serve(async (req) => {
         console.error("Email send failed (non-blocking):", emailErr);
       }
 
+      // Send admin notification
+      try {
+        await serviceClient.functions.invoke("send-transactional-email", {
+          body: {
+            templateName: "admin-notification",
+            recipientEmail: "info@bazhouse.it",
+            idempotencyKey: `admin-booking-${booking_id}`,
+            templateData: {
+              guestName: booking.guest_name,
+              guestEmail: booking.guest_email,
+              apartmentName,
+              checkIn: booking.check_in,
+              checkOut: booking.check_out,
+              bookingCode: booking.booking_code,
+              totalPrice: booking.total_price || 0,
+              amountPaid: amountPaid || 0,
+              paymentType: booking.payment_type,
+              notificationType: "initial",
+            },
+          },
+        });
+      } catch (emailErr) {
+        console.error("Admin email send failed (non-blocking):", emailErr);
+      }
+
     } else if (type === "balance") {
       if (booking.status !== "confirmed") throw new Error("Prenotazione non confermata");
 
@@ -92,26 +118,48 @@ serve(async (req) => {
 
       if (updateErr) throw new Error(`Errore aggiornamento: ${updateErr.message}`);
 
-      // Send balance paid email
+      // Send balance paid email (guest)
       try {
-        await serviceClient.functions.invoke("send-email", {
+        await serviceClient.functions.invoke("send-transactional-email", {
           body: {
-            type: "balance_paid",
-            data: {
+            templateName: "balance-paid",
+            recipientEmail: booking.guest_email,
+            idempotencyKey: `balance-paid-${booking_id}`,
+            templateData: {
               guestName: booking.guest_name,
-              guestEmail: booking.guest_email,
               apartmentName,
               bookingCode: booking.booking_code,
               totalPrice: booking.total_price || 0,
-              amountPaid: booking.total_price || 0,
-              paymentType: "full",
-              checkIn: booking.check_in,
-              checkOut: booking.check_out,
             },
           },
         });
       } catch (emailErr) {
         console.error("Email send failed (non-blocking):", emailErr);
+      }
+
+      // Send admin notification for balance
+      try {
+        await serviceClient.functions.invoke("send-transactional-email", {
+          body: {
+            templateName: "admin-notification",
+            recipientEmail: "info@bazhouse.it",
+            idempotencyKey: `admin-balance-${booking_id}`,
+            templateData: {
+              guestName: booking.guest_name,
+              guestEmail: booking.guest_email,
+              apartmentName,
+              checkIn: booking.check_in,
+              checkOut: booking.check_out,
+              bookingCode: booking.booking_code,
+              totalPrice: booking.total_price || 0,
+              amountPaid: booking.total_price || 0,
+              paymentType: "full",
+              notificationType: "balance",
+            },
+          },
+        });
+      } catch (emailErr) {
+        console.error("Admin email send failed (non-blocking):", emailErr);
       }
     }
 
