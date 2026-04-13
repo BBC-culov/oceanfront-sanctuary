@@ -61,6 +61,9 @@ const AdminPrenotazioneDetail = () => {
   const [loading, setLoading] = useState(true);
   const [generatingLink, setGeneratingLink] = useState(false);
   const [balanceLink, setBalanceLink] = useState<string | null>(null);
+  const [linkExpiresAt, setLinkExpiresAt] = useState<number | null>(null);
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   useEffect(() => {
     const fetch = async () => {
