@@ -67,20 +67,28 @@ const AdminPrenotazioneDetail = () => {
   const [emailSent, setEmailSent] = useState(false);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchData = async () => {
       const { data: b } = await supabase.from("bookings").select("*").eq("id", id!).single();
       if (!b) { navigate("/admin/prenotazioni"); return; }
       setBooking(b);
 
+      // Restore persisted balance link
+      const bAny = b as any;
+      if (bAny.balance_payment_url && bAny.balance_link_expires_at) {
+        setBalanceLink(bAny.balance_payment_url);
+        setBalanceSessionId(bAny.balance_session_id || null);
+        setLinkExpiresAt(bAny.balance_link_expires_at);
+      }
+
       const [aptRes, guestsRes] = await Promise.all([
-        supabase.from("apartments").select("name, slug, images").eq("id", (b as any).apartment_id).single(),
-        supabase.from("booking_guests").select("*").eq("booking_id", (b as any).id),
+        supabase.from("apartments").select("name, slug, images").eq("id", bAny.apartment_id).single(),
+        supabase.from("booking_guests").select("*").eq("booking_id", bAny.id),
       ]);
       setApartment(aptRes.data);
       setGuests(guestsRes.data ?? []);
       setLoading(false);
     };
-    fetch();
+    fetchData();
   }, [id]);
 
   const updateStatus = async (status: string) => {
@@ -363,78 +371,97 @@ const AdminPrenotazioneDetail = () => {
             </div>
           </div>
 
-          {balanceLink ? (
+          {(() => {
+            const isExpired = linkExpiresAt ? Date.now() / 1000 > linkExpiresAt : false;
+            
+            return balanceLink ? (
             <div className="space-y-3">
-              <div className="flex items-center gap-2 p-3 bg-secondary/50 border border-border/60 rounded-sm">
-                <LinkIcon className="w-4 h-4 text-primary flex-shrink-0" />
-                <input
-                  type="text"
-                  readOnly
-                  value={balanceLink}
-                  className="flex-1 bg-transparent text-xs font-mono text-foreground border-none outline-none"
-                />
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(balanceLink);
-                    toast({ title: "Link copiato!", description: "Puoi inviarlo al cliente." });
-                  }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground text-xs font-medium rounded-sm hover:bg-primary/90 transition-colors"
-                >
-                  <Copy className="w-3 h-3" />
-                  Copia
-                </button>
-              </div>
+              {isExpired ? (
+                <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/30 rounded-sm">
+                  <XCircle className="w-4 h-4 text-destructive flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="font-sans text-xs font-semibold text-destructive">Link scaduto</p>
+                    <p className="font-sans text-[10px] text-destructive/80">
+                      Il link di pagamento è scaduto il {new Date(linkExpiresAt! * 1000).toLocaleString("it-IT", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}. È necessario rigenerarne uno nuovo.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2 p-3 bg-secondary/50 border border-border/60 rounded-sm">
+                    <LinkIcon className="w-4 h-4 text-primary flex-shrink-0" />
+                    <input
+                      type="text"
+                      readOnly
+                      value={balanceLink}
+                      className="flex-1 bg-transparent text-xs font-mono text-foreground border-none outline-none"
+                    />
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(balanceLink);
+                        toast({ title: "Link copiato!", description: "Puoi inviarlo al cliente." });
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground text-xs font-medium rounded-sm hover:bg-primary/90 transition-colors"
+                    >
+                      <Copy className="w-3 h-3" />
+                      Copia
+                    </button>
+                  </div>
 
-              {/* Expiry info */}
-              {linkExpiresAt && (
-                <p className="font-sans text-[10px] text-muted-foreground">
-                  Il link scade il {new Date(linkExpiresAt * 1000).toLocaleString("it-IT", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}. 
-                  Dopo la scadenza sarà necessario generarne uno nuovo.
-                </p>
+                  {/* Expiry info */}
+                  {linkExpiresAt && (
+                    <p className="font-sans text-[10px] text-muted-foreground">
+                      Il link scade il {new Date(linkExpiresAt * 1000).toLocaleString("it-IT", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}. 
+                      Dopo la scadenza sarà necessario generarne uno nuovo.
+                    </p>
+                  )}
+                </>
               )}
 
               {/* Action buttons */}
               <div className="flex gap-2">
-                {/* Send email button */}
-                {!emailSent ? (
-                  <motion.button
-                    whileTap={{ scale: 0.97 }}
-                    disabled={sendingEmail}
-                    onClick={async () => {
-                      setSendingEmail(true);
-                      try {
-                        const { data, error } = await supabase.functions.invoke("create-balance-payment-link", {
-                          body: { booking_id: booking.id, action: "send_email", payment_link: balanceLink },
-                        });
-                        if (error) throw error;
-                        if (data?.error) throw new Error(data.error);
-                        setEmailSent(true);
-                        toast({ title: "Email inviata!", description: `Email con link di pagamento inviata a ${booking.guest_email}` });
-                      } catch (e: any) {
-                        toast({ title: "Errore invio email", description: e.message || "Errore nell'invio dell'email", variant: "destructive" });
-                      } finally {
-                        setSendingEmail(false);
-                      }
-                    }}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground font-sans text-xs font-semibold uppercase tracking-wide rounded-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
-                  >
-                    {sendingEmail ? (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        Invio in corso...
-                      </>
-                    ) : (
-                      <>
-                        <Mail className="w-3.5 h-3.5" />
-                        Invia email automatica
-                      </>
-                    )}
-                  </motion.button>
-                ) : (
-                  <div className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-50 border border-emerald-200 text-emerald-700 font-sans text-xs font-semibold uppercase tracking-wide rounded-sm">
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    Email inviata a {booking.guest_email}
-                  </div>
+                {/* Send email button — hidden when expired */}
+                {!isExpired && (
+                  !emailSent ? (
+                    <motion.button
+                      whileTap={{ scale: 0.97 }}
+                      disabled={sendingEmail}
+                      onClick={async () => {
+                        setSendingEmail(true);
+                        try {
+                          const { data, error } = await supabase.functions.invoke("create-balance-payment-link", {
+                            body: { booking_id: booking.id, action: "send_email", payment_link: balanceLink },
+                          });
+                          if (error) throw error;
+                          if (data?.error) throw new Error(data.error);
+                          setEmailSent(true);
+                          toast({ title: "Email inviata!", description: `Email con link di pagamento inviata a ${booking.guest_email}` });
+                        } catch (e: any) {
+                          toast({ title: "Errore invio email", description: e.message || "Errore nell'invio dell'email", variant: "destructive" });
+                        } finally {
+                          setSendingEmail(false);
+                        }
+                      }}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground font-sans text-xs font-semibold uppercase tracking-wide rounded-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
+                    >
+                      {sendingEmail ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          Invio in corso...
+                        </>
+                      ) : (
+                        <>
+                          <Mail className="w-3.5 h-3.5" />
+                          Invia email automatica
+                        </>
+                      )}
+                    </motion.button>
+                  ) : (
+                    <div className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-50 border border-emerald-200 text-emerald-700 font-sans text-xs font-semibold uppercase tracking-wide rounded-sm">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      Email inviata a {booking.guest_email}
+                    </div>
+                  )
                 )}
 
                 {/* Regenerate button */}
@@ -460,14 +487,18 @@ const AdminPrenotazioneDetail = () => {
                       setGeneratingLink(false);
                     }
                   }}
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 border border-border text-foreground font-sans text-xs font-semibold uppercase tracking-wide rounded-sm hover:bg-secondary/50 transition-colors disabled:opacity-50"
+                  className={`flex items-center justify-center gap-2 px-4 py-2.5 font-sans text-xs font-semibold uppercase tracking-wide rounded-sm transition-colors disabled:opacity-50 ${
+                    isExpired
+                      ? "flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                      : "border border-border text-foreground hover:bg-secondary/50"
+                  }`}
                 >
                   {generatingLink ? (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   ) : (
                     <>
                       <LinkIcon className="w-3.5 h-3.5" />
-                      Rigenera
+                      {isExpired ? "Genera nuovo link" : "Rigenera"}
                     </>
                   )}
                 </motion.button>
@@ -509,7 +540,7 @@ const AdminPrenotazioneDetail = () => {
                 </>
               )}
             </motion.button>
-          )}
+          )})()}
         </motion.div>
       )}
 
