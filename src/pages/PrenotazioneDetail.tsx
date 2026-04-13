@@ -64,12 +64,38 @@ const PrenotazioneDetail = () => {
   const [cancelStep, setCancelStep] = useState(0); // 0=hidden, 1=warning, 2=confirm, 3=processing
   const [cancelConfirmText, setCancelConfirmText] = useState("");
 
-  // Handle payment success redirect (legacy support)
+  // Handle payment success redirects
   useEffect(() => {
     const payment = searchParams.get("payment");
     if (payment === "success" && id) {
-      // Redirect to new success page
       navigate(`/prenotazione-successo/${id}?payment=success`, { replace: true });
+    }
+    if (payment === "balance_success" && id) {
+      // Confirm balance payment
+      const confirmBalance = async () => {
+        try {
+          await supabase.functions.invoke("confirm-booking-payment", {
+            body: { booking_id: id, type: "balance" },
+          });
+          toast.success("Saldo pagato con successo!");
+          // Reload booking data
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session) {
+            const { data: b } = await supabase
+              .from("bookings")
+              .select("*")
+              .eq("id", id)
+              .eq("user_id", session.user.id)
+              .single();
+            if (b) setBooking(b);
+          }
+        } catch (e) {
+          console.error("Balance confirm error:", e);
+        }
+        // Clean URL
+        setSearchParams({}, { replace: true });
+      };
+      confirmBalance();
     }
   }, [searchParams, id, navigate]);
 
@@ -271,7 +297,12 @@ const PrenotazioneDetail = () => {
                   <span className="font-sans text-sm text-muted-foreground">Totale soggiorno ({nights} notti)</span>
                   <span className="font-serif text-xl font-medium text-foreground">€{booking.total_price}</span>
                 </div>
-                {(booking as any).payment_type === "deposit" && (
+                {booking.amount_paid >= booking.total_price ? (
+                  <div className="flex items-center gap-2 pt-3 border-t border-border/30">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                    <span className="font-sans text-sm font-semibold text-emerald-700">Prenotazione saldata completamente</span>
+                  </div>
+                ) : (booking as any).payment_type === "deposit" ? (
                   <>
                     <div className="flex items-center justify-between pt-2 border-t border-border/30">
                       <span className="font-sans text-sm text-muted-foreground">Caparra versata</span>
@@ -284,19 +315,18 @@ const PrenotazioneDetail = () => {
                       </span>
                     </div>
                   </>
-                )}
-                {(booking as any).payment_type !== "deposit" && (booking as any).amount_paid > 0 && (
+                ) : (booking as any).amount_paid > 0 ? (
                   <div className="flex items-center justify-between pt-2 border-t border-border/30">
                     <span className="font-sans text-sm text-muted-foreground">Pagato</span>
                     <span className="font-sans text-sm font-medium text-emerald-600">€{(booking as any).amount_paid}</span>
                   </div>
-                )}
+                ) : null}
               </div>
             </Section>
           )}
 
           {/* Remaining balance info (no pay button) */}
-          {booking.status === "confirmed" && (booking as any).payment_type === "deposit" && ((booking as any).amount_paid || 0) < booking.total_price && (() => {
+          {booking.status === "confirmed" && (booking as any).payment_type === "deposit" && booking.amount_paid < booking.total_price && (() => {
             const remaining = Math.round((booking.total_price - ((booking as any).amount_paid || 0)) * 100) / 100;
             return (
               <motion.div

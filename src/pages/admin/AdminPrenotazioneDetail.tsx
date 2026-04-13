@@ -8,6 +8,7 @@ import {
   ArrowLeft, CalendarCheck, User, Users, PlaneTakeoff, PlaneLanding,
   Receipt, Sparkles, MessageSquare, Clock, CheckCircle2, XCircle,
   Phone, Mail, MapPin, Building2, CreditCard, Shield, Globe, ChevronRight,
+  Link as LinkIcon, Copy, Loader2,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -58,6 +59,8 @@ const AdminPrenotazioneDetail = () => {
   const [apartment, setApartment] = useState<any>(null);
   const [guests, setGuests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [generatingLink, setGeneratingLink] = useState(false);
+  const [balanceLink, setBalanceLink] = useState<string | null>(null);
 
   useEffect(() => {
     const fetch = async () => {
@@ -298,16 +301,124 @@ const AdminPrenotazioneDetail = () => {
         </Section>
       )}
 
-      {/* Total */}
+      {/* Total + Payment status */}
       {booking.total_price && (
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, delay: 0.42 }}
-          className="bg-white border border-border rounded-sm shadow-sm px-6 py-5 flex justify-between items-baseline"
+          className="bg-white border border-border rounded-sm shadow-sm px-6 py-5 space-y-4"
         >
-          <span className="font-sans text-sm font-semibold text-foreground tracking-wide uppercase">Totale</span>
-          <span className="font-serif text-3xl text-primary">€{booking.total_price}</span>
+          <div className="flex justify-between items-baseline">
+            <span className="font-sans text-sm font-semibold text-foreground tracking-wide uppercase">Totale</span>
+            <span className="font-serif text-3xl text-primary">€{booking.total_price}</span>
+          </div>
+
+          {/* Payment details */}
+          {booking.amount_paid > 0 && (
+            <div className="pt-3 border-t border-border/50 space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="font-sans text-sm text-muted-foreground">Caparra versata</span>
+                <span className="font-sans text-sm font-medium text-emerald-600">€{booking.amount_paid}</span>
+              </div>
+              {booking.amount_paid >= booking.total_price ? (
+                <div className="flex items-center gap-2 pt-2">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                  <span className="font-sans text-sm font-bold text-emerald-700 uppercase tracking-wide">Prenotazione saldata</span>
+                </div>
+              ) : (
+                <div className="flex justify-between items-center">
+                  <span className="font-sans text-sm font-semibold text-foreground">Saldo rimanente</span>
+                  <span className="font-sans text-sm font-semibold text-amber-600">
+                    €{Math.round((booking.total_price - booking.amount_paid) * 100) / 100}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+        </motion.div>
+      )}
+
+      {/* Generate balance payment link - only for confirmed bookings with remaining balance */}
+      {booking.status === "confirmed" && booking.total_price && booking.amount_paid < booking.total_price && (
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.46 }}
+          className="bg-white border-2 border-primary/30 rounded-sm shadow-sm px-6 py-5 space-y-4"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <CreditCard className="w-5 h-5 text-primary" strokeWidth={1.5} />
+            </div>
+            <div>
+              <h3 className="font-sans text-sm font-semibold text-foreground">Saldo prenotazione</h3>
+              <p className="font-sans text-xs text-muted-foreground">
+                Genera un link di pagamento Stripe da inviare al cliente per saldare €{Math.round((booking.total_price - booking.amount_paid) * 100) / 100}
+              </p>
+            </div>
+          </div>
+
+          {balanceLink ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 p-3 bg-secondary/50 border border-border/60 rounded-sm">
+                <LinkIcon className="w-4 h-4 text-primary flex-shrink-0" />
+                <input
+                  type="text"
+                  readOnly
+                  value={balanceLink}
+                  className="flex-1 bg-transparent text-xs font-mono text-foreground border-none outline-none"
+                />
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(balanceLink);
+                    toast({ title: "Link copiato!", description: "Puoi inviarlo al cliente." });
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground text-xs font-medium rounded-sm hover:bg-primary/90 transition-colors"
+                >
+                  <Copy className="w-3 h-3" />
+                  Copia
+                </button>
+              </div>
+              <p className="font-sans text-[10px] text-muted-foreground">
+                Il link è valido per 24 ore. Una volta pagato, lo stato si aggiornerà automaticamente.
+              </p>
+            </div>
+          ) : (
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              disabled={generatingLink}
+              onClick={async () => {
+                setGeneratingLink(true);
+                try {
+                  const { data, error } = await supabase.functions.invoke("create-balance-payment-link", {
+                    body: { booking_id: booking.id },
+                  });
+                  if (error) throw error;
+                  if (data?.error) throw new Error(data.error);
+                  setBalanceLink(data.url);
+                  toast({ title: "Link generato!", description: "Copialo e invialo al cliente." });
+                } catch (e: any) {
+                  toast({ title: "Errore", description: e.message || "Errore nella generazione del link", variant: "destructive" });
+                } finally {
+                  setGeneratingLink(false);
+                }
+              }}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary text-primary-foreground font-sans text-sm font-semibold uppercase tracking-wide rounded-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
+            >
+              {generatingLink ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Generazione in corso...
+                </>
+              ) : (
+                <>
+                  <CreditCard className="w-4 h-4" />
+                  SALDA PRENOTAZIONE
+                </>
+              )}
+            </motion.button>
+          )}
         </motion.div>
       )}
 
