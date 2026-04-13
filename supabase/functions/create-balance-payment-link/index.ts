@@ -79,7 +79,7 @@ serve(async (req) => {
             amountPaid: booking.amount_paid,
             checkIn: formatDate(booking.check_in),
             checkOut: formatDate(booking.check_out),
-            paymentLink: body.payment_link,
+            paymentLink: payment_link,
           },
         },
       });
