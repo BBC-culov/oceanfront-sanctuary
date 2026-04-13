@@ -33,7 +33,8 @@ serve(async (req) => {
     const { data: isAdmin } = await serviceClient.rpc("has_role", { _user_id: user.id, _role: "admin" });
     if (!isAdmin) throw new Error("Accesso non autorizzato");
 
-    const { booking_id, action } = await req.json();
+    const body = await req.json();
+    const { booking_id, action, payment_link } = body;
     if (!booking_id) throw new Error("ID prenotazione mancante");
 
     // Fetch booking
@@ -58,11 +59,7 @@ serve(async (req) => {
 
     // Action: send_email — send payment link email to guest
     if (action === "send_email") {
-      const { payment_link } = await req.json().catch(() => ({}));
-      // We need the link from the request body
-      const body = { booking_id, action, payment_link };
-      
-      if (!body.payment_link) throw new Error("Link di pagamento mancante");
+      if (!payment_link) throw new Error("Link di pagamento mancante");
 
       const formatDate = (d: string) => {
         const date = new Date(d);
