@@ -371,34 +371,51 @@ const AdminPrenotazioneDetail = () => {
             </div>
           </div>
 
-          {balanceLink ? (
+          {(() => {
+            const isExpired = linkExpiresAt ? Date.now() / 1000 > linkExpiresAt : false;
+            
+            return balanceLink ? (
             <div className="space-y-3">
-              <div className="flex items-center gap-2 p-3 bg-secondary/50 border border-border/60 rounded-sm">
-                <LinkIcon className="w-4 h-4 text-primary flex-shrink-0" />
-                <input
-                  type="text"
-                  readOnly
-                  value={balanceLink}
-                  className="flex-1 bg-transparent text-xs font-mono text-foreground border-none outline-none"
-                />
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(balanceLink);
-                    toast({ title: "Link copiato!", description: "Puoi inviarlo al cliente." });
-                  }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground text-xs font-medium rounded-sm hover:bg-primary/90 transition-colors"
-                >
-                  <Copy className="w-3 h-3" />
-                  Copia
-                </button>
-              </div>
+              {isExpired ? (
+                <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/30 rounded-sm">
+                  <XCircle className="w-4 h-4 text-destructive flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="font-sans text-xs font-semibold text-destructive">Link scaduto</p>
+                    <p className="font-sans text-[10px] text-destructive/80">
+                      Il link di pagamento è scaduto il {new Date(linkExpiresAt! * 1000).toLocaleString("it-IT", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}. È necessario rigenerarne uno nuovo.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2 p-3 bg-secondary/50 border border-border/60 rounded-sm">
+                    <LinkIcon className="w-4 h-4 text-primary flex-shrink-0" />
+                    <input
+                      type="text"
+                      readOnly
+                      value={balanceLink}
+                      className="flex-1 bg-transparent text-xs font-mono text-foreground border-none outline-none"
+                    />
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(balanceLink);
+                        toast({ title: "Link copiato!", description: "Puoi inviarlo al cliente." });
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground text-xs font-medium rounded-sm hover:bg-primary/90 transition-colors"
+                    >
+                      <Copy className="w-3 h-3" />
+                      Copia
+                    </button>
+                  </div>
 
-              {/* Expiry info */}
-              {linkExpiresAt && (
-                <p className="font-sans text-[10px] text-muted-foreground">
-                  Il link scade il {new Date(linkExpiresAt * 1000).toLocaleString("it-IT", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}. 
-                  Dopo la scadenza sarà necessario generarne uno nuovo.
-                </p>
+                  {/* Expiry info */}
+                  {linkExpiresAt && (
+                    <p className="font-sans text-[10px] text-muted-foreground">
+                      Il link scade il {new Date(linkExpiresAt * 1000).toLocaleString("it-IT", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}. 
+                      Dopo la scadenza sarà necessario generarne uno nuovo.
+                    </p>
+                  )}
+                </>
               )}
 
               {/* Action buttons */}
