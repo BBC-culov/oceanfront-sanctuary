@@ -20,7 +20,6 @@ serve(async (req) => {
   );
 
   try {
-    // Verify caller is admin
     const authHeader = req.headers.get("Authorization")!;
     const token = authHeader.replace("Bearer ", "");
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
@@ -31,11 +30,11 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // Check admin role
     const { data: isAdmin } = await serviceClient.rpc("has_role", { _user_id: user.id, _role: "admin" });
     if (!isAdmin) throw new Error("Accesso non autorizzato");
 
-    const { booking_id } = await req.json();
+    const body = await req.json();
+    const { booking_id, action, payment_link } = body;
     if (!booking_id) throw new Error("ID prenotazione mancante");
 
     // Fetch booking
@@ -58,11 +57,44 @@ serve(async (req) => {
       .eq("id", booking.apartment_id)
       .single();
 
+    // Action: send_email — send payment link email to guest
+    if (action === "send_email") {
+      if (!payment_link) throw new Error("Link di pagamento mancante");
+
+      const formatDate = (d: string) => {
+        const date = new Date(d);
+        return date.toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" });
+      };
+
+      await serviceClient.functions.invoke("send-transactional-email", {
+        body: {
+          templateName: "balance-payment-request",
+          recipientEmail: booking.guest_email,
+          idempotencyKey: `balance-req-${booking_id}-${Date.now()}`,
+          templateData: {
+            guestName: booking.guest_name,
+            apartmentName: apt?.name || "Appartamento",
+            bookingCode: booking.booking_code,
+            totalPrice: booking.total_price,
+            amountPaid: booking.amount_paid,
+            checkIn: formatDate(booking.check_in),
+            checkOut: formatDate(booking.check_out),
+            paymentLink: payment_link,
+          },
+        },
+      });
+
+      return new Response(
+        JSON.stringify({ ok: true }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+      );
+    }
+
+    // Default action: generate payment link
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2025-08-27.basil",
     });
 
-    // Find or skip existing customer
     const customers = await stripe.customers.list({ email: booking.guest_email, limit: 1 });
     let customerId: string | undefined;
     if (customers.data.length > 0) {
@@ -71,9 +103,13 @@ serve(async (req) => {
 
     const origin = req.headers.get("origin") || "https://bazhousedemo.vercel.app";
 
+    // Expire after 24 hours
+    const expiresAt = Math.floor(Date.now() / 1000) + 24 * 60 * 60;
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : booking.guest_email,
+      expires_at: expiresAt,
       line_items: [
         {
           price_data: {
@@ -98,7 +134,7 @@ serve(async (req) => {
     });
 
     return new Response(
-      JSON.stringify({ url: session.url }),
+      JSON.stringify({ url: session.url, expires_at: expiresAt }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
   } catch (error) {
