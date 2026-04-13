@@ -420,46 +420,48 @@ const AdminPrenotazioneDetail = () => {
 
               {/* Action buttons */}
               <div className="flex gap-2">
-                {/* Send email button */}
-                {!emailSent ? (
-                  <motion.button
-                    whileTap={{ scale: 0.97 }}
-                    disabled={sendingEmail}
-                    onClick={async () => {
-                      setSendingEmail(true);
-                      try {
-                        const { data, error } = await supabase.functions.invoke("create-balance-payment-link", {
-                          body: { booking_id: booking.id, action: "send_email", payment_link: balanceLink },
-                        });
-                        if (error) throw error;
-                        if (data?.error) throw new Error(data.error);
-                        setEmailSent(true);
-                        toast({ title: "Email inviata!", description: `Email con link di pagamento inviata a ${booking.guest_email}` });
-                      } catch (e: any) {
-                        toast({ title: "Errore invio email", description: e.message || "Errore nell'invio dell'email", variant: "destructive" });
-                      } finally {
-                        setSendingEmail(false);
-                      }
-                    }}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground font-sans text-xs font-semibold uppercase tracking-wide rounded-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
-                  >
-                    {sendingEmail ? (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        Invio in corso...
-                      </>
-                    ) : (
-                      <>
-                        <Mail className="w-3.5 h-3.5" />
-                        Invia email automatica
-                      </>
-                    )}
-                  </motion.button>
-                ) : (
-                  <div className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-50 border border-emerald-200 text-emerald-700 font-sans text-xs font-semibold uppercase tracking-wide rounded-sm">
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    Email inviata a {booking.guest_email}
-                  </div>
+                {/* Send email button — hidden when expired */}
+                {!isExpired && (
+                  !emailSent ? (
+                    <motion.button
+                      whileTap={{ scale: 0.97 }}
+                      disabled={sendingEmail}
+                      onClick={async () => {
+                        setSendingEmail(true);
+                        try {
+                          const { data, error } = await supabase.functions.invoke("create-balance-payment-link", {
+                            body: { booking_id: booking.id, action: "send_email", payment_link: balanceLink },
+                          });
+                          if (error) throw error;
+                          if (data?.error) throw new Error(data.error);
+                          setEmailSent(true);
+                          toast({ title: "Email inviata!", description: `Email con link di pagamento inviata a ${booking.guest_email}` });
+                        } catch (e: any) {
+                          toast({ title: "Errore invio email", description: e.message || "Errore nell'invio dell'email", variant: "destructive" });
+                        } finally {
+                          setSendingEmail(false);
+                        }
+                      }}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground font-sans text-xs font-semibold uppercase tracking-wide rounded-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
+                    >
+                      {sendingEmail ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          Invio in corso...
+                        </>
+                      ) : (
+                        <>
+                          <Mail className="w-3.5 h-3.5" />
+                          Invia email automatica
+                        </>
+                      )}
+                    </motion.button>
+                  ) : (
+                    <div className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-50 border border-emerald-200 text-emerald-700 font-sans text-xs font-semibold uppercase tracking-wide rounded-sm">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      Email inviata a {booking.guest_email}
+                    </div>
+                  )
                 )}
 
                 {/* Regenerate button */}
@@ -485,14 +487,18 @@ const AdminPrenotazioneDetail = () => {
                       setGeneratingLink(false);
                     }
                   }}
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 border border-border text-foreground font-sans text-xs font-semibold uppercase tracking-wide rounded-sm hover:bg-secondary/50 transition-colors disabled:opacity-50"
+                  className={`flex items-center justify-center gap-2 px-4 py-2.5 font-sans text-xs font-semibold uppercase tracking-wide rounded-sm transition-colors disabled:opacity-50 ${
+                    isExpired
+                      ? "flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                      : "border border-border text-foreground hover:bg-secondary/50"
+                  }`}
                 >
                   {generatingLink ? (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   ) : (
                     <>
                       <LinkIcon className="w-3.5 h-3.5" />
-                      Rigenera
+                      {isExpired ? "Genera nuovo link" : "Rigenera"}
                     </>
                   )}
                 </motion.button>
