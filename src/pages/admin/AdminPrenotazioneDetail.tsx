@@ -8,6 +8,7 @@ import {
   ArrowLeft, CalendarCheck, User, Users, PlaneTakeoff, PlaneLanding,
   Receipt, Sparkles, MessageSquare, Clock, CheckCircle2, XCircle,
   Phone, Mail, MapPin, Building2, CreditCard, Shield, Globe, ChevronRight,
+  Link as LinkIcon, Copy, Loader2,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
