@@ -49,12 +49,13 @@ serve(async (req) => {
       const daysLeft = Math.ceil((checkInDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
       try {
-        await serviceClient.functions.invoke("send-email", {
+        await serviceClient.functions.invoke("send-transactional-email", {
           body: {
-            type: "balance_reminder",
-            data: {
+            templateName: "balance-reminder",
+            recipientEmail: booking.guest_email,
+            idempotencyKey: `balance-reminder-${booking.id}-${daysLeft}`,
+            templateData: {
               guestName: booking.guest_name,
-              guestEmail: booking.guest_email,
               apartmentName: (booking as any).apartments?.name || "Appartamento",
               bookingCode: booking.booking_code,
               totalPrice: booking.total_price || 0,

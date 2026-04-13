@@ -171,12 +171,13 @@ const Registrati = () => {
 
       // Send welcome email (non-blocking)
       try {
-        await supabase.functions.invoke("send-email", {
+        await supabase.functions.invoke("send-transactional-email", {
           body: {
-            type: "welcome",
-            data: {
+            templateName: "welcome",
+            recipientEmail: registerForm.email,
+            idempotencyKey: `welcome-${registerForm.email}`,
+            templateData: {
               guestName: registerForm.firstName,
-              guestEmail: registerForm.email,
             },
           },
         });
