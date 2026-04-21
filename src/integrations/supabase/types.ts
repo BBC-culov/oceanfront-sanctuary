@@ -60,6 +60,7 @@ export type Database = {
           is_active: boolean
           map_query: string | null
           name: string
+          owner_id: string | null
           price_per_night: number
           services: Json | null
           slug: string
@@ -83,6 +84,7 @@ export type Database = {
           is_active?: boolean
           map_query?: string | null
           name: string
+          owner_id?: string | null
           price_per_night?: number
           services?: Json | null
           slug: string
@@ -106,6 +108,7 @@ export type Database = {
           is_active?: boolean
           map_query?: string | null
           name?: string
+          owner_id?: string | null
           price_per_night?: number
           services?: Json | null
           slug?: string
