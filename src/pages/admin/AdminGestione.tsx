@@ -349,10 +349,10 @@ const AdminGestione = () => {
                       {user.roles.map((role) => (
                         <Badge
                           key={role}
-                          variant={role === "amministratore" ? "default" : "secondary"}
+                          variant={role === "amministratore" ? "default" : role === "proprietario" ? "outline" : "secondary"}
                           className="font-sans text-[10px] uppercase tracking-wider mr-1"
                         >
-                          {role === "amministratore" ? "Amministratore" : "Admin"}
+                          {role === "amministratore" ? "Amministratore" : role === "proprietario" ? "Proprietario" : "Admin"}
                         </Badge>
                       ))}
                     </TableCell>
