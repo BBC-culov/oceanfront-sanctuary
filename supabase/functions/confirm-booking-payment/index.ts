@@ -44,18 +44,26 @@ serve(async (req) => {
 
     const apartmentName = (booking as any).apartments?.name || "Appartamento";
 
-    if (type === "initial") {
+    if (type === "initial" || type === "full") {
       if (booking.status !== "pending") {
         return new Response(JSON.stringify({ ok: true }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
-      const amountPaid = booking.payment_type === "deposit" ? booking.deposit_amount : booking.total_price;
+      // "full" forces full payment regardless of stored payment_type (admin link case).
+      // "initial" respects the stored payment_type (deposit vs full).
+      const isFull = type === "full" || booking.payment_type === "full";
+      const amountPaid = isFull ? booking.total_price : booking.deposit_amount;
+      const newPaymentType = isFull ? "full" : booking.payment_type;
 
       const { error: updateErr } = await serviceClient
         .from("bookings")
-        .update({ status: "confirmed", amount_paid: amountPaid })
+        .update({
+          status: "confirmed",
+          amount_paid: amountPaid,
+          payment_type: newPaymentType,
+        })
         .eq("id", booking_id);
 
       if (updateErr) throw new Error(`Errore aggiornamento: ${updateErr.message}`);
@@ -75,7 +83,7 @@ serve(async (req) => {
               bookingCode: booking.booking_code,
               totalPrice: booking.total_price || 0,
               amountPaid: amountPaid || 0,
-              paymentType: booking.payment_type,
+              paymentType: newPaymentType,
             },
           },
         });
@@ -99,7 +107,7 @@ serve(async (req) => {
               bookingCode: booking.booking_code,
               totalPrice: booking.total_price || 0,
               amountPaid: amountPaid || 0,
-              paymentType: booking.payment_type,
+              paymentType: newPaymentType,
               notificationType: "initial",
             },
           },

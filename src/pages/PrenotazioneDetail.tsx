@@ -69,15 +69,26 @@ const PrenotazioneDetail = () => {
     const payment = searchParams.get("payment");
     if (payment === "success" && id) {
       navigate(`/prenotazione-successo/${id}?payment=success`, { replace: true });
+      return;
     }
-    if (payment === "balance_success" && id) {
-      // Confirm balance payment
-      const confirmBalance = async () => {
+    // Map admin-generated link returns + balance returns to a confirm type
+    const confirmTypeMap: Record<string, "initial" | "balance" | "full"> = {
+      balance_success: "balance",
+      deposit_success: "initial",
+      full_success: "full",
+    };
+    const confirmType = payment ? confirmTypeMap[payment] : undefined;
+    if (confirmType && id) {
+      const run = async () => {
         try {
           await supabase.functions.invoke("confirm-booking-payment", {
-            body: { booking_id: id, type: "balance" },
+            body: { booking_id: id, type: confirmType },
           });
-          toast.success("Saldo pagato con successo!");
+          toast.success(
+            confirmType === "balance"
+              ? "Saldo pagato con successo!"
+              : "Pagamento ricevuto con successo!"
+          );
           // Reload booking data
           const { data: { session } } = await supabase.auth.getSession();
           if (session) {
@@ -90,12 +101,12 @@ const PrenotazioneDetail = () => {
             if (b) setBooking(b);
           }
         } catch (e) {
-          console.error("Balance confirm error:", e);
+          console.error("Confirm error:", e);
         }
         // Clean URL
         setSearchParams({}, { replace: true });
       };
-      confirmBalance();
+      run();
     }
   }, [searchParams, id, navigate]);
 
