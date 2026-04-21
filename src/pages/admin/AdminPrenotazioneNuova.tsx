@@ -208,7 +208,7 @@ const AdminPrenotazioneNuova = () => {
         client_user_id: client.existing_user_id,
         new_client: client.mode === "new" ? {
           email: client.new_email,
-          first_name: client.new_last_name && client.new_first_name,
+          first_name: client.new_first_name,
           last_name: client.new_last_name,
           phone: client.new_phone ?? "",
         } : undefined,
@@ -344,29 +344,29 @@ const AdminPrenotazioneNuova = () => {
                 isSubmitting={false}
               />
 
-              {/* Payment choice */}
+              {/* Payment link generation */}
               <div className="border border-border p-5 space-y-4">
                 <div>
-                  <h3 className="font-serif text-lg text-foreground">Stato pagamento</h3>
+                  <h3 className="font-serif text-lg text-foreground">Link di pagamento</h3>
                   <p className="font-sans text-xs text-muted-foreground mt-0.5">
-                    Indica se il cliente ha già pagato (es. bonifico/contanti) o se deve ancora saldare.
+                    La prenotazione viene creata in attesa. Genera un link Stripe da inviare al cliente per la caparra (20%) o il totale (100%). Validità 24h.
                   </p>
                 </div>
                 <RadioGroup
-                  value={paymentChoice}
-                  onValueChange={(v) => setPaymentChoice(v as any)}
+                  value={paymentLinkType}
+                  onValueChange={(v) => setPaymentLinkType(v as any)}
                   className="space-y-2"
                 >
                   {[
-                    { v: "full_paid", label: "Pagamento totale incassato", desc: "Stato: confermata · saldo già coperto" },
-                    { v: "deposit_paid", label: "Caparra (20%) incassata", desc: "Stato: confermata · saldo da incassare separatamente" },
-                    { v: "unpaid", label: "Da pagare interamente", desc: "Stato: in attesa · cliente deve ancora versare" },
+                    { v: "deposit", label: "Link caparra (20%)", desc: "Il cliente paga solo l'acconto. Saldo da incassare in seguito." },
+                    { v: "full", label: "Link pagamento totale (100%)", desc: "Il cliente salda l'intero importo in un'unica transazione." },
+                    { v: "none", label: "Nessun link ora", desc: "Crea solo la prenotazione. Potrai generare il link più tardi dal dettaglio." },
                   ].map((o) => (
                     <label
                       key={o.v}
                       htmlFor={`pay-${o.v}`}
                       className={`flex items-start gap-3 p-3 border cursor-pointer transition-all ${
-                        paymentChoice === o.v ? "border-primary bg-primary/5" : "border-border hover:border-foreground/20"
+                        paymentLinkType === o.v ? "border-primary bg-primary/5" : "border-border hover:border-foreground/20"
                       }`}
                     >
                       <RadioGroupItem value={o.v} id={`pay-${o.v}`} className="mt-0.5" />
@@ -379,22 +379,61 @@ const AdminPrenotazioneNuova = () => {
                 </RadioGroup>
               </div>
 
-              {/* Email confirmation */}
-              <div className="border border-border p-5">
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <Checkbox
-                    checked={sendEmail}
-                    onCheckedChange={(v) => setSendEmail(!!v)}
-                    className="mt-0.5"
-                  />
+              {/* Email checkbox */}
+              {paymentLinkType !== "none" && (
+                <div className="border border-border p-5">
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <Checkbox
+                      checked={sendEmail}
+                      onCheckedChange={(v) => setSendEmail(!!v)}
+                      className="mt-0.5"
+                    />
+                    <div>
+                      <p className="font-sans text-sm text-foreground">Invia email al cliente con il link di pagamento</p>
+                      <p className="font-sans text-xs text-muted-foreground mt-0.5">
+                        Disattiva se preferisci inviarlo manualmente (es. WhatsApp). Il link sarà comunque mostrato qui dopo la creazione.
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              )}
+
+              {/* Generated link result */}
+              {generatedLink && (
+                <div className="border border-primary/40 bg-primary/5 p-5 space-y-3">
                   <div>
-                    <p className="font-sans text-sm text-foreground">Invia email di conferma al cliente</p>
+                    <h3 className="font-serif text-lg text-foreground">Link generato</h3>
                     <p className="font-sans text-xs text-muted-foreground mt-0.5">
-                      L'email contiene il codice prenotazione e il riepilogo. Disattiva se vuoi avvisare il cliente personalmente (es. WhatsApp).
+                      Importo: <span className="font-medium text-foreground">€ {generatedLink.amount.toFixed(2)}</span> · Scade: {new Date(generatedLink.expires_at * 1000).toLocaleString("it-IT")}
                     </p>
                   </div>
-                </label>
-              </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      readOnly
+                      value={generatedLink.url}
+                      className="flex-1 font-sans text-xs px-3 py-2 border border-border bg-background"
+                      onFocus={(e) => e.currentTarget.select()}
+                    />
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(generatedLink.url);
+                        toast.success("Link copiato");
+                      }}
+                      className="font-sans text-xs uppercase tracking-wider px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90"
+                    >
+                      Copia
+                    </button>
+                  </div>
+                  {createdBookingId && (
+                    <button
+                      onClick={() => navigate(`/admin/prenotazioni/${createdBookingId}`)}
+                      className="font-sans text-xs uppercase tracking-wider underline text-foreground hover:text-primary"
+                    >
+                      Vai al dettaglio prenotazione →
+                    </button>
+                  )}
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
