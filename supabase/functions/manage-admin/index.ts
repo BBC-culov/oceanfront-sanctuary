@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
       const { data: adminRoles } = await adminClient
         .from("user_roles")
         .select("user_id, role, created_at")
-        .in("role", ["admin", "amministratore"]);
+        .in("role", ["admin", "amministratore", "proprietario"]);
 
       if (!adminRoles || adminRoles.length === 0) {
         return new Response(JSON.stringify({ users: [] }), {
@@ -160,10 +160,10 @@ Deno.serve(async (req) => {
       }).eq("user_id", user_id);
 
       if (role) {
-        // Remove existing admin/amministratore roles, add new one
+        // Remove existing manageable roles, add new one
         await adminClient.from("user_roles").delete()
           .eq("user_id", user_id)
-          .in("role", ["admin", "amministratore"]);
+          .in("role", ["admin", "amministratore", "proprietario"]);
         
         await adminClient.from("user_roles").insert({ user_id, role });
       }

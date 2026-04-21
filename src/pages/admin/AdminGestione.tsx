@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import { useAmministratoreCheck } from "@/hooks/useAmministratoreCheck";
 import {
-  Users, Plus, Pencil, Trash2, Shield, ShieldCheck,
+  Users, Plus, Pencil, Trash2, Shield, ShieldCheck, Home,
   Loader2, Search, UserPlus, Mail, Phone, User, X, Check, AlertTriangle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -101,7 +101,13 @@ const AdminGestione = () => {
     setFormFirstName(user.first_name);
     setFormLastName(user.last_name);
     setFormPhone(user.phone);
-    setFormRole(user.roles.includes("amministratore") ? "amministratore" : "admin");
+    setFormRole(
+      user.roles.includes("amministratore")
+        ? "amministratore"
+        : user.roles.includes("proprietario")
+        ? "proprietario"
+        : "admin"
+    );
     setDialogOpen(true);
   };
 
@@ -309,6 +315,8 @@ const AdminGestione = () => {
                         >
                           {user.roles.includes("amministratore") ? (
                             <ShieldCheck className="w-4 h-4 text-primary" />
+                          ) : user.roles.includes("proprietario") ? (
+                            <Home className="w-4 h-4 text-primary" />
                           ) : (
                             <Shield className="w-4 h-4 text-primary" />
                           )}
@@ -341,10 +349,10 @@ const AdminGestione = () => {
                       {user.roles.map((role) => (
                         <Badge
                           key={role}
-                          variant={role === "amministratore" ? "default" : "secondary"}
+                          variant={role === "amministratore" ? "default" : role === "proprietario" ? "outline" : "secondary"}
                           className="font-sans text-[10px] uppercase tracking-wider mr-1"
                         >
-                          {role === "amministratore" ? "Amministratore" : "Admin"}
+                          {role === "amministratore" ? "Amministratore" : role === "proprietario" ? "Proprietario" : "Admin"}
                         </Badge>
                       ))}
                     </TableCell>
@@ -403,6 +411,8 @@ const AdminGestione = () => {
         <span>{users.filter(u => u.roles.includes("amministratore")).length} amministratori</span>
         <span>•</span>
         <span>{users.filter(u => u.roles.includes("admin") && !u.roles.includes("amministratore")).length} admin</span>
+        <span>•</span>
+        <span>{users.filter(u => u.roles.includes("proprietario")).length} proprietari</span>
       </motion.div>
 
       {/* Create/Edit Dialog */}
@@ -516,6 +526,12 @@ const AdminGestione = () => {
                     <div className="flex items-center gap-2">
                       <ShieldCheck className="w-3.5 h-3.5 text-primary" />
                       Amministratore
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="proprietario" className="font-sans">
+                    <div className="flex items-center gap-2">
+                      <Home className="w-3.5 h-3.5 text-primary" />
+                      Proprietario
                     </div>
                   </SelectItem>
                 </SelectContent>
