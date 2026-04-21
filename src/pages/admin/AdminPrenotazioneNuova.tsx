@@ -60,8 +60,6 @@ const AdminPrenotazioneNuova = () => {
   const [flightErrors, setFlightErrors] = useState<Record<string, boolean>>({});
   const [paymentLinkType, setPaymentLinkType] = useState<"deposit" | "full" | "none">("deposit");
   const [sendEmail, setSendEmail] = useState(true);
-  const [generatedLink, setGeneratedLink] = useState<{ url: string; amount: number; expires_at: number } | null>(null);
-  const [createdBookingId, setCreatedBookingId] = useState<string | null>(null);
 
   const apt = useMemo(
     () => apartments.find((a: any) => a.id === stay.apartment_id) as any,
@@ -229,19 +227,12 @@ const AdminPrenotazioneNuova = () => {
       if (error) throw new Error(error.message ?? "Errore creazione prenotazione");
       if (data?.error) throw new Error(data.error);
       toast.success(`Prenotazione ${data.booking_code} creata con successo`);
-      setCreatedBookingId(data.booking_id);
-      if (data.payment_link_url) {
-        setGeneratedLink({
-          url: data.payment_link_url,
-          amount: data.payment_link_amount,
-          expires_at: data.payment_link_expires_at,
-        });
-      } else {
-        navigate(`/admin/prenotazioni/${data.booking_id}`);
-      }
       if (data.payment_link_error) {
-        toast.error(`Link non generato: ${data.payment_link_error}`);
+        toast.error(`Link non generato: ${data.payment_link_error}. Puoi rigenerarlo dal dettaglio.`);
+      } else if (data.payment_link_url) {
+        toast.success("Link di pagamento generato — visibile nel dettaglio.");
       }
+      navigate(`/admin/prenotazioni/${data.booking_id}`);
     } catch (e: any) {
       toast.error(e.message ?? "Errore");
     } finally {
