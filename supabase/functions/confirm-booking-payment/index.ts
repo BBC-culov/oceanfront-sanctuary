@@ -63,6 +63,11 @@ serve(async (req) => {
           status: "confirmed",
           amount_paid: amountPaid,
           payment_type: newPaymentType,
+          // Invalidate the deposit/full payment link — admin must generate
+          // a fresh balance link if a balance is still due.
+          balance_payment_url: null,
+          balance_session_id: null,
+          balance_link_expires_at: null,
         })
         .eq("id", booking_id);
 
