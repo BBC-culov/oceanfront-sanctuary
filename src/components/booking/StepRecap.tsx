@@ -26,6 +26,8 @@ interface StepRecapProps {
   pricePerNight: number;
   onSubmit: () => void;
   isSubmitting: boolean;
+  /** When true (admin manual booking), hide terms/pay/deposit blocks */
+  hideTermsAndPay?: boolean;
 }
 
 const Section = ({
@@ -61,6 +63,7 @@ const StepRecap = ({
   mainGuest, additionalGuests, flightData,
   selectedServiceIds, services, billing, notes,
   pricePerNight, onSubmit, isSubmitting,
+  hideTermsAndPay = false,
 }: StepRecapProps) => {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [showTermsError, setShowTermsError] = useState(false);
@@ -170,118 +173,122 @@ const StepRecap = ({
         </div>
       </motion.div>
 
-      {/* Deposit info */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.37 }}
-        className="mt-4 space-y-3"
-      >
-        <p className="font-sans text-[11px] tracking-[0.15em] uppercase text-muted-foreground font-medium">Modalità di pagamento</p>
-        <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
-          <p className="font-sans text-sm font-medium text-foreground mb-1">Caparra 20%</p>
-          <p className="font-sans text-xs text-muted-foreground leading-relaxed">
-            Pagherai ora <strong className="text-foreground">€{depositAmount}</strong> come caparra confirmatoria.
-            Il saldo rimanente di <strong className="text-foreground">€{remainingBalance}</strong> verrà richiesto successivamente dal nostro team prima del check-in.
-          </p>
-        </div>
-      </motion.div>
-
-      {/* Terms acceptance */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.38 }}
-        className="mt-5"
-      >
-        <label className="flex items-start gap-3 cursor-pointer group p-4 rounded-lg border border-border/50 bg-card hover:bg-muted/40 hover:border-primary/30 transition-all duration-300">
-          <div className="relative mt-0.5 shrink-0">
-            <input
-              type="checkbox"
-              checked={acceptTerms}
-              onChange={e => { setAcceptTerms(e.target.checked); if (e.target.checked) setShowTermsError(false); }}
-              className="peer sr-only"
-            />
-            <div className={`w-6 h-6 rounded-md border-2 transition-all duration-300 flex items-center justify-center shadow-sm ${
-              acceptTerms
-                ? "bg-primary border-primary shadow-primary/25"
-                : showTermsError
-                  ? "border-destructive bg-destructive/10 shadow-destructive/10"
-                  : "border-muted-foreground/40 bg-background group-hover:border-primary/60"
-            }`}>
-              <AnimatePresence>
-                {acceptTerms && (
-                  <motion.svg
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0, opacity: 0 }}
-                    transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                    className="w-3.5 h-3.5 text-primary-foreground"
-                    viewBox="0 0 12 12"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M2 6l3 3 5-5" />
-                  </motion.svg>
-                )}
-              </AnimatePresence>
+      {!hideTermsAndPay && (
+        <>
+          {/* Deposit info */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.37 }}
+            className="mt-4 space-y-3"
+          >
+            <p className="font-sans text-[11px] tracking-[0.15em] uppercase text-muted-foreground font-medium">Modalità di pagamento</p>
+            <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+              <p className="font-sans text-sm font-medium text-foreground mb-1">Caparra 20%</p>
+              <p className="font-sans text-xs text-muted-foreground leading-relaxed">
+                Pagherai ora <strong className="text-foreground">€{depositAmount}</strong> come caparra confirmatoria.
+                Il saldo rimanente di <strong className="text-foreground">€{remainingBalance}</strong> verrà richiesto successivamente dal nostro team prima del check-in.
+              </p>
             </div>
-          </div>
-          <span className="text-sm text-foreground/80 font-sans leading-relaxed">
-            Accetto la{" "}
-            <a href="/privacy-policy" target="_blank" onClick={e => e.stopPropagation()} className="text-primary hover:underline font-semibold">
-              Privacy Policy
-            </a>, il{" "}
-            <a href="/rental-agreement" target="_blank" onClick={e => e.stopPropagation()} className="text-primary hover:underline font-semibold">
-              Rental Agreement
-            </a>{" "}e la{" "}
-            <a href="/refund-policy" target="_blank" onClick={e => e.stopPropagation()} className="text-primary hover:underline font-semibold">
-              Refund &amp; Cancellation Policy
-            </a>{" "}
-            <span className="text-destructive">*</span>
-          </span>
-        </label>
-        <AnimatePresence>
-          {showTermsError && (
-            <motion.p
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="text-destructive text-xs mt-2 font-sans flex items-center gap-1"
-            >
-              Devi accettare i termini per procedere al pagamento
-            </motion.p>
-          )}
-        </AnimatePresence>
-      </motion.div>
+          </motion.div>
 
-      {/* Pay button */}
-      <motion.button
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.4 }}
-        whileHover={{ y: -2, boxShadow: "0 8px 30px rgba(0,0,0,0.12)" }}
-        whileTap={{ scale: 0.98 }}
-        onClick={() => {
-          if (!acceptTerms) {
-            setShowTermsError(true);
-            return;
-          }
-          onSubmit();
-        }}
-        disabled={isSubmitting}
-        className="w-full flex items-center justify-center gap-3 bg-primary text-primary-foreground font-sans text-[11px] tracking-[0.2em] uppercase px-8 py-5 mt-4 hover:bg-primary/90 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <CreditCard className="w-4 h-4" strokeWidth={1.5} />
-        {isSubmitting ? "Elaborazione in corso..." : `Paga €${depositAmount} (caparra)`}
-      </motion.button>
+          {/* Terms acceptance */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.38 }}
+            className="mt-5"
+          >
+            <label className="flex items-start gap-3 cursor-pointer group p-4 rounded-lg border border-border/50 bg-card hover:bg-muted/40 hover:border-primary/30 transition-all duration-300">
+              <div className="relative mt-0.5 shrink-0">
+                <input
+                  type="checkbox"
+                  checked={acceptTerms}
+                  onChange={e => { setAcceptTerms(e.target.checked); if (e.target.checked) setShowTermsError(false); }}
+                  className="peer sr-only"
+                />
+                <div className={`w-6 h-6 rounded-md border-2 transition-all duration-300 flex items-center justify-center shadow-sm ${
+                  acceptTerms
+                    ? "bg-primary border-primary shadow-primary/25"
+                    : showTermsError
+                      ? "border-destructive bg-destructive/10 shadow-destructive/10"
+                      : "border-muted-foreground/40 bg-background group-hover:border-primary/60"
+                }`}>
+                  <AnimatePresence>
+                    {acceptTerms && (
+                      <motion.svg
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                        className="w-3.5 h-3.5 text-primary-foreground"
+                        viewBox="0 0 12 12"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M2 6l3 3 5-5" />
+                      </motion.svg>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+              <span className="text-sm text-foreground/80 font-sans leading-relaxed">
+                Accetto la{" "}
+                <a href="/privacy-policy" target="_blank" onClick={e => e.stopPropagation()} className="text-primary hover:underline font-semibold">
+                  Privacy Policy
+                </a>, il{" "}
+                <a href="/rental-agreement" target="_blank" onClick={e => e.stopPropagation()} className="text-primary hover:underline font-semibold">
+                  Rental Agreement
+                </a>{" "}e la{" "}
+                <a href="/refund-policy" target="_blank" onClick={e => e.stopPropagation()} className="text-primary hover:underline font-semibold">
+                  Refund &amp; Cancellation Policy
+                </a>{" "}
+                <span className="text-destructive">*</span>
+              </span>
+            </label>
+            <AnimatePresence>
+              {showTermsError && (
+                <motion.p
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="text-destructive text-xs mt-2 font-sans flex items-center gap-1"
+                >
+                  Devi accettare i termini per procedere al pagamento
+                </motion.p>
+              )}
+            </AnimatePresence>
+          </motion.div>
 
-      <p className="text-center font-sans text-[10px] text-muted-foreground/60 mt-3 pb-2">
-        Il pagamento verrà gestito in modo sicuro tramite Stripe
-      </p>
+          {/* Pay button */}
+          <motion.button
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.4 }}
+            whileHover={{ y: -2, boxShadow: "0 8px 30px rgba(0,0,0,0.12)" }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => {
+              if (!acceptTerms) {
+                setShowTermsError(true);
+                return;
+              }
+              onSubmit();
+            }}
+            disabled={isSubmitting}
+            className="w-full flex items-center justify-center gap-3 bg-primary text-primary-foreground font-sans text-[11px] tracking-[0.2em] uppercase px-8 py-5 mt-4 hover:bg-primary/90 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <CreditCard className="w-4 h-4" strokeWidth={1.5} />
+            {isSubmitting ? "Elaborazione in corso..." : `Paga €${depositAmount} (caparra)`}
+          </motion.button>
+
+          <p className="text-center font-sans text-[10px] text-muted-foreground/60 mt-3 pb-2">
+            Il pagamento verrà gestito in modo sicuro tramite Stripe
+          </p>
+        </>
+      )}
     </motion.div>
   );
 };

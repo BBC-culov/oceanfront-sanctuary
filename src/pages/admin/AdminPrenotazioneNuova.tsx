@@ -60,8 +60,6 @@ const AdminPrenotazioneNuova = () => {
   const [flightErrors, setFlightErrors] = useState<Record<string, boolean>>({});
   const [paymentLinkType, setPaymentLinkType] = useState<"deposit" | "full" | "none">("deposit");
   const [sendEmail, setSendEmail] = useState(true);
-  const [generatedLink, setGeneratedLink] = useState<{ url: string; amount: number; expires_at: number } | null>(null);
-  const [createdBookingId, setCreatedBookingId] = useState<string | null>(null);
 
   const apt = useMemo(
     () => apartments.find((a: any) => a.id === stay.apartment_id) as any,
@@ -229,19 +227,12 @@ const AdminPrenotazioneNuova = () => {
       if (error) throw new Error(error.message ?? "Errore creazione prenotazione");
       if (data?.error) throw new Error(data.error);
       toast.success(`Prenotazione ${data.booking_code} creata con successo`);
-      setCreatedBookingId(data.booking_id);
-      if (data.payment_link_url) {
-        setGeneratedLink({
-          url: data.payment_link_url,
-          amount: data.payment_link_amount,
-          expires_at: data.payment_link_expires_at,
-        });
-      } else {
-        navigate(`/admin/prenotazioni/${data.booking_id}`);
-      }
       if (data.payment_link_error) {
-        toast.error(`Link non generato: ${data.payment_link_error}`);
+        toast.error(`Link non generato: ${data.payment_link_error}. Puoi rigenerarlo dal dettaglio.`);
+      } else if (data.payment_link_url) {
+        toast.success("Link di pagamento generato — visibile nel dettaglio.");
       }
+      navigate(`/admin/prenotazioni/${data.booking_id}`);
     } catch (e: any) {
       toast.error(e.message ?? "Errore");
     } finally {
@@ -342,6 +333,7 @@ const AdminPrenotazioneNuova = () => {
                 pricePerNight={pricePerNight}
                 onSubmit={() => {}}
                 isSubmitting={false}
+                hideTermsAndPay
               />
 
               {/* Payment link generation */}
@@ -391,47 +383,10 @@ const AdminPrenotazioneNuova = () => {
                     <div>
                       <p className="font-sans text-sm text-foreground">Invia email al cliente con il link di pagamento</p>
                       <p className="font-sans text-xs text-muted-foreground mt-0.5">
-                        Disattiva se preferisci inviarlo manualmente (es. WhatsApp). Il link sarà comunque mostrato qui dopo la creazione.
+                        Disattiva se preferisci inviarlo manualmente (es. WhatsApp). Il link sarà comunque visibile nel dettaglio della prenotazione.
                       </p>
                     </div>
                   </label>
-                </div>
-              )}
-
-              {/* Generated link result */}
-              {generatedLink && (
-                <div className="border border-primary/40 bg-primary/5 p-5 space-y-3">
-                  <div>
-                    <h3 className="font-serif text-lg text-foreground">Link generato</h3>
-                    <p className="font-sans text-xs text-muted-foreground mt-0.5">
-                      Importo: <span className="font-medium text-foreground">€ {generatedLink.amount.toFixed(2)}</span> · Scade: {new Date(generatedLink.expires_at * 1000).toLocaleString("it-IT")}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <input
-                      readOnly
-                      value={generatedLink.url}
-                      className="flex-1 font-sans text-xs px-3 py-2 border border-border bg-background"
-                      onFocus={(e) => e.currentTarget.select()}
-                    />
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(generatedLink.url);
-                        toast.success("Link copiato");
-                      }}
-                      className="font-sans text-xs uppercase tracking-wider px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90"
-                    >
-                      Copia
-                    </button>
-                  </div>
-                  {createdBookingId && (
-                    <button
-                      onClick={() => navigate(`/admin/prenotazioni/${createdBookingId}`)}
-                      className="font-sans text-xs uppercase tracking-wider underline text-foreground hover:text-primary"
-                    >
-                      Vai al dettaglio prenotazione →
-                    </button>
-                  )}
                 </div>
               )}
             </motion.div>
