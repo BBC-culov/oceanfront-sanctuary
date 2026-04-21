@@ -351,8 +351,8 @@ const AdminPrenotazioneDetail = () => {
         </motion.div>
       )}
 
-      {/* Generate balance payment link - only for confirmed bookings with remaining balance */}
-      {booking.status === "confirmed" && booking.total_price && booking.amount_paid < booking.total_price && (
+      {/* Generate / show payment link — for confirmed (balance) or pending (manual booking with deposit/full link) */}
+      {booking.total_price && booking.amount_paid < booking.total_price && booking.status !== "cancelled" && (
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
@@ -364,9 +364,15 @@ const AdminPrenotazioneDetail = () => {
               <CreditCard className="w-5 h-5 text-primary" strokeWidth={1.5} />
             </div>
             <div>
-              <h3 className="font-sans text-sm font-semibold text-foreground">Saldo prenotazione</h3>
+              <h3 className="font-sans text-sm font-semibold text-foreground">
+                {booking.status === "pending" && booking.amount_paid === 0
+                  ? (booking.payment_type === "full" ? "Link pagamento totale" : "Link caparra prenotazione")
+                  : "Saldo prenotazione"}
+              </h3>
               <p className="font-sans text-xs text-muted-foreground">
-                Genera un link di pagamento Stripe da inviare al cliente per saldare €{Math.round((booking.total_price - booking.amount_paid) * 100) / 100}
+                {booking.status === "pending" && booking.amount_paid === 0
+                  ? `Link Stripe da inviare al cliente per ${booking.payment_type === "full" ? "saldare l'intero importo" : "versare la caparra"} di €${booking.payment_type === "full" ? booking.total_price : Math.round(booking.total_price * 0.2 * 100) / 100}`
+                  : `Genera un link di pagamento Stripe da inviare al cliente per saldare €${Math.round((booking.total_price - booking.amount_paid) * 100) / 100}`}
               </p>
             </div>
           </div>
