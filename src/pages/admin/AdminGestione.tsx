@@ -528,6 +528,12 @@ const AdminGestione = () => {
                       Amministratore
                     </div>
                   </SelectItem>
+                  <SelectItem value="proprietario" className="font-sans">
+                    <div className="flex items-center gap-2">
+                      <Home className="w-3.5 h-3.5 text-primary" />
+                      Proprietario
+                    </div>
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
