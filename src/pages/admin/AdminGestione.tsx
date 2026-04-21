@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import { useAmministratoreCheck } from "@/hooks/useAmministratoreCheck";
 import {
-  Users, Plus, Pencil, Trash2, Shield, ShieldCheck,
+  Users, Plus, Pencil, Trash2, Shield, ShieldCheck, Home,
   Loader2, Search, UserPlus, Mail, Phone, User, X, Check, AlertTriangle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
