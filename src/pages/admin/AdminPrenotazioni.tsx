@@ -7,7 +7,7 @@ import { format, differenceInDays } from "date-fns";
 import { it } from "date-fns/locale";
 import {
   Search, Trash2, ChevronDown, CalendarDays, Eye, Clock,
-  CheckCircle2, XCircle, AlertCircle, Users,
+  CheckCircle2, XCircle, AlertCircle, Users, Plus,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -112,11 +112,22 @@ const AdminPrenotazioni = () => {
       className="space-y-6"
     >
       {/* Header */}
-      <div>
-        <h1 className="font-serif text-2xl text-foreground">Prenotazioni</h1>
-        <p className="font-sans text-sm text-muted-foreground mt-1">
-          {stats.total} totali · {stats.confirmed} confermate · {stats.pending} in attesa
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+        <div>
+          <h1 className="font-serif text-2xl text-foreground">Prenotazioni</h1>
+          <p className="font-sans text-sm text-muted-foreground mt-1">
+            {stats.total} totali · {stats.confirmed} confermate · {stats.pending} in attesa
+          </p>
+        </div>
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => navigate("/admin/prenotazioni/nuova")}
+          className="inline-flex items-center gap-2 font-sans text-xs tracking-[0.15em] uppercase bg-primary text-primary-foreground px-5 py-2.5 hover:bg-primary/90 transition-colors self-start sm:self-auto"
+        >
+          <Plus className="w-4 h-4" />
+          Nuova prenotazione
+        </motion.button>
       </div>
 
       {/* Stats cards */}
