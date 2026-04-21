@@ -411,6 +411,8 @@ const AdminGestione = () => {
         <span>{users.filter(u => u.roles.includes("amministratore")).length} amministratori</span>
         <span>•</span>
         <span>{users.filter(u => u.roles.includes("admin") && !u.roles.includes("amministratore")).length} admin</span>
+        <span>•</span>
+        <span>{users.filter(u => u.roles.includes("proprietario")).length} proprietari</span>
       </motion.div>
 
       {/* Create/Edit Dialog */}
