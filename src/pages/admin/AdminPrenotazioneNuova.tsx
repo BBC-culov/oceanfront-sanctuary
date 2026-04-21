@@ -58,8 +58,10 @@ const AdminPrenotazioneNuova = () => {
   const [billing, setBilling] = useState<BillingData>(emptyBilling);
   const [noTransfer, setNoTransfer] = useState(false);
   const [flightErrors, setFlightErrors] = useState<Record<string, boolean>>({});
-  const [paymentChoice, setPaymentChoice] = useState<"full_paid" | "deposit_paid" | "unpaid">("unpaid");
-  const [sendEmail, setSendEmail] = useState(false);
+  const [paymentLinkType, setPaymentLinkType] = useState<"deposit" | "full" | "none">("deposit");
+  const [sendEmail, setSendEmail] = useState(true);
+  const [generatedLink, setGeneratedLink] = useState<{ url: string; amount: number; expires_at: number } | null>(null);
+  const [createdBookingId, setCreatedBookingId] = useState<string | null>(null);
 
   const apt = useMemo(
     () => apartments.find((a: any) => a.id === stay.apartment_id) as any,
@@ -206,7 +208,7 @@ const AdminPrenotazioneNuova = () => {
         client_user_id: client.existing_user_id,
         new_client: client.mode === "new" ? {
           email: client.new_email,
-          first_name: client.new_first_name,
+          first_name: client.new_last_name && client.new_first_name,
           last_name: client.new_last_name,
           phone: client.new_phone ?? "",
         } : undefined,
@@ -220,14 +222,26 @@ const AdminPrenotazioneNuova = () => {
         selected_services: selectedServices,
         notes,
         billing,
-        payment_choice: paymentChoice,
+        payment_link_type: paymentLinkType,
         send_email: sendEmail,
       };
       const { data, error } = await supabase.functions.invoke("admin-create-booking", { body: payload });
       if (error) throw new Error(error.message ?? "Errore creazione prenotazione");
       if (data?.error) throw new Error(data.error);
       toast.success(`Prenotazione ${data.booking_code} creata con successo`);
-      navigate(`/admin/prenotazioni/${data.booking_id}`);
+      setCreatedBookingId(data.booking_id);
+      if (data.payment_link_url) {
+        setGeneratedLink({
+          url: data.payment_link_url,
+          amount: data.payment_link_amount,
+          expires_at: data.payment_link_expires_at,
+        });
+      } else {
+        navigate(`/admin/prenotazioni/${data.booking_id}`);
+      }
+      if (data.payment_link_error) {
+        toast.error(`Link non generato: ${data.payment_link_error}`);
+      }
     } catch (e: any) {
       toast.error(e.message ?? "Errore");
     } finally {
