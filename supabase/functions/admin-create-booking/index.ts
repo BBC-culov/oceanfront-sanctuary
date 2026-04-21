@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
+import Stripe from "https://esm.sh/stripe@18.5.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -83,8 +84,8 @@ serve(async (req) => {
       notes = "",
       // billing
       billing,               // { billing_name, billing_address, billing_city, billing_zip, billing_country, billing_fiscal_code }
-      // payment
-      payment_choice,        // "full_paid" | "deposit_paid" | "unpaid"
+      // payment link generation
+      payment_link_type,     // "deposit" | "full" | "none"
       // notifications
       send_email = false,
     } = body ?? {};
@@ -161,9 +162,9 @@ serve(async (req) => {
       if (!isFiscal(billing.billing_fiscal_code)) errors.push("Codice Fiscale / P.IVA non valido");
     }
 
-    // Payment choice
-    if (!["full_paid", "deposit_paid", "unpaid"].includes(payment_choice)) {
-      errors.push("Tipo pagamento non valido");
+    // Payment link type
+    if (!["deposit", "full", "none"].includes(payment_link_type)) {
+      errors.push("Tipo link pagamento non valido");
     }
 
     if (errors.length > 0) return json(400, { error: errors.join(" • ") });
@@ -224,22 +225,11 @@ serve(async (req) => {
     const totalPrice = Math.round((accommodationTotal + trustedServicesTotal) * 100) / 100;
     const depositAmount = Math.round(totalPrice * 0.2 * 100) / 100;
 
-    let amountPaid = 0;
-    let paymentTypeDb = "full";
-    let bookingStatus: "pending" | "confirmed" = "confirmed";
-    if (payment_choice === "full_paid") {
-      amountPaid = totalPrice;
-      paymentTypeDb = "full";
-      bookingStatus = "confirmed";
-    } else if (payment_choice === "deposit_paid") {
-      amountPaid = depositAmount;
-      paymentTypeDb = "deposit";
-      bookingStatus = "confirmed";
-    } else {
-      amountPaid = 0;
-      paymentTypeDb = "deposit";
-      bookingStatus = "pending";
-    }
+    // Manual booking is always created as pending with 0 paid.
+    // Admin generates a Stripe payment link (deposit or full) to send to the client.
+    const amountPaid = 0;
+    const paymentTypeDb = payment_link_type === "full" ? "full" : "deposit";
+    const bookingStatus: "pending" | "confirmed" = "pending";
 
     // ---------- RESOLVE TARGET USER ----------
     let targetUserId: string;
@@ -339,30 +329,110 @@ serve(async (req) => {
       if (guestErr) console.error("[admin-create-booking] guests insert error:", guestErr);
     }
 
+    // ---------- STRIPE PAYMENT LINK (deposit or full) ----------
+    let paymentLinkUrl: string | null = null;
+    let paymentLinkExpiresAt: number | null = null;
+    let paymentLinkSessionId: string | null = null;
+    let paymentLinkAmount = 0;
+
+    if (payment_link_type === "deposit" || payment_link_type === "full") {
+      try {
+        const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+        if (!stripeKey) throw new Error("Stripe non configurato");
+        const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
+
+        paymentLinkAmount = payment_link_type === "full" ? totalPrice : depositAmount;
+        const expiresAt = Math.floor(Date.now() / 1000) + 24 * 60 * 60;
+        const origin = req.headers.get("origin") || "https://bazhousedemo.vercel.app";
+
+        const customers = await stripe.customers.list({ email: targetEmail, limit: 1 });
+        const customerId = customers.data[0]?.id;
+
+        const session = await stripe.checkout.sessions.create({
+          customer: customerId,
+          customer_email: customerId ? undefined : targetEmail,
+          expires_at: expiresAt,
+          line_items: [{
+            price_data: {
+              currency: "eur",
+              unit_amount: Math.round(paymentLinkAmount * 100),
+              product_data: {
+                name: payment_link_type === "full"
+                  ? `Pagamento totale — ${apartment.name}`
+                  : `Caparra (20%) — ${apartment.name}`,
+                description: `Prenotazione #${booking.booking_code}`,
+              },
+            },
+            quantity: 1,
+          }],
+          mode: "payment",
+          success_url: `${origin}/prenotazione/${booking.id}?payment=${payment_link_type === "full" ? "full_success" : "deposit_success"}`,
+          cancel_url: `${origin}/prenotazione/${booking.id}`,
+          metadata: {
+            booking_id: booking.id,
+            booking_code: booking.booking_code,
+            payment_type: payment_link_type === "full" ? "full" : "deposit",
+            source: "admin_manual",
+          },
+        });
+
+        paymentLinkUrl = session.url;
+        paymentLinkExpiresAt = expiresAt;
+        paymentLinkSessionId = session.id;
+
+        await adminClient.from("bookings").update({
+          balance_payment_url: paymentLinkUrl,
+          balance_session_id: paymentLinkSessionId,
+          balance_link_expires_at: paymentLinkExpiresAt,
+        }).eq("id", booking.id);
+      } catch (stripeErr) {
+        console.error("[admin-create-booking] stripe link error:", stripeErr);
+        // Booking exists — surface the failure so admin can retry from detail page
+        return json(200, {
+          success: true,
+          booking_id: booking.id,
+          booking_code: booking.booking_code,
+          user_id: targetUserId,
+          payment_link_error: stripeErr instanceof Error ? stripeErr.message : "Errore generazione link",
+        });
+      }
+    }
+
     // ---------- OPTIONAL EMAIL ----------
     if (send_email) {
       try {
+        const isPaymentRequest = !!paymentLinkUrl;
         await adminClient.functions.invoke("send-transactional-email", {
           body: {
-            templateName: "booking-confirmation",
+            templateName: isPaymentRequest ? "balance-payment-request" : "booking-confirmation",
             recipientEmail: targetEmail,
-            idempotencyKey: `admin-booking-confirm-${booking.id}`,
-            templateData: {
-              guestName: main_guest.first_name,
-              bookingCode: booking.booking_code,
-              apartmentName: apartment.name,
-              checkIn: check_in,
-              checkOut: check_out,
-              nights,
-              totalPrice,
-              amountPaid,
-              balanceDue: Math.max(0, totalPrice - amountPaid),
-            },
+            idempotencyKey: `admin-booking-${isPaymentRequest ? "paylink" : "confirm"}-${booking.id}`,
+            templateData: isPaymentRequest
+              ? {
+                  guestName: main_guest.first_name,
+                  apartmentName: apartment.name,
+                  bookingCode: booking.booking_code,
+                  totalPrice,
+                  amountPaid: 0,
+                  checkIn: check_in,
+                  checkOut: check_out,
+                  paymentLink: paymentLinkUrl,
+                }
+              : {
+                  guestName: main_guest.first_name,
+                  bookingCode: booking.booking_code,
+                  apartmentName: apartment.name,
+                  checkIn: check_in,
+                  checkOut: check_out,
+                  nights,
+                  totalPrice,
+                  amountPaid,
+                  balanceDue: totalPrice,
+                },
           },
         });
       } catch (mailErr) {
         console.error("[admin-create-booking] email send failed:", mailErr);
-        // do not fail the request — booking is created
       }
     }
 
@@ -371,6 +441,9 @@ serve(async (req) => {
       booking_id: booking.id,
       booking_code: booking.booking_code,
       user_id: targetUserId,
+      payment_link_url: paymentLinkUrl,
+      payment_link_amount: paymentLinkAmount,
+      payment_link_expires_at: paymentLinkExpiresAt,
     });
   } catch (err) {
     console.error("[admin-create-booking] error:", err);
