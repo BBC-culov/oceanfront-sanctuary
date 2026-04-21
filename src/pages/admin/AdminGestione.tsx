@@ -315,6 +315,8 @@ const AdminGestione = () => {
                         >
                           {user.roles.includes("amministratore") ? (
                             <ShieldCheck className="w-4 h-4 text-primary" />
+                          ) : user.roles.includes("proprietario") ? (
+                            <Home className="w-4 h-4 text-primary" />
                           ) : (
                             <Shield className="w-4 h-4 text-primary" />
                           )}
