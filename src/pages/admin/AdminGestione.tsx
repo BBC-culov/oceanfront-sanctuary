@@ -101,7 +101,13 @@ const AdminGestione = () => {
     setFormFirstName(user.first_name);
     setFormLastName(user.last_name);
     setFormPhone(user.phone);
-    setFormRole(user.roles.includes("amministratore") ? "amministratore" : "admin");
+    setFormRole(
+      user.roles.includes("amministratore")
+        ? "amministratore"
+        : user.roles.includes("proprietario")
+        ? "proprietario"
+        : "admin"
+    );
     setDialogOpen(true);
   };
 
