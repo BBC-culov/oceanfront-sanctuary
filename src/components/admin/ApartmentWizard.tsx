@@ -231,12 +231,44 @@ const ApartmentWizard = ({
     setUploadingVideo(false);
   };
 
+  // Sanitizes a storage path extracted from a public URL.
+  // Prevents path traversal (../) and absolute paths from being passed
+  // to Supabase Storage `.remove()`, which could otherwise be abused
+  // to delete files outside the intended folder if the URL is tampered with.
+  const sanitizeStoragePath = (rawPath: string): string | null => {
+    try {
+      // Decode any percent-encoded sequences first so traversal attempts
+      // hidden behind URL encoding are caught.
+      const decoded = decodeURIComponent(rawPath);
+      // Reject absolute paths, traversal segments, null bytes and backslashes.
+      if (
+        decoded.startsWith("/") ||
+        decoded.includes("..") ||
+        decoded.includes("\0") ||
+        decoded.includes("\\")
+      ) {
+        return null;
+      }
+      // Allow only a conservative whitelist of characters used by our uploads:
+      // letters, digits, dash, underscore, dot and forward slash (for folder).
+      if (!/^[A-Za-z0-9._\-/]+$/.test(decoded)) {
+        return null;
+      }
+      return decoded;
+    } catch {
+      return null;
+    }
+  };
+
   const removeVideo = async (url: string) => {
     const bucketUrl = `/apartment-videos/`;
     const pathStart = url.indexOf(bucketUrl);
     if (pathStart !== -1) {
-      const path = url.slice(pathStart + bucketUrl.length);
-      await supabase.storage.from("apartment-videos").remove([path]);
+      const rawPath = url.slice(pathStart + bucketUrl.length);
+      const safePath = sanitizeStoragePath(rawPath);
+      if (safePath) {
+        await supabase.storage.from("apartment-videos").remove([safePath]);
+      }
     }
     setVideos((prev) => prev.filter((u) => u !== url));
   };
@@ -245,8 +277,11 @@ const ApartmentWizard = ({
     const bucketUrl = `/apartment-images/`;
     const pathStart = url.indexOf(bucketUrl);
     if (pathStart !== -1) {
-      const path = url.slice(pathStart + bucketUrl.length);
-      await supabase.storage.from("apartment-images").remove([path]);
+      const rawPath = url.slice(pathStart + bucketUrl.length);
+      const safePath = sanitizeStoragePath(rawPath);
+      if (safePath) {
+        await supabase.storage.from("apartment-images").remove([safePath]);
+      }
     }
     setImages((prev) => prev.filter((u) => u !== url));
   };

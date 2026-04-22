@@ -26,10 +26,27 @@ Deno.serve(async (req) => {
     )
   }
 
-  // Verify the caller is authorized with LOVABLE_API_KEY
+  // Verify the caller is authorized with LOVABLE_API_KEY using a
+  // constant-time comparison to prevent timing attacks that could allow
+  // an attacker to brute-force the API key one character at a time.
   const authHeader = req.headers.get('Authorization')
-  const token = authHeader?.replace(/^Bearer\s+/i, '')
-  if (token !== apiKey) {
+  const token = authHeader?.replace(/^Bearer\s+/i, '') ?? ''
+
+  const timingSafeEqual = (a: string, b: string): boolean => {
+    const enc = new TextEncoder()
+    const aBytes = enc.encode(a)
+    const bBytes = enc.encode(b)
+    // Always compare the same number of bytes to keep the loop length
+    // independent of the provided token's length.
+    const len = Math.max(aBytes.length, bBytes.length)
+    let diff = aBytes.length ^ bBytes.length
+    for (let i = 0; i < len; i++) {
+      diff |= (aBytes[i] ?? 0) ^ (bBytes[i] ?? 0)
+    }
+    return diff === 0
+  }
+
+  if (!timingSafeEqual(token, apiKey)) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
