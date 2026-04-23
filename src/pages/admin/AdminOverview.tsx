@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, CalendarDays, Users, TrendingUp, ArrowUpRight } from "lucide-react";
@@ -36,14 +37,12 @@ const statusLabels: Record<string, string> = {
 };
 
 const AdminOverview = () => {
-  const [stats, setStats] = useState<Stats>({ totalBookings: 0, totalApartments: 0, totalClients: 0 });
-  const [recentBookings, setRecentBookings] = useState<RecentBooking[]>([]);
-  const [loading, setLoading] = useState(true);
   const [hoveredStat, setHoveredStat] = useState<number | null>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchData = async () => {
+  const { data, isLoading: loading } = useQuery({
+    queryKey: ["admin-overview"],
+    queryFn: async () => {
       const [bookingsRes, apartmentsRes, usersRes, recentRes] = await Promise.all([
         supabase.from("bookings").select("id", { count: "exact", head: true }),
         supabase.from("apartments").select("id", { count: "exact", head: true }),
@@ -51,29 +50,31 @@ const AdminOverview = () => {
         supabase.from("bookings").select("id, guest_name, guest_email, check_in, check_out, status, apartment_id").order("created_at", { ascending: false }).limit(5),
       ]);
 
-      setStats({
+      const stats: Stats = {
         totalBookings: bookingsRes.count ?? 0,
         totalApartments: apartmentsRes.count ?? 0,
         totalClients: usersRes.count ?? 0,
-      });
+      };
 
-      if (recentRes.data) {
+      let recentBookings: RecentBooking[] = [];
+      if (recentRes.data && recentRes.data.length > 0) {
         const aptIds = [...new Set(recentRes.data.map((b: any) => b.apartment_id))];
         const { data: apts } = await supabase.from("apartments").select("id, name").in("id", aptIds);
         const aptMap = new Map((apts ?? []).map((a: any) => [a.id, a.name]));
-
-        setRecentBookings(
-          recentRes.data.map((b: any) => ({
-            ...b,
-            apartment_name: aptMap.get(b.apartment_id) ?? "—",
-          }))
-        );
+        recentBookings = recentRes.data.map((b: any) => ({
+          ...b,
+          apartment_name: aptMap.get(b.apartment_id) ?? "—",
+        }));
       }
 
-      setLoading(false);
-    };
-    fetchData();
-  }, []);
+      return { stats, recentBookings };
+    },
+    staleTime: 2 * 60 * 1000, // 2 min — overview admin, accettabile lieve ritardo
+    gcTime: 15 * 60 * 1000,
+  });
+
+  const stats = data?.stats ?? { totalBookings: 0, totalApartments: 0, totalClients: 0 };
+  const recentBookings = data?.recentBookings ?? [];
 
   const statCards = [
     { label: "Prenotazioni", value: stats.totalBookings, icon: CalendarDays, color: "text-primary", link: "/admin/prenotazioni" },

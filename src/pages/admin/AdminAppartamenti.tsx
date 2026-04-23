@@ -69,22 +69,9 @@ const AdminAppartamenti = () => {
 
   useEffect(() => {
     fetchApartments();
-
-    // Realtime subscription
-    const channel = supabase
-      .channel("apartments-realtime")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "apartments" },
-        () => {
-          fetchApartments();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    // No realtime subscription: data is refetched after every create/update/delete
+    // performed in this page. A single admin works at a time, so a persistent
+    // WebSocket would only consume realtime hours without practical benefit.
   }, []);
 
   const openCreate = () => {
