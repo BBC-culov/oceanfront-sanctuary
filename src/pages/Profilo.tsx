@@ -180,6 +180,7 @@ const Profilo = () => {
         .from("bookings")
         .select("id, check_in, check_out, status, total_price, guest_name, guest_last_name, apartment_id, created_at, booking_code")
         .eq("user_id", session.user.id)
+        .neq("status", "incomplete")
         .order("created_at", { ascending: false });
 
       if (bData && bData.length > 0) {
