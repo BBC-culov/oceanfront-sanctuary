@@ -1,10 +1,12 @@
 // Booking form field validation utilities
 
-/** Phone: only digits (after removing prefix/spaces), 6-15 digits */
+/** Phone: validates total digits (6-15) regardless of format.
+ *  Accepts international prefixes ("+39", "0039"), spaces, dashes, dots and parentheses. */
 export const isValidPhone = (phone: string): boolean => {
-  // Remove prefix (e.g. "+39 ") and spaces
-  const digits = phone.replace(/\+\d+\s*/, "").replace(/\s/g, "");
-  return /^\d{6,15}$/.test(digits);
+  if (!phone) return false;
+  // Strip every non-digit character (including +, spaces, dashes, parentheses)
+  const digits = phone.replace(/\D/g, "");
+  return digits.length >= 6 && digits.length <= 15;
 };
 
 /** ID Card (Carta d'identità): Italian format - 2 letters + 5-7 digits, or newer format with mixed alphanumerics, 7-9 chars */
