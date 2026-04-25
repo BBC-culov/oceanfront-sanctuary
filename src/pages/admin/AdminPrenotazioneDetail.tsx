@@ -179,25 +179,28 @@ const AdminPrenotazioneDetail = () => {
             </div>
 
             {/* Status actions */}
-            <div className="flex items-center gap-2 mt-5 pt-4 border-t border-border/50">
-              <span className="font-sans text-[10px] tracking-wide uppercase text-muted-foreground mr-2">Cambia stato:</span>
-              {Object.entries(statusConfig).map(([val, cfg]) => {
-                const isActive = booking.status === val;
-                return (
-                  <motion.button
-                    key={val}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => updateStatus(val)}
-                    className={`font-sans text-[10px] tracking-wide uppercase px-3.5 py-1.5 rounded-sm border transition-all duration-200 ${
-                      isActive
-                        ? `${cfg.bg} ${cfg.text} ${cfg.border} font-semibold`
-                        : "border-border/50 text-muted-foreground hover:border-border hover:text-foreground bg-white"
-                    }`}
-                  >
-                    {cfg.label}
-                  </motion.button>
-                );
-              })}
+            <div className="flex items-center gap-2 mt-5 pt-4 border-t border-border/50 flex-wrap">
+              <span className="font-sans text-[10px] tracking-wide uppercase text-muted-foreground mr-1">Stato:</span>
+              <p className="font-sans text-xs text-muted-foreground italic flex-1">{sc.description}</p>
+              <select
+                value={booking.status}
+                onChange={(e) => updateStatus(e.target.value)}
+                className="h-8 rounded-sm border border-border/60 bg-white px-2.5 text-[11px] font-sans cursor-pointer hover:border-primary/50 transition-colors"
+              >
+                {Object.entries(BOOKING_STATUS).map(([val, cfg]) => (
+                  <option key={val} value={val}>{cfg.label}</option>
+                ))}
+              </select>
+              {booking.status === "awaiting_verification" && (
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => updateStatus("confirmed")}
+                  className="font-sans text-[10px] tracking-wide uppercase px-3 py-1.5 rounded-sm bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors flex items-center gap-1.5"
+                >
+                  <CheckCircle2 className="w-3 h-3" />
+                  Conferma pagamento
+                </motion.button>
+              )}
             </div>
           </div>
         </div>
