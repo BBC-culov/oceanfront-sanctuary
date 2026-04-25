@@ -222,7 +222,9 @@ const RecordManualPaymentDialog = ({
               </motion.button>
             </div>
           </motion.div>
+          </div>
         </>
+
       )}
     </AnimatePresence>
   );
