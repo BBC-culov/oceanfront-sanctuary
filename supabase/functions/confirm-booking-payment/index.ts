@@ -57,10 +57,16 @@ serve(async (req) => {
       const amountPaid = isFull ? booking.total_price : booking.deposit_amount;
       const newPaymentType = isFull ? "full" : booking.payment_type;
 
+      // NEW FLOW: payment received but admin must manually verify and confirm.
+      // If the customer paid the full amount in one shot we mark the booking as
+      // "paid" already (still awaiting admin confirmation visually via flag in UI),
+      // otherwise we use "awaiting_verification" until manual review.
+      const newStatus = "awaiting_verification";
+
       const { error: updateErr } = await serviceClient
         .from("bookings")
         .update({
-          status: "confirmed",
+          status: newStatus,
           amount_paid: amountPaid,
           payment_type: newPaymentType,
           // Invalidate the deposit/full payment link — admin must generate

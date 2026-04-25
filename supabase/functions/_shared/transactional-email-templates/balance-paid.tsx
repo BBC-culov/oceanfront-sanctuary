@@ -15,7 +15,7 @@ interface BalancePaidProps {
 const BalancePaidEmail = ({ guestName, apartmentName, bookingCode, totalPrice = 0 }: BalancePaidProps) => (
   <Html lang="it" dir="ltr">
     <Head />
-    <Preview>Saldo completato — {bookingCode}</Preview>
+    <Preview>{`Saldo completato — ${bookingCode ?? ""}`}</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>

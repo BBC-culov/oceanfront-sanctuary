@@ -24,7 +24,7 @@ const BalancePaymentRequestEmail = ({
   return (
     <Html lang="it" dir="ltr">
       <Head />
-      <Preview>Pagamento saldo — Prenotazione #{bookingCode}</Preview>
+      <Preview>{`Pagamento saldo — Prenotazione #${bookingCode ?? ""}`}</Preview>
       <Body style={main}>
         <Container style={container}>
           <Section style={header}>
