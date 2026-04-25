@@ -74,7 +74,12 @@ const AdminAppartamenti = () => {
   const [availabilityFor, setAvailabilityFor] = useState<ApartmentRow | null>(null);
 
   const fetchApartments = async () => {
-    const { data } = await supabase.from("apartments").select("*").order("name");
+    const { data } = await supabase
+      .from("apartments")
+      .select("*")
+      .order("is_featured", { ascending: false })
+      .order("display_order", { ascending: true })
+      .order("name", { ascending: true });
     setApartments(
       (data ?? []).map((a: any) => ({
         ...a,
