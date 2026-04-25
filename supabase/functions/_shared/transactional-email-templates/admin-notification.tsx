@@ -26,7 +26,7 @@ const AdminNotificationEmail = ({
   return (
     <Html lang="it" dir="ltr">
       <Head />
-      <Preview>{title} — {bookingCode}</Preview>
+      <Preview>{`${title ?? ""} — ${bookingCode ?? ""}`}</Preview>
       <Body style={main}>
         <Container style={container}>
           <Section style={header}>

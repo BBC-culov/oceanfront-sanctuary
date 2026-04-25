@@ -24,7 +24,7 @@ const BookingConfirmationEmail = ({
   return (
     <Html lang="it" dir="ltr">
       <Head />
-      <Preview>Prenotazione confermata — {bookingCode}</Preview>
+      <Preview>{`Prenotazione confermata — ${bookingCode ?? ""}`}</Preview>
       <Body style={main}>
         <Container style={container}>
           <Section style={header}>

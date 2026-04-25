@@ -23,7 +23,7 @@ const BalanceReminderEmail = ({
   return (
     <Html lang="it" dir="ltr">
       <Head />
-      <Preview>Promemoria saldo — {bookingCode}</Preview>
+      <Preview>{`Promemoria saldo — ${bookingCode ?? ""}`}</Preview>
       <Body style={main}>
         <Container style={container}>
           <Section style={header}>
