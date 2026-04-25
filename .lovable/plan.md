@@ -23,7 +23,7 @@ Stato attuale: dopo il pagamento Stripe, la prenotazione passa automaticamente a
 - Al conferma: aggiorna `bookings.amount_paid`, se totale raggiunto → `status = 'paid'` e automaticamente `confirmed`.
 - Mantiene la funzione esistente "Genera link pagamento" (Punto 6.1 già OK).
 
-## Fase 3 – Sistema notifiche admin (Punto 4)
+## ✅ Fase 3 – Sistema notifiche admin (Punto 4) — COMPLETATA
 
 - Nuovo hook `useAdminNotifications` che conta in realtime prenotazioni in `pending`, `awaiting_verification`, `incomplete`.
 - Pallino rosso animato sulla voce "Prenotazioni" della sidebar admin con badge numerico.
