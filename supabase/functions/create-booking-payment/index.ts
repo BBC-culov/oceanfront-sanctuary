@@ -111,7 +111,10 @@ serve(async (req) => {
     const depositAmount = Math.round(trustedTotalPrice * 0.2 * 100) / 100;
     const amountToCharge = depositAmount;
 
-    // 1. Create booking in DB with status "pending" - using TRUSTED prices
+    // Generate a secure resume token (used for "Riprendi prenotazione" recovery email)
+    const resumeToken = crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, "").slice(0, 16);
+
+    // 1. Create booking in DB with status "incomplete" (becomes "awaiting_verification" after Stripe success)
     const { data: booking, error: bookingError } = await supabaseClient
       .from("bookings")
       .insert({
@@ -144,11 +147,12 @@ serve(async (req) => {
         selected_services: selected_services || [],
         notes,
         user_id: user.id,
-        status: "pending",
+        status: "incomplete",
         total_price: trustedTotalPrice,
         payment_type: chosenPaymentType,
         amount_paid: 0,
         deposit_amount: depositAmount,
+        resume_token: resumeToken,
       })
       .select()
       .single();

@@ -30,12 +30,14 @@ Stato attuale: dopo il pagamento Stripe, la prenotazione passa automaticamente a
 - Filtri rapidi nella lista `AdminPrenotazioni` per stato + ordinamento "da gestire prima".
 - Sottoscrizione realtime su `bookings` (mantenere se già attiva, altrimenti polling ogni 60s per ridurre cloud usage).
 
-## Fase 4 – Recupero prenotazioni non completate (Punto 7)
+## ✅ Fase 4 – Recupero prenotazioni non completate (Punto 7) — COMPLETATA
 
-- Quando il wizard pubblico arriva al checkout Stripe, salvare già la prenotazione con `status='incomplete'` (oggi viene salvata solo a pagamento riuscito).
-- Token univoco per ripresa: nuova colonna `resume_token` in `bookings`.
-- Email automatica al cliente dopo X ore con link "Riprendi prenotazione" che ripopola il wizard.
-- Sezione admin "Prenotazioni non concluse" con azioni: contatta via WhatsApp, completa manualmente, cancella.
+- Prenotazione salvata con `status='incomplete'` già al checkout (prima era solo dopo pagamento riuscito).
+- Colonna `resume_token` univoca + colonna `recovery_email_sent_at` per evitare invii multipli.
+- Template email `booking-recovery` con link "Riprendi prenotazione".
+- Edge function `send-booking-recovery` schedulata via pg_cron ogni ora (minuto 15): trova prenotazioni incomplete da più di 24h non ancora notificate.
+- Route pubblica `/riprendi/:token` che mostra riepilogo e ripristina lo stato del wizard saltando direttamente al recap.
+- Le prenotazioni incomplete sono già visibili in dashboard admin con badge arancione (Fase 3).
 
 ## Fase 5 – Calendario disponibilità admin (Punto 2)
 

@@ -38,6 +38,7 @@ import AdminServizi from "./pages/admin/AdminServizi";
 import AdminPrenotazioneDetail from "./pages/admin/AdminPrenotazioneDetail";
 import AdminPrenotazioneNuova from "./pages/admin/AdminPrenotazioneNuova";
 import Unsubscribe from "./pages/Unsubscribe";
+import Riprendi from "./pages/Riprendi";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -84,6 +85,7 @@ const AnimatedRoutes = () => {
           <Route path="/prenotazione-successo/:id" element={<PrenotazioneSuccesso />} />
           <Route path="/pagamento-fallito" element={<PagamentoFallito />} />
           <Route path="/unsubscribe" element={<Unsubscribe />} />
+          <Route path="/riprendi/:token" element={<Riprendi />} />
           {/* Admin routes */}
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminOverview />} />

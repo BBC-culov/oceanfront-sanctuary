@@ -207,6 +207,8 @@ export type Database = {
           no_transfer: boolean
           notes: string | null
           payment_type: string
+          recovery_email_sent_at: string | null
+          resume_token: string | null
           selected_services: Json | null
           status: Database["public"]["Enums"]["booking_status"]
           total_price: number | null
@@ -250,6 +252,8 @@ export type Database = {
           no_transfer?: boolean
           notes?: string | null
           payment_type?: string
+          recovery_email_sent_at?: string | null
+          resume_token?: string | null
           selected_services?: Json | null
           status?: Database["public"]["Enums"]["booking_status"]
           total_price?: number | null
@@ -293,6 +297,8 @@ export type Database = {
           no_transfer?: boolean
           notes?: string | null
           payment_type?: string
+          recovery_email_sent_at?: string | null
+          resume_token?: string | null
           selected_services?: Json | null
           status?: Database["public"]["Enums"]["booking_status"]
           total_price?: number | null

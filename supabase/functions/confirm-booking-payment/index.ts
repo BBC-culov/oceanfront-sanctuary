@@ -45,7 +45,8 @@ serve(async (req) => {
     const apartmentName = (booking as any).apartments?.name || "Appartamento";
 
     if (type === "initial" || type === "full") {
-      if (booking.status !== "pending") {
+      // Allow promotion from both legacy "pending" and new "incomplete" (Fase 4)
+      if (booking.status !== "pending" && booking.status !== "incomplete") {
         return new Response(JSON.stringify({ ok: true }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
@@ -74,6 +75,8 @@ serve(async (req) => {
           balance_payment_url: null,
           balance_session_id: null,
           balance_link_expires_at: null,
+          // Invalidate recovery token: booking is no longer "incomplete"
+          resume_token: null,
         })
         .eq("id", booking_id);
 
