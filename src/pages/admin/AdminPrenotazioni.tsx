@@ -176,7 +176,7 @@ const AdminPrenotazioni = () => {
             className="h-10 rounded-md border border-border/60 bg-card/50 px-3 py-2 text-sm font-sans appearance-none pr-8 w-full sm:w-40"
           >
             <option value="">Tutti gli stati</option>
-            {Object.entries(statusConfig).map(([val, cfg]) => (
+            {Object.entries(BOOKING_STATUS).map(([val, cfg]) => (
               <option key={val} value={val}>{cfg.label}</option>
             ))}
           </select>
@@ -213,7 +213,7 @@ const AdminPrenotazioni = () => {
         <div className="space-y-2">
           <AnimatePresence>
             {filtered.map((b, i) => {
-              const sc = statusConfig[b.status] || statusConfig.pending;
+              const sc = getStatusConfig(b.status);
               const StatusIcon = sc.icon;
               const nights = differenceInDays(new Date(b.check_out), new Date(b.check_in));
 
@@ -283,7 +283,7 @@ const AdminPrenotazioni = () => {
                       onChange={(e) => { e.stopPropagation(); updateStatus(b.id, e.target.value); }}
                       className="h-8 rounded-md border border-border/40 bg-transparent px-2 text-[11px] font-sans appearance-none cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-200 w-24"
                     >
-                      {Object.entries(statusConfig).map(([val, cfg]) => (
+                      {Object.entries(BOOKING_STATUS).map(([val, cfg]) => (
                         <option key={val} value={val}>{cfg.label}</option>
                       ))}
                     </select>
