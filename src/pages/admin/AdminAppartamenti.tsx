@@ -202,6 +202,15 @@ const AdminAppartamenti = () => {
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
+                    onClick={() => setAvailabilityFor(apt)}
+                    className="p-2 text-muted-foreground hover:text-primary transition-colors rounded-md hover:bg-primary/10"
+                    title="Disponibilità"
+                  >
+                    <CalendarRange className="w-4 h-4" />
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
                     onClick={() => toggleActive(apt)}
                     className={`p-2 transition-colors rounded-md ${
                       isActiveTab 
