@@ -54,6 +54,7 @@ const AdminAppartamenti = () => {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<ApartmentRow | null>(null);
   const [creating, setCreating] = useState(false);
+  const [availabilityFor, setAvailabilityFor] = useState<ApartmentRow | null>(null);
 
   const fetchApartments = async () => {
     const { data } = await supabase.from("apartments").select("*").order("name");
