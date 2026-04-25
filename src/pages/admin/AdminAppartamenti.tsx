@@ -212,10 +212,12 @@ const AdminAppartamenti = () => {
     });
     setApartments(withOrder);
 
-    persistOrder(reordered).catch(() => {
-      toast({ title: "Errore salvataggio ordine", variant: "destructive" });
-      fetchApartments();
-    });
+    persistOrder(reordered)
+      .then(() => invalidatePublicCache())
+      .catch(() => {
+        toast({ title: "Errore salvataggio ordine", variant: "destructive" });
+        fetchApartments();
+      });
   };
 
   const isFormOpen = creating || !!editing;
