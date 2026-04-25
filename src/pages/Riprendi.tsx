@@ -23,14 +23,13 @@ const Riprendi = () => {
     }
 
     const load = async () => {
-      // Lookup the incomplete booking by its resume token
-      const { data: bk, error } = await supabase
-        .from("bookings")
-        .select("*")
-        .eq("resume_token", token)
-        .eq("status", "incomplete")
-        .maybeSingle();
+      // Secure lookup: RPC returns the booking only if the exact token is supplied
+      const { data: rows, error } = await supabase.rpc(
+        "get_booking_by_resume_token",
+        { _token: token },
+      );
 
+      const bk = Array.isArray(rows) ? rows[0] : null;
       if (error || !bk) {
         setStatus("not_found");
         return;
