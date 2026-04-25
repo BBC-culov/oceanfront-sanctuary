@@ -82,8 +82,9 @@ export function useApartments() {
       if (error) throw error;
       return (data ?? []).map(mapRow);
     },
-    staleTime: 15 * 60 * 1000, // 15 min
-    gcTime: 60 * 60 * 1000,    // 1 ora
+    staleTime: 60 * 1000, // 1 min — riflette rapidamente i cambi admin
+    gcTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: true,
   });
 }
 
