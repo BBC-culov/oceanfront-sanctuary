@@ -44,6 +44,39 @@ export type Database = {
         }
         Relationships: []
       }
+      apartment_availability_blocks: {
+        Row: {
+          apartment_id: string
+          created_at: string
+          created_by: string
+          end_date: string
+          id: string
+          reason: string | null
+          start_date: string
+          updated_at: string
+        }
+        Insert: {
+          apartment_id: string
+          created_at?: string
+          created_by: string
+          end_date: string
+          id?: string
+          reason?: string | null
+          start_date: string
+          updated_at?: string
+        }
+        Update: {
+          apartment_id?: string
+          created_at?: string
+          created_by?: string
+          end_date?: string
+          id?: string
+          reason?: string | null
+          start_date?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       apartments: {
         Row: {
           address: string | null
