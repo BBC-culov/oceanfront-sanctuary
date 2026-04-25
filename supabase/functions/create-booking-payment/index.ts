@@ -111,6 +111,21 @@ serve(async (req) => {
     const depositAmount = Math.round(trustedTotalPrice * 0.2 * 100) / 100;
     const amountToCharge = depositAmount;
 
+    // Server-side overlap check to prevent double-booking
+    const { data: overlaps } = await supabaseClient
+      .from("bookings")
+      .select("id")
+      .eq("apartment_id", apartment_id)
+      .in("status", ["pending", "confirmed", "awaiting_verification", "paid"])
+      .lt("check_in", check_out)
+      .gt("check_out", check_in);
+    if (overlaps && overlaps.length > 0) {
+      return new Response(
+        JSON.stringify({ error: "Date non più disponibili per questo appartamento" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 409 },
+      );
+    }
+
     // Generate a secure resume token (used for "Riprendi prenotazione" recovery email)
     const resumeToken = crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, "").slice(0, 16);
 
