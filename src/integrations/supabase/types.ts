@@ -586,14 +586,36 @@ export type Database = {
       get_booking_by_resume_token: {
         Args: { _token: string }
         Returns: {
+          airline: string
           apartment_id: string
+          arrival_time: string
+          billing_address: string
+          billing_city: string
+          billing_country: string
+          billing_fiscal_code: string
+          billing_name: string
+          billing_zip: string
           check_in: string
           check_out: string
+          departure_time: string
+          flight_outbound: string
+          flight_return: string
+          guest_date_of_birth: string
           guest_email: string
+          guest_id_card_expiry: string
+          guest_id_card_issued: string
+          guest_id_card_number: string
+          guest_id_type: string
           guest_last_name: string
           guest_name: string
+          guest_nationality: string
+          guest_phone: string
+          guest_place_of_birth: string
           id: string
+          no_transfer: boolean
+          notes: string
           resume_token: string
+          selected_services: Json
           status: Database["public"]["Enums"]["booking_status"]
         }[]
       }
