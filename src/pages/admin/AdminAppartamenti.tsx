@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -62,11 +63,17 @@ const emptyApt: Omit<ApartmentRow, "id"> = {
 };
 
 const AdminAppartamenti = () => {
+  const queryClient = useQueryClient();
   const [apartments, setApartments] = useState<ApartmentRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<ApartmentRow | null>(null);
   const [creating, setCreating] = useState(false);
   const [availabilityFor, setAvailabilityFor] = useState<ApartmentRow | null>(null);
+
+  const invalidatePublicCache = () => {
+    queryClient.invalidateQueries({ queryKey: ["apartments-public"] });
+    queryClient.invalidateQueries({ queryKey: ["apartment-public"] });
+  };
 
   const fetchApartments = async () => {
     const { data } = await supabase
@@ -129,6 +136,7 @@ const AdminAppartamenti = () => {
     }
     closeForm();
     fetchApartments();
+    invalidatePublicCache();
   };
 
   const handleDelete = async (id: string, name: string) => {
@@ -139,6 +147,7 @@ const AdminAppartamenti = () => {
     } else {
       setApartments((prev) => prev.filter((a) => a.id !== id));
       toast({ title: "Appartamento eliminato" });
+      invalidatePublicCache();
     }
   };
 
@@ -149,6 +158,7 @@ const AdminAppartamenti = () => {
     } else {
       setApartments((prev) => prev.map((a) => a.id === apt.id ? { ...a, is_active: !a.is_active } : a));
       toast({ title: apt.is_active ? "Disattivato" : "Attivato" });
+      invalidatePublicCache();
     }
   };
 
@@ -162,6 +172,7 @@ const AdminAppartamenti = () => {
       setApartments((prev) => prev.map((a) => a.id === apt.id ? { ...a, is_featured: !next } : a));
     } else {
       toast({ title: next ? "Aggiunto in evidenza" : "Rimosso dall'evidenza" });
+      invalidatePublicCache();
     }
   };
 
@@ -201,10 +212,12 @@ const AdminAppartamenti = () => {
     });
     setApartments(withOrder);
 
-    persistOrder(reordered).catch(() => {
-      toast({ title: "Errore salvataggio ordine", variant: "destructive" });
-      fetchApartments();
-    });
+    persistOrder(reordered)
+      .then(() => invalidatePublicCache())
+      .catch(() => {
+        toast({ title: "Errore salvataggio ordine", variant: "destructive" });
+        fetchApartments();
+      });
   };
 
   const isFormOpen = creating || !!editing;

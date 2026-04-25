@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, Users, BedDouble, Maximize, CalendarCheck } from "lucide-react";
+import { ArrowRight, Users, BedDouble, Maximize, CalendarCheck, Star } from "lucide-react";
 import { useRef } from "react";
 import { useApartments, type ApartmentPublic } from "@/hooks/useApartments";
 import staticApartments from "@/data/apartments";
@@ -121,43 +121,53 @@ interface ApartmentCardProps {
   featured?: boolean;
 }
 
-const ApartmentCard = ({ apt, featured }: ApartmentCardProps) => (
-  <Link to={`/appartamenti/${apt.slug}`} className="group block bg-background overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 h-full">
-    <div className={`relative overflow-hidden ${featured ? "aspect-[16/9]" : "aspect-[4/3]"}`}>
-      {apt.cover ? (
-        <img src={apt.cover} alt={apt.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy" />
-      ) : (
-        <div className="w-full h-full bg-muted flex items-center justify-center">
-          <span className="text-muted-foreground text-sm">Nessuna immagine</span>
-        </div>
-      )}
-      <div className="absolute inset-0 bg-gradient-to-t from-foreground/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      <div className="absolute bottom-4 right-4 bg-background/90 backdrop-blur-sm px-4 py-2 flex items-center gap-2 opacity-0 group-hover:opacity-100 translate-y-3 group-hover:translate-y-0 transition-all duration-500 ease-out">
-        <CalendarCheck className="w-3.5 h-3.5 text-primary" strokeWidth={1.5} />
-        <span className="font-sans text-xs tracking-[0.15em] uppercase text-foreground">Verifica Disponibilità</span>
-        <ArrowRight className="w-3.5 h-3.5 text-foreground" />
-      </div>
-    </div>
-    <div className="p-6">
-      <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-2">{apt.tagline}</p>
-      <h3 className="font-serif text-2xl font-light mb-4 text-foreground group-hover:text-primary transition-colors duration-300">{apt.name}</h3>
-      <div className="flex items-center gap-5 text-muted-foreground">
-        <div className="flex items-center gap-1.5">
-          <Users className="w-4 h-4" strokeWidth={1.5} />
-          <span className="font-sans text-xs">{apt.guests} ospiti</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <BedDouble className="w-4 h-4" strokeWidth={1.5} />
-          <span className="font-sans text-xs">{apt.bedrooms} {apt.bedrooms > 1 ? "camere" : "camera"}</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <Maximize className="w-4 h-4" strokeWidth={1.5} />
-          <span className="font-sans text-xs">{apt.sqm} m²</span>
+const ApartmentCard = ({ apt, featured }: ApartmentCardProps) => {
+  const isFeatured = "isFeatured" in apt && apt.isFeatured;
+  return (
+    <Link to={`/appartamenti/${apt.slug}`} className="group block bg-background overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 h-full">
+      <div className={`relative overflow-hidden ${featured ? "aspect-[16/9]" : "aspect-[4/3]"}`}>
+        {apt.cover ? (
+          <img src={apt.cover} alt={apt.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy" />
+        ) : (
+          <div className="w-full h-full bg-muted flex items-center justify-center">
+            <span className="text-muted-foreground text-sm">Nessuna immagine</span>
+          </div>
+        )}
+        {isFeatured && (
+          <div className="absolute top-4 left-4 z-10">
+            <span className="flex items-center gap-1.5 font-sans text-[10px] font-semibold uppercase tracking-[0.2em] px-3 py-1.5 bg-primary text-primary-foreground shadow-lg backdrop-blur-sm">
+              <Star className="w-3 h-3 fill-current" strokeWidth={1.5} /> In evidenza
+            </span>
+          </div>
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-foreground/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="absolute bottom-4 right-4 bg-background/90 backdrop-blur-sm px-4 py-2 flex items-center gap-2 opacity-0 group-hover:opacity-100 translate-y-3 group-hover:translate-y-0 transition-all duration-500 ease-out">
+          <CalendarCheck className="w-3.5 h-3.5 text-primary" strokeWidth={1.5} />
+          <span className="font-sans text-xs tracking-[0.15em] uppercase text-foreground">Verifica Disponibilità</span>
+          <ArrowRight className="w-3.5 h-3.5 text-foreground" />
         </div>
       </div>
-      <div className="mt-5 h-px bg-primary/20 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500" />
-    </div>
-  </Link>
-);
+      <div className="p-6">
+        <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-2">{apt.tagline}</p>
+        <h3 className="font-serif text-2xl font-light mb-4 text-foreground group-hover:text-primary transition-colors duration-300">{apt.name}</h3>
+        <div className="flex items-center gap-5 text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            <Users className="w-4 h-4" strokeWidth={1.5} />
+            <span className="font-sans text-xs">{apt.guests} ospiti</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <BedDouble className="w-4 h-4" strokeWidth={1.5} />
+            <span className="font-sans text-xs">{apt.bedrooms} {apt.bedrooms > 1 ? "camere" : "camera"}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Maximize className="w-4 h-4" strokeWidth={1.5} />
+            <span className="font-sans text-xs">{apt.sqm} m²</span>
+          </div>
+        </div>
+        <div className="mt-5 h-px bg-primary/20 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500" />
+      </div>
+    </Link>
+  );
+};
 
 export default ApartmentsSection;
