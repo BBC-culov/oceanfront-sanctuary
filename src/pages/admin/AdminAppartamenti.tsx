@@ -136,6 +136,7 @@ const AdminAppartamenti = () => {
     }
     closeForm();
     fetchApartments();
+    invalidatePublicCache();
   };
 
   const handleDelete = async (id: string, name: string) => {
