@@ -61,6 +61,18 @@ const AdminPrenotazioneDetail = () => {
   const [linkExpiresAt, setLinkExpiresAt] = useState<number | null>(null);
   const [sendingEmail, setSendingEmail] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [manualPayments, setManualPayments] = useState<any[]>([]);
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+
+  const reloadBookingAndPayments = async () => {
+    if (!id) return;
+    const [bRes, mpRes] = await Promise.all([
+      supabase.from("bookings").select("*").eq("id", id).single(),
+      supabase.from("manual_payments").select("*").eq("booking_id", id).order("created_at", { ascending: false }),
+    ]);
+    if (bRes.data) setBooking(bRes.data);
+    setManualPayments(mpRes.data ?? []);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
