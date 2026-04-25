@@ -103,6 +103,59 @@ const Prenota = () => {
     fillFromProfile();
   }, [user]);
 
+  // Resume incomplete booking: prefill all wizard state from sessionStorage payload
+  useEffect(() => {
+    if (!resumeToken || !slug) return;
+    const raw = sessionStorage.getItem(`booking-resume-${slug}`);
+    if (!raw) return;
+    try {
+      const { booking: bk } = JSON.parse(raw);
+      if (!bk) return;
+
+      setMainGuest({
+        first_name: bk.guest_name || "",
+        last_name: bk.guest_last_name || "",
+        date_of_birth: bk.guest_date_of_birth || "",
+        place_of_birth: bk.guest_place_of_birth || "",
+        phone: bk.guest_phone || "",
+        email: bk.guest_email || "",
+        nationality: bk.guest_nationality || "",
+        id_type: bk.guest_id_type || "id_card",
+        id_card_number: bk.guest_id_card_number || "",
+        id_card_issued: bk.guest_id_card_issued || "",
+        id_card_expiry: bk.guest_id_card_expiry || "",
+      });
+      setFlightData({
+        flight_outbound: bk.flight_outbound || "",
+        flight_return: bk.flight_return || "",
+        arrival_time: bk.arrival_time || "",
+        departure_time: bk.departure_time || "",
+        airline: bk.airline || "",
+      });
+      setNoTransfer(!!bk.no_transfer);
+      setNotes(bk.notes || "");
+      setBilling({
+        billing_name: bk.billing_name || "",
+        billing_address: bk.billing_address || "",
+        billing_city: bk.billing_city || "",
+        billing_zip: bk.billing_zip || "",
+        billing_country: bk.billing_country || "",
+        billing_fiscal_code: bk.billing_fiscal_code || "",
+      });
+      if (Array.isArray(bk.selected_services)) {
+        const ids = bk.selected_services
+          .map((s: any) => (typeof s === "string" ? s : s?.id))
+          .filter(Boolean);
+        setSelectedServices(ids);
+      }
+      // Jump straight to recap so the user can confirm and pay
+      setStep(3);
+      toast.success("Prenotazione ripristinata: completa il pagamento per confermare");
+    } catch (e) {
+      console.error("Errore parsing resume payload", e);
+    }
+  }, [resumeToken, slug]);
+
   const nights = useMemo(() => {
     if (!checkIn || !checkOut) return 0;
     return differenceInDays(parseISO(checkOut), parseISO(checkIn));
