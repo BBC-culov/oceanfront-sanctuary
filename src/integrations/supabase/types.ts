@@ -583,6 +583,20 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_booking_by_resume_token: {
+        Args: { _token: string }
+        Returns: {
+          apartment_id: string
+          check_in: string
+          check_out: string
+          guest_email: string
+          guest_last_name: string
+          guest_name: string
+          id: string
+          resume_token: string
+          status: Database["public"]["Enums"]["booking_status"]
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
