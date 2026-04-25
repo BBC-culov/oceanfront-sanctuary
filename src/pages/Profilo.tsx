@@ -507,7 +507,7 @@ const Profilo = () => {
                 ) : (
                   <div className="space-y-3">
                     {bookings.map((booking, idx) => {
-                      const status = statusConfig[booking.status];
+                      const status = getStatusConfig(booking.status);
                       const nights = differenceInDays(new Date(booking.check_out), new Date(booking.check_in));
                       return (
                         <Link to={`/prenotazione/${booking.id}`} key={booking.id}>
