@@ -67,7 +67,9 @@ export function AdminSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item, i) => (
+              {menuItems.map((item, i) => {
+                const showBadge = item.to === "/admin/prenotazioni" && notifCount > 0;
+                return (
                 <SidebarMenuItem key={item.to}>
                   <motion.div
                     initial={{ opacity: 0, x: -12 }}
@@ -77,7 +79,7 @@ export function AdminSidebar() {
                     <SidebarMenuButton
                       asChild
                       isActive={isActive(item.to)}
-                      tooltip={item.title}
+                      tooltip={showBadge ? `${item.title} (${notifCount} da gestire)` : item.title}
                     >
                       <Link
                         to={item.to}
@@ -87,10 +89,32 @@ export function AdminSidebar() {
                             : "text-muted-foreground hover:text-foreground"
                         }`}
                       >
-                        <motion.div whileHover={{ rotate: [0, -8, 8, 0] }} transition={{ duration: 0.4 }}>
+                        <motion.div whileHover={{ rotate: [0, -8, 8, 0] }} transition={{ duration: 0.4 }} className="relative">
                           <item.icon className="w-4 h-4" />
+                          <AnimatePresence>
+                            {showBadge && collapsed && (
+                              <motion.span
+                                initial={{ scale: 0, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0, opacity: 0 }}
+                                className="absolute -top-1.5 -right-1.5 w-2 h-2 rounded-full bg-amber-500 ring-2 ring-background"
+                              />
+                            )}
+                          </AnimatePresence>
                         </motion.div>
-                        {!collapsed && <span>{item.title}</span>}
+                        {!collapsed && <span className="flex-1">{item.title}</span>}
+                        <AnimatePresence>
+                          {showBadge && !collapsed && (
+                            <motion.span
+                              initial={{ scale: 0, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              exit={{ scale: 0, opacity: 0 }}
+                              className="ml-auto inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-amber-500 text-white text-[10px] font-semibold"
+                            >
+                              {notifCount > 99 ? "99+" : notifCount}
+                            </motion.span>
+                          )}
+                        </AnimatePresence>
                         {isActive(item.to) && !collapsed && (
                           <motion.div
                             layoutId="admin-sidebar-active"
@@ -102,7 +126,8 @@ export function AdminSidebar() {
                     </SidebarMenuButton>
                   </motion.div>
                 </SidebarMenuItem>
-              ))}
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
