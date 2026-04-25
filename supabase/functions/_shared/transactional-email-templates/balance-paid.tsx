@@ -4,6 +4,7 @@ import {
   Body, Container, Head, Heading, Html, Preview, Section, Text,
 } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
+import { BrandFooter } from './_brand-footer.tsx'
 
 interface BalancePaidProps {
   guestName?: string
@@ -32,10 +33,7 @@ const BalancePaidEmail = ({ guestName, apartmentName, bookingCode, totalPrice = 
           </Section>
           <Text style={text}>Non vediamo l'ora di accoglierti a Boa Vista!</Text>
         </Section>
-        <Section style={footerSection}>
-          <Text style={footerBrand}>Baz House · Boa Vista, Capo Verde</Text>
-          <Text style={footerCopy}>© {new Date().getFullYear()} Baz House. Tutti i diritti riservati.</Text>
-        </Section>
+        <BrandFooter />
       </Container>
     </Body>
   </Html>
@@ -57,6 +55,3 @@ const h1 = { fontSize: '22px', fontWeight: '300' as const, color: '#1a3329', mar
 const text = { fontSize: '15px', color: '#555', lineHeight: '1.6', margin: '0 0 20px' }
 const successBox = { backgroundColor: '#f0fdf4', padding: '24px', margin: '0 0 24px', borderLeft: '4px solid #22c55e' }
 const successText = { margin: '0', fontSize: '15px', color: '#166534' }
-const footerSection = { padding: '24px 40px', backgroundColor: '#fafafa', textAlign: 'center' as const, borderTop: '1px solid #eee' }
-const footerBrand = { margin: '0', fontSize: '12px', color: '#999' }
-const footerCopy = { margin: '4px 0 0', fontSize: '11px', color: '#bbb' }
