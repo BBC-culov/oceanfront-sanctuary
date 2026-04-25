@@ -13,12 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
-
-const statusConfig: Record<string, { label: string; icon: React.ElementType; bg: string; text: string; border: string }> = {
-  pending: { label: "In attesa di conferma", icon: Clock, bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-300" },
-  confirmed: { label: "Confermata", icon: CheckCircle2, bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-300" },
-  cancelled: { label: "Cancellata", icon: XCircle, bg: "bg-red-50", text: "text-red-600", border: "border-red-300" },
-};
+import { getStatusConfig } from "@/lib/bookingStatus";
 
 const Section = ({
   icon: Icon, title, children, delay = 0,
