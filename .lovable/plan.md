@@ -2,7 +2,7 @@
 
 Il report contiene 11 aree di intervento più la conclusione. Le raggruppo per fasi logiche, dalle modifiche più impattanti (flusso prenotazioni / pagamenti) a quelle UX/branding.
 
-## Fase 1 – Riallineamento stati prenotazione (Punto 5)
+## ✅ Fase 1 – Riallineamento stati prenotazione (Punto 5) — COMPLETATA
 
 Stato attuale: dopo il pagamento Stripe, la prenotazione passa automaticamente a `confirmed`. Va invertita la logica.
 
