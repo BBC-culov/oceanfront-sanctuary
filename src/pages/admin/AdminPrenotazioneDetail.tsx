@@ -8,15 +8,11 @@ import {
   ArrowLeft, CalendarCheck, User, Users, PlaneTakeoff, PlaneLanding,
   Receipt, Sparkles, MessageSquare, Clock, CheckCircle2, XCircle,
   Phone, Mail, MapPin, Building2, CreditCard, Shield, Globe, ChevronRight,
-  Link as LinkIcon, Copy, Loader2,
+  Link as LinkIcon, Copy, Loader2, Wallet, Plus,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-
-const statusConfig: Record<string, { label: string; icon: React.ElementType; bg: string; text: string; border: string }> = {
-  pending: { label: "In attesa", icon: Clock, bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200" },
-  confirmed: { label: "Confermata", icon: CheckCircle2, bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200" },
-  cancelled: { label: "Cancellata", icon: XCircle, bg: "bg-red-50", text: "text-red-600", border: "border-red-200" },
-};
+import { BOOKING_STATUS, getStatusConfig, getPaymentMethodLabel } from "@/lib/bookingStatus";
+import { RecordManualPaymentDialog } from "@/components/admin/RecordManualPaymentDialog";
 
 const Section = ({
   icon: Icon, title, children, delay = 0,
