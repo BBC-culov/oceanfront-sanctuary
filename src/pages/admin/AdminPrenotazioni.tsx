@@ -130,12 +130,14 @@ const AdminPrenotazioni = () => {
       </div>
 
       {/* Stats cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {[
           { label: "Totali", value: stats.total, icon: CalendarDays, color: "text-foreground" },
-          { label: "In attesa", value: stats.pending, icon: Clock, color: "text-accent-foreground" },
-          { label: "Confermate", value: stats.confirmed, icon: CheckCircle2, color: "text-primary" },
-          { label: "Cancellate", value: stats.cancelled, icon: XCircle, color: "text-destructive" },
+          { label: "In attesa", value: stats.pending, icon: Clock, color: "text-amber-600" },
+          { label: "Non concluse", value: stats.incomplete, icon: AlertCircle, color: "text-orange-600" },
+          { label: "Da verificare", value: stats.awaiting, icon: ShieldCheck, color: "text-sky-600" },
+          { label: "Confermate", value: stats.confirmed, icon: CheckCircle2, color: "text-emerald-600" },
+          { label: "Saldate", value: stats.paid, icon: BadgeCheck, color: "text-green-700" },
         ].map((s, i) => (
           <motion.div
             key={s.label}
@@ -144,7 +146,7 @@ const AdminPrenotazioni = () => {
             transition={{ duration: 0.35, delay: i * 0.05 }}
             className="bg-card/40 border border-border/50 p-4 flex items-center gap-3"
           >
-            <s.icon className={`w-5 h-5 ${s.color} opacity-60`} strokeWidth={1.5} />
+            <s.icon className={`w-5 h-5 ${s.color} opacity-70`} strokeWidth={1.5} />
             <div>
               <p className={`font-sans text-xl font-semibold ${s.color}`}>{s.value}</p>
               <p className="font-sans text-[10px] tracking-wide uppercase text-muted-foreground">{s.label}</p>
