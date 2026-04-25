@@ -110,7 +110,7 @@ const StepBilling = ({ billing, setBilling }: StepBillingProps) => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3.5">
           <FloatingInput span2 label="Intestatario" value={billing.billing_name} onChange={(v) => update("billing_name", v)} placeholder="Mario Rossi / Azienda SRL" delay={0.05} error={reqErr(billing.billing_name, "billing_name")} />
-          <FloatingInput label="Codice Fiscale / P.IVA" value={billing.billing_fiscal_code} onChange={(v) => update("billing_fiscal_code", onlyAlphanumeric(v).toUpperCase())} placeholder="RSSMRA85M01H501Z" delay={0.08} error={fiscalErr()} />
+          <FloatingInput label={fiscalLabel} value={billing.billing_fiscal_code} onChange={(v) => update("billing_fiscal_code", onlyAlphanumeric(v).toUpperCase())} placeholder={fiscalPlaceholder} delay={0.08} error={fiscalErr()} />
           <FloatingInput label="Paese" value={billing.billing_country} onChange={(v) => update("billing_country", v)} placeholder="Italia" delay={0.11} error={reqErr(billing.billing_country, "billing_country")} />
           <FloatingInput span2 label="Indirizzo" value={billing.billing_address} onChange={(v) => update("billing_address", v)} placeholder="Via Roma 1" delay={0.14} error={reqErr(billing.billing_address, "billing_address")} />
           <FloatingInput label="Città" value={billing.billing_city} onChange={(v) => update("billing_city", v)} placeholder="Roma" delay={0.17} error={reqErr(billing.billing_city, "billing_city")} />
