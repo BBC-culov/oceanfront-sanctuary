@@ -623,8 +623,10 @@ const AdminPrenotazioneDetail = () => {
 
       <RecordManualPaymentDialog
         open={paymentDialogOpen}
-        onOpenChange={setPaymentDialogOpen}
-        booking={booking}
+        onClose={() => setPaymentDialogOpen(false)}
+        bookingId={booking.id}
+        totalPrice={booking.total_price ?? 0}
+        amountPaid={booking.amount_paid ?? 0}
         onRecorded={reloadBookingAndPayments}
       />
 
