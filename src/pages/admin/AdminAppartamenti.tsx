@@ -218,102 +218,28 @@ const AdminAppartamenti = () => {
   const inactiveApartments = apartments.filter(a => !a.is_active);
 
   const renderApartmentGrid = (apts: ApartmentRow[], isActiveTab: boolean) => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <AnimatePresence>
-        {apts.map((apt, i) => (
-          <motion.div
-            key={apt.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ delay: i * 0.05, duration: 0.3 }}
-            layout
-          >
-            <Card className={`bg-background overflow-hidden group hover:shadow-lg transition-all duration-300 ${!isActiveTab ? 'opacity-70' : ''}`}>
-              {/* Image cover */}
-              <div className="relative h-36 bg-muted overflow-hidden">
-                {apt.images && apt.images.length > 0 ? (
-                  <motion.img
-                    src={apt.images[0]}
-                    alt={apt.name}
-                    className="w-full h-full object-cover"
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.4 }}
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Building2 className="w-10 h-10 text-muted-foreground/20" />
-                  </div>
-                )}
-                {/* Category */}
-                <div className="absolute bottom-2 left-2">
-                  <span className="inline-block font-sans text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-background/80 backdrop-blur-sm text-foreground">
-                    {apt.category}
-                  </span>
-                </div>
-              </div>
-
-              <CardContent className="pt-4 pb-4">
-                <h3 className="font-serif text-lg text-foreground">{apt.name}</h3>
-                <p className="font-sans text-xs text-muted-foreground mt-0.5">{apt.slug}</p>
-
-                <div className="flex items-center gap-3 mt-3 font-sans text-xs text-muted-foreground">
-                  <span>€{apt.price_per_night}/notte</span>
-                  <span className="text-border">·</span>
-                  <span>{apt.guests} ospiti</span>
-                  <span className="text-border">·</span>
-                  <span>{apt.sqm}mq</span>
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center gap-1 mt-4 pt-3 border-t border-border">
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => openEdit(apt)}
-                    className="p-2 text-muted-foreground hover:text-primary transition-colors rounded-md hover:bg-primary/10"
-                    title="Modifica"
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => setAvailabilityFor(apt)}
-                    className="p-2 text-muted-foreground hover:text-primary transition-colors rounded-md hover:bg-primary/10"
-                    title="Disponibilità"
-                  >
-                    <CalendarRange className="w-4 h-4" />
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => toggleActive(apt)}
-                    className={`p-2 transition-colors rounded-md ${
-                      isActiveTab 
-                        ? "text-muted-foreground hover:text-destructive hover:bg-destructive/10" 
-                        : "text-muted-foreground hover:text-success hover:bg-success/10"
-                    }`}
-                    title={isActiveTab ? "Disattiva" : "Attiva"}
-                  >
-                    {isActiveTab ? <EyeOff className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4 text-success" />}
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => handleDelete(apt.id, apt.name)}
-                    className="p-2 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-destructive/10 ml-auto"
-                    title="Elimina"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </motion.button>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-      </AnimatePresence>
-    </div>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={(e) => handleDragEnd(e, isActiveTab)}
+    >
+      <SortableContext items={apts.map((a) => a.id)} strategy={rectSortingStrategy}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {apts.map((apt) => (
+            <SortableApartmentCard
+              key={apt.id}
+              apt={apt}
+              isActiveTab={isActiveTab}
+              onEdit={openEdit}
+              onAvailability={setAvailabilityFor}
+              onToggleActive={toggleActive}
+              onToggleFeatured={toggleFeatured}
+              onDelete={handleDelete}
+            />
+          ))}
+        </div>
+      </SortableContext>
+    </DndContext>
   );
 
   const renderEmptyState = (isActiveTab: boolean) => (
