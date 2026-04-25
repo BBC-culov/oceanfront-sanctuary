@@ -65,23 +65,23 @@ Stato attuale: dopo il pagamento Stripe, la prenotazione passa automaticamente a
 - Componente `AddressAutocomplete` con debounce, suggerimenti e validazione automatica (popola anche città, CAP, paese, lat/lng).
 - Salvataggio coordinate per uso futuro in mappa.
 
-## Fase 8 – P.IVA internazionale (Punto 9)
+## ✅ Fase 8 – P.IVA internazionale (Punto 9) — COMPLETATA
 
-- Aggiornare `isValidFiscalCode` in `bookingValidation.ts` per accettare formati internazionali.
-- Validazione adattiva basata su `billing_country`:
-  - IT → CF 16 char o P.IVA 11 cifre
-  - UE → formato VAT EU (IT12345678901, DE123456789, ecc.)
+- `isValidFiscalCode(value, country?)` ora accetta formati internazionali con validazione adattiva:
+  - IT → CF (16 alfanumerici) o P.IVA (11 cifre)
+  - Paesi UE → formato VAT EU (con/senza prefisso paese, 8-12 alfanumerici)
   - Altri paesi → 4-20 caratteri alfanumerici
-- Etichetta dinamica del campo: "P.IVA / VAT / Tax ID".
+- Helpers `getFiscalCodeLabel`, `getFiscalCodePlaceholder`, `getFiscalCodeHint`, `resolveCountryCode` (riconosce nome italiano/inglese o codice ISO).
+- Etichetta dinamica del campo nel wizard: "Codice Fiscale / P.IVA" (IT) → "VAT / P.IVA" (UE) → "Tax ID / VAT / P.IVA" (altri).
+- Validazione + placeholder + hint del messaggio di errore aggiornati in `StepBilling.tsx`, `Prenota.tsx`, `AdminPrenotazioneNuova.tsx`.
 
-## Fase 9 – UX comunicazione & email (Punto 8 + 10.1)
+## ✅ Fase 9 – UX comunicazione & email (Punto 8 + 10.1) — COMPLETATA
 
-- `PrenotazioneSuccesso.tsx`: rendere il messaggio "Verrai contattato per organizzare il pagamento e il saldo finale prima del check-in." in tipografia grande e centrata.
-- Aggiungere CTA WhatsApp diretto (link `wa.me`) sotto il messaggio.
-- Template email `booking-confirmation.tsx` e tutti i template transazionali:
-  - footer con recapiti completi (telefono, email, indirizzo)
-  - bottone WhatsApp cliccabile
-- Template email `recovery.tsx` (reset password): aggiungere logo Bazhouse in header (già presente in altri template, allineare).
+- Nuovo file `src/lib/contacts.ts` come single source of truth per email/telefono/WhatsApp.
+- `PrenotazioneSuccesso.tsx`: messaggio "Verrai contattato per organizzare il pagamento…" ora in tipografia grande (`text-xl/2xl serif`), centrato, con box dedicato. Sotto: CTA WhatsApp prominente (verde, pieno-larghezza) + numero telefono cliccabile.
+- Nuovo componente email `_brand-footer.tsx` con bottone WhatsApp + recapiti completi (email, telefono, indirizzo, anno).
+- Tutti i template transazionali (`booking-confirmation`, `booking-recovery`, `balance-paid`, `balance-payment-request`, `balance-reminder`, `welcome`) aggiornati per usare `<BrandFooter />`.
+- Edge function `send-transactional-email` ridistribuita.
 
 ## Fase 10 – Logo browser/favicon (Punto 10.2)
 

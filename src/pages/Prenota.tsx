@@ -285,8 +285,8 @@ const Prenota = () => {
         toast.error("CAP non valido: inserisci solo cifre (3-10 cifre)");
         return false;
       }
-      if (!isValidFiscalCode(billing_fiscal_code)) {
-        toast.error("Codice Fiscale / P.IVA non valido: 11-16 caratteri alfanumerici");
+      if (!isValidFiscalCode(billing_fiscal_code, billing_country)) {
+        toast.error("Tax ID / VAT / P.IVA non valido per il paese selezionato");
         return false;
       }
       return true;

@@ -4,6 +4,7 @@ import {
   Body, Container, Head, Heading, Html, Preview, Section, Text, Button,
 } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
+import { BrandFooter } from './_brand-footer.tsx'
 
 interface BalanceReminderProps {
   guestName?: string
@@ -44,10 +45,7 @@ const BalanceReminderEmail = ({
               Paga il saldo
             </Button>
           </Section>
-          <Section style={footerSection}>
-            <Text style={footerBrand}>Baz House · Boa Vista, Capo Verde</Text>
-            <Text style={footerCopy}>© {new Date().getFullYear()} Baz House. Tutti i diritti riservati.</Text>
-          </Section>
+          <BrandFooter />
         </Container>
       </Body>
     </Html>
@@ -75,6 +73,3 @@ const warningBox = { backgroundColor: '#fef3c7', padding: '24px', margin: '0 0 2
 const warningText = { margin: '0 0 8px', fontSize: '15px', color: '#92400e' }
 const warningSubtext = { margin: '0', fontSize: '13px', color: '#92400e' }
 const button = { backgroundColor: '#1a3329', color: '#f5f0eb', fontSize: '12px', borderRadius: '4px', padding: '14px 32px', textDecoration: 'none', textTransform: 'uppercase' as const, letterSpacing: '0.15em' }
-const footerSection = { padding: '24px 40px', backgroundColor: '#fafafa', textAlign: 'center' as const, borderTop: '1px solid #eee' }
-const footerBrand = { margin: '0', fontSize: '12px', color: '#999' }
-const footerCopy = { margin: '4px 0 0', fontSize: '11px', color: '#bbb' }

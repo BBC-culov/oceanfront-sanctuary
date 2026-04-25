@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { CheckCircle2, ArrowRight, Home } from "lucide-react";
+import { CheckCircle2, ArrowRight, Home, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
+import { BRAND_CONTACTS } from "@/lib/contacts";
 
 const PrenotazioneSuccesso = () => {
   const { id } = useParams<{ id: string }>();
@@ -104,18 +105,39 @@ const PrenotazioneSuccesso = () => {
             </p>
           </div>
 
+          {/* Prominent contact-promise message */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35, duration: 0.6 }}
+            className="bg-secondary/60 border border-border/60 rounded-xl p-6 sm:p-8 space-y-5"
+          >
+            <p className="font-serif text-xl sm:text-2xl text-foreground leading-snug text-center">
+              Verrai contattato per organizzare il pagamento e il saldo finale prima del check-in.
+            </p>
+            <a
+              href={BRAND_CONTACTS.whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 w-full bg-[#25D366] hover:bg-[#1faa55] text-white font-sans text-[11px] tracking-[0.2em] uppercase px-6 py-4 transition-colors rounded-md shadow-md"
+            >
+              <MessageCircle className="w-4 h-4" strokeWidth={1.5} />
+              Scrivici subito su WhatsApp
+            </a>
+            <p className="font-sans text-[11px] text-muted-foreground text-center">
+              Oppure chiama il <a href={`tel:${BRAND_CONTACTS.phoneTel}`} className="text-foreground underline-offset-2 hover:underline">{BRAND_CONTACTS.phoneDisplay}</a>
+            </p>
+          </motion.div>
+
           {remaining > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
+              transition={{ delay: 0.5 }}
               className="bg-primary/5 border border-primary/20 rounded-xl p-5 text-left space-y-2"
             >
               <p className="font-sans text-sm text-foreground font-medium">Saldo rimanente da pagare</p>
               <p className="font-serif text-3xl text-primary font-medium">€{remaining}</p>
-              <p className="font-sans text-xs text-muted-foreground leading-relaxed">
-                La contatteremo per organizzare il pagamento del saldo finale prima del check-in.
-              </p>
             </motion.div>
           )}
 
