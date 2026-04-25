@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, Users, BedDouble, Maximize, CalendarCheck } from "lucide-react";
+import { ArrowRight, Users, BedDouble, Maximize, CalendarCheck, Star } from "lucide-react";
 import { useRef } from "react";
 import { useApartments, type ApartmentPublic } from "@/hooks/useApartments";
 import staticApartments from "@/data/apartments";
