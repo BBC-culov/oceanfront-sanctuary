@@ -181,7 +181,7 @@ const AdminPrenotazioneNuova = () => {
         toast.error("Compila tutti i dati di fatturazione"); return false;
       }
       if (!isValidZip(billing_zip)) { toast.error("CAP non valido"); return false; }
-      if (!isValidFiscalCode(billing_fiscal_code)) { toast.error("Codice Fiscale / P.IVA non valido"); return false; }
+      if (!isValidFiscalCode(billing_fiscal_code, billing_country)) { toast.error("Tax ID / VAT / P.IVA non valido per il paese selezionato"); return false; }
       return true;
     }
 
