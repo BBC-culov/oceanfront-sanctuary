@@ -157,6 +157,61 @@ const AdminAppartamenti = () => {
     }
   };
 
+  const toggleFeatured = async (apt: ApartmentRow) => {
+    const next = !apt.is_featured;
+    setApartments((prev) => prev.map((a) => a.id === apt.id ? { ...a, is_featured: next } : a));
+    const { error } = await supabase.from("apartments").update({ is_featured: next }).eq("id", apt.id);
+    if (error) {
+      toast({ title: "Errore", description: error.message, variant: "destructive" });
+      // rollback
+      setApartments((prev) => prev.map((a) => a.id === apt.id ? { ...a, is_featured: !next } : a));
+    } else {
+      toast({ title: next ? "Aggiunto in evidenza" : "Rimosso dall'evidenza" });
+    }
+  };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+  );
+
+  const persistOrder = async (list: ApartmentRow[]) => {
+    // Assign 10, 20, 30… to keep room for future inserts
+    const updates = list.map((apt, idx) => ({ id: apt.id, display_order: (idx + 1) * 10 }));
+    // Optimistic UI already applied; persist sequentially
+    await Promise.all(
+      updates.map((u) =>
+        supabase.from("apartments").update({ display_order: u.display_order }).eq("id", u.id)
+      )
+    );
+  };
+
+  const handleDragEnd = (event: DragEndEvent, isActiveTab: boolean) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const sourceList = isActiveTab ? activeApartments : inactiveApartments;
+    const oldIndex = sourceList.findIndex((a) => a.id === active.id);
+    const newIndex = sourceList.findIndex((a) => a.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const reordered = arrayMove(sourceList, oldIndex, newIndex);
+    // Merge with the other list to update the global state
+    const otherList = isActiveTab ? inactiveApartments : activeApartments;
+    const updatedAll = isActiveTab ? [...reordered, ...otherList] : [...otherList, ...reordered];
+
+    // Apply the new display_order locally
+    const withOrder = updatedAll.map((a) => {
+      const idx = reordered.findIndex((r) => r.id === a.id);
+      return idx >= 0 ? { ...a, display_order: (idx + 1) * 10 } : a;
+    });
+    setApartments(withOrder);
+
+    persistOrder(reordered).catch(() => {
+      toast({ title: "Errore salvataggio ordine", variant: "destructive" });
+      fetchApartments();
+    });
+  };
+
   const isFormOpen = creating || !!editing;
 
   const activeApartments = apartments.filter(a => a.is_active);
