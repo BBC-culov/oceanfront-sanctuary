@@ -187,7 +187,7 @@ serve(async (req) => {
       .from("bookings")
       .select("id, status")
       .eq("apartment_id", apartment_id)
-      .in("status", ["pending", "confirmed"])
+      .in("status", ["pending", "confirmed", "awaiting_verification", "paid"])
       .lt("check_in", check_out)
       .gt("check_out", check_in);
     if (overlaps && overlaps.length > 0) {
