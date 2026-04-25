@@ -43,6 +43,8 @@ interface ApartmentRow {
   map_query?: string | null;
   check_in_time: string;
   check_out_time: string;
+  display_order?: number;
+  is_featured?: boolean;
 }
 
 const emptyApt: Omit<ApartmentRow, "id"> = {
