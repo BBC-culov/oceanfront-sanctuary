@@ -115,7 +115,7 @@ const AdminPrenotazioni = () => {
         <div>
           <h1 className="font-serif text-2xl text-foreground">Prenotazioni</h1>
           <p className="font-sans text-sm text-muted-foreground mt-1">
-            {stats.total} totali · {stats.confirmed} confermate · {stats.pending} in attesa
+            {stats.total} totali · <span className="text-amber-600 font-medium">{stats.needsAttention} da gestire</span> · {stats.paid + stats.confirmed} concluse
           </p>
         </div>
         <motion.button
