@@ -396,6 +396,39 @@ export type Database = {
         }
         Relationships: []
       }
+      manual_payments: {
+        Row: {
+          amount: number
+          booking_id: string
+          created_at: string
+          custom_method: string | null
+          id: string
+          method: string
+          notes: string | null
+          recorded_by: string
+        }
+        Insert: {
+          amount: number
+          booking_id: string
+          created_at?: string
+          custom_method?: string | null
+          id?: string
+          method: string
+          notes?: string | null
+          recorded_by: string
+        }
+        Update: {
+          amount?: number
+          booking_id?: string
+          created_at?: string
+          custom_method?: string | null
+          id?: string
+          method?: string
+          notes?: string | null
+          recorded_by?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -532,7 +565,13 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user" | "amministratore" | "proprietario"
-      booking_status: "pending" | "confirmed" | "cancelled"
+      booking_status:
+        | "pending"
+        | "confirmed"
+        | "cancelled"
+        | "awaiting_verification"
+        | "paid"
+        | "incomplete"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -661,7 +700,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user", "amministratore", "proprietario"],
-      booking_status: ["pending", "confirmed", "cancelled"],
+      booking_status: [
+        "pending",
+        "confirmed",
+        "cancelled",
+        "awaiting_verification",
+        "paid",
+        "incomplete",
+      ],
     },
   },
 } as const
