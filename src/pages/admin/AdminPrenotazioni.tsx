@@ -7,9 +7,10 @@ import { format, differenceInDays } from "date-fns";
 import { it } from "date-fns/locale";
 import {
   Search, Trash2, ChevronDown, CalendarDays, Eye, Clock,
-  CheckCircle2, XCircle, AlertCircle, Users, Plus,
+  CheckCircle2, XCircle, AlertCircle, Users, Plus, ShieldCheck, BadgeCheck,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { BOOKING_STATUS, getStatusConfig, ATTENTION_STATUSES } from "@/lib/bookingStatus";
 
 interface Booking {
   id: string;
@@ -30,12 +31,6 @@ interface Booking {
   amount_paid: number;
   deposit_amount: number;
 }
-
-const statusConfig: Record<string, { label: string; icon: React.ElementType; bg: string; text: string }> = {
-  pending: { label: "In attesa", icon: Clock, bg: "bg-accent/15", text: "text-accent-foreground" },
-  confirmed: { label: "Confermata", icon: CheckCircle2, bg: "bg-primary/10", text: "text-primary" },
-  cancelled: { label: "Cancellata", icon: XCircle, bg: "bg-destructive/10", text: "text-destructive" },
-};
 
 const AdminPrenotazioni = () => {
   const navigate = useNavigate();
