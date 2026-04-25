@@ -32,7 +32,7 @@ serve(async (req) => {
     const { data: bookings, error } = await serviceClient
       .from("bookings")
       .select("*, apartments(name)")
-      .eq("status", "confirmed")
+      .in("status", ["confirmed", "awaiting_verification"])
       .eq("payment_type", "deposit")
       .gte("check_in", dateFrom)
       .lte("check_in", dateTo);
