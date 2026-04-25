@@ -7,6 +7,7 @@ import { Plus, Pencil, Trash2, Building2, Eye, EyeOff, CheckCircle2, XCircle, Ca
 import { toast } from "@/hooks/use-toast";
 import ApartmentWizard from "@/components/admin/ApartmentWizard";
 import AvailabilityManagerDialog from "@/components/admin/AvailabilityManagerDialog";
+import SortableApartmentCard from "@/components/admin/SortableApartmentCard";
 import {
   DndContext,
   closestCenter,
