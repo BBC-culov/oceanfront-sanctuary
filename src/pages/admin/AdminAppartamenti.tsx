@@ -147,6 +147,7 @@ const AdminAppartamenti = () => {
     } else {
       setApartments((prev) => prev.filter((a) => a.id !== id));
       toast({ title: "Appartamento eliminato" });
+      invalidatePublicCache();
     }
   };
 
