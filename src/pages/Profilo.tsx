@@ -22,7 +22,7 @@ const profileSchema = z.object({
   phone: z.string().trim().regex(/^\+?[0-9\s]{7,15}$/, "Numero di telefono non valido").or(z.literal("")),
 });
 
-type BookingStatus = "confirmed" | "pending" | "cancelled";
+import { getStatusConfig, type BookingStatus } from "@/lib/bookingStatus";
 
 interface RealBooking {
   id: string;
@@ -37,12 +37,6 @@ interface RealBooking {
   created_at: string;
   booking_code?: string;
 }
-
-const statusConfig: Record<BookingStatus, { label: string; color: string; bg: string }> = {
-  confirmed: { label: "Confermata", color: "text-primary", bg: "bg-primary/10" },
-  pending: { label: "In attesa", color: "text-accent-foreground", bg: "bg-accent/30" },
-  cancelled: { label: "Cancellata", color: "text-destructive", bg: "bg-destructive/10" },
-};
 
 // Animated section wrapper with stagger
 const AnimatedSection = ({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) => {
@@ -186,6 +180,7 @@ const Profilo = () => {
         .from("bookings")
         .select("id, check_in, check_out, status, total_price, guest_name, guest_last_name, apartment_id, created_at, booking_code")
         .eq("user_id", session.user.id)
+        .neq("status", "incomplete")
         .order("created_at", { ascending: false });
 
       if (bData && bData.length > 0) {
@@ -513,7 +508,7 @@ const Profilo = () => {
                 ) : (
                   <div className="space-y-3">
                     {bookings.map((booking, idx) => {
-                      const status = statusConfig[booking.status];
+                      const status = getStatusConfig(booking.status);
                       const nights = differenceInDays(new Date(booking.check_out), new Date(booking.check_in));
                       return (
                         <Link to={`/prenotazione/${booking.id}`} key={booking.id}>
@@ -531,7 +526,7 @@ const Profilo = () => {
                                     #{booking.booking_code}
                                   </span>
                                 )}
-                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-sans ${status.bg} ${status.color}`}>
+                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-sans ${status.bg} ${status.text}`}>
                                   {status.label}
                                 </span>
                                 {booking.total_price && (
