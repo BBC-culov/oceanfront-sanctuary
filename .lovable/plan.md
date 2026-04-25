@@ -39,14 +39,16 @@ Stato attuale: dopo il pagamento Stripe, la prenotazione passa automaticamente a
 - Route pubblica `/riprendi/:token` che mostra riepilogo e ripristina lo stato del wizard saltando direttamente al recap.
 - Le prenotazioni incomplete sono già visibili in dashboard admin con badge arancione (Fase 3).
 
-## Fase 5 – Calendario disponibilità admin (Punto 2)
+## ✅ Fase 5 – Calendario disponibilità admin (Punto 2) — COMPLETATA
 
-- Nuova tabella `apartment_availability_blocks` (apartment_id, start_date, end_date, reason, created_by).
-- Sezione "Disponibilità" nella scheda appartamento (`AdminAppartamenti` → dialog dettaglio):
-  - Calendario interattivo basato su `react-day-picker` (già installato per shadcn `Calendar`)
-  - Selezione range per bloccare/sbloccare periodi
-  - Visualizzazione date già occupate da prenotazioni confermate (non modificabili)
-- Aggiornare `AvailabilityCalendar` lato pubblico per leggere anche i blocchi manuali.
+- Nuova tabella `apartment_availability_blocks` (apartment_id, start_date, end_date, reason, created_by) con RLS: lettura pubblica, scrittura solo admin.
+- Nuovo componente `AvailabilityManagerDialog` accessibile dalla card di ogni appartamento in `AdminAppartamenti` (icona calendario):
+  - Calendario shadcn `Calendar` mode="range" con date passate disabilitate
+  - Date già prenotate visualizzate barrate (rosso) e non selezionabili
+  - Date già bloccate manualmente evidenziate (arancione)
+  - Campo motivo opzionale + lista blocchi attivi con eliminazione
+  - Sidebar con elenco prenotazioni attive
+- `AvailabilityCalendar` pubblico aggiornato: legge sia `bookings` (tutti gli stati attivi) sia `apartment_availability_blocks`.
 
 ## Fase 6 – Ordinamento appartamenti homepage (Punto 3)
 

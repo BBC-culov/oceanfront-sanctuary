@@ -3,9 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Pencil, Trash2, Building2, Eye, EyeOff, CheckCircle2, XCircle } from "lucide-react";
+import { Plus, Pencil, Trash2, Building2, Eye, EyeOff, CheckCircle2, XCircle, CalendarRange } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import ApartmentWizard from "@/components/admin/ApartmentWizard";
+import AvailabilityManagerDialog from "@/components/admin/AvailabilityManagerDialog";
 
 interface ApartmentRow {
   id: string;
@@ -53,6 +54,7 @@ const AdminAppartamenti = () => {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<ApartmentRow | null>(null);
   const [creating, setCreating] = useState(false);
+  const [availabilityFor, setAvailabilityFor] = useState<ApartmentRow | null>(null);
 
   const fetchApartments = async () => {
     const { data } = await supabase.from("apartments").select("*").order("name");
@@ -200,6 +202,15 @@ const AdminAppartamenti = () => {
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
+                    onClick={() => setAvailabilityFor(apt)}
+                    className="p-2 text-muted-foreground hover:text-primary transition-colors rounded-md hover:bg-primary/10"
+                    title="Disponibilità"
+                  >
+                    <CalendarRange className="w-4 h-4" />
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
                     onClick={() => toggleActive(apt)}
                     className={`p-2 transition-colors rounded-md ${
                       isActiveTab 
@@ -336,6 +347,14 @@ const AdminAppartamenti = () => {
           </TabsContent>
         </Tabs>
       )}
+
+      {/* Availability dialog */}
+      <AvailabilityManagerDialog
+        open={!!availabilityFor}
+        onClose={() => setAvailabilityFor(null)}
+        apartmentId={availabilityFor?.id ?? ""}
+        apartmentName={availabilityFor?.name ?? ""}
+      />
     </div>
   );
 };
