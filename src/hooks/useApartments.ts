@@ -22,6 +22,8 @@ export interface ApartmentPublic {
   pricePerNight: number;
   checkInTime: string;
   checkOutTime: string;
+  isFeatured: boolean;
+  displayOrder: number;
 }
 
 function mapRow(row: any): ApartmentPublic {
