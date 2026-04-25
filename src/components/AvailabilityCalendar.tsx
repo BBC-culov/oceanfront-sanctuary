@@ -33,16 +33,29 @@ const AvailabilityCalendar = ({ apartmentSlug, apartmentId, onDateSelect }: Avai
     queryKey: ["apartment-bookings", apartmentId],
     queryFn: async () => {
       if (!apartmentId) return [];
-      const { data, error } = await supabase
-        .from("bookings")
-        .select("check_in, check_out")
-        .eq("apartment_id", apartmentId)
-        .in("status", ["confirmed", "pending"]);
-      if (error) throw error;
-      return (data ?? []).map((b) => ({
+      const [bookingsRes, blocksRes] = await Promise.all([
+        supabase
+          .from("bookings")
+          .select("check_in, check_out")
+          .eq("apartment_id", apartmentId)
+          .in("status", ["confirmed", "pending", "awaiting_verification", "paid"]),
+        supabase
+          .from("apartment_availability_blocks")
+          .select("start_date, end_date")
+          .eq("apartment_id", apartmentId),
+      ]);
+      if (bookingsRes.error) throw bookingsRes.error;
+      if (blocksRes.error) throw blocksRes.error;
+      const bookings = (bookingsRes.data ?? []).map((b) => ({
         checkIn: startOfDay(new Date(b.check_in)),
         checkOut: startOfDay(new Date(b.check_out)),
-      })) as BookedRange[];
+      }));
+      // Treat blocks as inclusive ranges → checkOut = end_date + 1
+      const blocks = (blocksRes.data ?? []).map((b) => ({
+        checkIn: startOfDay(new Date(b.start_date)),
+        checkOut: addDays(startOfDay(new Date(b.end_date)), 1),
+      }));
+      return [...bookings, ...blocks] as BookedRange[];
     },
     enabled: !!apartmentId,
     staleTime: 5 * 60 * 1000,
