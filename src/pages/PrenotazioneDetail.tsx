@@ -332,7 +332,7 @@ const PrenotazioneDetail = () => {
           )}
 
           {/* Remaining balance info (no pay button) */}
-          {booking.status === "confirmed" && (booking as any).payment_type === "deposit" && booking.amount_paid < booking.total_price && (() => {
+          {(booking.status === "confirmed" || booking.status === "awaiting_verification") && (booking as any).payment_type === "deposit" && booking.amount_paid < booking.total_price && (() => {
             const remaining = Math.round((booking.total_price - ((booking as any).amount_paid || 0)) * 100) / 100;
             return (
               <motion.div
