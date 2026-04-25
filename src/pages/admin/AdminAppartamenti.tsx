@@ -3,10 +3,25 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Pencil, Trash2, Building2, Eye, EyeOff, CheckCircle2, XCircle, CalendarRange } from "lucide-react";
+import { Plus, Pencil, Trash2, Building2, Eye, EyeOff, CheckCircle2, XCircle, CalendarRange, Star, GripVertical } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import ApartmentWizard from "@/components/admin/ApartmentWizard";
 import AvailabilityManagerDialog from "@/components/admin/AvailabilityManagerDialog";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  rectSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface ApartmentRow {
   id: string;
