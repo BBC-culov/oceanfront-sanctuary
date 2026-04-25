@@ -41,6 +41,7 @@ const Prenota = () => {
   const slug = searchParams.get("apt");
   const checkIn = searchParams.get("checkIn");
   const checkOut = searchParams.get("checkOut");
+  const resumeToken = searchParams.get("resume");
 
   const { data: dbApt } = useApartmentBySlug(slug);
   const staticApt = staticApartments.find((a) => a.slug === slug);
