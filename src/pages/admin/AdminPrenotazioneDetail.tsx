@@ -88,12 +88,14 @@ const AdminPrenotazioneDetail = () => {
         setLinkExpiresAt(bAny.balance_link_expires_at);
       }
 
-      const [aptRes, guestsRes] = await Promise.all([
+      const [aptRes, guestsRes, mpRes] = await Promise.all([
         supabase.from("apartments").select("name, slug, images").eq("id", bAny.apartment_id).single(),
         supabase.from("booking_guests").select("*").eq("booking_id", bAny.id),
+        supabase.from("manual_payments").select("*").eq("booking_id", bAny.id).order("created_at", { ascending: false }),
       ]);
       setApartment(aptRes.data);
       setGuests(guestsRes.data ?? []);
+      setManualPayments(mpRes.data ?? []);
       setLoading(false);
     };
     fetchData();
