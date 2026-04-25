@@ -149,7 +149,7 @@ const PrenotazioneDetail = () => {
 
   if (!booking) return null;
 
-  const status = statusConfig[booking.status] || statusConfig.pending;
+  const status = getStatusConfig(booking.status);
   const StatusIcon = status.icon;
   const nights = differenceInDays(new Date(booking.check_out), new Date(booking.check_in));
   const services: { name: string; price: number }[] = Array.isArray(booking.selected_services) ? booking.selected_services : [];
