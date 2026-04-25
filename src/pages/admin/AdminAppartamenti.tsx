@@ -172,6 +172,7 @@ const AdminAppartamenti = () => {
       setApartments((prev) => prev.map((a) => a.id === apt.id ? { ...a, is_featured: !next } : a));
     } else {
       toast({ title: next ? "Aggiunto in evidenza" : "Rimosso dall'evidenza" });
+      invalidatePublicCache();
     }
   };
 
