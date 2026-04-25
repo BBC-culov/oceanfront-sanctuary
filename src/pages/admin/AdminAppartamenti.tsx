@@ -347,6 +347,14 @@ const AdminAppartamenti = () => {
           </TabsContent>
         </Tabs>
       )}
+
+      {/* Availability dialog */}
+      <AvailabilityManagerDialog
+        open={!!availabilityFor}
+        onClose={() => setAvailabilityFor(null)}
+        apartmentId={availabilityFor?.id ?? ""}
+        apartmentName={availabilityFor?.name ?? ""}
+      />
     </div>
   );
 };
