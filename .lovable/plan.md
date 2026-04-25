@@ -50,12 +50,13 @@ Stato attuale: dopo il pagamento Stripe, la prenotazione passa automaticamente a
   - Sidebar con elenco prenotazioni attive
 - `AvailabilityCalendar` pubblico aggiornato: legge sia `bookings` (tutti gli stati attivi) sia `apartment_availability_blocks`.
 
-## Fase 6 – Ordinamento appartamenti homepage (Punto 3)
+## ✅ Fase 6 – Ordinamento appartamenti homepage (Punto 3) — COMPLETATA
 
-- Aggiungere colonne ad `apartments`: `display_order` (integer, default 999) e `is_featured` (boolean, default false).
-- Drag & drop nella pagina `AdminAppartamenti` per riordinare (libreria leggera tipo `@dnd-kit/core`).
-- Toggle "In evidenza" per appartamento; gli featured ottengono badge visivo + posizione prioritaria.
-- Aggiornare `useApartments` con ordinamento `is_featured DESC, display_order ASC, name ASC`.
+- Aggiunte colonne `display_order` (int, default 999) e `is_featured` (bool, default false) ad `apartments`. Backfill iniziale basato sull'ordine alfabetico.
+- Drag & drop in `AdminAppartamenti` tramite `@dnd-kit/core` + `@dnd-kit/sortable`. Handle visibile in hover sulla card, con persistenza ottimistica (incrementi da 10 in 10 per future inserzioni).
+- Toggle "In evidenza" con icona stella sulla card admin: badge dorato visivo + ring sul card per gli appartamenti featured.
+- `useApartments` aggiornato con ordinamento `is_featured DESC, display_order ASC, name ASC` (riflettuto in homepage e listing pubblico).
+- Componente `SortableApartmentCard` estratto per pulizia e riusabilità.
 
 ## Fase 7 – Google Places autocomplete (Punto 1)
 

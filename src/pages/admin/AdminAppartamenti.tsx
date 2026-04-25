@@ -3,10 +3,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Pencil, Trash2, Building2, Eye, EyeOff, CheckCircle2, XCircle, CalendarRange } from "lucide-react";
+import { Plus, Building2, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import ApartmentWizard from "@/components/admin/ApartmentWizard";
 import AvailabilityManagerDialog from "@/components/admin/AvailabilityManagerDialog";
+import SortableApartmentCard from "@/components/admin/SortableApartmentCard";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import { SortableContext, arrayMove, rectSortingStrategy } from "@dnd-kit/sortable";
 
 interface ApartmentRow {
   id: string;
@@ -28,6 +38,8 @@ interface ApartmentRow {
   map_query?: string | null;
   check_in_time: string;
   check_out_time: string;
+  display_order?: number;
+  is_featured?: boolean;
 }
 
 const emptyApt: Omit<ApartmentRow, "id"> = {
@@ -57,7 +69,12 @@ const AdminAppartamenti = () => {
   const [availabilityFor, setAvailabilityFor] = useState<ApartmentRow | null>(null);
 
   const fetchApartments = async () => {
-    const { data } = await supabase.from("apartments").select("*").order("name");
+    const { data } = await supabase
+      .from("apartments")
+      .select("*")
+      .order("is_featured", { ascending: false })
+      .order("display_order", { ascending: true })
+      .order("name", { ascending: true });
     setApartments(
       (data ?? []).map((a: any) => ({
         ...a,
@@ -135,108 +152,89 @@ const AdminAppartamenti = () => {
     }
   };
 
+  const toggleFeatured = async (apt: ApartmentRow) => {
+    const next = !apt.is_featured;
+    setApartments((prev) => prev.map((a) => a.id === apt.id ? { ...a, is_featured: next } : a));
+    const { error } = await supabase.from("apartments").update({ is_featured: next }).eq("id", apt.id);
+    if (error) {
+      toast({ title: "Errore", description: error.message, variant: "destructive" });
+      // rollback
+      setApartments((prev) => prev.map((a) => a.id === apt.id ? { ...a, is_featured: !next } : a));
+    } else {
+      toast({ title: next ? "Aggiunto in evidenza" : "Rimosso dall'evidenza" });
+    }
+  };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+  );
+
+  const persistOrder = async (list: ApartmentRow[]) => {
+    // Assign 10, 20, 30… to keep room for future inserts
+    const updates = list.map((apt, idx) => ({ id: apt.id, display_order: (idx + 1) * 10 }));
+    // Optimistic UI already applied; persist sequentially
+    await Promise.all(
+      updates.map((u) =>
+        supabase.from("apartments").update({ display_order: u.display_order }).eq("id", u.id)
+      )
+    );
+  };
+
+  const handleDragEnd = (event: DragEndEvent, isActiveTab: boolean) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const sourceList = isActiveTab ? activeApartments : inactiveApartments;
+    const oldIndex = sourceList.findIndex((a) => a.id === active.id);
+    const newIndex = sourceList.findIndex((a) => a.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const reordered = arrayMove(sourceList, oldIndex, newIndex);
+    // Merge with the other list to update the global state
+    const otherList = isActiveTab ? inactiveApartments : activeApartments;
+    const updatedAll = isActiveTab ? [...reordered, ...otherList] : [...otherList, ...reordered];
+
+    // Apply the new display_order locally
+    const withOrder = updatedAll.map((a) => {
+      const idx = reordered.findIndex((r) => r.id === a.id);
+      return idx >= 0 ? { ...a, display_order: (idx + 1) * 10 } : a;
+    });
+    setApartments(withOrder);
+
+    persistOrder(reordered).catch(() => {
+      toast({ title: "Errore salvataggio ordine", variant: "destructive" });
+      fetchApartments();
+    });
+  };
+
   const isFormOpen = creating || !!editing;
 
   const activeApartments = apartments.filter(a => a.is_active);
   const inactiveApartments = apartments.filter(a => !a.is_active);
 
   const renderApartmentGrid = (apts: ApartmentRow[], isActiveTab: boolean) => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <AnimatePresence>
-        {apts.map((apt, i) => (
-          <motion.div
-            key={apt.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ delay: i * 0.05, duration: 0.3 }}
-            layout
-          >
-            <Card className={`bg-background overflow-hidden group hover:shadow-lg transition-all duration-300 ${!isActiveTab ? 'opacity-70' : ''}`}>
-              {/* Image cover */}
-              <div className="relative h-36 bg-muted overflow-hidden">
-                {apt.images && apt.images.length > 0 ? (
-                  <motion.img
-                    src={apt.images[0]}
-                    alt={apt.name}
-                    className="w-full h-full object-cover"
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.4 }}
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Building2 className="w-10 h-10 text-muted-foreground/20" />
-                  </div>
-                )}
-                {/* Category */}
-                <div className="absolute bottom-2 left-2">
-                  <span className="inline-block font-sans text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-background/80 backdrop-blur-sm text-foreground">
-                    {apt.category}
-                  </span>
-                </div>
-              </div>
-
-              <CardContent className="pt-4 pb-4">
-                <h3 className="font-serif text-lg text-foreground">{apt.name}</h3>
-                <p className="font-sans text-xs text-muted-foreground mt-0.5">{apt.slug}</p>
-
-                <div className="flex items-center gap-3 mt-3 font-sans text-xs text-muted-foreground">
-                  <span>€{apt.price_per_night}/notte</span>
-                  <span className="text-border">·</span>
-                  <span>{apt.guests} ospiti</span>
-                  <span className="text-border">·</span>
-                  <span>{apt.sqm}mq</span>
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center gap-1 mt-4 pt-3 border-t border-border">
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => openEdit(apt)}
-                    className="p-2 text-muted-foreground hover:text-primary transition-colors rounded-md hover:bg-primary/10"
-                    title="Modifica"
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => setAvailabilityFor(apt)}
-                    className="p-2 text-muted-foreground hover:text-primary transition-colors rounded-md hover:bg-primary/10"
-                    title="Disponibilità"
-                  >
-                    <CalendarRange className="w-4 h-4" />
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => toggleActive(apt)}
-                    className={`p-2 transition-colors rounded-md ${
-                      isActiveTab 
-                        ? "text-muted-foreground hover:text-destructive hover:bg-destructive/10" 
-                        : "text-muted-foreground hover:text-success hover:bg-success/10"
-                    }`}
-                    title={isActiveTab ? "Disattiva" : "Attiva"}
-                  >
-                    {isActiveTab ? <EyeOff className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4 text-success" />}
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => handleDelete(apt.id, apt.name)}
-                    className="p-2 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-destructive/10 ml-auto"
-                    title="Elimina"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </motion.button>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-      </AnimatePresence>
-    </div>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={(e) => handleDragEnd(e, isActiveTab)}
+    >
+      <SortableContext items={apts.map((a) => a.id)} strategy={rectSortingStrategy}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {apts.map((apt) => (
+            <SortableApartmentCard
+              key={apt.id}
+              apt={apt}
+              isActiveTab={isActiveTab}
+              onEdit={openEdit}
+              onAvailability={setAvailabilityFor}
+              onToggleActive={toggleActive}
+              onToggleFeatured={toggleFeatured}
+              onDelete={handleDelete}
+            />
+          ))}
+        </div>
+      </SortableContext>
+    </DndContext>
   );
 
   const renderEmptyState = (isActiveTab: boolean) => (

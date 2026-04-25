@@ -22,6 +22,8 @@ export interface ApartmentPublic {
   pricePerNight: number;
   checkInTime: string;
   checkOutTime: string;
+  isFeatured: boolean;
+  displayOrder: number;
 }
 
 function mapRow(row: any): ApartmentPublic {
@@ -61,6 +63,8 @@ function mapRow(row: any): ApartmentPublic {
     pricePerNight: row.price_per_night ?? 0,
     checkInTime: row.check_in_time ?? "15:00",
     checkOutTime: row.check_out_time ?? "10:00",
+    isFeatured: !!row.is_featured,
+    displayOrder: row.display_order ?? 999,
   };
 }
 
@@ -72,7 +76,9 @@ export function useApartments() {
         .from("apartments")
         .select("*")
         .eq("is_active", true)
-        .order("name");
+        .order("is_featured", { ascending: false })
+        .order("display_order", { ascending: true })
+        .order("name", { ascending: true });
       if (error) throw error;
       return (data ?? []).map(mapRow);
     },

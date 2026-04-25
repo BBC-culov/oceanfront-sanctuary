@@ -87,10 +87,12 @@ export type Database = {
           check_out_time: string
           created_at: string
           description: string | null
+          display_order: number
           guests: number
           id: string
           images: Json | null
           is_active: boolean
+          is_featured: boolean
           map_query: string | null
           name: string
           owner_id: string | null
@@ -111,10 +113,12 @@ export type Database = {
           check_out_time?: string
           created_at?: string
           description?: string | null
+          display_order?: number
           guests?: number
           id?: string
           images?: Json | null
           is_active?: boolean
+          is_featured?: boolean
           map_query?: string | null
           name: string
           owner_id?: string | null
@@ -135,10 +139,12 @@ export type Database = {
           check_out_time?: string
           created_at?: string
           description?: string | null
+          display_order?: number
           guests?: number
           id?: string
           images?: Json | null
           is_active?: boolean
+          is_featured?: boolean
           map_query?: string | null
           name?: string
           owner_id?: string | null
