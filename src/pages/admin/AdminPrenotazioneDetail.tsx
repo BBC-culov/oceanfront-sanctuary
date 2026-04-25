@@ -113,7 +113,7 @@ const AdminPrenotazioneDetail = () => {
   if (!booking) return null;
 
   const nights = differenceInDays(new Date(booking.check_out), new Date(booking.check_in));
-  const sc = statusConfig[booking.status] || statusConfig.pending;
+  const sc = getStatusConfig(booking.status);
   const StatusIcon = sc.icon;
   const services: any[] = booking.selected_services || [];
   const aptImage = apartment?.images?.[0] || "";
