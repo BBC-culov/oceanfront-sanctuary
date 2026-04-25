@@ -76,9 +76,14 @@ const StepBilling = ({ billing, setBilling }: StepBillingProps) => {
 
   const fiscalErr = () => {
     if (!t("billing_fiscal_code") || !billing.billing_fiscal_code) return reqErr(billing.billing_fiscal_code, "billing_fiscal_code");
-    if (!isValidFiscalCode(billing.billing_fiscal_code)) return "11-16 caratteri alfanumerici";
+    if (!isValidFiscalCode(billing.billing_fiscal_code, billing.billing_country)) {
+      return getFiscalCodeHint(billing.billing_country);
+    }
     return undefined;
   };
+
+  const fiscalLabel = getFiscalCodeLabel(billing.billing_country);
+  const fiscalPlaceholder = getFiscalCodePlaceholder(billing.billing_country);
 
   return (
     <motion.div
