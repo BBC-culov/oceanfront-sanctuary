@@ -75,6 +75,8 @@ serve(async (req) => {
           balance_payment_url: null,
           balance_session_id: null,
           balance_link_expires_at: null,
+          // Invalidate recovery token: booking is no longer "incomplete"
+          resume_token: null,
         })
         .eq("id", booking_id);
 
