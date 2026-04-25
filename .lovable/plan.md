@@ -12,7 +12,7 @@ Stato attuale: dopo il pagamento Stripe, la prenotazione passa automaticamente a
 - Aggiungere bottone admin "Conferma prenotazione" su `AdminPrenotazioneDetail` per passare manualmente da `awaiting_verification` → `confirmed`.
 - Aggiornare etichette/badge di stato in tutta l'app con colori distinti.
 
-## Fase 2 – Pagamenti manuali admin (Punto 6.2)
+## ✅ Fase 2 – Pagamenti manuali admin (Punto 6.2) — COMPLETATA
 
 - Nuova sezione "Salda prenotazione" in `AdminPrenotazioneDetail` con dialog:
   - Metodo di pagamento (select): contanti, all'arrivo, bonifico bancario, altro
