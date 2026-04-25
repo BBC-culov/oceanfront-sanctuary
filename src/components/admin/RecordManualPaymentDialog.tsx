@@ -108,12 +108,13 @@ const RecordManualPaymentDialog = ({
             onClick={onClose}
             className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50"
           />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
           <motion.div
             initial={{ opacity: 0, scale: 0.96, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 20 }}
             transition={{ duration: 0.2 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[92vw] max-w-md bg-white border border-border rounded-sm shadow-2xl overflow-hidden"
+            className="pointer-events-auto w-full max-w-md max-h-[90vh] overflow-y-auto bg-white border border-border rounded-sm shadow-2xl"
           >
             <div className="flex items-center justify-between px-5 py-4 border-b border-border bg-secondary/30">
               <div className="flex items-center gap-2.5">
