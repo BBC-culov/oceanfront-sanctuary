@@ -95,8 +95,12 @@ const AdminPrenotazioni = () => {
   const stats = useMemo(() => ({
     total: bookings.length,
     pending: bookings.filter((b) => b.status === "pending").length,
+    incomplete: bookings.filter((b) => b.status === "incomplete").length,
+    awaiting: bookings.filter((b) => b.status === "awaiting_verification").length,
     confirmed: bookings.filter((b) => b.status === "confirmed").length,
+    paid: bookings.filter((b) => b.status === "paid").length,
     cancelled: bookings.filter((b) => b.status === "cancelled").length,
+    needsAttention: bookings.filter((b) => (ATTENTION_STATUSES as string[]).includes(b.status)).length,
   }), [bookings]);
 
   return (
