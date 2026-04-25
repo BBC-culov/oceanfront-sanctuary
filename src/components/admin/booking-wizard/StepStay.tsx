@@ -61,7 +61,7 @@ const StepStay = ({ value, onChange }: Props) => {
         .from("bookings")
         .select("check_in, check_out")
         .eq("apartment_id", value.apartment_id)
-        .in("status", ["pending", "confirmed"]);
+        .in("status", ["pending", "confirmed", "awaiting_verification", "paid"]);
       setBookedRanges(
         (data ?? []).map((b: any) => ({
           checkIn: startOfDay(new Date(b.check_in)),
