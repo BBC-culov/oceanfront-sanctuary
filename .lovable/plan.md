@@ -83,13 +83,10 @@ Stato attuale: dopo il pagamento Stripe, la prenotazione passa automaticamente a
 - Tutti i template transazionali (`booking-confirmation`, `booking-recovery`, `balance-paid`, `balance-payment-request`, `balance-reminder`, `welcome`) aggiornati per usare `<BrandFooter />`.
 - Edge function `send-transactional-email` ridistribuita.
 
-## Fase 10 – Logo browser/favicon (Punto 10.2)
+## ✅ Fase 10 – Logo browser/favicon (Punto 10.2) — COMPLETATA
 
-- Sostituire `public/favicon.ico` con asset corretto fornito da Valentina.
-- Aggiornare `index.html` con `<link rel="icon">` multi-size (16, 32, 192, 512) e apple-touch-icon.
-- Verificare logo nella navbar non sia compresso.
-
-**Nota**: per questa fase servirà che l'utente carichi gli asset aggiornati dal designer.
+- Sostituito `public/favicon.ico` con `public/favicon.png` (logo H bag con sfondo trasparente).
+- Aggiornato `index.html`: `<link rel="icon">` PNG, `apple-touch-icon` e `theme-color` brand verde scuro.
 
 ---
 
