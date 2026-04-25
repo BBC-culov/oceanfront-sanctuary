@@ -13,12 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
-
-const statusConfig: Record<string, { label: string; icon: React.ElementType; bg: string; text: string; border: string }> = {
-  pending: { label: "In attesa di conferma", icon: Clock, bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-300" },
-  confirmed: { label: "Confermata", icon: CheckCircle2, bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-300" },
-  cancelled: { label: "Cancellata", icon: XCircle, bg: "bg-red-50", text: "text-red-600", border: "border-red-300" },
-};
+import { getStatusConfig } from "@/lib/bookingStatus";
 
 const Section = ({
   icon: Icon, title, children, delay = 0,
@@ -154,7 +149,7 @@ const PrenotazioneDetail = () => {
 
   if (!booking) return null;
 
-  const status = statusConfig[booking.status] || statusConfig.pending;
+  const status = getStatusConfig(booking.status);
   const StatusIcon = status.icon;
   const nights = differenceInDays(new Date(booking.check_out), new Date(booking.check_in));
   const services: { name: string; price: number }[] = Array.isArray(booking.selected_services) ? booking.selected_services : [];
@@ -337,7 +332,7 @@ const PrenotazioneDetail = () => {
           )}
 
           {/* Remaining balance info (no pay button) */}
-          {booking.status === "confirmed" && (booking as any).payment_type === "deposit" && booking.amount_paid < booking.total_price && (() => {
+          {(booking.status === "confirmed" || booking.status === "awaiting_verification") && (booking as any).payment_type === "deposit" && booking.amount_paid < booking.total_price && (() => {
             const remaining = Math.round((booking.total_price - ((booking as any).amount_paid || 0)) * 100) / 100;
             return (
               <motion.div
@@ -370,7 +365,7 @@ const PrenotazioneDetail = () => {
           )}
 
           {/* Cancel booking */}
-          {booking.status !== "cancelled" && (
+          {(booking.status === "pending" || booking.status === "confirmed") && (
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
