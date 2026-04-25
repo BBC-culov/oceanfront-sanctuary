@@ -2,7 +2,7 @@
 
 Il report contiene 11 aree di intervento più la conclusione. Le raggruppo per fasi logiche, dalle modifiche più impattanti (flusso prenotazioni / pagamenti) a quelle UX/branding.
 
-## Fase 1 – Riallineamento stati prenotazione (Punto 5)
+## ✅ Fase 1 – Riallineamento stati prenotazione (Punto 5) — COMPLETATA
 
 Stato attuale: dopo il pagamento Stripe, la prenotazione passa automaticamente a `confirmed`. Va invertita la logica.
 
@@ -12,7 +12,7 @@ Stato attuale: dopo il pagamento Stripe, la prenotazione passa automaticamente a
 - Aggiungere bottone admin "Conferma prenotazione" su `AdminPrenotazioneDetail` per passare manualmente da `awaiting_verification` → `confirmed`.
 - Aggiornare etichette/badge di stato in tutta l'app con colori distinti.
 
-## Fase 2 – Pagamenti manuali admin (Punto 6.2)
+## ✅ Fase 2 – Pagamenti manuali admin (Punto 6.2) — COMPLETATA
 
 - Nuova sezione "Salda prenotazione" in `AdminPrenotazioneDetail` con dialog:
   - Metodo di pagamento (select): contanti, all'arrivo, bonifico bancario, altro
@@ -23,7 +23,7 @@ Stato attuale: dopo il pagamento Stripe, la prenotazione passa automaticamente a
 - Al conferma: aggiorna `bookings.amount_paid`, se totale raggiunto → `status = 'paid'` e automaticamente `confirmed`.
 - Mantiene la funzione esistente "Genera link pagamento" (Punto 6.1 già OK).
 
-## Fase 3 – Sistema notifiche admin (Punto 4)
+## ✅ Fase 3 – Sistema notifiche admin (Punto 4) — COMPLETATA
 
 - Nuovo hook `useAdminNotifications` che conta in realtime prenotazioni in `pending`, `awaiting_verification`, `incomplete`.
 - Pallino rosso animato sulla voce "Prenotazioni" della sidebar admin con badge numerico.

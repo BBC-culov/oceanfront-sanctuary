@@ -7,9 +7,10 @@ import { format, differenceInDays } from "date-fns";
 import { it } from "date-fns/locale";
 import {
   Search, Trash2, ChevronDown, CalendarDays, Eye, Clock,
-  CheckCircle2, XCircle, AlertCircle, Users, Plus,
+  CheckCircle2, XCircle, AlertCircle, Users, Plus, ShieldCheck, BadgeCheck,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { BOOKING_STATUS, getStatusConfig, ATTENTION_STATUSES } from "@/lib/bookingStatus";
 
 interface Booking {
   id: string;
@@ -30,12 +31,6 @@ interface Booking {
   amount_paid: number;
   deposit_amount: number;
 }
-
-const statusConfig: Record<string, { label: string; icon: React.ElementType; bg: string; text: string }> = {
-  pending: { label: "In attesa", icon: Clock, bg: "bg-accent/15", text: "text-accent-foreground" },
-  confirmed: { label: "Confermata", icon: CheckCircle2, bg: "bg-primary/10", text: "text-primary" },
-  cancelled: { label: "Cancellata", icon: XCircle, bg: "bg-destructive/10", text: "text-destructive" },
-};
 
 const AdminPrenotazioni = () => {
   const navigate = useNavigate();
@@ -100,8 +95,12 @@ const AdminPrenotazioni = () => {
   const stats = useMemo(() => ({
     total: bookings.length,
     pending: bookings.filter((b) => b.status === "pending").length,
+    incomplete: bookings.filter((b) => b.status === "incomplete").length,
+    awaiting: bookings.filter((b) => b.status === "awaiting_verification").length,
     confirmed: bookings.filter((b) => b.status === "confirmed").length,
+    paid: bookings.filter((b) => b.status === "paid").length,
     cancelled: bookings.filter((b) => b.status === "cancelled").length,
+    needsAttention: bookings.filter((b) => (ATTENTION_STATUSES as string[]).includes(b.status)).length,
   }), [bookings]);
 
   return (
@@ -116,7 +115,7 @@ const AdminPrenotazioni = () => {
         <div>
           <h1 className="font-serif text-2xl text-foreground">Prenotazioni</h1>
           <p className="font-sans text-sm text-muted-foreground mt-1">
-            {stats.total} totali · {stats.confirmed} confermate · {stats.pending} in attesa
+            {stats.total} totali · <span className="text-amber-600 font-medium">{stats.needsAttention} da gestire</span> · {stats.paid + stats.confirmed} concluse
           </p>
         </div>
         <motion.button
@@ -131,12 +130,14 @@ const AdminPrenotazioni = () => {
       </div>
 
       {/* Stats cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {[
           { label: "Totali", value: stats.total, icon: CalendarDays, color: "text-foreground" },
-          { label: "In attesa", value: stats.pending, icon: Clock, color: "text-accent-foreground" },
-          { label: "Confermate", value: stats.confirmed, icon: CheckCircle2, color: "text-primary" },
-          { label: "Cancellate", value: stats.cancelled, icon: XCircle, color: "text-destructive" },
+          { label: "In attesa", value: stats.pending, icon: Clock, color: "text-amber-600" },
+          { label: "Non concluse", value: stats.incomplete, icon: AlertCircle, color: "text-orange-600" },
+          { label: "Da verificare", value: stats.awaiting, icon: ShieldCheck, color: "text-sky-600" },
+          { label: "Confermate", value: stats.confirmed, icon: CheckCircle2, color: "text-emerald-600" },
+          { label: "Saldate", value: stats.paid, icon: BadgeCheck, color: "text-green-700" },
         ].map((s, i) => (
           <motion.div
             key={s.label}
@@ -145,7 +146,7 @@ const AdminPrenotazioni = () => {
             transition={{ duration: 0.35, delay: i * 0.05 }}
             className="bg-card/40 border border-border/50 p-4 flex items-center gap-3"
           >
-            <s.icon className={`w-5 h-5 ${s.color} opacity-60`} strokeWidth={1.5} />
+            <s.icon className={`w-5 h-5 ${s.color} opacity-70`} strokeWidth={1.5} />
             <div>
               <p className={`font-sans text-xl font-semibold ${s.color}`}>{s.value}</p>
               <p className="font-sans text-[10px] tracking-wide uppercase text-muted-foreground">{s.label}</p>
@@ -177,7 +178,7 @@ const AdminPrenotazioni = () => {
             className="h-10 rounded-md border border-border/60 bg-card/50 px-3 py-2 text-sm font-sans appearance-none pr-8 w-full sm:w-40"
           >
             <option value="">Tutti gli stati</option>
-            {Object.entries(statusConfig).map(([val, cfg]) => (
+            {Object.entries(BOOKING_STATUS).map(([val, cfg]) => (
               <option key={val} value={val}>{cfg.label}</option>
             ))}
           </select>
@@ -214,7 +215,7 @@ const AdminPrenotazioni = () => {
         <div className="space-y-2">
           <AnimatePresence>
             {filtered.map((b, i) => {
-              const sc = statusConfig[b.status] || statusConfig.pending;
+              const sc = getStatusConfig(b.status);
               const StatusIcon = sc.icon;
               const nights = differenceInDays(new Date(b.check_out), new Date(b.check_in));
 
@@ -284,7 +285,7 @@ const AdminPrenotazioni = () => {
                       onChange={(e) => { e.stopPropagation(); updateStatus(b.id, e.target.value); }}
                       className="h-8 rounded-md border border-border/40 bg-transparent px-2 text-[11px] font-sans appearance-none cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-200 w-24"
                     >
-                      {Object.entries(statusConfig).map(([val, cfg]) => (
+                      {Object.entries(BOOKING_STATUS).map(([val, cfg]) => (
                         <option key={val} value={val}>{cfg.label}</option>
                       ))}
                     </select>

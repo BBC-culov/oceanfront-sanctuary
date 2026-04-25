@@ -8,15 +8,11 @@ import {
   ArrowLeft, CalendarCheck, User, Users, PlaneTakeoff, PlaneLanding,
   Receipt, Sparkles, MessageSquare, Clock, CheckCircle2, XCircle,
   Phone, Mail, MapPin, Building2, CreditCard, Shield, Globe, ChevronRight,
-  Link as LinkIcon, Copy, Loader2,
+  Link as LinkIcon, Copy, Loader2, Wallet, Plus,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-
-const statusConfig: Record<string, { label: string; icon: React.ElementType; bg: string; text: string; border: string }> = {
-  pending: { label: "In attesa", icon: Clock, bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200" },
-  confirmed: { label: "Confermata", icon: CheckCircle2, bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200" },
-  cancelled: { label: "Cancellata", icon: XCircle, bg: "bg-red-50", text: "text-red-600", border: "border-red-200" },
-};
+import { BOOKING_STATUS, getStatusConfig, getPaymentMethodLabel } from "@/lib/bookingStatus";
+import RecordManualPaymentDialog from "@/components/admin/RecordManualPaymentDialog";
 
 const Section = ({
   icon: Icon, title, children, delay = 0,
@@ -65,6 +61,18 @@ const AdminPrenotazioneDetail = () => {
   const [linkExpiresAt, setLinkExpiresAt] = useState<number | null>(null);
   const [sendingEmail, setSendingEmail] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [manualPayments, setManualPayments] = useState<any[]>([]);
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+
+  const reloadBookingAndPayments = async () => {
+    if (!id) return;
+    const [bRes, mpRes] = await Promise.all([
+      supabase.from("bookings").select("*").eq("id", id).single(),
+      supabase.from("manual_payments").select("*").eq("booking_id", id).order("created_at", { ascending: false }),
+    ]);
+    if (bRes.data) setBooking(bRes.data);
+    setManualPayments(mpRes.data ?? []);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -80,12 +88,14 @@ const AdminPrenotazioneDetail = () => {
         setLinkExpiresAt(bAny.balance_link_expires_at);
       }
 
-      const [aptRes, guestsRes] = await Promise.all([
+      const [aptRes, guestsRes, mpRes] = await Promise.all([
         supabase.from("apartments").select("name, slug, images").eq("id", bAny.apartment_id).single(),
         supabase.from("booking_guests").select("*").eq("booking_id", bAny.id),
+        supabase.from("manual_payments").select("*").eq("booking_id", bAny.id).order("created_at", { ascending: false }),
       ]);
       setApartment(aptRes.data);
       setGuests(guestsRes.data ?? []);
+      setManualPayments(mpRes.data ?? []);
       setLoading(false);
     };
     fetchData();
@@ -117,7 +127,7 @@ const AdminPrenotazioneDetail = () => {
   if (!booking) return null;
 
   const nights = differenceInDays(new Date(booking.check_out), new Date(booking.check_in));
-  const sc = statusConfig[booking.status] || statusConfig.pending;
+  const sc = getStatusConfig(booking.status);
   const StatusIcon = sc.icon;
   const services: any[] = booking.selected_services || [];
   const aptImage = apartment?.images?.[0] || "";
@@ -183,25 +193,28 @@ const AdminPrenotazioneDetail = () => {
             </div>
 
             {/* Status actions */}
-            <div className="flex items-center gap-2 mt-5 pt-4 border-t border-border/50">
-              <span className="font-sans text-[10px] tracking-wide uppercase text-muted-foreground mr-2">Cambia stato:</span>
-              {Object.entries(statusConfig).map(([val, cfg]) => {
-                const isActive = booking.status === val;
-                return (
-                  <motion.button
-                    key={val}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => updateStatus(val)}
-                    className={`font-sans text-[10px] tracking-wide uppercase px-3.5 py-1.5 rounded-sm border transition-all duration-200 ${
-                      isActive
-                        ? `${cfg.bg} ${cfg.text} ${cfg.border} font-semibold`
-                        : "border-border/50 text-muted-foreground hover:border-border hover:text-foreground bg-white"
-                    }`}
-                  >
-                    {cfg.label}
-                  </motion.button>
-                );
-              })}
+            <div className="flex items-center gap-2 mt-5 pt-4 border-t border-border/50 flex-wrap">
+              <span className="font-sans text-[10px] tracking-wide uppercase text-muted-foreground mr-1">Stato:</span>
+              <p className="font-sans text-xs text-muted-foreground italic flex-1">{sc.description}</p>
+              <select
+                value={booking.status}
+                onChange={(e) => updateStatus(e.target.value)}
+                className="h-8 rounded-sm border border-border/60 bg-white px-2.5 text-[11px] font-sans cursor-pointer hover:border-primary/50 transition-colors"
+              >
+                {Object.entries(BOOKING_STATUS).map(([val, cfg]) => (
+                  <option key={val} value={val}>{cfg.label}</option>
+                ))}
+              </select>
+              {booking.status === "awaiting_verification" && (
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => updateStatus("confirmed")}
+                  className="font-sans text-[10px] tracking-wide uppercase px-3 py-1.5 rounded-sm bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors flex items-center gap-1.5"
+                >
+                  <CheckCircle2 className="w-3 h-3" />
+                  Conferma pagamento
+                </motion.button>
+              )}
             </div>
           </div>
         </div>
@@ -550,11 +563,78 @@ const AdminPrenotazioneDetail = () => {
         </motion.div>
       )}
 
+      {/* Manual offline payments */}
+      {booking.total_price && booking.status !== "cancelled" && (
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.5 }}
+          className="bg-white border border-border rounded-sm shadow-sm overflow-hidden"
+        >
+          <div className="flex items-center justify-between gap-3 px-5 py-3.5 border-b border-border/60 bg-secondary/30">
+            <div className="flex items-center gap-2.5">
+              <Wallet className="w-4 h-4 text-primary" strokeWidth={1.5} />
+              <h3 className="font-sans text-[11px] tracking-[0.15em] uppercase text-foreground/70 font-medium">
+                Pagamenti offline ({manualPayments.length})
+              </h3>
+            </div>
+            {booking.amount_paid < booking.total_price && (
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setPaymentDialogOpen(true)}
+                className="flex items-center gap-1.5 font-sans text-[10px] tracking-wide uppercase px-3 py-1.5 rounded-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-semibold"
+              >
+                <Plus className="w-3 h-3" />
+                Registra pagamento
+              </motion.button>
+            )}
+          </div>
+          <div className="p-5">
+            {manualPayments.length === 0 ? (
+              <p className="font-sans text-sm text-muted-foreground/60 italic text-center py-3">
+                Nessun pagamento offline registrato.
+                {booking.amount_paid < booking.total_price && " Usa il pulsante in alto per registrare contanti, bonifici o altri pagamenti ricevuti fuori da Stripe."}
+              </p>
+            ) : (
+              <div className="divide-y divide-border/30">
+                {manualPayments.map((p) => (
+                  <div key={p.id} className="flex items-start justify-between gap-3 py-2.5">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-sans text-sm font-semibold text-foreground">€{p.amount}</span>
+                        <span className="font-sans text-[10px] tracking-wide uppercase px-1.5 py-0.5 rounded-sm bg-secondary text-muted-foreground">
+                          {getPaymentMethodLabel(p.method, p.custom_method)}
+                        </span>
+                      </div>
+                      {p.notes && (
+                        <p className="font-sans text-xs text-muted-foreground mt-1 italic">{p.notes}</p>
+                      )}
+                    </div>
+                    <span className="font-sans text-[10px] text-muted-foreground/60 flex-shrink-0">
+                      {format(new Date(p.created_at), "d MMM yyyy, HH:mm", { locale: it })}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </motion.div>
+      )}
+
+      <RecordManualPaymentDialog
+        open={paymentDialogOpen}
+        onClose={() => setPaymentDialogOpen(false)}
+        bookingId={booking.id}
+        totalPrice={booking.total_price ?? 0}
+        amountPaid={booking.amount_paid ?? 0}
+        onRecorded={reloadBookingAndPayments}
+      />
+
       {/* Meta */}
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
+        transition={{ delay: 0.55 }}
         className="font-sans text-[10px] text-muted-foreground/40 text-center pb-4"
       >
         Creata il {format(new Date(booking.created_at), "d MMMM yyyy 'alle' HH:mm", { locale: it })}
