@@ -22,7 +22,7 @@ const profileSchema = z.object({
   phone: z.string().trim().regex(/^\+?[0-9\s]{7,15}$/, "Numero di telefono non valido").or(z.literal("")),
 });
 
-type BookingStatus = "confirmed" | "pending" | "cancelled";
+import { getStatusConfig, type BookingStatus } from "@/lib/bookingStatus";
 
 interface RealBooking {
   id: string;
@@ -37,12 +37,6 @@ interface RealBooking {
   created_at: string;
   booking_code?: string;
 }
-
-const statusConfig: Record<BookingStatus, { label: string; color: string; bg: string }> = {
-  confirmed: { label: "Confermata", color: "text-primary", bg: "bg-primary/10" },
-  pending: { label: "In attesa", color: "text-accent-foreground", bg: "bg-accent/30" },
-  cancelled: { label: "Cancellata", color: "text-destructive", bg: "bg-destructive/10" },
-};
 
 // Animated section wrapper with stagger
 const AnimatedSection = ({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) => {
