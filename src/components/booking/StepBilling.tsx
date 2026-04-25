@@ -2,7 +2,10 @@ import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Receipt } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { onlyDigits, onlyAlphanumeric, isValidZip, isValidFiscalCode } from "@/lib/bookingValidation";
+import {
+  onlyDigits, onlyAlphanumeric, isValidZip, isValidFiscalCode,
+  getFiscalCodeLabel, getFiscalCodePlaceholder, getFiscalCodeHint,
+} from "@/lib/bookingValidation";
 
 export interface BillingData {
   billing_name: string;
