@@ -158,6 +158,7 @@ const AdminAppartamenti = () => {
     } else {
       setApartments((prev) => prev.map((a) => a.id === apt.id ? { ...a, is_active: !a.is_active } : a));
       toast({ title: apt.is_active ? "Disattivato" : "Attivato" });
+      invalidatePublicCache();
     }
   };
 
