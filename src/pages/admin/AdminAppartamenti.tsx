@@ -63,11 +63,17 @@ const emptyApt: Omit<ApartmentRow, "id"> = {
 };
 
 const AdminAppartamenti = () => {
+  const queryClient = useQueryClient();
   const [apartments, setApartments] = useState<ApartmentRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<ApartmentRow | null>(null);
   const [creating, setCreating] = useState(false);
   const [availabilityFor, setAvailabilityFor] = useState<ApartmentRow | null>(null);
+
+  const invalidatePublicCache = () => {
+    queryClient.invalidateQueries({ queryKey: ["apartments-public"] });
+    queryClient.invalidateQueries({ queryKey: ["apartment-public"] });
+  };
 
   const fetchApartments = async () => {
     const { data } = await supabase
