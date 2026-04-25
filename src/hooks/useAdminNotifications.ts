@@ -28,7 +28,7 @@ export const useAdminNotifications = (): NotificationCounts => {
       const { data, error } = await supabase
         .from("bookings")
         .select("status")
-        .in("status", ATTENTION_STATUSES as string[]);
+        .in("status", ATTENTION_STATUSES as any);
 
       if (!mounted) return;
       if (error) {
