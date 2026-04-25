@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { BOOKING_STATUS, getStatusConfig, getPaymentMethodLabel } from "@/lib/bookingStatus";
-import { RecordManualPaymentDialog } from "@/components/admin/RecordManualPaymentDialog";
+import RecordManualPaymentDialog from "@/components/admin/RecordManualPaymentDialog";
 
 const Section = ({
   icon: Icon, title, children, delay = 0,
