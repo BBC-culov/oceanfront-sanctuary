@@ -495,8 +495,8 @@ const AdminPrenotazioneDetail = () => {
                       const { data, error } = await supabase.functions.invoke("create-balance-payment-link", {
                         body: { booking_id: booking.id, expire_session_id: balanceSessionId },
                       });
-                      if (error) throw error;
                       if (data?.error) throw new Error(data.error);
+                      if (error) throw new Error(await extractEdgeError(error));
                       setBalanceLink(data.url);
                       setBalanceSessionId(data.session_id);
                       setLinkExpiresAt(data.expires_at);
@@ -534,8 +534,8 @@ const AdminPrenotazioneDetail = () => {
                   const { data, error } = await supabase.functions.invoke("create-balance-payment-link", {
                     body: { booking_id: booking.id },
                   });
-                  if (error) throw error;
                   if (data?.error) throw new Error(data.error);
+                  if (error) throw new Error(await extractEdgeError(error));
                   setBalanceLink(data.url);
                   setBalanceSessionId(data.session_id);
                   setLinkExpiresAt(data.expires_at);
