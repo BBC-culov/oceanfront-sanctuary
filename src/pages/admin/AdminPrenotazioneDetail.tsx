@@ -452,8 +452,8 @@ const AdminPrenotazioneDetail = () => {
                           const { data, error } = await supabase.functions.invoke("create-balance-payment-link", {
                             body: { booking_id: booking.id, action: "send_email", payment_link: balanceLink },
                           });
-                          if (error) throw error;
                           if (data?.error) throw new Error(data.error);
+                          if (error) throw new Error(await extractEdgeError(error));
                           setEmailSent(true);
                           toast({ title: "Email inviata!", description: `Email con link di pagamento inviata a ${booking.guest_email}` });
                         } catch (e: any) {
