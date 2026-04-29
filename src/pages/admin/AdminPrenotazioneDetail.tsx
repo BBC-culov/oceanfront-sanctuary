@@ -13,6 +13,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { BOOKING_STATUS, getStatusConfig, getPaymentMethodLabel } from "@/lib/bookingStatus";
 import RecordManualPaymentDialog from "@/components/admin/RecordManualPaymentDialog";
+import { extractEdgeError } from "@/lib/edgeError";
 
 const Section = ({
   icon: Icon, title, children, delay = 0,
@@ -451,8 +452,8 @@ const AdminPrenotazioneDetail = () => {
                           const { data, error } = await supabase.functions.invoke("create-balance-payment-link", {
                             body: { booking_id: booking.id, action: "send_email", payment_link: balanceLink },
                           });
-                          if (error) throw error;
                           if (data?.error) throw new Error(data.error);
+                          if (error) throw new Error(await extractEdgeError(error));
                           setEmailSent(true);
                           toast({ title: "Email inviata!", description: `Email con link di pagamento inviata a ${booking.guest_email}` });
                         } catch (e: any) {
@@ -494,8 +495,8 @@ const AdminPrenotazioneDetail = () => {
                       const { data, error } = await supabase.functions.invoke("create-balance-payment-link", {
                         body: { booking_id: booking.id, expire_session_id: balanceSessionId },
                       });
-                      if (error) throw error;
                       if (data?.error) throw new Error(data.error);
+                      if (error) throw new Error(await extractEdgeError(error));
                       setBalanceLink(data.url);
                       setBalanceSessionId(data.session_id);
                       setLinkExpiresAt(data.expires_at);
@@ -533,8 +534,8 @@ const AdminPrenotazioneDetail = () => {
                   const { data, error } = await supabase.functions.invoke("create-balance-payment-link", {
                     body: { booking_id: booking.id },
                   });
-                  if (error) throw error;
                   if (data?.error) throw new Error(data.error);
+                  if (error) throw new Error(await extractEdgeError(error));
                   setBalanceLink(data.url);
                   setBalanceSessionId(data.session_id);
                   setLinkExpiresAt(data.expires_at);

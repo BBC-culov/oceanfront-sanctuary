@@ -11,6 +11,7 @@ import { useApartments } from "@/hooks/useApartments";
 import {
   isValidPhone, isValidDocumentNumber, isValidZip, isValidFiscalCode,
 } from "@/lib/bookingValidation";
+import { extractEdgeError } from "@/lib/edgeError";
 
 import AdminBookingStepIndicator from "@/components/admin/AdminBookingStepIndicator";
 import StepClientSelection, { type ClientSelection } from "@/components/admin/booking-wizard/StepClientSelection";
@@ -224,8 +225,8 @@ const AdminPrenotazioneNuova = () => {
         send_email: sendEmail,
       };
       const { data, error } = await supabase.functions.invoke("admin-create-booking", { body: payload });
-      if (error) throw new Error(error.message ?? "Errore creazione prenotazione");
       if (data?.error) throw new Error(data.error);
+      if (error) throw new Error(await extractEdgeError(error, "Errore creazione prenotazione"));
       toast.success(`Prenotazione ${data.booking_code} creata con successo`);
       if (data.payment_link_error) {
         toast.error(`Link non generato: ${data.payment_link_error}. Puoi rigenerarlo dal dettaglio.`);
