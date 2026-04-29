@@ -45,7 +45,11 @@ serve(async (req) => {
       .single();
 
     if (bookingError || !booking) throw new Error("Prenotazione non trovata");
-    if (booking.status !== "confirmed") throw new Error("La prenotazione non è confermata");
+    // Allow generating balance link for any active booking that still has a remaining balance
+    const allowedStatuses = ["pending", "confirmed", "awaiting_verification", "paid"];
+    if (!allowedStatuses.includes(booking.status)) {
+      throw new Error(`Impossibile generare link per prenotazioni in stato "${booking.status}"`);
+    }
     if (booking.amount_paid >= booking.total_price) throw new Error("La prenotazione è già stata saldata");
 
     const remainingAmount = booking.total_price - booking.amount_paid;
