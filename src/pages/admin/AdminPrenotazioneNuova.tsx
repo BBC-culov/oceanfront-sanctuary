@@ -11,6 +11,7 @@ import { useApartments } from "@/hooks/useApartments";
 import {
   isValidPhone, isValidDocumentNumber, isValidZip, isValidFiscalCode,
 } from "@/lib/bookingValidation";
+import { extractEdgeError } from "@/lib/edgeError";
 
 import AdminBookingStepIndicator from "@/components/admin/AdminBookingStepIndicator";
 import StepClientSelection, { type ClientSelection } from "@/components/admin/booking-wizard/StepClientSelection";
