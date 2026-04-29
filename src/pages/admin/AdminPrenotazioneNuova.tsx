@@ -225,20 +225,7 @@ const AdminPrenotazioneNuova = () => {
       };
       const { data, error } = await supabase.functions.invoke("admin-create-booking", { body: payload });
       if (data?.error) throw new Error(data.error);
-      if (error) {
-        const ctx: any = (error as any).context;
-        let backendMsg: string | undefined;
-        try {
-          if (ctx?.json) {
-            const j = await ctx.json();
-            backendMsg = j?.error;
-          } else if (ctx?.text) {
-            const t = await ctx.text();
-            try { backendMsg = JSON.parse(t)?.error; } catch { backendMsg = t; }
-          }
-        } catch { /* ignore */ }
-        throw new Error(backendMsg || error.message || "Errore creazione prenotazione");
-      }
+      if (error) throw new Error(await extractEdgeError(error, "Errore creazione prenotazione"));
       toast.success(`Prenotazione ${data.booking_code} creata con successo`);
       if (data.payment_link_error) {
         toast.error(`Link non generato: ${data.payment_link_error}. Puoi rigenerarlo dal dettaglio.`);
