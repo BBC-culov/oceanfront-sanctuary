@@ -208,6 +208,71 @@ export type Database = {
           },
         ]
       }
+      booking_modification_requests: {
+        Row: {
+          admin_note: string | null
+          booking_id: string
+          created_at: string
+          current_data: Json
+          current_total: number
+          customer_note: string | null
+          id: string
+          new_total: number
+          price_diff: number
+          rejection_reason: string | null
+          requested_by: string
+          requested_changes: Json
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_note?: string | null
+          booking_id: string
+          created_at?: string
+          current_data?: Json
+          current_total?: number
+          customer_note?: string | null
+          id?: string
+          new_total?: number
+          price_diff?: number
+          rejection_reason?: string | null
+          requested_by: string
+          requested_changes?: Json
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_note?: string | null
+          booking_id?: string
+          created_at?: string
+          current_data?: Json
+          current_total?: number
+          customer_note?: string | null
+          id?: string
+          new_total?: number
+          price_diff?: number
+          rejection_reason?: string | null
+          requested_by?: string
+          requested_changes?: Json
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_modification_requests_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           airline: string | null
@@ -243,6 +308,10 @@ export type Database = {
           guest_phone: string | null
           guest_place_of_birth: string | null
           id: string
+          modification_amount_due: number | null
+          modification_link_expires_at: number | null
+          modification_payment_url: string | null
+          modification_session_id: string | null
           no_transfer: boolean
           notes: string | null
           payment_type: string
@@ -288,6 +357,10 @@ export type Database = {
           guest_phone?: string | null
           guest_place_of_birth?: string | null
           id?: string
+          modification_amount_due?: number | null
+          modification_link_expires_at?: number | null
+          modification_payment_url?: string | null
+          modification_session_id?: string | null
           no_transfer?: boolean
           notes?: string | null
           payment_type?: string
@@ -333,6 +406,10 @@ export type Database = {
           guest_phone?: string | null
           guest_place_of_birth?: string | null
           id?: string
+          modification_amount_due?: number | null
+          modification_link_expires_at?: number | null
+          modification_payment_url?: string | null
+          modification_session_id?: string | null
           no_transfer?: boolean
           notes?: string | null
           payment_type?: string
