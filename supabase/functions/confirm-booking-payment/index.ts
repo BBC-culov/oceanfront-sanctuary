@@ -130,6 +130,47 @@ serve(async (req) => {
         console.error("Admin email send failed (non-blocking):", emailErr);
       }
 
+    } else if (type === "modification") {
+      // Modification payment received: clear modification_amount_due,
+      // record amount toward amount_paid, clear modification link state.
+      const modAmount = Number((booking as any).modification_amount_due ?? 0);
+      const newAmountPaid = Math.round((Number(booking.amount_paid ?? 0) + modAmount) * 100) / 100;
+
+      const { error: updErr } = await serviceClient
+        .from("bookings")
+        .update({
+          amount_paid: newAmountPaid,
+          modification_amount_due: 0,
+          modification_payment_url: null,
+          modification_session_id: null,
+          modification_link_expires_at: null,
+        } as any)
+        .eq("id", booking_id);
+
+      if (updErr) throw new Error(`Errore aggiornamento: ${updErr.message}`);
+
+      try {
+        await serviceClient.functions.invoke("send-transactional-email", {
+          body: {
+            templateName: "admin-notification",
+            recipientEmail: "info@bazhouse.it",
+            idempotencyKey: `admin-mod-paid-${booking_id}-${Date.now()}`,
+            templateData: {
+              guestName: booking.guest_name,
+              guestEmail: booking.guest_email,
+              apartmentName,
+              checkIn: booking.check_in,
+              checkOut: booking.check_out,
+              bookingCode: booking.booking_code,
+              totalPrice: booking.total_price || 0,
+              amountPaid: newAmountPaid,
+              paymentType: "modification",
+              notificationType: "balance",
+            },
+          },
+        });
+      } catch (e) { console.error("Admin mod-paid email failed:", e); }
+
     } else if (type === "balance") {
       if (booking.status !== "confirmed") throw new Error("Prenotazione non confermata");
 
