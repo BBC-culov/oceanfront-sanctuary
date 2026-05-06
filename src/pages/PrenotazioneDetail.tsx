@@ -145,10 +145,28 @@ const PrenotazioneDetail = () => {
         .eq("id", b.apartment_id)
         .single();
       setApartment(apt);
+
+      const { data: req } = await supabase
+        .from("booking_modification_requests").select("*")
+        .eq("booking_id", id!).in("status", ["pending"])
+        .order("created_at", { ascending: false }).limit(1).maybeSingle();
+      setPendingMod(req);
+
       setLoading(false);
     };
     load();
   }, [id, navigate]);
+
+  // Pay modification difference (Stripe)
+  const payModificationDiff = async () => {
+    if (!booking?.modification_payment_url) return;
+    setPayingMod(true);
+    try {
+      window.location.href = booking.modification_payment_url;
+    } finally {
+      setPayingMod(false);
+    }
+  };
 
   if (loading) {
     return (
