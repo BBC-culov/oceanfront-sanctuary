@@ -13,6 +13,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { BOOKING_STATUS, getStatusConfig, getPaymentMethodLabel } from "@/lib/bookingStatus";
 import RecordManualPaymentDialog from "@/components/admin/RecordManualPaymentDialog";
+import ModificationRequestsPanel from "@/components/admin/ModificationRequestsPanel";
 import { extractEdgeError } from "@/lib/edgeError";
 
 const Section = ({

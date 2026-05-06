@@ -7,6 +7,7 @@ export type BookingStatus =
   | "awaiting_verification"
   | "confirmed"
   | "paid"
+  | "modification_pending"
   | "cancelled";
 
 export interface StatusConfig {
@@ -72,6 +73,16 @@ export const BOOKING_STATUS: Record<BookingStatus, StatusConfig> = {
     border: "border-green-300",
     dot: "bg-green-600",
     needsAttention: false,
+  },
+  modification_pending: {
+    label: "Modifica in attesa",
+    description: "Richiesta di modifica in attesa di conferma admin",
+    icon: AlertCircle,
+    bg: "bg-violet-50",
+    text: "text-violet-700",
+    border: "border-violet-200",
+    dot: "bg-violet-500",
+    needsAttention: true,
   },
   cancelled: {
     label: "Cancellata",

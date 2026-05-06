@@ -14,6 +14,10 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
 import { getStatusConfig } from "@/lib/bookingStatus";
+import RequestModificationDialog from "@/components/booking/RequestModificationDialog";
+import ModificationDiff from "@/components/admin/ModificationDiff";
+import { Pencil, Loader2 } from "lucide-react";
+import { extractEdgeError } from "@/lib/edgeError";
 
 const Section = ({
   icon: Icon, title, children, delay = 0,
@@ -56,12 +60,38 @@ const PrenotazioneDetail = () => {
   const [booking, setBooking] = useState<any>(null);
   const [apartment, setApartment] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [cancelStep, setCancelStep] = useState(0); // 0=hidden, 1=warning, 2=confirm, 3=processing
+  const [cancelStep, setCancelStep] = useState(0);
   const [cancelConfirmText, setCancelConfirmText] = useState("");
+  const [modOpen, setModOpen] = useState(false);
+  const [pendingMod, setPendingMod] = useState<any>(null);
+  const [payingMod, setPayingMod] = useState(false);
+
+  const reloadBooking = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session || !id) return;
+    const { data: b } = await supabase.from("bookings").select("*").eq("id", id).eq("user_id", session.user.id).single();
+    if (b) setBooking(b);
+    const { data: req } = await supabase
+      .from("booking_modification_requests").select("*")
+      .eq("booking_id", id).in("status", ["pending"])
+      .order("created_at", { ascending: false }).limit(1).maybeSingle();
+    setPendingMod(req);
+  };
 
   // Handle payment success redirects
   useEffect(() => {
     const payment = searchParams.get("payment");
+    if (payment === "modification_success" && id) {
+      (async () => {
+        try {
+          await supabase.functions.invoke("confirm-booking-payment", { body: { booking_id: id, type: "modification" } });
+          toast.success("Differenza modifica pagata!");
+          await reloadBooking();
+        } catch (e) { console.error(e); }
+        setSearchParams({}, { replace: true });
+      })();
+      return;
+    }
     if (payment === "success" && id) {
       navigate(`/prenotazione-successo/${id}?payment=success`, { replace: true });
       return;
@@ -126,10 +156,28 @@ const PrenotazioneDetail = () => {
         .eq("id", b.apartment_id)
         .single();
       setApartment(apt);
+
+      const { data: req } = await supabase
+        .from("booking_modification_requests").select("*")
+        .eq("booking_id", id!).in("status", ["pending"])
+        .order("created_at", { ascending: false }).limit(1).maybeSingle();
+      setPendingMod(req);
+
       setLoading(false);
     };
     load();
   }, [id, navigate]);
+
+  // Pay modification difference (Stripe)
+  const payModificationDiff = async () => {
+    if (!booking?.modification_payment_url) return;
+    setPayingMod(true);
+    try {
+      window.location.href = booking.modification_payment_url;
+    } finally {
+      setPayingMod(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -242,6 +290,84 @@ const PrenotazioneDetail = () => {
               </div>
             </div>
           </motion.div>
+
+          {/* Pending modification request banner */}
+          {pendingMod && (
+            <motion.div
+              initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+              className="bg-violet-50 border border-violet-200 rounded-2xl shadow-sm overflow-hidden"
+            >
+              <div className="p-5 space-y-3">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-violet-700" />
+                  <h3 className="font-sans text-sm font-semibold text-violet-900">In attesa di conferma modifiche</h3>
+                </div>
+                <p className="font-sans text-xs text-violet-800">
+                  La tua richiesta è stata ricevuta e sarà valutata dal team.
+                  {Number(pendingMod.price_diff) !== 0 && (
+                    <> Differenza stimata: <strong>{Number(pendingMod.price_diff) >= 0 ? "+" : ""}€{Number(pendingMod.price_diff).toFixed(2)}</strong></>
+                  )}
+                </p>
+                <div className="bg-white/60 rounded-lg p-3">
+                  <ModificationDiff current={pendingMod.current_data ?? {}} proposed={pendingMod.requested_changes ?? {}} />
+                </div>
+                {pendingMod.customer_note && (
+                  <p className="font-sans text-xs text-violet-800 italic">"{pendingMod.customer_note}"</p>
+                )}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Pay modification difference button */}
+          {booking.modification_amount_due > 0 && booking.modification_payment_url && (
+            (() => {
+              const expired = booking.modification_link_expires_at ? Date.now() / 1000 > booking.modification_link_expires_at : false;
+              return (
+                <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+                  className="bg-primary/5 border border-primary/30 rounded-2xl overflow-hidden">
+                  <div className="p-5 space-y-3 text-center">
+                    <CreditCard className="w-6 h-6 text-primary mx-auto" />
+                    <p className="font-sans text-sm text-muted-foreground">Differenza modifica da pagare</p>
+                    <p className="font-serif text-2xl text-foreground">€{Number(booking.modification_amount_due).toFixed(2)}</p>
+                    {expired ? (
+                      <p className="font-sans text-xs text-destructive">Link scaduto. Contatta l'assistenza per riceverne uno nuovo.</p>
+                    ) : (
+                      <>
+                        <button onClick={payModificationDiff} disabled={payingMod}
+                          className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-sans text-sm tracking-wider uppercase hover:shadow-lg transition-all disabled:opacity-50">
+                          {payingMod ? <Loader2 className="w-4 h-4 animate-spin" /> : <CreditCard className="w-4 h-4" />}
+                          Paga differenza
+                        </button>
+                        {booking.modification_link_expires_at && (
+                          <p className="font-sans text-[10px] text-muted-foreground">
+                            Link valido fino al {new Date(booking.modification_link_expires_at * 1000).toLocaleString("it-IT")}
+                          </p>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })()
+          )}
+
+          {/* Request modification CTA */}
+          {!pendingMod && ["confirmed", "awaiting_verification", "paid"].includes(booking.status) && (
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+              className="bg-card border border-border/60 rounded-2xl overflow-hidden">
+              <div className="p-5 flex items-center justify-between gap-4">
+                <div>
+                  <p className="font-sans text-sm font-medium text-foreground">Hai bisogno di modificare qualcosa?</p>
+                  <p className="font-sans text-xs text-muted-foreground">Date, volo, ospiti o servizi: invia una richiesta al team.</p>
+                </div>
+                <button onClick={() => setModOpen(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-primary/40 text-primary font-sans text-sm hover:bg-primary/5 transition-colors flex-shrink-0">
+                  <Pencil className="w-3.5 h-3.5" />
+                  Richiedi modifica
+                </button>
+              </div>
+            </motion.div>
+          )}
 
           {/* Guest info */}
           <Section icon={Users} title="Dati ospite" delay={0.15}>
@@ -564,6 +690,7 @@ const PrenotazioneDetail = () => {
 
         </div>
       </main>
+      <RequestModificationDialog open={modOpen} onClose={() => setModOpen(false)} booking={booking} onSubmitted={reloadBooking} />
       <Footer />
     </PageTransition>
   );
