@@ -14,6 +14,10 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
 import { getStatusConfig } from "@/lib/bookingStatus";
+import RequestModificationDialog from "@/components/booking/RequestModificationDialog";
+import ModificationDiff from "@/components/admin/ModificationDiff";
+import { Pencil, Loader2 } from "lucide-react";
+import { extractEdgeError } from "@/lib/edgeError";
 
 const Section = ({
   icon: Icon, title, children, delay = 0,
@@ -56,8 +60,23 @@ const PrenotazioneDetail = () => {
   const [booking, setBooking] = useState<any>(null);
   const [apartment, setApartment] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [cancelStep, setCancelStep] = useState(0); // 0=hidden, 1=warning, 2=confirm, 3=processing
+  const [cancelStep, setCancelStep] = useState(0);
   const [cancelConfirmText, setCancelConfirmText] = useState("");
+  const [modOpen, setModOpen] = useState(false);
+  const [pendingMod, setPendingMod] = useState<any>(null);
+  const [payingMod, setPayingMod] = useState(false);
+
+  const reloadBooking = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session || !id) return;
+    const { data: b } = await supabase.from("bookings").select("*").eq("id", id).eq("user_id", session.user.id).single();
+    if (b) setBooking(b);
+    const { data: req } = await supabase
+      .from("booking_modification_requests").select("*")
+      .eq("booking_id", id).in("status", ["pending"])
+      .order("created_at", { ascending: false }).limit(1).maybeSingle();
+    setPendingMod(req);
+  };
 
   // Handle payment success redirects
   useEffect(() => {
