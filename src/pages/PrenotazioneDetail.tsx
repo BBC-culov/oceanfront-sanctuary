@@ -81,6 +81,17 @@ const PrenotazioneDetail = () => {
   // Handle payment success redirects
   useEffect(() => {
     const payment = searchParams.get("payment");
+    if (payment === "modification_success" && id) {
+      (async () => {
+        try {
+          await supabase.functions.invoke("confirm-booking-payment", { body: { booking_id: id, type: "modification" } });
+          toast.success("Differenza modifica pagata!");
+          await reloadBooking();
+        } catch (e) { console.error(e); }
+        setSearchParams({}, { replace: true });
+      })();
+      return;
+    }
     if (payment === "success" && id) {
       navigate(`/prenotazione-successo/${id}?payment=success`, { replace: true });
       return;
