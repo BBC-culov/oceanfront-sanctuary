@@ -679,6 +679,7 @@ const PrenotazioneDetail = () => {
 
         </div>
       </main>
+      <RequestModificationDialog open={modOpen} onClose={() => setModOpen(false)} booking={booking} onSubmitted={reloadBooking} />
       <Footer />
     </PageTransition>
   );
