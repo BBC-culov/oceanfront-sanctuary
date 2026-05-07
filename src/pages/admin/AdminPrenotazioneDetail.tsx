@@ -8,12 +8,13 @@ import {
   ArrowLeft, CalendarCheck, User, Users, PlaneTakeoff, PlaneLanding,
   Receipt, Sparkles, MessageSquare, Clock, CheckCircle2, XCircle,
   Phone, Mail, MapPin, Building2, CreditCard, Shield, Globe, ChevronRight,
-  Link as LinkIcon, Copy, Loader2, Wallet, Plus,
+  Link as LinkIcon, Copy, Loader2, Wallet, Plus, Pencil,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { BOOKING_STATUS, getStatusConfig, getPaymentMethodLabel } from "@/lib/bookingStatus";
 import RecordManualPaymentDialog from "@/components/admin/RecordManualPaymentDialog";
 import ModificationRequestsPanel from "@/components/admin/ModificationRequestsPanel";
+import AdminEditBookingDialog from "@/components/admin/AdminEditBookingDialog";
 import { extractEdgeError } from "@/lib/edgeError";
 
 const Section = ({
