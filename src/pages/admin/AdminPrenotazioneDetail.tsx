@@ -649,6 +649,13 @@ const AdminPrenotazioneDetail = () => {
         onRecorded={reloadBookingAndPayments}
       />
 
+      <AdminEditBookingDialog
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        booking={booking}
+        onSaved={reloadBookingAndPayments}
+      />
+
       {/* Meta */}
       <motion.p
         initial={{ opacity: 0 }}
