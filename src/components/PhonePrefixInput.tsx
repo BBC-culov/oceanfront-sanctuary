@@ -104,6 +104,27 @@ const PhonePrefixInput = ({
   }, [open]);
 
   const handleNumberChange = (num: string) => {
+    // Detect autofill / paste that includes an international prefix
+    // (e.g. "+393331234567" or "00393331234567") and split it correctly,
+    // otherwise the prefix gets duplicated and the number can exceed 15 digits.
+    const trimmed = num.trim();
+    const normalized = trimmed.startsWith("00")
+      ? "+" + trimmed.slice(2)
+      : trimmed;
+
+    if (normalized.startsWith("+")) {
+      const cleaned = normalized.replace(/[^\d+]/g, "");
+      const sorted = [...PREFIXES].sort((a, b) => b.code.length - a.code.length);
+      const matched = sorted.find((p) => cleaned.startsWith(p.code));
+      if (matched) {
+        const rest = cleaned.slice(matched.code.length).replace(/\D/g, "");
+        setSelectedPrefix(matched.code);
+        setLocalNumber(rest);
+        onChange(`${matched.code} ${rest}`);
+        return;
+      }
+    }
+
     const digitsOnly = num.replace(/\D/g, "");
     setLocalNumber(digitsOnly);
     onChange(`${selectedPrefix} ${digitsOnly}`);
