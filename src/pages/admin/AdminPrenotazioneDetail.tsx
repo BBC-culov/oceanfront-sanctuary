@@ -8,12 +8,13 @@ import {
   ArrowLeft, CalendarCheck, User, Users, PlaneTakeoff, PlaneLanding,
   Receipt, Sparkles, MessageSquare, Clock, CheckCircle2, XCircle,
   Phone, Mail, MapPin, Building2, CreditCard, Shield, Globe, ChevronRight,
-  Link as LinkIcon, Copy, Loader2, Wallet, Plus,
+  Link as LinkIcon, Copy, Loader2, Wallet, Plus, Pencil,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { BOOKING_STATUS, getStatusConfig, getPaymentMethodLabel } from "@/lib/bookingStatus";
 import RecordManualPaymentDialog from "@/components/admin/RecordManualPaymentDialog";
 import ModificationRequestsPanel from "@/components/admin/ModificationRequestsPanel";
+import AdminEditBookingDialog from "@/components/admin/AdminEditBookingDialog";
 import { extractEdgeError } from "@/lib/edgeError";
 
 const Section = ({
@@ -65,6 +66,7 @@ const AdminPrenotazioneDetail = () => {
   const [emailSent, setEmailSent] = useState(false);
   const [manualPayments, setManualPayments] = useState<any[]>([]);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
   const reloadBookingAndPayments = async () => {
     if (!id) return;
@@ -207,6 +209,14 @@ const AdminPrenotazioneDetail = () => {
                   <option key={val} value={val}>{cfg.label}</option>
                 ))}
               </select>
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setEditOpen(true)}
+                className="font-sans text-[10px] tracking-wide uppercase px-3 py-1.5 rounded-sm border border-primary/40 text-primary font-semibold hover:bg-primary/5 transition-colors flex items-center gap-1.5"
+              >
+                <Pencil className="w-3 h-3" />
+                Modifica
+              </motion.button>
               {booking.status === "awaiting_verification" && (
                 <motion.button
                   whileTap={{ scale: 0.95 }}
@@ -221,6 +231,13 @@ const AdminPrenotazioneDetail = () => {
           </div>
         </div>
       </motion.div>
+
+      {/* Modification requests panel */}
+      <ModificationRequestsPanel
+        bookingId={booking.id}
+        originalStatus={booking.status === "modification_pending" ? "confirmed" : booking.status}
+        onChanged={reloadBookingAndPayments}
+      />
 
       {/* Content grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -630,6 +647,13 @@ const AdminPrenotazioneDetail = () => {
         totalPrice={booking.total_price ?? 0}
         amountPaid={booking.amount_paid ?? 0}
         onRecorded={reloadBookingAndPayments}
+      />
+
+      <AdminEditBookingDialog
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        booking={booking}
+        onSaved={reloadBookingAndPayments}
       />
 
       {/* Meta */}
