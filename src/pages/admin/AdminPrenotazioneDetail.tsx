@@ -209,6 +209,14 @@ const AdminPrenotazioneDetail = () => {
                   <option key={val} value={val}>{cfg.label}</option>
                 ))}
               </select>
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setEditOpen(true)}
+                className="font-sans text-[10px] tracking-wide uppercase px-3 py-1.5 rounded-sm border border-primary/40 text-primary font-semibold hover:bg-primary/5 transition-colors flex items-center gap-1.5"
+              >
+                <Pencil className="w-3 h-3" />
+                Modifica
+              </motion.button>
               {booking.status === "awaiting_verification" && (
                 <motion.button
                   whileTap={{ scale: 0.95 }}
@@ -223,6 +231,13 @@ const AdminPrenotazioneDetail = () => {
           </div>
         </div>
       </motion.div>
+
+      {/* Modification requests panel */}
+      <ModificationRequestsPanel
+        bookingId={booking.id}
+        originalStatus={booking.status === "modification_pending" ? "confirmed" : booking.status}
+        onChanged={reloadBookingAndPayments}
+      />
 
       {/* Content grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
