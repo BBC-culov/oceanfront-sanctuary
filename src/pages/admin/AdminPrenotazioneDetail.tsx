@@ -66,6 +66,7 @@ const AdminPrenotazioneDetail = () => {
   const [emailSent, setEmailSent] = useState(false);
   const [manualPayments, setManualPayments] = useState<any[]>([]);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
   const reloadBookingAndPayments = async () => {
     if (!id) return;
