@@ -10,6 +10,13 @@ const FIELD_LABELS: Record<string, string> = {
   guest_name: "Nome",
   guest_last_name: "Cognome",
   guest_phone: "Telefono",
+  guest_date_of_birth: "Data di nascita",
+  guest_place_of_birth: "Luogo di nascita",
+  guest_nationality: "Nazionalità",
+  guest_id_type: "Tipo documento",
+  guest_id_card_number: "Numero documento",
+  guest_id_card_issued: "Rilascio documento",
+  guest_id_card_expiry: "Scadenza documento",
   flight_outbound: "Volo andata",
   flight_return: "Volo ritorno",
   arrival_time: "Orario arrivo",
@@ -18,17 +25,22 @@ const FIELD_LABELS: Record<string, string> = {
   no_transfer: "Senza trasporto",
   notes: "Note",
   selected_services: "Servizi",
+  additional_guests: "Ospiti aggiuntivi",
 };
 
 const fmtVal = (k: string, v: any): string => {
   if (v === null || v === undefined || v === "") return "—";
-  if (k === "check_in" || k === "check_out") {
+  if (k === "check_in" || k === "check_out" || k.endsWith("date_of_birth") || k.endsWith("issued") || k.endsWith("expiry")) {
     try { return format(new Date(v), "d MMM yyyy", { locale: it }); } catch { return String(v); }
   }
   if (k === "no_transfer") return v ? "Sì" : "No";
   if (k === "selected_services" && Array.isArray(v)) {
     if (v.length === 0) return "Nessuno";
     return v.map((s: any) => (typeof s === "string" ? s : s?.name ?? "?")).join(", ");
+  }
+  if (k === "additional_guests" && Array.isArray(v)) {
+    if (v.length === 0) return "Nessuno";
+    return v.map((g: any) => `${g.first_name ?? ""} ${g.last_name ?? ""}`.trim() || "Ospite").join(", ");
   }
   return String(v);
 };
