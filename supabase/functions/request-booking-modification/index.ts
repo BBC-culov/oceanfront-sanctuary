@@ -33,7 +33,7 @@ serve(async (req) => {
     const { data: { user } } = await userClient.auth.getUser();
     if (!user) return json(401, { error: "Non autenticato" });
 
-    const { booking_id, changes, customer_note } = await req.json();
+    const { booking_id, changes, additional_guests, customer_note } = await req.json();
     if (!booking_id || !changes) return json(400, { error: "Dati richiesti mancanti" });
 
     // Fetch booking and verify ownership
