@@ -234,6 +234,26 @@ export default function RequestModificationDialog({ open, onClose, booking, onSu
               </div>
             </section>
 
+            {/* Additional guests */}
+            <section>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="flex items-center gap-2 font-sans text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+                  <Users className="w-3.5 h-3.5" /> Ospiti aggiuntivi
+                </h3>
+                <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <input type="checkbox" checked={editGuests} onChange={(e) => setEditGuests(e.target.checked)} />
+                  Modifica ospiti
+                </label>
+              </div>
+              {editGuests ? (
+                <GuestListEditor guests={guests} onChange={setGuests} />
+              ) : (
+                <p className="font-sans text-xs text-muted-foreground italic">
+                  Spunta "Modifica ospiti" per aggiungere o modificare gli ospiti registrati ({guests.length} attuali).
+                </p>
+              )}
+            </section>
+
             {/* Note */}
             <section>
               <h3 className="flex items-center gap-2 font-sans text-[11px] uppercase tracking-[0.15em] text-muted-foreground mb-3">
