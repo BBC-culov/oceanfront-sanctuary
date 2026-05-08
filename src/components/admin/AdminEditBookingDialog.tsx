@@ -107,6 +107,7 @@ export default function AdminEditBookingDialog({ open, onClose, booking, onSaved
             notes,
             selected_services: selectedSvcIds,
           },
+          ...(editGuests ? { additional_guests: guests } : {}),
           generate_modification_link: generateLink,
           send_email: sendEmail,
         },
