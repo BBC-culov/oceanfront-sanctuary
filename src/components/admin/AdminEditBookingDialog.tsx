@@ -3,12 +3,13 @@
 // Stripe "modification" payment link for a positive price diff.
 import { useEffect, useState } from "react";
 import { differenceInDays } from "date-fns";
-import { Loader2, X, CalendarDays, PlaneTakeoff, Sparkles, MessageSquare, Phone, CreditCard, Mail } from "lucide-react";
+import { Loader2, X, CalendarDays, PlaneTakeoff, Sparkles, MessageSquare, Phone, CreditCard, Mail, Users } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useAdditionalServices } from "@/hooks/useAdditionalServices";
 import { extractEdgeError } from "@/lib/edgeError";
+import GuestListEditor, { type GuestRow } from "@/components/booking/GuestListEditor";
 
 interface Props {
   open: boolean;
