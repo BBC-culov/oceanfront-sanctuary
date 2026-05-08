@@ -115,6 +115,7 @@ export default function RequestModificationDialog({ open, onClose, booking, onSu
             notes,
             selected_services: selectedSvcIds,
           },
+          ...(editGuests ? { additional_guests: guests } : {}),
           customer_note: customerNote || null,
         },
       });
