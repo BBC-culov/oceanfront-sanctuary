@@ -37,6 +37,8 @@ export default function RequestModificationDialog({ open, onClose, booking, onSu
       : []
   );
   const [customerNote, setCustomerNote] = useState("");
+  const [guests, setGuests] = useState<GuestRow[]>([]);
+  const [editGuests, setEditGuests] = useState(false);
 
   useEffect(() => {
     if (!open || !booking) return;
