@@ -41,7 +41,7 @@ const Email = ({ guestName, apartmentName, bookingCode, checkIn, checkOut, newTo
           {paymentLink && priceDiff > 0 && (
             <>
               <Text style={text}>
-                È disponibile un link sicuro per il pagamento della differenza, valido <strong>48 ore</strong>.
+                È disponibile un link sicuro per il pagamento della differenza, valido <strong>24 ore</strong>.
               </Text>
               <Section style={{ textAlign: 'center' as const, margin: '32px 0' }}>
                 <Button style={button} href={paymentLink}>

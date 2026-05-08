@@ -1,5 +1,5 @@
 // Admin: edit booking directly via admin-update-booking edge function.
-// Supports dates, contact, flight, services, notes; can generate a 48h
+// Supports dates, contact, flight, services, notes; can generate a 24h
 // Stripe "modification" payment link for a positive price diff.
 import { useEffect, useState } from "react";
 import { differenceInDays } from "date-fns";
@@ -212,7 +212,7 @@ export default function AdminEditBookingDialog({ open, onClose, booking, onSaved
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" checked={generateLink} onChange={(e) => setGenerateLink(e.target.checked)} />
                 <CreditCard className="w-3.5 h-3.5 text-primary" />
-                Genera link Stripe per eventuale differenza (48h)
+                Genera link Stripe per eventuale differenza (24h)
               </label>
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" checked={sendEmail} onChange={(e) => setSendEmail(e.target.checked)} />
