@@ -38,6 +38,8 @@ export default function AdminEditBookingDialog({ open, onClose, booking, onSaved
   const [selectedSvcIds, setSelectedSvcIds] = useState<string[]>([]);
   const [generateLink, setGenerateLink] = useState(true);
   const [sendEmail, setSendEmail] = useState(true);
+  const [guests, setGuests] = useState<GuestRow[]>([]);
+  const [editGuests, setEditGuests] = useState(false);
 
   useEffect(() => {
     if (!open || !booking) return;
