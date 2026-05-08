@@ -91,10 +91,33 @@ serve(async (req) => {
     const editable = [
       "check_in", "check_out",
       "guest_name", "guest_last_name", "guest_phone",
+      "guest_date_of_birth", "guest_place_of_birth", "guest_nationality",
+      "guest_id_type", "guest_id_card_number", "guest_id_card_issued", "guest_id_card_expiry",
       "flight_outbound", "flight_return", "arrival_time", "departure_time", "airline", "no_transfer",
       "notes", "selected_services",
     ];
     for (const k of editable) if (k in changes) updateData[k] = changes[k];
+
+    // Apply additional guests replacement if requested
+    if (Array.isArray((changes as any).additional_guests)) {
+      const guests = (changes as any).additional_guests;
+      await adminClient.from("booking_guests").delete().eq("booking_id", booking.id);
+      if (guests.length > 0) {
+        await adminClient.from("booking_guests").insert(
+          guests.map((g: any) => ({
+            booking_id: booking.id,
+            first_name: g.first_name,
+            last_name: g.last_name,
+            date_of_birth: g.date_of_birth,
+            nationality: g.nationality,
+            id_type: g.id_type ?? "id_card",
+            id_card_number: g.id_card_number,
+            id_card_issued: g.id_card_issued,
+            id_card_expiry: g.id_card_expiry,
+          }))
+        );
+      }
+    }
 
     updateData.total_price = request.new_total;
     updateData.deposit_amount = Math.round(Number(request.new_total) * 0.2 * 100) / 100;
