@@ -1,4 +1,4 @@
-// Admin: (re)generate a 48h Stripe Checkout link for a booking's modification balance.
+// Admin: (re)generate a 24h Stripe Checkout link for a booking's modification balance.
 // Used when the previous link expired or was never created.
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
@@ -79,7 +79,7 @@ serve(async (req) => {
       try { await stripe.checkout.sessions.expire(expire_session_id); } catch (_) { /* ignore */ }
     }
 
-    const expiresAt = Math.floor(Date.now() / 1000) + 48 * 60 * 60;
+    const expiresAt = Math.floor(Date.now() / 1000) + 24 * 60 * 60;
     const origin = req.headers.get("origin") || "https://bazhousedemo.vercel.app";
 
     const customers = await stripe.customers.list({ email: booking.guest_email, limit: 1 });

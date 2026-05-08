@@ -1,6 +1,6 @@
 // Admin: approve or reject a modification request.
 // On approve: applies requested_changes to booking, restores original status,
-// optionally generates a modification payment link (48h) for the price diff.
+// optionally generates a modification payment link (24h) for the price diff.
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
@@ -100,7 +100,7 @@ serve(async (req) => {
     updateData.deposit_amount = Math.round(Number(request.new_total) * 0.2 * 100) / 100;
     updateData.status = restore_status;
 
-    // Optional payment link (48h) when there's a positive diff
+    // Optional payment link (24h) when there's a positive diff
     let modPaymentUrl: string | null = null;
     let modExpiresAt: number | null = null;
     let modSessionId: string | null = null;
@@ -111,7 +111,7 @@ serve(async (req) => {
       if (!stripeKey) return json(500, { error: "Stripe non configurato" });
       const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
-      modExpiresAt = Math.floor(Date.now() / 1000) + 48 * 60 * 60;
+      modExpiresAt = Math.floor(Date.now() / 1000) + 24 * 60 * 60;
       const origin = req.headers.get("origin") || "https://bazhousedemo.vercel.app";
 
       const customers = await stripe.customers.list({ email: booking.guest_email, limit: 1 });
