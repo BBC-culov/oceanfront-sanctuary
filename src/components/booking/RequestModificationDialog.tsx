@@ -2,12 +2,13 @@
 // Sends to request-booking-modification edge function.
 import { useEffect, useState } from "react";
 import { format, differenceInDays } from "date-fns";
-import { Loader2, X, CalendarDays, PlaneTakeoff, Sparkles, MessageSquare, Phone, User } from "lucide-react";
+import { Loader2, X, CalendarDays, PlaneTakeoff, Sparkles, MessageSquare, Phone, User, Users } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAdditionalServices } from "@/hooks/useAdditionalServices";
 import { extractEdgeError } from "@/lib/edgeError";
+import GuestListEditor, { type GuestRow, emptyGuest } from "./GuestListEditor";
 
 interface Props {
   open: boolean;
