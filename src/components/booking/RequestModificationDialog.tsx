@@ -58,6 +58,26 @@ export default function RequestModificationDialog({ open, onClose, booking, onSu
         : []
     );
     setCustomerNote("");
+    setEditGuests(false);
+    // Load existing additional guests for this booking
+    (async () => {
+      const { data } = await supabase
+        .from("booking_guests")
+        .select("first_name,last_name,date_of_birth,nationality,id_type,id_card_number,id_card_issued,id_card_expiry")
+        .eq("booking_id", booking.id);
+      setGuests(
+        (data ?? []).map((g: any) => ({
+          first_name: g.first_name ?? "",
+          last_name: g.last_name ?? "",
+          date_of_birth: g.date_of_birth ?? "",
+          nationality: g.nationality ?? "",
+          id_type: g.id_type ?? "id_card",
+          id_card_number: g.id_card_number ?? "",
+          id_card_issued: g.id_card_issued ?? "",
+          id_card_expiry: g.id_card_expiry ?? "",
+        }))
+      );
+    })();
   }, [open, booking]);
 
   if (!open) return null;
