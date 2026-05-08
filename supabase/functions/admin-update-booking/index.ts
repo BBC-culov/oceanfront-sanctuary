@@ -1,6 +1,6 @@
 // Admin-only: updates a booking's editable fields with overlap protection
 // and trusted price recomputation. Generates a "modification payment link"
-// (48h) when the new total exceeds amount_paid + balance already due.
+// (24h) when the new total exceeds amount_paid + balance already due.
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
@@ -164,7 +164,7 @@ serve(async (req) => {
       }
     }
 
-    // ---- modification payment link (48h) ----
+    // ---- modification payment link (24h) ----
     let modPaymentUrl: string | null = null;
     let modExpiresAt: number | null = null;
     let modSessionId: string | null = null;
@@ -176,7 +176,7 @@ serve(async (req) => {
       const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
       modAmount = diff;
-      modExpiresAt = Math.floor(Date.now() / 1000) + 48 * 60 * 60;
+      modExpiresAt = Math.floor(Date.now() / 1000) + 24 * 60 * 60;
       const origin = req.headers.get("origin") || "https://bazhousedemo.vercel.app";
 
       const customers = await stripe.customers.list({ email: booking.guest_email, limit: 1 });

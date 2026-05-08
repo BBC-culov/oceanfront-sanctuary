@@ -2,12 +2,13 @@
 // Sends to request-booking-modification edge function.
 import { useEffect, useState } from "react";
 import { format, differenceInDays } from "date-fns";
-import { Loader2, X, CalendarDays, PlaneTakeoff, Sparkles, MessageSquare, Phone, User } from "lucide-react";
+import { Loader2, X, CalendarDays, PlaneTakeoff, Sparkles, MessageSquare, Phone, User, Users } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAdditionalServices } from "@/hooks/useAdditionalServices";
 import { extractEdgeError } from "@/lib/edgeError";
+import GuestListEditor, { type GuestRow, emptyGuest } from "./GuestListEditor";
 
 interface Props {
   open: boolean;
@@ -36,6 +37,8 @@ export default function RequestModificationDialog({ open, onClose, booking, onSu
       : []
   );
   const [customerNote, setCustomerNote] = useState("");
+  const [guests, setGuests] = useState<GuestRow[]>([]);
+  const [editGuests, setEditGuests] = useState(false);
 
   useEffect(() => {
     if (!open || !booking) return;
@@ -55,6 +58,26 @@ export default function RequestModificationDialog({ open, onClose, booking, onSu
         : []
     );
     setCustomerNote("");
+    setEditGuests(false);
+    // Load existing additional guests for this booking
+    (async () => {
+      const { data } = await supabase
+        .from("booking_guests")
+        .select("first_name,last_name,date_of_birth,nationality,id_type,id_card_number,id_card_issued,id_card_expiry")
+        .eq("booking_id", booking.id);
+      setGuests(
+        (data ?? []).map((g: any) => ({
+          first_name: g.first_name ?? "",
+          last_name: g.last_name ?? "",
+          date_of_birth: g.date_of_birth ?? "",
+          nationality: g.nationality ?? "",
+          id_type: g.id_type ?? "id_card",
+          id_card_number: g.id_card_number ?? "",
+          id_card_issued: g.id_card_issued ?? "",
+          id_card_expiry: g.id_card_expiry ?? "",
+        }))
+      );
+    })();
   }, [open, booking]);
 
   if (!open) return null;
@@ -92,6 +115,7 @@ export default function RequestModificationDialog({ open, onClose, booking, onSu
             notes,
             selected_services: selectedSvcIds,
           },
+          ...(editGuests ? { additional_guests: guests } : {}),
           customer_note: customerNote || null,
         },
       });
@@ -208,6 +232,26 @@ export default function RequestModificationDialog({ open, onClose, booking, onSu
                   </label>
                 ))}
               </div>
+            </section>
+
+            {/* Additional guests */}
+            <section>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="flex items-center gap-2 font-sans text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+                  <Users className="w-3.5 h-3.5" /> Ospiti aggiuntivi
+                </h3>
+                <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <input type="checkbox" checked={editGuests} onChange={(e) => setEditGuests(e.target.checked)} />
+                  Modifica ospiti
+                </label>
+              </div>
+              {editGuests ? (
+                <GuestListEditor guests={guests} onChange={setGuests} />
+              ) : (
+                <p className="font-sans text-xs text-muted-foreground italic">
+                  Spunta "Modifica ospiti" per aggiungere o modificare gli ospiti registrati ({guests.length} attuali).
+                </p>
+              )}
             </section>
 
             {/* Note */}

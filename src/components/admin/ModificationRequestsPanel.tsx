@@ -114,7 +114,7 @@ export default function ModificationRequestsPanel({ bookingId, originalStatus = 
                 {Number(r.price_diff) > 0 && (
                   <label className="flex items-center gap-2 text-sm">
                     <input type="checkbox" checked={!!genLink[r.id]} onChange={(e) => setGenLink({ ...genLink, [r.id]: e.target.checked })} />
-                    Genera link Stripe per la differenza (48h)
+                    Genera link Stripe per la differenza (24h)
                   </label>
                 )}
                 <input value={rejectReason[r.id] ?? ""} onChange={(e) => setRejectReason({ ...rejectReason, [r.id]: e.target.value })}

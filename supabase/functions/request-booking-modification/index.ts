@@ -33,7 +33,7 @@ serve(async (req) => {
     const { data: { user } } = await userClient.auth.getUser();
     if (!user) return json(401, { error: "Non autenticato" });
 
-    const { booking_id, changes, customer_note } = await req.json();
+    const { booking_id, changes, additional_guests, customer_note } = await req.json();
     if (!booking_id || !changes) return json(400, { error: "Dati richiesti mancanti" });
 
     // Fetch booking and verify ownership
@@ -57,6 +57,8 @@ serve(async (req) => {
     const allowed = [
       "check_in", "check_out",
       "guest_name", "guest_last_name", "guest_phone",
+      "guest_date_of_birth", "guest_place_of_birth", "guest_nationality",
+      "guest_id_type", "guest_id_card_number", "guest_id_card_issued", "guest_id_card_expiry",
       "flight_outbound", "flight_return", "arrival_time", "departure_time", "airline", "no_transfer",
       "notes",
       "selected_services",
@@ -67,6 +69,15 @@ serve(async (req) => {
     // Build "current" snapshot of the same fields
     const current: Record<string, any> = {};
     for (const k of allowed) current[k] = (booking as any)[k];
+
+    // Additional guests: include in snapshot if provided
+    if (Array.isArray(additional_guests)) {
+      const { data: currentGuests } = await adminClient
+        .from("booking_guests").select("first_name,last_name,date_of_birth,nationality,id_type,id_card_number,id_card_issued,id_card_expiry")
+        .eq("booking_id", booking_id);
+      current.additional_guests = currentGuests ?? [];
+      proposed.additional_guests = additional_guests;
+    }
 
     const realChanges = diffChanges(current, proposed);
     if (Object.keys(realChanges).length === 0) {

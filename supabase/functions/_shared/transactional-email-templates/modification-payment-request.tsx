@@ -35,7 +35,7 @@ const Email = ({ guestName, apartmentName, bookingCode, amount = 0, paymentLink 
               </Button>
             </Section>
           )}
-          <Text style={smallText}>Il link è valido per 48 ore. Trascorso questo tempo, sarà necessario rigenerarne uno nuovo.</Text>
+          <Text style={smallText}>Il link è valido per 24 ore. Trascorso questo tempo, sarà necessario rigenerarne uno nuovo.</Text>
         </Section>
         <BrandFooter />
       </Container>

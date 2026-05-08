@@ -1,14 +1,15 @@
 // Admin: edit booking directly via admin-update-booking edge function.
-// Supports dates, contact, flight, services, notes; can generate a 48h
+// Supports dates, contact, flight, services, notes; can generate a 24h
 // Stripe "modification" payment link for a positive price diff.
 import { useEffect, useState } from "react";
 import { differenceInDays } from "date-fns";
-import { Loader2, X, CalendarDays, PlaneTakeoff, Sparkles, MessageSquare, Phone, CreditCard, Mail } from "lucide-react";
+import { Loader2, X, CalendarDays, PlaneTakeoff, Sparkles, MessageSquare, Phone, CreditCard, Mail, Users } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useAdditionalServices } from "@/hooks/useAdditionalServices";
 import { extractEdgeError } from "@/lib/edgeError";
+import GuestListEditor, { type GuestRow } from "@/components/booking/GuestListEditor";
 
 interface Props {
   open: boolean;
@@ -37,6 +38,8 @@ export default function AdminEditBookingDialog({ open, onClose, booking, onSaved
   const [selectedSvcIds, setSelectedSvcIds] = useState<string[]>([]);
   const [generateLink, setGenerateLink] = useState(true);
   const [sendEmail, setSendEmail] = useState(true);
+  const [guests, setGuests] = useState<GuestRow[]>([]);
+  const [editGuests, setEditGuests] = useState(false);
 
   useEffect(() => {
     if (!open || !booking) return;
@@ -60,6 +63,25 @@ export default function AdminEditBookingDialog({ open, onClose, booking, onSaved
     );
     setGenerateLink(true);
     setSendEmail(true);
+    setEditGuests(false);
+    (async () => {
+      const { data } = await supabase
+        .from("booking_guests")
+        .select("first_name,last_name,date_of_birth,nationality,id_type,id_card_number,id_card_issued,id_card_expiry")
+        .eq("booking_id", booking.id);
+      setGuests(
+        (data ?? []).map((g: any) => ({
+          first_name: g.first_name ?? "",
+          last_name: g.last_name ?? "",
+          date_of_birth: g.date_of_birth ?? "",
+          nationality: g.nationality ?? "",
+          id_type: g.id_type ?? "id_card",
+          id_card_number: g.id_card_number ?? "",
+          id_card_issued: g.id_card_issued ?? "",
+          id_card_expiry: g.id_card_expiry ?? "",
+        }))
+      );
+    })();
   }, [open, booking]);
 
   if (!open) return null;
@@ -85,6 +107,7 @@ export default function AdminEditBookingDialog({ open, onClose, booking, onSaved
             notes,
             selected_services: selectedSvcIds,
           },
+          ...(editGuests ? { additional_guests: guests } : {}),
           generate_modification_link: generateLink,
           send_email: sendEmail,
         },
@@ -201,6 +224,25 @@ export default function AdminEditBookingDialog({ open, onClose, booking, onSaved
             </section>
 
             <section>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="flex items-center gap-2 font-sans text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+                  <Users className="w-3.5 h-3.5" /> Ospiti aggiuntivi
+                </h3>
+                <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <input type="checkbox" checked={editGuests} onChange={(e) => setEditGuests(e.target.checked)} />
+                  Modifica ospiti
+                </label>
+              </div>
+              {editGuests ? (
+                <GuestListEditor guests={guests} onChange={setGuests} />
+              ) : (
+                <p className="font-sans text-xs text-muted-foreground italic">
+                  Spunta "Modifica ospiti" per aggiungere o modificare gli ospiti registrati ({guests.length} attuali).
+                </p>
+              )}
+            </section>
+
+            <section>
               <h3 className="flex items-center gap-2 font-sans text-[11px] uppercase tracking-[0.15em] text-muted-foreground mb-3">
                 <MessageSquare className="w-3.5 h-3.5" /> Note interne
               </h3>
@@ -212,7 +254,7 @@ export default function AdminEditBookingDialog({ open, onClose, booking, onSaved
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" checked={generateLink} onChange={(e) => setGenerateLink(e.target.checked)} />
                 <CreditCard className="w-3.5 h-3.5 text-primary" />
-                Genera link Stripe per eventuale differenza (48h)
+                Genera link Stripe per eventuale differenza (24h)
               </label>
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" checked={sendEmail} onChange={(e) => setSendEmail(e.target.checked)} />

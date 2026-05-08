@@ -38,7 +38,7 @@ const Email = ({ guestName, bookingCode, newTotal = 0, priceDiff = 0, paymentLin
           {paymentLink && priceDiff > 0 && (
             <>
               <Text style={text}>
-                Per completare la modifica, proceda al pagamento della differenza tramite il link sicuro qui sotto. Il link è valido per <strong>48 ore</strong>.
+                Per completare la modifica, proceda al pagamento della differenza tramite il link sicuro qui sotto. Il link è valido per <strong>24 ore</strong>.
               </Text>
               <Section style={{ textAlign: 'center' as const, margin: '32px 0' }}>
                 <Button style={button} href={paymentLink}>
