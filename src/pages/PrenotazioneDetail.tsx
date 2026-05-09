@@ -7,7 +7,7 @@ import { it } from "date-fns/locale";
 import {
   ArrowLeft, CalendarCheck, Building2, Users, PlaneTakeoff, PlaneLanding,
   Receipt, Clock, CheckCircle2, XCircle, Phone, Mail, MapPin,
-  CreditCard, Headphones, MessageCircle, Sparkles, AlertTriangle, Ban,
+  CreditCard, Headphones, MessageCircle, Sparkles, AlertTriangle, Ban, History,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
