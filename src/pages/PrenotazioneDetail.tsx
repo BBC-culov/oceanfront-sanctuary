@@ -160,11 +160,13 @@ const PrenotazioneDetail = () => {
         .single();
       setApartment(apt);
 
-      const { data: req } = await supabase
+      const { data: all } = await supabase
         .from("booking_modification_requests").select("*")
-        .eq("booking_id", id!).in("status", ["pending"])
-        .order("created_at", { ascending: false }).limit(1).maybeSingle();
-      setPendingMod(req);
+        .eq("booking_id", id!)
+        .order("created_at", { ascending: false });
+      const list = all ?? [];
+      setPendingMod(list.find((r: any) => r.status === "pending") ?? null);
+      setModHistory(list.filter((r: any) => r.status !== "pending"));
 
       setLoading(false);
     };
