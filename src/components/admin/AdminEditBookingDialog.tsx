@@ -1,15 +1,16 @@
 // Admin: edit booking directly via admin-update-booking edge function.
-// Supports dates, contact, flight, services, notes; can generate a 24h
-// Stripe "modification" payment link for a positive price diff.
+// Supports dates, contact, full main guest, flight, services, additional guests, notes.
+// Can generate a 24h Stripe "modification" payment link for a positive price diff.
 import { useEffect, useState } from "react";
 import { differenceInDays } from "date-fns";
-import { Loader2, X, CalendarDays, PlaneTakeoff, Sparkles, MessageSquare, Phone, CreditCard, Mail, Users } from "lucide-react";
+import { Loader2, X, CalendarDays, PlaneTakeoff, Sparkles, MessageSquare, Phone, CreditCard, Mail, Users, User, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useAdditionalServices } from "@/hooks/useAdditionalServices";
 import { extractEdgeError } from "@/lib/edgeError";
 import GuestListEditor, { type GuestRow } from "@/components/booking/GuestListEditor";
+import { mainGuestSchema, stayDatesSchema, guestSchema, flattenZodErrors, type FieldErrors } from "@/lib/modificationValidation";
 
 interface Props {
   open: boolean;
@@ -18,9 +19,16 @@ interface Props {
   onSaved?: () => void;
 }
 
+const fieldClass = (hasError: boolean) =>
+  `h-11 px-3 rounded-md bg-background border text-sm ${hasError ? "border-destructive" : "border-border"}`;
+
+const ErrorMsg = ({ msg }: { msg?: string }) =>
+  msg ? <p className="mt-1 text-[11px] text-destructive flex items-center gap-1"><AlertCircle className="w-3 h-3" />{msg}</p> : null;
+
 export default function AdminEditBookingDialog({ open, onClose, booking, onSaved }: Props) {
   const { data: services = [] } = useAdditionalServices();
   const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState<FieldErrors>({});
 
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
@@ -28,6 +36,13 @@ export default function AdminEditBookingDialog({ open, onClose, booking, onSaved
   const [guestLast, setGuestLast] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [gDob, setGDob] = useState("");
+  const [gPob, setGPob] = useState("");
+  const [gNat, setGNat] = useState("");
+  const [gIdType, setGIdType] = useState("id_card");
+  const [gIdNum, setGIdNum] = useState("");
+  const [gIdIss, setGIdIss] = useState("");
+  const [gIdExp, setGIdExp] = useState("");
   const [flightOut, setFlightOut] = useState("");
   const [flightRet, setFlightRet] = useState("");
   const [airline, setAirline] = useState("");
@@ -43,12 +58,20 @@ export default function AdminEditBookingDialog({ open, onClose, booking, onSaved
 
   useEffect(() => {
     if (!open || !booking) return;
+    setErrors({});
     setCheckIn(booking.check_in ?? "");
     setCheckOut(booking.check_out ?? "");
     setGuestName(booking.guest_name ?? "");
     setGuestLast(booking.guest_last_name ?? "");
     setGuestEmail(booking.guest_email ?? "");
     setPhone(booking.guest_phone ?? "");
+    setGDob(booking.guest_date_of_birth ?? "");
+    setGPob(booking.guest_place_of_birth ?? "");
+    setGNat(booking.guest_nationality ?? "");
+    setGIdType(booking.guest_id_type ?? "id_card");
+    setGIdNum(booking.guest_id_card_number ?? "");
+    setGIdIss(booking.guest_id_card_issued ?? "");
+    setGIdExp(booking.guest_id_card_expiry ?? "");
     setFlightOut(booking.flight_outbound ?? "");
     setFlightRet(booking.flight_return ?? "");
     setAirline(booking.airline ?? "");
@@ -90,9 +113,35 @@ export default function AdminEditBookingDialog({ open, onClose, booking, onSaved
   const toggleService = (id: string) =>
     setSelectedSvcIds((prev) => (prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]));
 
+  const validate = (): boolean => {
+    const errs: FieldErrors = {};
+    const dRes = stayDatesSchema.safeParse({ check_in: checkIn, check_out: checkOut });
+    if (!dRes.success) Object.assign(errs, flattenZodErrors(dRes.error));
+    const mRes = mainGuestSchema.safeParse({
+      guest_name: guestName, guest_last_name: guestLast, guest_email: guestEmail, guest_phone: phone,
+      guest_date_of_birth: gDob, guest_place_of_birth: gPob, guest_nationality: gNat,
+      guest_id_type: gIdType as any, guest_id_card_number: gIdNum,
+      guest_id_card_issued: gIdIss, guest_id_card_expiry: gIdExp,
+    });
+    if (!mRes.success) Object.assign(errs, flattenZodErrors(mRes.error));
+    if (editGuests) {
+      guests.forEach((g, idx) => {
+        const r = guestSchema.safeParse(g);
+        if (!r.success) {
+          const fl = flattenZodErrors(r.error);
+          for (const k of Object.keys(fl)) errs[`guest_${idx}_${k}`] = fl[k];
+        }
+      });
+    }
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
   const submit = async () => {
-    if (!checkIn || !checkOut) { toast({ title: "Date obbligatorie", variant: "destructive" }); return; }
-    if (nights < 1) { toast({ title: "Soggiorno minimo 1 notte", variant: "destructive" }); return; }
+    if (!validate()) {
+      toast({ title: "Compila correttamente i campi evidenziati", variant: "destructive" });
+      return;
+    }
     setSubmitting(true);
     try {
       const { data, error } = await supabase.functions.invoke("admin-update-booking", {
@@ -102,6 +151,13 @@ export default function AdminEditBookingDialog({ open, onClose, booking, onSaved
             check_in: checkIn, check_out: checkOut,
             guest_name: guestName, guest_last_name: guestLast,
             guest_email: guestEmail, guest_phone: phone,
+            guest_date_of_birth: gDob || null,
+            guest_place_of_birth: gPob || null,
+            guest_nationality: gNat || null,
+            guest_id_type: gIdType,
+            guest_id_card_number: gIdNum || null,
+            guest_id_card_issued: gIdIss || null,
+            guest_id_card_expiry: gIdExp || null,
             flight_outbound: flightOut, flight_return: flightRet,
             airline, arrival_time: arrTime, departure_time: depTime, no_transfer: noTransfer,
             notes,
@@ -156,27 +212,34 @@ export default function AdminEditBookingDialog({ open, onClose, booking, onSaved
                 <CalendarDays className="w-3.5 h-3.5" /> Date soggiorno
               </h3>
               <div className="grid grid-cols-2 gap-3">
-                <input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)}
-                  className="h-11 px-3 rounded-md bg-background border border-border text-sm" />
-                <input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)}
-                  className="h-11 px-3 rounded-md bg-background border border-border text-sm" />
+                <div><input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className={`w-full ${fieldClass(!!errors.check_in)}`} /><ErrorMsg msg={errors.check_in} /></div>
+                <div><input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className={`w-full ${fieldClass(!!errors.check_out)}`} /><ErrorMsg msg={errors.check_out} /></div>
               </div>
               {nights > 0 && <p className="font-sans text-xs text-muted-foreground mt-2">{nights} notti</p>}
             </section>
 
             <section>
               <h3 className="flex items-center gap-2 font-sans text-[11px] uppercase tracking-[0.15em] text-muted-foreground mb-3">
-                <Phone className="w-3.5 h-3.5" /> Ospite principale
+                <User className="w-3.5 h-3.5" /> Ospite principale
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <input value={guestName} onChange={(e) => setGuestName(e.target.value)} placeholder="Nome"
-                  className="h-11 px-3 rounded-md bg-background border border-border text-sm" />
-                <input value={guestLast} onChange={(e) => setGuestLast(e.target.value)} placeholder="Cognome"
-                  className="h-11 px-3 rounded-md bg-background border border-border text-sm" />
-                <input type="email" value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} placeholder="Email"
-                  className="h-11 px-3 rounded-md bg-background border border-border text-sm" />
-                <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Telefono"
-                  className="h-11 px-3 rounded-md bg-background border border-border text-sm" />
+                <div><input value={guestName} onChange={(e) => setGuestName(e.target.value)} placeholder="Nome" className={`w-full ${fieldClass(!!errors.guest_name)}`} /><ErrorMsg msg={errors.guest_name} /></div>
+                <div><input value={guestLast} onChange={(e) => setGuestLast(e.target.value)} placeholder="Cognome" className={`w-full ${fieldClass(!!errors.guest_last_name)}`} /><ErrorMsg msg={errors.guest_last_name} /></div>
+                <div><input type="email" value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} placeholder="Email" className={`w-full ${fieldClass(!!errors.guest_email)}`} /><ErrorMsg msg={errors.guest_email} /></div>
+                <div><input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Telefono" className={`w-full ${fieldClass(!!errors.guest_phone)}`} /><ErrorMsg msg={errors.guest_phone} /></div>
+                <div><label className="text-xs text-muted-foreground">Data di nascita</label><input type="date" value={gDob} onChange={(e) => setGDob(e.target.value)} className={`w-full mt-1 ${fieldClass(false)}`} /></div>
+                <div><label className="text-xs text-muted-foreground">Luogo di nascita</label><input value={gPob} onChange={(e) => setGPob(e.target.value)} className={`w-full mt-1 ${fieldClass(false)}`} /></div>
+                <div><input value={gNat} onChange={(e) => setGNat(e.target.value)} placeholder="Nazionalità" className={`w-full ${fieldClass(false)}`} /></div>
+                <div>
+                  <select value={gIdType} onChange={(e) => setGIdType(e.target.value)} className={`w-full ${fieldClass(false)}`}>
+                    <option value="id_card">Carta d'identità</option>
+                    <option value="passport">Passaporto</option>
+                    <option value="driver_license">Patente</option>
+                  </select>
+                </div>
+                <div className="sm:col-span-2"><input value={gIdNum} onChange={(e) => setGIdNum(e.target.value)} placeholder="Numero documento" className={`w-full ${fieldClass(false)}`} /></div>
+                <div><label className="text-xs text-muted-foreground">Rilascio</label><input type="date" value={gIdIss} onChange={(e) => setGIdIss(e.target.value)} className={`w-full mt-1 ${fieldClass(false)}`} /></div>
+                <div><label className="text-xs text-muted-foreground">Scadenza</label><input type="date" value={gIdExp} onChange={(e) => setGIdExp(e.target.value)} className={`w-full mt-1 ${fieldClass(false)}`} /></div>
               </div>
             </section>
 
@@ -190,16 +253,11 @@ export default function AdminEditBookingDialog({ open, onClose, booking, onSaved
               </label>
               {!noTransfer && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <input value={airline} onChange={(e) => setAirline(e.target.value)} placeholder="Compagnia"
-                    className="h-11 px-3 rounded-md bg-background border border-border text-sm" />
-                  <input value={flightOut} onChange={(e) => setFlightOut(e.target.value)} placeholder="Volo andata"
-                    className="h-11 px-3 rounded-md bg-background border border-border text-sm" />
-                  <input type="time" value={arrTime} onChange={(e) => setArrTime(e.target.value)}
-                    className="h-11 px-3 rounded-md bg-background border border-border text-sm" />
-                  <input value={flightRet} onChange={(e) => setFlightRet(e.target.value)} placeholder="Volo ritorno"
-                    className="h-11 px-3 rounded-md bg-background border border-border text-sm" />
-                  <input type="time" value={depTime} onChange={(e) => setDepTime(e.target.value)}
-                    className="h-11 px-3 rounded-md bg-background border border-border text-sm" />
+                  <input value={airline} onChange={(e) => setAirline(e.target.value)} placeholder="Compagnia" className={`w-full ${fieldClass(false)}`} />
+                  <input value={flightOut} onChange={(e) => setFlightOut(e.target.value)} placeholder="Volo andata" className={`w-full ${fieldClass(false)}`} />
+                  <input type="time" value={arrTime} onChange={(e) => setArrTime(e.target.value)} className={`w-full ${fieldClass(false)}`} />
+                  <input value={flightRet} onChange={(e) => setFlightRet(e.target.value)} placeholder="Volo ritorno" className={`w-full ${fieldClass(false)}`} />
+                  <input type="time" value={depTime} onChange={(e) => setDepTime(e.target.value)} className={`w-full ${fieldClass(false)}`} />
                 </div>
               )}
             </section>
@@ -234,7 +292,14 @@ export default function AdminEditBookingDialog({ open, onClose, booking, onSaved
                 </label>
               </div>
               {editGuests ? (
-                <GuestListEditor guests={guests} onChange={setGuests} />
+                <>
+                  <GuestListEditor guests={guests} onChange={setGuests} />
+                  {Object.keys(errors).some((k) => k.startsWith("guest_")) && (
+                    <p className="mt-2 text-[11px] text-destructive flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" /> Compila correttamente tutti i campi degli ospiti
+                    </p>
+                  )}
+                </>
               ) : (
                 <p className="font-sans text-xs text-muted-foreground italic">
                   Spunta "Modifica ospiti" per aggiungere o modificare gli ospiti registrati ({guests.length} attuali).

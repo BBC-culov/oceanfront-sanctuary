@@ -7,7 +7,7 @@ import { it } from "date-fns/locale";
 import {
   ArrowLeft, CalendarCheck, Building2, Users, PlaneTakeoff, PlaneLanding,
   Receipt, Clock, CheckCircle2, XCircle, Phone, Mail, MapPin,
-  CreditCard, Headphones, MessageCircle, Sparkles, AlertTriangle, Ban,
+  CreditCard, Headphones, MessageCircle, Sparkles, AlertTriangle, Ban, History,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
@@ -64,6 +64,7 @@ const PrenotazioneDetail = () => {
   const [cancelConfirmText, setCancelConfirmText] = useState("");
   const [modOpen, setModOpen] = useState(false);
   const [pendingMod, setPendingMod] = useState<any>(null);
+  const [modHistory, setModHistory] = useState<any[]>([]);
   const [payingMod, setPayingMod] = useState(false);
 
   const reloadBooking = async () => {
@@ -71,11 +72,13 @@ const PrenotazioneDetail = () => {
     if (!session || !id) return;
     const { data: b } = await supabase.from("bookings").select("*").eq("id", id).eq("user_id", session.user.id).single();
     if (b) setBooking(b);
-    const { data: req } = await supabase
+    const { data: all } = await supabase
       .from("booking_modification_requests").select("*")
-      .eq("booking_id", id).in("status", ["pending"])
-      .order("created_at", { ascending: false }).limit(1).maybeSingle();
-    setPendingMod(req);
+      .eq("booking_id", id)
+      .order("created_at", { ascending: false });
+    const list = all ?? [];
+    setPendingMod(list.find((r: any) => r.status === "pending") ?? null);
+    setModHistory(list.filter((r: any) => r.status !== "pending"));
   };
 
   // Handle payment success redirects
@@ -157,11 +160,13 @@ const PrenotazioneDetail = () => {
         .single();
       setApartment(apt);
 
-      const { data: req } = await supabase
+      const { data: all } = await supabase
         .from("booking_modification_requests").select("*")
-        .eq("booking_id", id!).in("status", ["pending"])
-        .order("created_at", { ascending: false }).limit(1).maybeSingle();
-      setPendingMod(req);
+        .eq("booking_id", id!)
+        .order("created_at", { ascending: false });
+      const list = all ?? [];
+      setPendingMod(list.find((r: any) => r.status === "pending") ?? null);
+      setModHistory(list.filter((r: any) => r.status !== "pending"));
 
       setLoading(false);
     };
@@ -367,6 +372,52 @@ const PrenotazioneDetail = () => {
                 </button>
               </div>
             </motion.div>
+          )}
+
+          {/* Modification history */}
+          {modHistory.length > 0 && (
+            <Section icon={History} title="Storico richieste di modifica" delay={0.18}>
+              <div className="space-y-4">
+                {modHistory.map((r) => {
+                  const approved = r.status === "approved";
+                  return (
+                    <div key={r.id} className={`rounded-lg border p-4 ${approved ? "border-emerald-200 bg-emerald-50/30" : "border-red-200 bg-red-50/30"}`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide ${
+                          approved ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"
+                        }`}>
+                          {approved ? <CheckCircle2 className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
+                          {approved ? "Approvata" : "Rifiutata"}
+                        </span>
+                        <span className="font-sans text-[10px] text-muted-foreground">
+                          {new Date(r.reviewed_at ?? r.created_at).toLocaleString("it-IT")}
+                        </span>
+                      </div>
+                      <ModificationDiff current={r.current_data ?? {}} proposed={r.requested_changes ?? {}} />
+                      {Number(r.price_diff) !== 0 && (
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          Differenza:{" "}
+                          <span className={Number(r.price_diff) > 0 ? "text-amber-700 font-medium" : "text-emerald-700 font-medium"}>
+                            {Number(r.price_diff) >= 0 ? "+" : ""}€{Number(r.price_diff).toFixed(2)}
+                          </span>
+                        </p>
+                      )}
+                      {r.customer_note && <p className="mt-2 text-xs italic text-muted-foreground">"{r.customer_note}"</p>}
+                      {r.admin_note && (
+                        <p className="mt-2 text-xs text-foreground bg-background/60 rounded p-2 border border-border/40">
+                          <strong className="text-muted-foreground">Nota team:</strong> {r.admin_note}
+                        </p>
+                      )}
+                      {!approved && r.rejection_reason && (
+                        <p className="mt-2 text-xs text-red-700">
+                          <strong>Motivo rifiuto:</strong> {r.rejection_reason}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </Section>
           )}
 
           {/* Guest info */}
