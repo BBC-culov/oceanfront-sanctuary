@@ -1,14 +1,15 @@
-// Client-side dialog: request modifications (dates, flight, guests, services, notes)
+// Client-side dialog: request modifications (dates, main guest, flight, additional guests, services, notes)
 // Sends to request-booking-modification edge function.
-import { useEffect, useState } from "react";
-import { format, differenceInDays } from "date-fns";
-import { Loader2, X, CalendarDays, PlaneTakeoff, Sparkles, MessageSquare, Phone, User, Users } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { differenceInDays } from "date-fns";
+import { Loader2, X, CalendarDays, PlaneTakeoff, Sparkles, MessageSquare, Phone, User, Users, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAdditionalServices } from "@/hooks/useAdditionalServices";
 import { extractEdgeError } from "@/lib/edgeError";
-import GuestListEditor, { type GuestRow, emptyGuest } from "./GuestListEditor";
+import GuestListEditor, { type GuestRow } from "./GuestListEditor";
+import { mainGuestSchema, stayDatesSchema, guestSchema, flattenZodErrors, type FieldErrors } from "@/lib/modificationValidation";
 
 interface Props {
   open: boolean;
@@ -17,34 +18,61 @@ interface Props {
   onSubmitted?: () => void;
 }
 
+const fieldClass = (hasError: boolean) =>
+  `w-full h-11 px-3 rounded-md bg-background border text-sm ${hasError ? "border-destructive focus:border-destructive" : "border-border"}`;
+
+const ErrorMsg = ({ msg }: { msg?: string }) =>
+  msg ? <p className="mt-1 text-[11px] text-destructive flex items-center gap-1"><AlertCircle className="w-3 h-3" />{msg}</p> : null;
+
 export default function RequestModificationDialog({ open, onClose, booking, onSubmitted }: Props) {
   const { data: services = [] } = useAdditionalServices();
   const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState<FieldErrors>({});
 
-  const [checkIn, setCheckIn] = useState(booking?.check_in ?? "");
-  const [checkOut, setCheckOut] = useState(booking?.check_out ?? "");
-  const [phone, setPhone] = useState(booking?.guest_phone ?? "");
-  const [flightOut, setFlightOut] = useState(booking?.flight_outbound ?? "");
-  const [flightRet, setFlightRet] = useState(booking?.flight_return ?? "");
-  const [airline, setAirline] = useState(booking?.airline ?? "");
-  const [arrTime, setArrTime] = useState(booking?.arrival_time ?? "");
-  const [depTime, setDepTime] = useState(booking?.departure_time ?? "");
-  const [noTransfer, setNoTransfer] = useState(!!booking?.no_transfer);
-  const [notes, setNotes] = useState(booking?.notes ?? "");
-  const [selectedSvcIds, setSelectedSvcIds] = useState<string[]>(
-    Array.isArray(booking?.selected_services)
-      ? booking.selected_services.map((s: any) => (typeof s === "string" ? s : s?.id)).filter(Boolean)
-      : []
-  );
+  const [checkIn, setCheckIn] = useState("");
+  const [checkOut, setCheckOut] = useState("");
+  // Main guest
+  const [guestName, setGuestName] = useState("");
+  const [guestLast, setGuestLast] = useState("");
+  const [guestEmail, setGuestEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [gDob, setGDob] = useState("");
+  const [gPob, setGPob] = useState("");
+  const [gNat, setGNat] = useState("");
+  const [gIdType, setGIdType] = useState("id_card");
+  const [gIdNum, setGIdNum] = useState("");
+  const [gIdIss, setGIdIss] = useState("");
+  const [gIdExp, setGIdExp] = useState("");
+  // Flight
+  const [flightOut, setFlightOut] = useState("");
+  const [flightRet, setFlightRet] = useState("");
+  const [airline, setAirline] = useState("");
+  const [arrTime, setArrTime] = useState("");
+  const [depTime, setDepTime] = useState("");
+  const [noTransfer, setNoTransfer] = useState(false);
+  const [notes, setNotes] = useState("");
+  const [selectedSvcIds, setSelectedSvcIds] = useState<string[]>([]);
   const [customerNote, setCustomerNote] = useState("");
   const [guests, setGuests] = useState<GuestRow[]>([]);
   const [editGuests, setEditGuests] = useState(false);
+  const [editMainGuest, setEditMainGuest] = useState(false);
 
   useEffect(() => {
     if (!open || !booking) return;
+    setErrors({});
     setCheckIn(booking.check_in ?? "");
     setCheckOut(booking.check_out ?? "");
+    setGuestName(booking.guest_name ?? "");
+    setGuestLast(booking.guest_last_name ?? "");
+    setGuestEmail(booking.guest_email ?? "");
     setPhone(booking.guest_phone ?? "");
+    setGDob(booking.guest_date_of_birth ?? "");
+    setGPob(booking.guest_place_of_birth ?? "");
+    setGNat(booking.guest_nationality ?? "");
+    setGIdType(booking.guest_id_type ?? "id_card");
+    setGIdNum(booking.guest_id_card_number ?? "");
+    setGIdIss(booking.guest_id_card_issued ?? "");
+    setGIdExp(booking.guest_id_card_expiry ?? "");
     setFlightOut(booking.flight_outbound ?? "");
     setFlightRet(booking.flight_return ?? "");
     setAirline(booking.airline ?? "");
@@ -59,7 +87,7 @@ export default function RequestModificationDialog({ open, onClose, booking, onSu
     );
     setCustomerNote("");
     setEditGuests(false);
-    // Load existing additional guests for this booking
+    setEditMainGuest(false);
     (async () => {
       const { data } = await supabase
         .from("booking_guests")
@@ -84,37 +112,72 @@ export default function RequestModificationDialog({ open, onClose, booking, onSu
 
   const nights = checkIn && checkOut ? differenceInDays(new Date(checkOut), new Date(checkIn)) : 0;
 
-  const toggleService = (id: string) => {
+  const toggleService = (id: string) =>
     setSelectedSvcIds((prev) => (prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]));
+
+  const validate = (): boolean => {
+    const errs: FieldErrors = {};
+    const dRes = stayDatesSchema.safeParse({ check_in: checkIn, check_out: checkOut });
+    if (!dRes.success) Object.assign(errs, flattenZodErrors(dRes.error));
+    if (editMainGuest) {
+      const mRes = mainGuestSchema.safeParse({
+        guest_name: guestName, guest_last_name: guestLast, guest_email: guestEmail, guest_phone: phone,
+        guest_date_of_birth: gDob, guest_place_of_birth: gPob, guest_nationality: gNat,
+        guest_id_type: gIdType as any, guest_id_card_number: gIdNum,
+        guest_id_card_issued: gIdIss, guest_id_card_expiry: gIdExp,
+      });
+      if (!mRes.success) Object.assign(errs, flattenZodErrors(mRes.error));
+    }
+    if (editGuests) {
+      guests.forEach((g, idx) => {
+        const r = guestSchema.safeParse(g);
+        if (!r.success) {
+          const fl = flattenZodErrors(r.error);
+          for (const k of Object.keys(fl)) errs[`guest_${idx}_${k}`] = fl[k];
+        }
+      });
+    }
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
   };
 
   const submit = async () => {
-    if (!checkIn || !checkOut) {
-      toast.error("Date obbligatorie");
-      return;
-    }
-    if (nights < 1) {
-      toast.error("Soggiorno minimo 1 notte");
+    if (!validate()) {
+      toast.error("Controlla i campi evidenziati");
       return;
     }
     setSubmitting(true);
     try {
+      const changes: Record<string, any> = {
+        check_in: checkIn,
+        check_out: checkOut,
+        guest_phone: phone,
+        flight_outbound: flightOut,
+        flight_return: flightRet,
+        airline,
+        arrival_time: arrTime,
+        departure_time: depTime,
+        no_transfer: noTransfer,
+        notes,
+        selected_services: selectedSvcIds,
+      };
+      if (editMainGuest) {
+        Object.assign(changes, {
+          guest_name: guestName,
+          guest_last_name: guestLast,
+          guest_date_of_birth: gDob || null,
+          guest_place_of_birth: gPob || null,
+          guest_nationality: gNat || null,
+          guest_id_type: gIdType,
+          guest_id_card_number: gIdNum || null,
+          guest_id_card_issued: gIdIss || null,
+          guest_id_card_expiry: gIdExp || null,
+        });
+      }
       const { data, error } = await supabase.functions.invoke("request-booking-modification", {
         body: {
           booking_id: booking.id,
-          changes: {
-            check_in: checkIn,
-            check_out: checkOut,
-            guest_phone: phone,
-            flight_outbound: flightOut,
-            flight_return: flightRet,
-            airline,
-            arrival_time: arrTime,
-            departure_time: depTime,
-            no_transfer: noTransfer,
-            notes,
-            selected_services: selectedSvcIds,
-          },
+          changes,
           ...(editGuests ? { additional_guests: guests } : {}),
           customer_note: customerNote || null,
         },
@@ -164,26 +227,64 @@ export default function RequestModificationDialog({ open, onClose, booking, onSu
                 <div>
                   <label className="font-sans text-xs text-muted-foreground">Check-in</label>
                   <input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)}
-                    className="w-full h-11 mt-1 px-3 rounded-md bg-background border border-border text-sm" />
+                    className={fieldClass(!!errors.check_in) + " mt-1"} />
+                  <ErrorMsg msg={errors.check_in} />
                 </div>
                 <div>
                   <label className="font-sans text-xs text-muted-foreground">Check-out</label>
                   <input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)}
-                    className="w-full h-11 mt-1 px-3 rounded-md bg-background border border-border text-sm" />
+                    className={fieldClass(!!errors.check_out) + " mt-1"} />
+                  <ErrorMsg msg={errors.check_out} />
                 </div>
               </div>
-              {nights > 0 && (
-                <p className="font-sans text-xs text-muted-foreground mt-2">Durata: {nights} notti</p>
-              )}
+              {nights > 0 && <p className="font-sans text-xs text-muted-foreground mt-2">Durata: {nights} notti</p>}
             </section>
 
-            {/* Contact */}
+            {/* Phone (always editable) */}
             <section>
               <h3 className="flex items-center gap-2 font-sans text-[11px] uppercase tracking-[0.15em] text-muted-foreground mb-3">
-                <Phone className="w-3.5 h-3.5" /> Contatto
+                <Phone className="w-3.5 h-3.5" /> Telefono di contatto
               </h3>
-              <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Telefono"
-                className="w-full h-11 px-3 rounded-md bg-background border border-border text-sm" />
+              <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+39 333 1234567"
+                className={fieldClass(!!errors.guest_phone)} />
+              <ErrorMsg msg={errors.guest_phone} />
+            </section>
+
+            {/* Main guest data */}
+            <section>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="flex items-center gap-2 font-sans text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+                  <User className="w-3.5 h-3.5" /> Dati ospite principale
+                </h3>
+                <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <input type="checkbox" checked={editMainGuest} onChange={(e) => setEditMainGuest(e.target.checked)} />
+                  Modifica dati
+                </label>
+              </div>
+              {editMainGuest ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div><input value={guestName} onChange={(e) => setGuestName(e.target.value)} placeholder="Nome" className={fieldClass(!!errors.guest_name)} /><ErrorMsg msg={errors.guest_name} /></div>
+                  <div><input value={guestLast} onChange={(e) => setGuestLast(e.target.value)} placeholder="Cognome" className={fieldClass(!!errors.guest_last_name)} /><ErrorMsg msg={errors.guest_last_name} /></div>
+                  <div className="sm:col-span-2"><input type="email" value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} placeholder="Email" className={fieldClass(!!errors.guest_email)} /><ErrorMsg msg={errors.guest_email} /></div>
+                  <div><label className="text-xs text-muted-foreground">Data di nascita</label><input type="date" value={gDob} onChange={(e) => setGDob(e.target.value)} className={fieldClass(false) + " mt-1"} /></div>
+                  <div><label className="text-xs text-muted-foreground">Luogo di nascita</label><input value={gPob} onChange={(e) => setGPob(e.target.value)} className={fieldClass(false) + " mt-1"} /></div>
+                  <div><input value={gNat} onChange={(e) => setGNat(e.target.value)} placeholder="Nazionalità" className={fieldClass(false)} /></div>
+                  <div>
+                    <select value={gIdType} onChange={(e) => setGIdType(e.target.value)} className={fieldClass(false)}>
+                      <option value="id_card">Carta d'identità</option>
+                      <option value="passport">Passaporto</option>
+                      <option value="driver_license">Patente</option>
+                    </select>
+                  </div>
+                  <div className="sm:col-span-2"><input value={gIdNum} onChange={(e) => setGIdNum(e.target.value)} placeholder="Numero documento" className={fieldClass(false)} /></div>
+                  <div><label className="text-xs text-muted-foreground">Rilascio</label><input type="date" value={gIdIss} onChange={(e) => setGIdIss(e.target.value)} className={fieldClass(false) + " mt-1"} /></div>
+                  <div><label className="text-xs text-muted-foreground">Scadenza</label><input type="date" value={gIdExp} onChange={(e) => setGIdExp(e.target.value)} className={fieldClass(false) + " mt-1"} /></div>
+                </div>
+              ) : (
+                <p className="font-sans text-xs text-muted-foreground italic">
+                  Spunta "Modifica dati" per aggiornare nome, email e documento dell'ospite principale.
+                </p>
+              )}
             </section>
 
             {/* Flight */}
@@ -197,16 +298,11 @@ export default function RequestModificationDialog({ open, onClose, booking, onSu
               </label>
               {!noTransfer && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <input value={airline} onChange={(e) => setAirline(e.target.value)} placeholder="Compagnia aerea"
-                    className="h-11 px-3 rounded-md bg-background border border-border text-sm" />
-                  <input value={flightOut} onChange={(e) => setFlightOut(e.target.value)} placeholder="Volo andata"
-                    className="h-11 px-3 rounded-md bg-background border border-border text-sm" />
-                  <input type="time" value={arrTime} onChange={(e) => setArrTime(e.target.value)}
-                    className="h-11 px-3 rounded-md bg-background border border-border text-sm" />
-                  <input value={flightRet} onChange={(e) => setFlightRet(e.target.value)} placeholder="Volo ritorno"
-                    className="h-11 px-3 rounded-md bg-background border border-border text-sm" />
-                  <input type="time" value={depTime} onChange={(e) => setDepTime(e.target.value)}
-                    className="h-11 px-3 rounded-md bg-background border border-border text-sm" />
+                  <input value={airline} onChange={(e) => setAirline(e.target.value)} placeholder="Compagnia aerea" className={fieldClass(false)} />
+                  <input value={flightOut} onChange={(e) => setFlightOut(e.target.value)} placeholder="Volo andata" className={fieldClass(false)} />
+                  <input type="time" value={arrTime} onChange={(e) => setArrTime(e.target.value)} className={fieldClass(false)} />
+                  <input value={flightRet} onChange={(e) => setFlightRet(e.target.value)} placeholder="Volo ritorno" className={fieldClass(false)} />
+                  <input type="time" value={depTime} onChange={(e) => setDepTime(e.target.value)} className={fieldClass(false)} />
                 </div>
               )}
             </section>
@@ -246,7 +342,14 @@ export default function RequestModificationDialog({ open, onClose, booking, onSu
                 </label>
               </div>
               {editGuests ? (
-                <GuestListEditor guests={guests} onChange={setGuests} />
+                <>
+                  <GuestListEditor guests={guests} onChange={setGuests} />
+                  {Object.keys(errors).some((k) => k.startsWith("guest_")) && (
+                    <p className="mt-2 text-[11px] text-destructive flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" /> Compila correttamente tutti i campi degli ospiti
+                    </p>
+                  )}
+                </>
               ) : (
                 <p className="font-sans text-xs text-muted-foreground italic">
                   Spunta "Modifica ospiti" per aggiungere o modificare gli ospiti registrati ({guests.length} attuali).
