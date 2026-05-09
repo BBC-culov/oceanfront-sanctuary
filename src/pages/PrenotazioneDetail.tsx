@@ -64,6 +64,7 @@ const PrenotazioneDetail = () => {
   const [cancelConfirmText, setCancelConfirmText] = useState("");
   const [modOpen, setModOpen] = useState(false);
   const [pendingMod, setPendingMod] = useState<any>(null);
+  const [modHistory, setModHistory] = useState<any[]>([]);
   const [payingMod, setPayingMod] = useState(false);
 
   const reloadBooking = async () => {
@@ -71,11 +72,13 @@ const PrenotazioneDetail = () => {
     if (!session || !id) return;
     const { data: b } = await supabase.from("bookings").select("*").eq("id", id).eq("user_id", session.user.id).single();
     if (b) setBooking(b);
-    const { data: req } = await supabase
+    const { data: all } = await supabase
       .from("booking_modification_requests").select("*")
-      .eq("booking_id", id).in("status", ["pending"])
-      .order("created_at", { ascending: false }).limit(1).maybeSingle();
-    setPendingMod(req);
+      .eq("booking_id", id)
+      .order("created_at", { ascending: false });
+    const list = all ?? [];
+    setPendingMod(list.find((r: any) => r.status === "pending") ?? null);
+    setModHistory(list.filter((r: any) => r.status !== "pending"));
   };
 
   // Handle payment success redirects
