@@ -94,7 +94,7 @@ serve(async (req) => {
         },
       ],
       mode: "payment",
-      success_url: `${origin}/prenotazione/${booking.id}?payment=balance_success`,
+      success_url: `${origin}/prenotazione/${booking.id}?payment=balance_success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/prenotazione/${booking.id}`,
       metadata: {
         booking_id: booking.id,
