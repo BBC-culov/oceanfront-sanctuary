@@ -84,10 +84,11 @@ const PrenotazioneDetail = () => {
   // Handle payment success redirects
   useEffect(() => {
     const payment = searchParams.get("payment");
-    if (payment === "modification_success" && id) {
+    const sessionId = searchParams.get("session_id");
+    if (payment === "modification_success" && id && sessionId) {
       (async () => {
         try {
-          await supabase.functions.invoke("confirm-booking-payment", { body: { booking_id: id, type: "modification" } });
+          await supabase.functions.invoke("confirm-booking-payment", { body: { booking_id: id, type: "modification", session_id: sessionId } });
           toast.success("Differenza modifica pagata!");
           await reloadBooking();
         } catch (e) { console.error(e); }
@@ -96,7 +97,7 @@ const PrenotazioneDetail = () => {
       return;
     }
     if (payment === "success" && id) {
-      navigate(`/prenotazione-successo/${id}?payment=success`, { replace: true });
+      navigate(`/prenotazione-successo/${id}?payment=success${sessionId ? `&session_id=${sessionId}` : ""}`, { replace: true });
       return;
     }
     // Map admin-generated link returns + balance returns to a confirm type
@@ -106,11 +107,11 @@ const PrenotazioneDetail = () => {
       full_success: "full",
     };
     const confirmType = payment ? confirmTypeMap[payment] : undefined;
-    if (confirmType && id) {
+    if (confirmType && id && sessionId) {
       const run = async () => {
         try {
           await supabase.functions.invoke("confirm-booking-payment", {
-            body: { booking_id: id, type: confirmType },
+            body: { booking_id: id, type: confirmType, session_id: sessionId },
           });
           toast.success(
             confirmType === "balance"
