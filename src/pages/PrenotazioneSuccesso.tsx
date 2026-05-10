@@ -21,10 +21,11 @@ const PrenotazioneSuccesso = () => {
       if (!id) return;
 
       const payment = searchParams.get("payment");
-      if (payment === "success") {
+      const sessionId = searchParams.get("session_id");
+      if (payment === "success" && sessionId) {
         try {
           await supabase.functions.invoke("confirm-booking-payment", {
-            body: { booking_id: id, type: "initial" },
+            body: { booking_id: id, type: "initial", session_id: sessionId },
           });
         } catch (e) {
           console.error("Confirm error:", e);

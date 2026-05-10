@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
+import Stripe from "https://esm.sh/stripe@18.5.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -24,8 +25,11 @@ serve(async (req) => {
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
     if (authError || !user) throw new Error("Utente non autenticato");
 
-    const { booking_id, type } = await req.json();
+    const { booking_id, type, session_id } = await req.json();
     if (!booking_id) throw new Error("ID prenotazione mancante");
+    if (!session_id || typeof session_id !== "string") {
+      throw new Error("Sessione di pagamento mancante");
+    }
 
     const serviceClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -41,6 +45,36 @@ serve(async (req) => {
       .single();
 
     if (bErr || !booking) throw new Error("Prenotazione non trovata");
+
+    // SERVER-SIDE STRIPE VERIFICATION — single source of truth.
+    // Without this, an authenticated user could call this endpoint directly
+    // and mark the booking as paid without ever paying.
+    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+      apiVersion: "2025-08-27.basil",
+    });
+    let stripeSession: Stripe.Checkout.Session;
+    try {
+      stripeSession = await stripe.checkout.sessions.retrieve(session_id);
+    } catch (e) {
+      throw new Error("Sessione Stripe non valida");
+    }
+    if (stripeSession.payment_status !== "paid") {
+      throw new Error("Pagamento non completato");
+    }
+    if (stripeSession.metadata?.booking_id !== booking_id) {
+      throw new Error("Sessione non associata a questa prenotazione");
+    }
+    // Also verify session payment_type matches the requested type when set
+    const sessionPaymentType = stripeSession.metadata?.payment_type;
+    const expectedTypes: Record<string, string[]> = {
+      initial: ["deposit", "full"],
+      full: ["full", "deposit"],
+      balance: ["balance"],
+      modification: ["modification"],
+    };
+    if (sessionPaymentType && expectedTypes[type] && !expectedTypes[type].includes(sessionPaymentType)) {
+      throw new Error("Tipo di pagamento non corrispondente");
+    }
 
     const apartmentName = (booking as any).apartments?.name || "Appartamento";
 
