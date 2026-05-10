@@ -262,27 +262,70 @@ export default function RequestModificationDialog({ open, onClose, booking, onSu
                 </label>
               </div>
               {editMainGuest ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div><input value={guestName} onChange={(e) => setGuestName(e.target.value)} placeholder="Nome" className={fieldClass(!!errors.guest_name)} /><ErrorMsg msg={errors.guest_name} /></div>
-                  <div><input value={guestLast} onChange={(e) => setGuestLast(e.target.value)} placeholder="Cognome" className={fieldClass(!!errors.guest_last_name)} /><ErrorMsg msg={errors.guest_last_name} /></div>
-                  <div className="sm:col-span-2"><input type="email" value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} placeholder="Email" className={fieldClass(!!errors.guest_email)} /><ErrorMsg msg={errors.guest_email} /></div>
-                  <div><label className="text-xs text-muted-foreground">Data di nascita</label><input type="date" value={gDob} onChange={(e) => setGDob(e.target.value)} className={fieldClass(false) + " mt-1"} /></div>
-                  <div><label className="text-xs text-muted-foreground">Luogo di nascita</label><input value={gPob} onChange={(e) => setGPob(e.target.value)} className={fieldClass(false) + " mt-1"} /></div>
-                  <div><input value={gNat} onChange={(e) => setGNat(e.target.value)} placeholder="Nazionalità" className={fieldClass(false)} /></div>
+                <div className="space-y-5">
+                  {/* Anagrafica */}
                   <div>
-                    <select value={gIdType} onChange={(e) => setGIdType(e.target.value)} className={fieldClass(false)}>
-                      <option value="id_card">Carta d'identità</option>
-                      <option value="passport">Passaporto</option>
-                      <option value="driver_license">Patente</option>
-                    </select>
+                    <p className="font-sans text-[10px] uppercase tracking-[0.15em] text-muted-foreground/70 mb-2">Anagrafica</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="font-sans text-[11px] uppercase tracking-wide text-muted-foreground/80">Nome</label>
+                        <input value={guestName} onChange={(e) => setGuestName(e.target.value)} className={fieldClass(!!errors.guest_name) + " mt-1"} />
+                        <ErrorMsg msg={errors.guest_name} />
+                      </div>
+                      <div>
+                        <label className="font-sans text-[11px] uppercase tracking-wide text-muted-foreground/80">Cognome</label>
+                        <input value={guestLast} onChange={(e) => setGuestLast(e.target.value)} className={fieldClass(!!errors.guest_last_name) + " mt-1"} />
+                        <ErrorMsg msg={errors.guest_last_name} />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className="font-sans text-[11px] uppercase tracking-wide text-muted-foreground/80">Email</label>
+                        <input type="email" value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} className={fieldClass(!!errors.guest_email) + " mt-1"} />
+                        <ErrorMsg msg={errors.guest_email} />
+                      </div>
+                      <div>
+                        <label className="font-sans text-[11px] uppercase tracking-wide text-muted-foreground/80">Data di nascita</label>
+                        <input type="date" value={gDob} onChange={(e) => setGDob(e.target.value)} className={fieldClass(false) + " mt-1"} />
+                      </div>
+                      <div>
+                        <label className="font-sans text-[11px] uppercase tracking-wide text-muted-foreground/80">Luogo di nascita</label>
+                        <input value={gPob} onChange={(e) => setGPob(e.target.value)} className={fieldClass(false) + " mt-1"} />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className="font-sans text-[11px] uppercase tracking-wide text-muted-foreground/80">Nazionalità</label>
+                        <input value={gNat} onChange={(e) => setGNat(e.target.value)} className={fieldClass(false) + " mt-1"} />
+                      </div>
+                    </div>
                   </div>
-                  <div className="sm:col-span-2"><input value={gIdNum} onChange={(e) => setGIdNum(e.target.value)} placeholder="Numero documento" className={fieldClass(false)} /></div>
-                  <div><label className="text-xs text-muted-foreground">Rilascio</label><input type="date" value={gIdIss} onChange={(e) => setGIdIss(e.target.value)} className={fieldClass(false) + " mt-1"} /></div>
-                  <div><label className="text-xs text-muted-foreground">Scadenza</label><input type="date" value={gIdExp} onChange={(e) => setGIdExp(e.target.value)} className={fieldClass(false) + " mt-1"} /></div>
+                  {/* Documento */}
+                  <div>
+                    <p className="font-sans text-[10px] uppercase tracking-[0.15em] text-muted-foreground/70 mb-2">Documento d'identità</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="font-sans text-[11px] uppercase tracking-wide text-muted-foreground/80">Tipo documento</label>
+                        <select value={gIdType} onChange={(e) => setGIdType(e.target.value)} className={fieldClass(false) + " mt-1"}>
+                          <option value="id_card">Carta d'identità</option>
+                          <option value="passport">Passaporto</option>
+                          <option value="driver_license">Patente</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="font-sans text-[11px] uppercase tracking-wide text-muted-foreground/80">Numero documento</label>
+                        <input value={gIdNum} onChange={(e) => setGIdNum(e.target.value)} className={fieldClass(false) + " mt-1"} />
+                      </div>
+                      <div>
+                        <label className="font-sans text-[11px] uppercase tracking-wide text-muted-foreground/80">Data di rilascio</label>
+                        <input type="date" value={gIdIss} onChange={(e) => setGIdIss(e.target.value)} className={fieldClass(false) + " mt-1"} />
+                      </div>
+                      <div>
+                        <label className="font-sans text-[11px] uppercase tracking-wide text-muted-foreground/80">Data di scadenza</label>
+                        <input type="date" value={gIdExp} onChange={(e) => setGIdExp(e.target.value)} className={fieldClass(false) + " mt-1"} />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <p className="font-sans text-xs text-muted-foreground italic">
-                  Spunta "Modifica dati" per aggiornare nome, email e documento dell'ospite principale.
+                  Spunta "Modifica dati" per aggiornare nome, email, anagrafica e dati del documento dell'ospite principale.
                 </p>
               )}
             </section>

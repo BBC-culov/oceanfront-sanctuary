@@ -70,13 +70,30 @@ const AdminPrenotazioneDetail = () => {
 
   const reloadBookingAndPayments = async () => {
     if (!id) return;
-    const [bRes, mpRes] = await Promise.all([
+    const [bRes, mpRes, gRes] = await Promise.all([
       supabase.from("bookings").select("*").eq("id", id).single(),
       supabase.from("manual_payments").select("*").eq("booking_id", id).order("created_at", { ascending: false }),
+      supabase.from("booking_guests").select("*").eq("booking_id", id),
     ]);
     if (bRes.data) setBooking(bRes.data);
     setManualPayments(mpRes.data ?? []);
+    setGuests(gRes.data ?? []);
   };
+
+  // Realtime sync: refresh booking + guests when changed (e.g., after a modification approval)
+  useEffect(() => {
+    if (!id) return;
+    const ch = supabase
+      .channel(`booking-detail-${id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "bookings", filter: `id=eq.${id}` },
+        () => { reloadBookingAndPayments(); })
+      .on("postgres_changes", { event: "*", schema: "public", table: "booking_guests", filter: `booking_id=eq.${id}` },
+        () => { reloadBookingAndPayments(); })
+      .on("postgres_changes", { event: "*", schema: "public", table: "booking_modification_requests", filter: `booking_id=eq.${id}` },
+        () => { reloadBookingAndPayments(); })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [id]);
 
   useEffect(() => {
     const fetchData = async () => {
