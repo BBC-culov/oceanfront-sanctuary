@@ -225,7 +225,7 @@ serve(async (req) => {
       customer_email: customerId ? undefined : user.email,
       line_items: lineItems,
       mode: "payment",
-      success_url: `${origin}/prenotazione-successo/${booking.id}?payment=success`,
+      success_url: `${origin}/prenotazione-successo/${booking.id}?payment=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/pagamento-fallito?booking_id=${booking.id}`,
       metadata: {
         booking_id: booking.id,
