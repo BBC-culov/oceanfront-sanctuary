@@ -55,7 +55,10 @@ serve(async (req) => {
 
     if (error) throw new Error(`Query error: ${error.message}`);
 
-    const origin = req.headers.get("origin") || "https://bazhousedemo.vercel.app";
+    // Hardcoded allowlist — never trust request Origin header (phishing risk)
+    const ALLOWED_ORIGINS = ["https://bazhouse.it", "https://www.bazhouse.it", "https://bazhousedemo.vercel.app"];
+    const reqOrigin = req.headers.get("origin");
+    const origin = reqOrigin && ALLOWED_ORIGINS.includes(reqOrigin) ? reqOrigin : ALLOWED_ORIGINS[0];
     const sent: string[] = [];
 
     for (const booking of bookings || []) {
