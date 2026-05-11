@@ -84,6 +84,7 @@ Deno.serve(async (req) => {
     })
   }
   const isServiceRole = auth.isServiceRole
+  const callerEmail = auth.ok ? (auth as any).userEmail as string | undefined : undefined
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
