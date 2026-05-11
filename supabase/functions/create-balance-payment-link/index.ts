@@ -131,7 +131,13 @@ serve(async (req) => {
       customerId = customers.data[0].id;
     }
 
-    const origin = req.headers.get("origin") || "https://bazhousedemo.vercel.app";
+    const ALLOWED_ORIGINS = ["https://bazhouse.it", "https://www.bazhouse.it", "https://bazhousedemo.vercel.app"];
+
+
+    const reqOrigin = req.headers.get("origin");
+
+
+    const origin = reqOrigin && ALLOWED_ORIGINS.includes(reqOrigin) ? reqOrigin : ALLOWED_ORIGINS[0];
 
     // Expire after 24 hours
     const expiresAt = Math.floor(Date.now() / 1000) + 24 * 60 * 60;

@@ -12,12 +12,11 @@ const corsHeaders = {
  * completed a booking. Triggered by pg_cron (hourly). Only sends once per
  * booking (recovery_email_sent_at must be null).
  */
-function decodeJwtRole(token: string): string | null {
-  try {
-    const payload = token.split(".")[1];
-    const json = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
-    return json?.role ?? null;
-  } catch { return null; }
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let r = 0;
+  for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return r === 0;
 }
 
 serve(async (req) => {
@@ -25,10 +24,11 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Require service_role (called by pg_cron only)
+  // Require service-role key (called by pg_cron only). Constant-time compare.
   const authHeader = req.headers.get("Authorization") || "";
   const token = authHeader.replace("Bearer ", "").trim();
-  if (!token || decodeJwtRole(token) !== "service_role") {
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+  if (!token || !serviceKey || !timingSafeEqual(token, serviceKey)) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
