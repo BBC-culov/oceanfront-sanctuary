@@ -177,7 +177,11 @@ serve(async (req) => {
 
       modAmount = diff;
       modExpiresAt = Math.floor(Date.now() / 1000) + 24 * 60 * 60;
-      const origin = req.headers.get("origin") || "https://bazhousedemo.vercel.app";
+      const ALLOWED_ORIGINS = ["https://bazhouse.it", "https://www.bazhouse.it", "https://bazhousedemo.vercel.app"];
+
+      const reqOrigin = req.headers.get("origin");
+
+      const origin = reqOrigin && ALLOWED_ORIGINS.includes(reqOrigin) ? reqOrigin : ALLOWED_ORIGINS[0];
 
       const customers = await stripe.customers.list({ email: booking.guest_email, limit: 1 });
       const customerId = customers.data[0]?.id;
