@@ -134,6 +134,16 @@ Deno.serve(async (req) => {
     )
   }
 
+  // Restrict template usage for non-service-role callers (signed-in users
+  // can only trigger a small allowlist of safe templates — never anything
+  // carrying a payment link, to prevent phishing relay abuse).
+  if (!isServiceRole && !USER_ALLOWED_TEMPLATES.has(templateName)) {
+    return new Response(JSON.stringify({ error: 'Forbidden' }), {
+      status: 403,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+
   // 1. Look up template from registry (early — needed to resolve recipient)
   const template = TEMPLATES[templateName]
 
