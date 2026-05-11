@@ -48,7 +48,7 @@ async function authenticateRequest(
   req: Request,
   supabaseUrl: string,
   serviceKey: string
-): Promise<{ ok: true; isServiceRole: boolean } | { ok: false }> {
+): Promise<{ ok: true; isServiceRole: boolean; userEmail?: string } | { ok: false }> {
   const authHeader = req.headers.get('Authorization') || ''
   const token = authHeader.replace('Bearer ', '').trim()
   if (!token) return { ok: false }
@@ -62,7 +62,7 @@ async function authenticateRequest(
     const sb = createClient(supabaseUrl, anonKey)
     const { data, error } = await sb.auth.getUser(token)
     if (error || !data?.user) return { ok: false }
-    return { ok: true, isServiceRole: false }
+    return { ok: true, isServiceRole: false, userEmail: data.user.email ?? undefined }
   } catch {
     return { ok: false }
   }
