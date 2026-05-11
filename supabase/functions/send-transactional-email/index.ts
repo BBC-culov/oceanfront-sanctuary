@@ -30,16 +30,41 @@ function generateToken(): string {
     .join('')
 }
 
-// Auth: this function may only be invoked server-side using the service role key.
-// We verify the JWT in code and require the 'service_role' claim, since
-// verify_jwt is false at the gateway level.
-function decodeJwtRole(token: string): string | null {
+// Auth helpers
+// Templates that an authenticated end-user is allowed to trigger directly
+// (e.g. the welcome email sent from the signup form). All other templates
+// — especially anything carrying a payment link — must be invoked server-side
+// with the service role key only.
+const USER_ALLOWED_TEMPLATES = new Set(['welcome'])
+
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false
+  let r = 0
+  for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i)
+  return r === 0
+}
+
+async function authenticateRequest(
+  req: Request,
+  supabaseUrl: string,
+  serviceKey: string
+): Promise<{ ok: true; isServiceRole: boolean } | { ok: false }> {
+  const authHeader = req.headers.get('Authorization') || ''
+  const token = authHeader.replace('Bearer ', '').trim()
+  if (!token) return { ok: false }
+  // 1. Service-role: constant-time compare against the env secret.
+  if (timingSafeEqual(token, serviceKey)) {
+    return { ok: true, isServiceRole: true }
+  }
+  // 2. Otherwise verify it's a real signed user JWT against Supabase.
   try {
-    const payload = token.split('.')[1]
-    const json = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')))
-    return json?.role ?? null
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY') || ''
+    const sb = createClient(supabaseUrl, anonKey)
+    const { data, error } = await sb.auth.getUser(token)
+    if (error || !data?.user) return { ok: false }
+    return { ok: true, isServiceRole: false }
   } catch {
-    return null
+    return { ok: false }
   }
 }
 
@@ -49,15 +74,16 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders })
   }
 
-  // Require service_role JWT — only internal edge functions should call this
-  const authHeader = req.headers.get('Authorization') || ''
-  const token = authHeader.replace('Bearer ', '').trim()
-  if (!token || decodeJwtRole(token) !== 'service_role') {
+  const supabaseUrlEarly = Deno.env.get('SUPABASE_URL') || ''
+  const serviceKeyEarly = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+  const auth = await authenticateRequest(req, supabaseUrlEarly, serviceKeyEarly)
+  if (!auth.ok) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }
+  const isServiceRole = auth.isServiceRole
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
