@@ -144,6 +144,15 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }
+  // Non-service callers can only send to themselves.
+  if (!isServiceRole) {
+    if (!callerEmail || !recipientEmail || recipientEmail.toLowerCase() !== callerEmail.toLowerCase()) {
+      return new Response(JSON.stringify({ error: 'Forbidden' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+  }
 
   // 1. Look up template from registry (early — needed to resolve recipient)
   const template = TEMPLATES[templateName]
