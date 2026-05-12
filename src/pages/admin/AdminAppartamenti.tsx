@@ -139,14 +139,67 @@ const AdminAppartamenti = () => {
     invalidatePublicCache();
   };
 
+  // Extract a safe storage path from a public URL for the given bucket.
+  // Rejects traversal/absolute/non-whitelisted characters to prevent abuse.
+  const extractStoragePath = (url: string, bucket: string): string | null => {
+    const marker = `/${bucket}/`;
+    const idx = url.indexOf(marker);
+    if (idx === -1) return null;
+    try {
+      const decoded = decodeURIComponent(url.slice(idx + marker.length));
+      if (
+        decoded.startsWith("/") ||
+        decoded.includes("..") ||
+        decoded.includes("\0") ||
+        decoded.includes("\\") ||
+        !/^[A-Za-z0-9._\-/]+$/.test(decoded)
+      ) {
+        return null;
+      }
+      return decoded;
+    } catch {
+      return null;
+    }
+  };
+
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Sei sicuro di voler eliminare "${name}"?`)) return;
+
+    const apt = apartments.find((a) => a.id === id);
+
+    // Best-effort cleanup of storage assets BEFORE deleting the row.
+    // Failures are non-blocking: we still proceed with DB delete and
+    // surface a non-destructive warning so the admin knows.
+    const imagePaths = (apt?.images ?? [])
+      .map((u) => extractStoragePath(u, "apartment-images"))
+      .filter((p): p is string => !!p);
+    const videoPaths = (apt?.videos ?? [])
+      .map((u) => extractStoragePath(u, "apartment-videos"))
+      .filter((p): p is string => !!p);
+
+    const cleanupErrors: string[] = [];
+    if (imagePaths.length > 0) {
+      const { error: imgErr } = await supabase.storage.from("apartment-images").remove(imagePaths);
+      if (imgErr) cleanupErrors.push(`immagini: ${imgErr.message}`);
+    }
+    if (videoPaths.length > 0) {
+      const { error: vidErr } = await supabase.storage.from("apartment-videos").remove(videoPaths);
+      if (vidErr) cleanupErrors.push(`video: ${vidErr.message}`);
+    }
+
     const { error } = await supabase.from("apartments").delete().eq("id", id);
     if (error) {
       toast({ title: "Errore", description: error.message, variant: "destructive" });
     } else {
       setApartments((prev) => prev.filter((a) => a.id !== id));
-      toast({ title: "Appartamento eliminato" });
+      if (cleanupErrors.length > 0) {
+        toast({
+          title: "Appartamento eliminato",
+          description: `Alcuni file non sono stati rimossi dallo storage (${cleanupErrors.join("; ")})`,
+        });
+      } else {
+        toast({ title: "Appartamento eliminato" });
+      }
       invalidatePublicCache();
     }
   };
