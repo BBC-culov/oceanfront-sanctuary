@@ -65,6 +65,22 @@ const AppartamentoDetail = () => {
 
   return (
     <PageTransition>
+      <Seo
+        title={`${apt.name} — Appartamento vista oceano | BAZHOUSE`}
+        description={(apt.description || `Soggiorna in ${apt.name} a Boa Vista, Capo Verde.`).slice(0, 158)}
+        type="product"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "Accommodation",
+          name: apt.name,
+          description: apt.description,
+          image: apt.gallery,
+          numberOfBedrooms: (apt as any).bedrooms,
+          numberOfBathroomsTotal: (apt as any).bathrooms,
+          occupancy: { "@type": "QuantitativeValue", value: (apt as any).maxGuests },
+          address: { "@type": "PostalAddress", addressLocality: "Boa Vista", addressCountry: "CV" },
+        }}
+      />
       <Navbar />
       <main className="pt-24">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-6">
