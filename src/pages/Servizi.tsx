@@ -177,6 +177,10 @@ const Servizi = () => {
 
   return (
     <PageTransition>
+      <Seo
+        title="Servizi premium per gli ospiti | BAZHOUSE Boa Vista"
+        description="Transfer aeroportuale, welcome kit, pulizie, esperienze e circuito vantaggi: tutti i servizi inclusi e su richiesta per gli ospiti BAZHOUSE."
+      />
       <Navbar />
       <main>
         {/* ── Hero ── */}
