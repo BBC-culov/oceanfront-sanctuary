@@ -28,6 +28,10 @@ const ChiSiamo = () => {
 
   return (
     <PageTransition>
+      <Seo
+        title="Chi siamo | BAZHOUSE Boa Vista"
+        description="La storia di BAZHOUSE: residenze esclusive vista oceano a Boa Vista, Capo Verde. Lusso discreto, indipendenza e ospitalità su misura."
+      />
       <Navbar />
       <main>
         {/* Hero with parallax */}
