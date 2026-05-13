@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
+import Seo from "@/components/Seo";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import sunsetImg from "@/assets/boavista-sunset.jpg";
@@ -27,6 +28,10 @@ const ChiSiamo = () => {
 
   return (
     <PageTransition>
+      <Seo
+        title="Chi siamo | BAZHOUSE Boa Vista"
+        description="La storia di BAZHOUSE: residenze esclusive vista oceano a Boa Vista, Capo Verde. Lusso discreto, indipendenza e ospitalità su misura."
+      />
       <Navbar />
       <main>
         {/* Hero with parallax */}

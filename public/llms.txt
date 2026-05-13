@@ -1,0 +1,17 @@
+# BAZHOUSE
+
+> Appartamenti esclusivi vista oceano a Boa Vista, Capo Verde. Praia Cabral e Praia da Cruz: lusso discreto, indipendenza totale, servizi premium per gli ospiti.
+
+## Pages
+
+- [Home](/): Panoramica delle residenze BAZHOUSE e dell'esperienza a Boa Vista.
+- [Chi siamo](/chi-siamo): Identità del brand, valori e visione di ospitalità.
+- [Appartamenti](/appartamenti): Catalogo delle residenze disponibili (penthouse e compact).
+- [Servizi](/servizi): Servizi inclusi (transfer aeroporto, welcome) ed esperienze su richiesta.
+- [Contatti](/contatti): Canali diretti WhatsApp, email e telefono.
+
+## Optional
+
+- [Privacy Policy](/privacy-policy)
+- [Refund Policy](/refund-policy)
+- [Rental Agreement](/rental-agreement)

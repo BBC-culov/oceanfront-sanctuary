@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
+import Seo from "@/components/Seo";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import {
@@ -176,6 +177,10 @@ const Servizi = () => {
 
   return (
     <PageTransition>
+      <Seo
+        title="Servizi premium per gli ospiti | BAZHOUSE Boa Vista"
+        description="Transfer aeroportuale, welcome kit, pulizie, esperienze e circuito vantaggi: tutti i servizi inclusi e su richiesta per gli ospiti BAZHOUSE."
+      />
       <Navbar />
       <main>
         {/* ── Hero ── */}

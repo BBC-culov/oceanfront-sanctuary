@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
+import Seo from "@/components/Seo";
 import ApartmentsSection from "@/components/sections/ApartmentsSection";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
@@ -16,6 +17,10 @@ const Appartamenti = () => {
 
   return (
     <PageTransition>
+      <Seo
+        title="Appartamenti vista oceano a Boa Vista | BAZHOUSE"
+        description="Scopri gli appartamenti BAZHOUSE: residenze esclusive vista mare a Praia Cabral e Praia da Cruz, Boa Vista. Penthouse e compact disponibili."
+      />
       <Navbar />
       <main>
         {/* Hero with parallax */}
