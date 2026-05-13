@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
+import Seo from "@/components/Seo";
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
 import { MapPin, Mail, Phone, MessageCircle } from "lucide-react";
 import { useRef, MouseEvent as ReactMouseEvent } from "react";
