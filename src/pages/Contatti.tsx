@@ -118,6 +118,10 @@ const Contatti = () => {
 
   return (
     <PageTransition>
+      <Seo
+        title="Contatti | BAZHOUSE Boa Vista"
+        description="Contatta BAZHOUSE: WhatsApp, email e telefono per informazioni, prenotazioni e assistenza dedicata sui nostri appartamenti vista oceano."
+      />
       <Navbar />
       <main>
         {/* Hero with parallax */}
