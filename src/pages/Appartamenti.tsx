@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
+import Seo from "@/components/Seo";
 import ApartmentsSection from "@/components/sections/ApartmentsSection";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
