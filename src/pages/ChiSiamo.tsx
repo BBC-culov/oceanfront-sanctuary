@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
+import Seo from "@/components/Seo";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import sunsetImg from "@/assets/boavista-sunset.jpg";
