@@ -35,6 +35,7 @@ const Appartamenti = () => {
       <Seo
         title="Appartamenti vista oceano a Boa Vista | BAZHOUSE"
         description="Scopri gli appartamenti BAZHOUSE: residenze esclusive vista mare a Praia Cabral e Praia da Cruz, Boa Vista. Penthouse e compact disponibili."
+        jsonLd={itemListJsonLd}
       />
       <Navbar />
       <main>
