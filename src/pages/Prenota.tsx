@@ -386,6 +386,10 @@ const Prenota = () => {
 
   return (
     <PageTransition>
+      <Seo
+        title="Prenota il tuo soggiorno | BAZHOUSE"
+        description="Completa la tua prenotazione presso BAZHOUSE: dati ospiti, volo, fatturazione e riepilogo per un soggiorno a Boa Vista, Capo Verde."
+      />
       <Navbar />
       <main className="pt-24 pb-24">
         <div className="mx-auto max-w-3xl px-6 lg:px-8">
