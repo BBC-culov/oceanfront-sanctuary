@@ -13,6 +13,7 @@ import Navbar from "@/components/Navbar";
 import PhonePrefixInput from "@/components/PhonePrefixInput";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
+import Seo from "@/components/Seo";
 import { format, differenceInDays } from "date-fns";
 import { it } from "date-fns/locale";
 
