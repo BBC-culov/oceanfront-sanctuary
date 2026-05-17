@@ -206,6 +206,10 @@ const Registrati = () => {
 
   return (
     <PageTransition>
+      <Seo
+        title="Accedi o registrati | BAZHOUSE"
+        description="Crea un account o accedi a BAZHOUSE per prenotare appartamenti vista oceano a Boa Vista e gestire i tuoi soggiorni."
+      />
       <Navbar />
       <main className="relative min-h-screen overflow-hidden">
         {/* Background image with overlay */}
