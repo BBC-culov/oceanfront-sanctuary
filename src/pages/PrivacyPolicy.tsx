@@ -1,10 +1,15 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
+import Seo from "@/components/Seo";
 import { motion } from "framer-motion";
 
 const PrivacyPolicy = () => (
   <PageTransition>
+    <Seo
+      title="Privacy Policy | BAZHOUSE"
+      description="Informativa sulla privacy di BAZHOUSE: come raccogliamo, usiamo e proteggiamo i dati personali degli utenti del sito."
+    />
     <Navbar />
     <main className="min-h-screen bg-background pt-28 pb-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
