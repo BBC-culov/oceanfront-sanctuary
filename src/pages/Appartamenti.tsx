@@ -6,9 +6,24 @@ import ApartmentsSection from "@/components/sections/ApartmentsSection";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import heroImg from "@/assets/hero-appartamenti.jpg";
+import { useApartments } from "@/hooks/useApartments";
+import staticApartments from "@/data/apartments";
 
 const Appartamenti = () => {
   const heroRef = useRef<HTMLElement>(null);
+  const { data: dbApartments } = useApartments();
+  const apartments = (dbApartments && dbApartments.length > 0) ? dbApartments : staticApartments;
+  const itemListJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Appartamenti BAZHOUSE",
+    itemListElement: apartments.map((a, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      url: `/appartamenti/${a.slug}`,
+      name: a.name,
+    })),
+  };
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
@@ -20,6 +35,7 @@ const Appartamenti = () => {
       <Seo
         title="Appartamenti vista oceano a Boa Vista | BAZHOUSE"
         description="Scopri gli appartamenti BAZHOUSE: residenze esclusive vista mare a Praia Cabral e Praia da Cruz, Boa Vista. Penthouse e compact disponibili."
+        jsonLd={itemListJsonLd}
       />
       <Navbar />
       <main>

@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
+import Seo from "@/components/Seo";
 import BookingStepIndicator from "@/components/booking/BookingStepIndicator";
 import StepGuestData, { type GuestData, type AdditionalGuestData } from "@/components/booking/StepGuestData";
 import StepFlightServices, { type FlightData } from "@/components/booking/StepFlightServices";
@@ -386,6 +387,10 @@ const Prenota = () => {
 
   return (
     <PageTransition>
+      <Seo
+        title="Prenota il tuo soggiorno | BAZHOUSE"
+        description="Completa la tua prenotazione presso BAZHOUSE: dati ospiti, volo, fatturazione e riepilogo per un soggiorno a Boa Vista, Capo Verde."
+      />
       <Navbar />
       <main className="pt-24 pb-24">
         <div className="mx-auto max-w-3xl px-6 lg:px-8">

@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
+import Seo from "@/components/Seo";
 import heroImg from "@/assets/boavista-sunset.jpg";
 
 const passwordSchema = z.object({
@@ -77,6 +78,10 @@ const ResetPassword = () => {
 
   return (
     <PageTransition>
+      <Seo
+        title="Reimposta la password | BAZHOUSE"
+        description="Imposta una nuova password sicura per il tuo account BAZHOUSE."
+      />
       <Navbar />
       <main className="relative min-h-screen overflow-hidden">
         <div className="absolute inset-0 z-0">

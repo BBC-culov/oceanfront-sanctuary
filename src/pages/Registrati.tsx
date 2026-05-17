@@ -12,6 +12,7 @@ import Navbar from "@/components/Navbar";
 import PhonePrefixInput from "@/components/PhonePrefixInput";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
+import Seo from "@/components/Seo";
 import heroImg from "@/assets/boavista-sunset.jpg";
 
 const floatingIcons = [
@@ -206,6 +207,10 @@ const Registrati = () => {
 
   return (
     <PageTransition>
+      <Seo
+        title="Accedi o registrati | BAZHOUSE"
+        description="Crea un account o accedi a BAZHOUSE per prenotare appartamenti vista oceano a Boa Vista e gestire i tuoi soggiorni."
+      />
       <Navbar />
       <main className="relative min-h-screen overflow-hidden">
         {/* Background image with overlay */}

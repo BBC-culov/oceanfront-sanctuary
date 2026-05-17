@@ -13,6 +13,7 @@ import Navbar from "@/components/Navbar";
 import PhonePrefixInput from "@/components/PhonePrefixInput";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
+import Seo from "@/components/Seo";
 import { format, differenceInDays } from "date-fns";
 import { it } from "date-fns/locale";
 
@@ -290,6 +291,10 @@ const Profilo = () => {
 
   return (
     <PageTransition>
+      <Seo
+        title="Area riservata | BAZHOUSE"
+        description="Gestisci il tuo profilo BAZHOUSE: prenotazioni, saldi, dati personali e preferenze account."
+      />
       <Navbar />
       <main className="min-h-screen bg-background pt-28 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto space-y-8">
