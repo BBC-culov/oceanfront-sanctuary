@@ -1,10 +1,15 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
+import Seo from "@/components/Seo";
 import { motion } from "framer-motion";
 
 const RefundPolicy = () => (
   <PageTransition>
+    <Seo
+      title="Refund & Cancellation Policy | BAZHOUSE"
+      description="Politica di rimborso e cancellazione per le prenotazioni BAZHOUSE a Boa Vista, Capo Verde. Termini, tempistiche e modalità."
+    />
     <Navbar />
     <main className="min-h-screen bg-background pt-28 pb-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
