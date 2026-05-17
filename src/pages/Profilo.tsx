@@ -291,6 +291,10 @@ const Profilo = () => {
 
   return (
     <PageTransition>
+      <Seo
+        title="Area riservata | BAZHOUSE"
+        description="Gestisci il tuo profilo BAZHOUSE: prenotazioni, saldi, dati personali e preferenze account."
+      />
       <Navbar />
       <main className="min-h-screen bg-background pt-28 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto space-y-8">
