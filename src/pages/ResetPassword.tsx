@@ -78,6 +78,10 @@ const ResetPassword = () => {
 
   return (
     <PageTransition>
+      <Seo
+        title="Reimposta la password | BAZHOUSE"
+        description="Imposta una nuova password sicura per il tuo account BAZHOUSE."
+      />
       <Navbar />
       <main className="relative min-h-screen overflow-hidden">
         <div className="absolute inset-0 z-0">
