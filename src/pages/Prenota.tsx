@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
+import Seo from "@/components/Seo";
 import BookingStepIndicator from "@/components/booking/BookingStepIndicator";
 import StepGuestData, { type GuestData, type AdditionalGuestData } from "@/components/booking/StepGuestData";
 import StepFlightServices, { type FlightData } from "@/components/booking/StepFlightServices";
