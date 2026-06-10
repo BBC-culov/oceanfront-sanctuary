@@ -32,6 +32,10 @@ const PagamentoFallito = () => {
 
   return (
     <PageTransition>
+      <Seo
+        title="Pagamento non riuscito | BAZHOUSE"
+        description="Si è verificato un errore durante il pagamento della prenotazione BAZHOUSE. Riprova o contatta il team di assistenza."
+      />
       <Navbar />
       <main className="min-h-screen flex items-center justify-center px-4 py-24">
         <motion.div
