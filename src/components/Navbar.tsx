@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, LogOut, UserCircle, User, CalendarDays, LayoutDashboard } from "lucide-react";
+import { Menu, X, LogOut, UserCircle, User, CalendarDays, LayoutDashboard, Home } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import type { User as SupaUser } from "@supabase/supabase-js";
@@ -25,6 +25,7 @@ const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [user, setUser] = useState<SupaUser | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isProprietario, setIsProprietario] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -34,19 +35,21 @@ const Navbar = () => {
   const isTransparent = !noHero && !scrolled;
 
   useEffect(() => {
-    const checkAdmin = async (userId: string) => {
-      const { data } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
-      setIsAdmin(!!data);
+    const checkRoles = async (userId: string) => {
+      const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+      const roles = (data ?? []).map((r: any) => r.role);
+      setIsAdmin(roles.includes("admin") || roles.includes("amministratore"));
+      setIsProprietario(roles.includes("proprietario"));
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-      if (session?.user) checkAdmin(session.user.id);
-      else setIsAdmin(false);
+      if (session?.user) checkRoles(session.user.id);
+      else { setIsAdmin(false); setIsProprietario(false); }
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
-      if (session?.user) checkAdmin(session.user.id);
+      if (session?.user) checkRoles(session.user.id);
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -170,6 +173,21 @@ const Navbar = () => {
                           </Link>
                         </motion.div>
                       )}
+                      {isProprietario && (
+                        <motion.div
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.02, duration: 0.2 }}
+                        >
+                          <Link
+                            to="/proprietario"
+                            className="flex items-center gap-3 px-4 py-2.5 font-sans text-sm text-primary font-medium hover:bg-primary/10 transition-colors duration-200"
+                          >
+                            <Home size={16} />
+                            Dashboard Proprietario
+                          </Link>
+                        </motion.div>
+                      )}
                       {dropdownItems.map((item, idx) => (
                         <motion.div
                           key={item.to}
@@ -258,6 +276,15 @@ const Navbar = () => {
                     >
                       <LayoutDashboard size={16} />
                       Dashboard
+                    </Link>
+                  )}
+                  {isProprietario && (
+                    <Link
+                      to="/proprietario"
+                      className="font-sans text-sm tracking-widest uppercase text-primary font-medium inline-flex items-center gap-2"
+                    >
+                      <Home size={16} />
+                      Dashboard Proprietario
                     </Link>
                   )}
                   <Link

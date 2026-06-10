@@ -39,6 +39,11 @@ import AdminPrenotazioneDetail from "./pages/admin/AdminPrenotazioneDetail";
 import AdminPrenotazioneNuova from "./pages/admin/AdminPrenotazioneNuova";
 import Unsubscribe from "./pages/Unsubscribe";
 import Riprendi from "./pages/Riprendi";
+import ProprietarioLayout from "./components/proprietario/ProprietarioLayout";
+import ProprietarioOverview from "./pages/proprietario/ProprietarioOverview";
+import ProprietarioAppartamenti from "./pages/proprietario/ProprietarioAppartamenti";
+import ProprietarioDisponibilita from "./pages/proprietario/ProprietarioDisponibilita";
+import ProprietarioPrenotazioni from "./pages/proprietario/ProprietarioPrenotazioni";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -56,7 +61,7 @@ const AnimatedRoutes = () => {
   const location = useLocation();
   const { maintenance, loading: maintenanceLoading } = useMaintenanceMode();
 
-  const isAdminRoute = location.pathname.startsWith("/admin");
+  const isAdminRoute = location.pathname.startsWith("/admin") || location.pathname.startsWith("/proprietario");
 
   // Show maintenance page for non-admin routes when maintenance is enabled
   if (!maintenanceLoading && maintenance.enabled && !isAdminRoute) {
@@ -96,6 +101,13 @@ const AnimatedRoutes = () => {
             <Route path="servizi" element={<AdminServizi />} />
             <Route path="gestione" element={<AdminGestione />} />
             <Route path="sito" element={<AdminGestioneSito />} />
+          </Route>
+          {/* Proprietario routes */}
+          <Route path="/proprietario" element={<ProprietarioLayout />}>
+            <Route index element={<ProprietarioOverview />} />
+            <Route path="appartamenti" element={<ProprietarioAppartamenti />} />
+            <Route path="disponibilita" element={<ProprietarioDisponibilita />} />
+            <Route path="prenotazioni" element={<ProprietarioPrenotazioni />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
