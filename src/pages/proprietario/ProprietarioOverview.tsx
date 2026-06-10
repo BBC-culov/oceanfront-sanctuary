@@ -366,12 +366,67 @@ const ProprietarioOverview = () => {
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
-      <div>
-        <h1 className="font-serif text-3xl text-foreground">Panoramica</h1>
-        <p className="font-sans text-sm text-muted-foreground mt-1">
-          Stato economico e performance dei tuoi appartamenti.
-        </p>
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div>
+          <h1 className="font-serif text-3xl text-foreground">Panoramica</h1>
+          <p className="font-sans text-sm text-muted-foreground mt-1">
+            Stato economico e performance dei tuoi appartamenti.
+          </p>
+          <p className="font-sans text-xs text-muted-foreground mt-1">
+            Periodo selezionato: <span className="text-foreground font-medium">{periodLabel}</span>
+          </p>
+        </div>
+        <Button onClick={handleExportPdf} disabled={exporting} className="gap-2 shrink-0">
+          {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+          Scarica PDF
+        </Button>
       </div>
+
+      {/* Period filter */}
+      <Card>
+        <CardContent className="p-4 flex flex-col md:flex-row md:items-end gap-3">
+          <div className="flex-1 min-w-0">
+            <Label className="font-sans text-xs text-muted-foreground">Periodo</Label>
+            <Select value={period} onValueChange={(v: PeriodPreset) => setPeriod(v)}>
+              <SelectTrigger className="mt-1 font-sans">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="current_month">Mese corrente</SelectItem>
+                <SelectItem value="last_3">Ultimi 3 mesi</SelectItem>
+                <SelectItem value="last_6">Ultimi 6 mesi</SelectItem>
+                <SelectItem value="last_12">Ultimi 12 mesi</SelectItem>
+                <SelectItem value="ytd">Anno in corso</SelectItem>
+                <SelectItem value="all">Tutto lo storico</SelectItem>
+                <SelectItem value="custom">Personalizzato</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {period === "custom" && (
+            <>
+              <div className="flex-1 min-w-0">
+                <Label className="font-sans text-xs text-muted-foreground">Da</Label>
+                <Input
+                  type="date"
+                  value={customFrom}
+                  onChange={(e) => setCustomFrom(e.target.value)}
+                  className="mt-1 font-sans"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <Label className="font-sans text-xs text-muted-foreground">A</Label>
+                <Input
+                  type="date"
+                  value={customTo}
+                  onChange={(e) => setCustomTo(e.target.value)}
+                  className="mt-1 font-sans"
+                />
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
 
       {/* KPI cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
