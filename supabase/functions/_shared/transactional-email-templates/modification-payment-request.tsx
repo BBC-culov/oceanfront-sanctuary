@@ -18,7 +18,7 @@ const Email = ({ guestName, apartmentName, bookingCode, amount = 0, paymentLink 
     <Preview>{`Pagamento differenza modifica — ${bookingCode ?? ''}`}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Section style={header}><Heading style={logo}>BAZ HOUSE</Heading></Section>
+        <Section style={header}><Heading style={logo}>__LOGO__</Heading></Section>
         <Section style={content}>
           <Heading style={h1}>Pagamento differenza modifica</Heading>
           <Text style={text}>

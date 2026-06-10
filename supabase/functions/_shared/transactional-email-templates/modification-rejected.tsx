@@ -17,7 +17,7 @@ const Email = ({ guestName, bookingCode, rejectionReason, adminNote }: Props) =>
     <Preview>{`Richiesta modifica non accolta — ${bookingCode ?? ''}`}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Section style={header}><Heading style={logo}>BAZ HOUSE</Heading></Section>
+        <Section style={header}><Heading style={logo}>__LOGO__</Heading></Section>
         <Section style={content}>
           <Heading style={h1}>Richiesta non accolta</Heading>
           <Text style={text}>

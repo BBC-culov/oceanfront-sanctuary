@@ -30,7 +30,7 @@ const AdminNotificationEmail = ({
       <Body style={main}>
         <Container style={container}>
           <Section style={header}>
-            <Heading style={logo}>BAZ HOUSE — Admin</Heading>
+            <Heading style={logo}>__LOGO_ADMIN__</Heading>
           </Section>
           <Section style={content}>
             <Heading style={h1}>{title}</Heading>

@@ -19,7 +19,7 @@ const Email = ({ guestName, bookingCode, newTotal = 0, priceDiff = 0, paymentLin
     <Preview>{`Modifica approvata — ${bookingCode ?? ''}`}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Section style={header}><Heading style={logo}>BAZ HOUSE</Heading></Section>
+        <Section style={header}><Heading style={logo}>__LOGO__</Heading></Section>
         <Section style={content}>
           <Heading style={h1}>Modifica approvata ✓</Heading>
           <Text style={text}>

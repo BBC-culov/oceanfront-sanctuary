@@ -29,7 +29,7 @@ export const MagicLinkEmail = ({
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
-          <Heading style={logo}>BAZ HOUSE</Heading>
+          <Heading style={logo}>__LOGO__</Heading>
         </Section>
         <Section style={content}>
           <Heading style={h1}>Il tuo link di accesso</Heading>

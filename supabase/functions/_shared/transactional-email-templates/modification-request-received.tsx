@@ -17,7 +17,7 @@ const Email = ({ guestName, bookingCode, priceDiff = 0, newTotal = 0 }: Props) =
     <Preview>{`Richiesta modifica ricevuta — ${bookingCode ?? ''}`}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Section style={header}><Heading style={logo}>BAZ HOUSE</Heading></Section>
+        <Section style={header}><Heading style={logo}>__LOGO__</Heading></Section>
         <Section style={content}>
           <Heading style={h1}>Richiesta modifica ricevuta</Heading>
           <Text style={text}>

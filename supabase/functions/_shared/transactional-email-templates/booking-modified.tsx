@@ -21,7 +21,7 @@ const Email = ({ guestName, apartmentName, bookingCode, checkIn, checkOut, newTo
     <Preview>{`Prenotazione aggiornata — ${bookingCode ?? ''}`}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Section style={header}><Heading style={logo}>BAZ HOUSE</Heading></Section>
+        <Section style={header}><Heading style={logo}>__LOGO__</Heading></Section>
         <Section style={content}>
           <Heading style={h1}>Prenotazione aggiornata</Heading>
           <Text style={text}>

@@ -18,7 +18,7 @@ const Email = ({ guestName, guestEmail, bookingCode, priceDiff = 0, newTotal = 0
     <Preview>{`Nuova richiesta di modifica — ${bookingCode ?? ''}`}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Section style={header}><Heading style={logo}>BAZ HOUSE — Admin</Heading></Section>
+        <Section style={header}><Heading style={logo}>__LOGO_ADMIN__</Heading></Section>
         <Section style={content}>
           <Heading style={h1}>Nuova richiesta di modifica</Heading>
           <Text style={detail}><strong>Ospite:</strong> {guestName} ({guestEmail})</Text>
