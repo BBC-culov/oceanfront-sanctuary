@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
+import Seo from "@/components/Seo";
 import { getStatusConfig } from "@/lib/bookingStatus";
 import RequestModificationDialog from "@/components/booking/RequestModificationDialog";
 import ModificationDiff from "@/components/admin/ModificationDiff";
