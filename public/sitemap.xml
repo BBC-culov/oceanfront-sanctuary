@@ -17,6 +17,7 @@
   <url><loc>/appartamenti/coral</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>/appartamenti/tramonto</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>/appartamenti/duna</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>/privacy-policy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>/refund-policy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>/rental-agreement</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
