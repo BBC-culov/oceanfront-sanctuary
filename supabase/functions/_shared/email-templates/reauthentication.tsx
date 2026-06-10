@@ -10,8 +10,7 @@ import {
   Html,
   Preview,
   Section,
-  Text,
-} from 'npm:@react-email/components@0.0.22'
+  Text,, Img } from 'npm:@react-email/components@0.0.22'
 
 interface ReauthenticationEmailProps {
   token: string
@@ -24,7 +23,7 @@ export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => 
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
-          <Heading style={logo}>__LOGO__</Heading>
+          <Img src="https://bazhouse.it/logo-bazhouse.png" alt="BAZHOUSE" width="160" height="52" style={{ display: 'block', margin: '0 auto', maxWidth: '160px', height: 'auto', border: 0, outline: 'none', textDecoration: 'none' }} />
         </Section>
         <Section style={content}>
           <Heading style={h1}>Codice di verifica</Heading>
