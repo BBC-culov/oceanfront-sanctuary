@@ -61,7 +61,7 @@ const AnimatedRoutes = () => {
   const location = useLocation();
   const { maintenance, loading: maintenanceLoading } = useMaintenanceMode();
 
-  const isAdminRoute = location.pathname.startsWith("/admin");
+  const isAdminRoute = location.pathname.startsWith("/admin") || location.pathname.startsWith("/proprietario");
 
   // Show maintenance page for non-admin routes when maintenance is enabled
   if (!maintenanceLoading && maintenance.enabled && !isAdminRoute) {
