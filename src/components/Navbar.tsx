@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, LogOut, UserCircle, User, CalendarDays, LayoutDashboard } from "lucide-react";
+import { Menu, X, LogOut, UserCircle, User, CalendarDays, LayoutDashboard, Home } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import type { User as SupaUser } from "@supabase/supabase-js";
@@ -25,6 +25,7 @@ const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [user, setUser] = useState<SupaUser | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isProprietario, setIsProprietario] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -34,19 +35,21 @@ const Navbar = () => {
   const isTransparent = !noHero && !scrolled;
 
   useEffect(() => {
-    const checkAdmin = async (userId: string) => {
-      const { data } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
-      setIsAdmin(!!data);
+    const checkRoles = async (userId: string) => {
+      const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+      const roles = (data ?? []).map((r: any) => r.role);
+      setIsAdmin(roles.includes("admin") || roles.includes("amministratore"));
+      setIsProprietario(roles.includes("proprietario"));
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-      if (session?.user) checkAdmin(session.user.id);
-      else setIsAdmin(false);
+      if (session?.user) checkRoles(session.user.id);
+      else { setIsAdmin(false); setIsProprietario(false); }
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
-      if (session?.user) checkAdmin(session.user.id);
+      if (session?.user) checkRoles(session.user.id);
     });
     return () => subscription.unsubscribe();
   }, []);
