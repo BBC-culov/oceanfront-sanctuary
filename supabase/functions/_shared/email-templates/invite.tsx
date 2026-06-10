@@ -12,7 +12,7 @@ import {
   Link,
   Preview,
   Section,
-  Text,, Img } from 'npm:@react-email/components@0.0.22'
+  Text, Img } from 'npm:@react-email/components@0.0.22'
 
 interface InviteEmailProps {
   siteName: string
