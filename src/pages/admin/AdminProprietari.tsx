@@ -169,10 +169,28 @@ const AdminProprietari = () => {
     }
   };
 
-  const filtered = owners.filter(o =>
-    o.email.toLowerCase().includes(search.toLowerCase()) ||
-    `${o.first_name} ${o.last_name}`.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = owners.filter(o => {
+    const q = search.toLowerCase().trim();
+    const matchesSearch = !q ||
+      o.email.toLowerCase().includes(q) ||
+      `${o.first_name} ${o.last_name}`.toLowerCase().includes(q);
+
+    const count = statsByOwner[o.id]?.apts.length ?? 0;
+    const isActive = count > 0;
+
+    const matchesStatus =
+      statusFilter === "all" ||
+      (statusFilter === "active" && isActive) ||
+      (statusFilter === "incomplete" && !isActive);
+
+    const matchesAptCount =
+      aptCountFilter === "all" ||
+      (aptCountFilter === "0" && count === 0) ||
+      (aptCountFilter === "1" && count === 1) ||
+      (aptCountFilter === "2+" && count >= 2);
+
+    return matchesSearch && matchesStatus && matchesAptCount;
+  });
 
   if (roleLoading) {
     return (
