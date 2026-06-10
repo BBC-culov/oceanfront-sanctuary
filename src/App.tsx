@@ -33,6 +33,7 @@ import AdminOverview from "./pages/admin/AdminOverview";
 import AdminPrenotazioni from "./pages/admin/AdminPrenotazioni";
 import AdminAppartamenti from "./pages/admin/AdminAppartamenti";
 import AdminGestione from "./pages/admin/AdminGestione";
+import AdminProprietari from "./pages/admin/AdminProprietari";
 import AdminGestioneSito from "./pages/admin/AdminGestioneSito";
 import AdminServizi from "./pages/admin/AdminServizi";
 import AdminPrenotazioneDetail from "./pages/admin/AdminPrenotazioneDetail";
@@ -100,6 +101,7 @@ const AnimatedRoutes = () => {
             <Route path="appartamenti" element={<AdminAppartamenti />} />
             <Route path="servizi" element={<AdminServizi />} />
             <Route path="gestione" element={<AdminGestione />} />
+            <Route path="proprietari" element={<AdminProprietari />} />
             <Route path="sito" element={<AdminGestioneSito />} />
           </Route>
           {/* Proprietario routes */}
