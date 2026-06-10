@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
+import Seo from "@/components/Seo";
 import { getStatusConfig } from "@/lib/bookingStatus";
 import RequestModificationDialog from "@/components/booking/RequestModificationDialog";
 import ModificationDiff from "@/components/admin/ModificationDiff";
@@ -211,6 +212,10 @@ const PrenotazioneDetail = () => {
 
   return (
     <PageTransition>
+      <Seo
+        title="Dettaglio Prenotazione | BAZHOUSE"
+        description="Visualizza i dettagli della tua prenotazione BAZHOUSE: date, ospiti, servizi, pagamenti e richieste di modifica."
+      />
       <Navbar />
       <main className="min-h-screen bg-background pt-28 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto space-y-6">
