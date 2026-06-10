@@ -344,9 +344,21 @@ const AdminProprietari = () => {
                           <Home className="w-4 h-4 text-primary" />
                         </div>
                         <div className="min-w-0">
-                          <p className="font-sans text-sm font-semibold text-foreground truncate">
-                            {o.first_name || o.last_name ? `${o.first_name} ${o.last_name}`.trim() : o.email}
-                          </p>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="font-sans text-sm font-semibold text-foreground truncate">
+                              {o.first_name || o.last_name ? `${o.first_name} ${o.last_name}`.trim() : o.email}
+                            </p>
+                            <Badge
+                              variant={st.apts.length > 0 ? "default" : "outline"}
+                              className={`font-sans text-[9px] uppercase tracking-wider ${
+                                st.apts.length > 0
+                                  ? "bg-emerald-500/15 text-emerald-700 hover:bg-emerald-500/15 border-emerald-500/30"
+                                  : "border-amber-500/40 text-amber-600"
+                              }`}
+                            >
+                              {st.apts.length > 0 ? "Attivo" : "Incompleto"}
+                            </Badge>
+                          </div>
                           <div className="flex flex-col gap-0.5 mt-0.5">
                             <span className="font-sans text-xs text-muted-foreground flex items-center gap-1 truncate">
                               <Mail className="w-3 h-3 shrink-0" /> {o.email}
