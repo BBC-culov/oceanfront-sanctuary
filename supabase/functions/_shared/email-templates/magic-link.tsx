@@ -28,7 +28,7 @@ export const MagicLinkEmail = ({
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
-          <Img src="https://bazhouse.it/logo-bazhouse.png" alt="BAZHOUSE" width="160" height="52" style={{ display: 'block', margin: '0 auto', maxWidth: '160px', height: 'auto', border: 0, outline: 'none', textDecoration: 'none' }} />
+          <Img src="https://lreerhxykovhkfciffnu.supabase.co/storage/v1/object/public/apartment-images/email%2Flogo-bazhouse.png" alt="BAZHOUSE" width="160" height="52" style={{ display: 'block', margin: '0 auto', maxWidth: '160px', height: 'auto', border: 0, outline: 'none', textDecoration: 'none' }} />
         </Section>
         <Section style={content}>
           <Heading style={h1}>Il tuo link di accesso</Heading>
@@ -55,13 +55,13 @@ export default MagicLinkEmail
 
 const main = { backgroundColor: '#ffffff', fontFamily: "'Outfit', Arial, sans-serif" }
 const container = { maxWidth: '600px', margin: '0 auto' }
-const header = { backgroundColor: '#1a3329', padding: '32px 40px', textAlign: 'center' as const }
+const header = { backgroundColor: '#ffffff', padding: '32px 40px 24px', textAlign: 'center' as const, borderBottom: '3px solid #0E3D2C' }
 const logo = { margin: '0', color: '#f5f0eb', fontSize: '24px', fontWeight: '300' as const, letterSpacing: '0.1em', fontFamily: 'Georgia, serif' }
 const content = { padding: '40px' }
-const h1 = { fontSize: '22px', fontWeight: '300' as const, color: '#1a3329', margin: '0 0 24px', fontFamily: 'Georgia, serif' }
+const h1 = { fontSize: '22px', fontWeight: '300' as const, color: '#0E3D2C', margin: '0 0 24px', fontFamily: 'Georgia, serif' }
 const text = { fontSize: '15px', color: '#555', lineHeight: '1.6', margin: '0 0 20px' }
-const button = { backgroundColor: '#1a3329', color: '#f5f0eb', fontSize: '12px', borderRadius: '4px', padding: '14px 32px', textDecoration: 'none', textTransform: 'uppercase' as const, letterSpacing: '0.15em' }
-const footerText = { fontSize: '13px', color: '#999', margin: '30px 0 0' }
+const button = { backgroundColor: '#0E3D2C', color: '#f5f0eb', fontSize: '12px', borderRadius: '4px', padding: '14px 32px', textDecoration: 'none', textTransform: 'uppercase' as const, letterSpacing: '0.15em' }
+const footerText = { fontSize: '13px', color: '#6b6b6b', margin: '30px 0 0' }
 const footerSection = { padding: '24px 40px', backgroundColor: '#fafafa', textAlign: 'center' as const, borderTop: '1px solid #eee' }
-const footerBrand = { margin: '0', fontSize: '12px', color: '#999' }
-const footerCopy = { margin: '4px 0 0', fontSize: '11px', color: '#bbb' }
+const footerBrand = { margin: '0', fontSize: '12px', color: '#6b6b6b' }
+const footerCopy = { margin: '4px 0 0', fontSize: '11px', color: '#888' }

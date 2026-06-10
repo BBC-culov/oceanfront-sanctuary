@@ -18,8 +18,8 @@ const Email = ({ guestName, guestEmail, bookingCode, priceDiff = 0, newTotal = 0
     <Preview>{`Nuova richiesta di modifica — ${bookingCode ?? ''}`}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Section style={header}><Img src="https://bazhouse.it/logo-bazhouse.png" alt="BAZHOUSE" width="160" height="52" style={{ display: 'block', margin: '0 auto 6px', maxWidth: '160px', height: 'auto', border: 0, outline: 'none', textDecoration: 'none' }} />
-            <Text style={{ textAlign: 'center', fontSize: '11px', letterSpacing: '2px', color: '#999', margin: 0, textTransform: 'uppercase' }}>Admin</Text></Section>
+        <Section style={header}><Img src="https://lreerhxykovhkfciffnu.supabase.co/storage/v1/object/public/apartment-images/email%2Flogo-bazhouse.png" alt="BAZHOUSE" width="160" height="52" style={{ display: 'block', margin: '0 auto 6px', maxWidth: '160px', height: 'auto', border: 0, outline: 'none', textDecoration: 'none' }} />
+            <Text style={{ textAlign: 'center', fontSize: '11px', letterSpacing: '2px', color: '#6b6b6b', margin: 0, textTransform: 'uppercase' }}>Admin</Text></Section>
         <Section style={content}>
           <Heading style={h1}>Nuova richiesta di modifica</Heading>
           <Text style={detail}><strong>Ospite:</strong> {guestName} ({guestEmail})</Text>
@@ -44,8 +44,8 @@ export const template = {
 
 const main = { backgroundColor: '#ffffff', fontFamily: "'Outfit', Arial, sans-serif" }
 const container = { maxWidth: '600px', margin: '0 auto' }
-const header = { backgroundColor: '#1a3329', padding: '24px 40px', textAlign: 'center' as const }
+const header = { backgroundColor: '#ffffff', padding: '28px 40px 20px', textAlign: 'center' as const, borderBottom: '3px solid #0E3D2C' }
 const logo = { margin: '0', color: '#f5f0eb', fontSize: '20px', fontWeight: '300' as const, letterSpacing: '0.1em', fontFamily: 'Georgia, serif' }
 const content = { padding: '32px 40px' }
-const h1 = { fontSize: '20px', fontWeight: '300' as const, color: '#1a3329', margin: '0 0 16px', fontFamily: 'Georgia, serif' }
+const h1 = { fontSize: '20px', fontWeight: '300' as const, color: '#0E3D2C', margin: '0 0 16px', fontFamily: 'Georgia, serif' }
 const detail = { margin: '0 0 8px', fontSize: '14px', color: '#333', lineHeight: '1.5' }

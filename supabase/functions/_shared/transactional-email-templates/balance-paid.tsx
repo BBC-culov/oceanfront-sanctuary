@@ -19,7 +19,7 @@ const BalancePaidEmail = ({ guestName, apartmentName, bookingCode, totalPrice = 
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
-          <Img src="https://bazhouse.it/logo-bazhouse.png" alt="BAZHOUSE" width="160" height="52" style={{ display: 'block', margin: '0 auto', maxWidth: '160px', height: 'auto', border: 0, outline: 'none', textDecoration: 'none' }} />
+          <Img src="https://lreerhxykovhkfciffnu.supabase.co/storage/v1/object/public/apartment-images/email%2Flogo-bazhouse.png" alt="BAZHOUSE" width="160" height="52" style={{ display: 'block', margin: '0 auto', maxWidth: '160px', height: 'auto', border: 0, outline: 'none', textDecoration: 'none' }} />
         </Section>
         <Section style={content}>
           <Heading style={h1}>Saldo Completato</Heading>
@@ -47,10 +47,10 @@ export const template = {
 
 const main = { backgroundColor: '#ffffff', fontFamily: "'Outfit', Arial, sans-serif" }
 const container = { maxWidth: '600px', margin: '0 auto' }
-const header = { backgroundColor: '#1a3329', padding: '32px 40px', textAlign: 'center' as const }
+const header = { backgroundColor: '#ffffff', padding: '32px 40px 24px', textAlign: 'center' as const, borderBottom: '3px solid #0E3D2C' }
 const logo = { margin: '0', color: '#f5f0eb', fontSize: '24px', fontWeight: '300' as const, letterSpacing: '0.1em', fontFamily: 'Georgia, serif' }
 const content = { padding: '40px' }
-const h1 = { fontSize: '22px', fontWeight: '300' as const, color: '#1a3329', margin: '0 0 24px', fontFamily: 'Georgia, serif' }
+const h1 = { fontSize: '22px', fontWeight: '300' as const, color: '#0E3D2C', margin: '0 0 24px', fontFamily: 'Georgia, serif' }
 const text = { fontSize: '15px', color: '#555', lineHeight: '1.6', margin: '0 0 20px' }
 const successBox = { backgroundColor: '#f0fdf4', padding: '24px', margin: '0 0 24px', borderLeft: '4px solid #22c55e' }
 const successText = { margin: '0', fontSize: '15px', color: '#166534' }
