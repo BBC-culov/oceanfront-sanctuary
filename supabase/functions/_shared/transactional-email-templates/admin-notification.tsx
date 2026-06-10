@@ -29,7 +29,7 @@ const AdminNotificationEmail = ({
       <Body style={main}>
         <Container style={container}>
           <Section style={header}>
-            <Img src="https://bazhouse.it/logo-bazhouse.png" alt="BAZHOUSE" width="160" height="52" style={{ display: 'block', margin: '0 auto 6px', maxWidth: '160px', height: 'auto', border: 0, outline: 'none', textDecoration: 'none' }} />
+            <Img src="https://lreerhxykovhkfciffnu.supabase.co/storage/v1/object/public/apartment-images/email%2Flogo-bazhouse.png" alt="BAZHOUSE" width="160" height="52" style={{ display: 'block', margin: '0 auto 6px', maxWidth: '160px', height: 'auto', border: 0, outline: 'none', textDecoration: 'none' }} />
             <Text style={{ textAlign: 'center', fontSize: '11px', letterSpacing: '2px', color: '#999', margin: 0, textTransform: 'uppercase' }}>Admin</Text>
           </Section>
           <Section style={content}>

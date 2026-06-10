@@ -18,7 +18,7 @@ const Email = ({ guestName, apartmentName, bookingCode, amount = 0, paymentLink 
     <Preview>{`Pagamento differenza modifica — ${bookingCode ?? ''}`}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Section style={header}><Img src="https://bazhouse.it/logo-bazhouse.png" alt="BAZHOUSE" width="160" height="52" style={{ display: 'block', margin: '0 auto', maxWidth: '160px', height: 'auto', border: 0, outline: 'none', textDecoration: 'none' }} /></Section>
+        <Section style={header}><Img src="https://lreerhxykovhkfciffnu.supabase.co/storage/v1/object/public/apartment-images/email%2Flogo-bazhouse.png" alt="BAZHOUSE" width="160" height="52" style={{ display: 'block', margin: '0 auto', maxWidth: '160px', height: 'auto', border: 0, outline: 'none', textDecoration: 'none' }} /></Section>
         <Section style={content}>
           <Heading style={h1}>Pagamento differenza modifica</Heading>
           <Text style={text}>
