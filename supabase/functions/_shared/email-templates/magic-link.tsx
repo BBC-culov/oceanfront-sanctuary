@@ -24,7 +24,7 @@ export const MagicLinkEmail = ({
 }: MagicLinkEmailProps) => (
   <Html lang="it" dir="ltr">
     <Head />
-    <Preview>Il tuo link di accesso — Baz House</Preview>
+    <Preview>Il tuo link di accesso — Bazhouse</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
@@ -33,7 +33,7 @@ export const MagicLinkEmail = ({
         <Section style={content}>
           <Heading style={h1}>Il tuo link di accesso</Heading>
           <Text style={text}>
-            Clicca il pulsante qui sotto per accedere a Baz House. Il link scadrà a breve.
+            Clicca il pulsante qui sotto per accedere a Bazhouse. Il link scadrà a breve.
           </Text>
           <Button style={button} href={confirmationUrl}>
             Accedi
@@ -43,8 +43,8 @@ export const MagicLinkEmail = ({
           </Text>
         </Section>
         <Section style={footerSection}>
-          <Text style={footerBrand}>Baz House · Boa Vista, Capo Verde</Text>
-          <Text style={footerCopy}>© {new Date().getFullYear()} Baz House. Tutti i diritti riservati.</Text>
+          <Text style={footerBrand}>Bazhouse · Boa Vista, Capo Verde</Text>
+          <Text style={footerCopy}>© {new Date().getFullYear()} Bazhouse. Tutti i diritti riservati.</Text>
         </Section>
       </Container>
     </Body>

@@ -27,7 +27,7 @@ export const InviteEmail = ({
 }: InviteEmailProps) => (
   <Html lang="it" dir="ltr">
     <Head />
-    <Preview>Sei stato invitato su Baz House</Preview>
+    <Preview>Sei stato invitato su Bazhouse</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
@@ -38,7 +38,7 @@ export const InviteEmail = ({
           <Text style={text}>
             Sei stato invitato a unirti a{' '}
             <Link href={siteUrl} style={link}>
-              <strong>Baz House</strong>
+              <strong>Bazhouse</strong>
             </Link>
             . Clicca il pulsante qui sotto per accettare l'invito e creare il tuo account.
           </Text>
@@ -50,8 +50,8 @@ export const InviteEmail = ({
           </Text>
         </Section>
         <Section style={footerSection}>
-          <Text style={footerBrand}>Baz House · Boa Vista, Capo Verde</Text>
-          <Text style={footerCopy}>© {new Date().getFullYear()} Baz House. Tutti i diritti riservati.</Text>
+          <Text style={footerBrand}>Bazhouse · Boa Vista, Capo Verde</Text>
+          <Text style={footerCopy}>© {new Date().getFullYear()} Bazhouse. Tutti i diritti riservati.</Text>
         </Section>
       </Container>
     </Body>

@@ -29,18 +29,18 @@ export const SignupEmail = ({
 }: SignupEmailProps) => (
   <Html lang="it" dir="ltr">
     <Head />
-    <Preview>Conferma la tua email per Baz House</Preview>
+    <Preview>Conferma la tua email per Bazhouse</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
           <Img src="https://bazhouse.it/logo-bazhouse.png" alt="BAZHOUSE" width="160" height="52" style={{ display: 'block', margin: '0 auto', maxWidth: '160px', height: 'auto', border: 0, outline: 'none', textDecoration: 'none' }} />
         </Section>
         <Section style={content}>
-          <Heading style={h1}>Benvenuto su Baz House!</Heading>
+          <Heading style={h1}>Benvenuto su Bazhouse!</Heading>
           <Text style={text}>
             Grazie per esserti registrato su{' '}
             <Link href={siteUrl} style={link}>
-              <strong>Baz House</strong>
+              <strong>Bazhouse</strong>
             </Link>
             !
           </Text>
@@ -59,8 +59,8 @@ export const SignupEmail = ({
           </Text>
         </Section>
         <Section style={footerSection}>
-          <Text style={footerBrand}>Baz House · Boa Vista, Capo Verde</Text>
-          <Text style={footerCopy}>© {new Date().getFullYear()} Baz House. Tutti i diritti riservati.</Text>
+          <Text style={footerBrand}>Bazhouse · Boa Vista, Capo Verde</Text>
+          <Text style={footerCopy}>© {new Date().getFullYear()} Bazhouse. Tutti i diritti riservati.</Text>
         </Section>
       </Container>
     </Body>
