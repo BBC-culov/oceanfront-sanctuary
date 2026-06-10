@@ -268,15 +268,47 @@ const AdminProprietari = () => {
         ))}
       </div>
 
-      {/* Search */}
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input
-          placeholder="Cerca proprietario..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-9 font-sans"
-        />
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Cerca per nome o email..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9 font-sans"
+          />
+        </div>
+        <Select value={statusFilter} onValueChange={(v: any) => setStatusFilter(v)}>
+          <SelectTrigger className="w-full sm:w-44 font-sans">
+            <SelectValue placeholder="Stato" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tutti gli stati</SelectItem>
+            <SelectItem value="active">Attivi</SelectItem>
+            <SelectItem value="incomplete">Incompleti</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={aptCountFilter} onValueChange={(v: any) => setAptCountFilter(v)}>
+          <SelectTrigger className="w-full sm:w-52 font-sans">
+            <SelectValue placeholder="N. appartamenti" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Qualsiasi numero</SelectItem>
+            <SelectItem value="0">Nessun appartamento</SelectItem>
+            <SelectItem value="1">1 appartamento</SelectItem>
+            <SelectItem value="2+">2 o più</SelectItem>
+          </SelectContent>
+        </Select>
+        {(search || statusFilter !== "all" || aptCountFilter !== "all") && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => { setSearch(""); setStatusFilter("all"); setAptCountFilter("all"); }}
+          >
+            <X className="w-4 h-4 mr-1" /> Reset
+          </Button>
+        )}
       </div>
 
       {/* Owner cards */}
