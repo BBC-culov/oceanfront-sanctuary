@@ -212,6 +212,10 @@ const PrenotazioneDetail = () => {
 
   return (
     <PageTransition>
+      <Seo
+        title="Dettaglio Prenotazione | BAZHOUSE"
+        description="Visualizza i dettagli della tua prenotazione BAZHOUSE: date, ospiti, servizi, pagamenti e richieste di modifica."
+      />
       <Navbar />
       <main className="min-h-screen bg-background pt-28 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto space-y-6">
