@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -10,6 +10,8 @@ import {
   Users,
   Star,
   CalendarRange,
+  Download,
+  Loader2,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -26,10 +28,33 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-import { format, parseISO, startOfMonth, subMonths, isAfter } from "date-fns";
+import {
+  format,
+  parseISO,
+  startOfMonth,
+  endOfMonth,
+  subMonths,
+  startOfYear,
+  endOfYear,
+  differenceInCalendarMonths,
+  isWithinInterval,
+} from "date-fns";
 import { it } from "date-fns/locale";
 import { useOwnerApartments, useOwnerBookings, useOwnerGuestCounts } from "@/hooks/useOwnerData";
-import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "@/hooks/use-toast";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import logoUrl from "@/assets/logo-bazhouse.png";
 
 // Bookings considered "earned/active"
 const ACTIVE_STATUSES = ["confirmed", "paid", "awaiting_verification", "completed"];
@@ -42,11 +67,58 @@ const eur = (n: number) =>
 
 const CHART_COLORS = ["hsl(var(--primary))", "#0ea5e9", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
 
+type PeriodPreset = "current_month" | "last_3" | "last_6" | "last_12" | "ytd" | "all" | "custom";
+
+const computeRange = (preset: PeriodPreset, from: string, to: string): { from: Date; to: Date } => {
+  const now = new Date();
+  switch (preset) {
+    case "current_month":
+      return { from: startOfMonth(now), to: endOfMonth(now) };
+    case "last_3":
+      return { from: startOfMonth(subMonths(now, 2)), to: endOfMonth(now) };
+    case "last_6":
+      return { from: startOfMonth(subMonths(now, 5)), to: endOfMonth(now) };
+    case "last_12":
+      return { from: startOfMonth(subMonths(now, 11)), to: endOfMonth(now) };
+    case "ytd":
+      return { from: startOfYear(now), to: endOfYear(now) };
+    case "all":
+      return { from: new Date(2000, 0, 1), to: new Date(2999, 11, 31) };
+    case "custom":
+      return {
+        from: from ? parseISO(from) : startOfMonth(subMonths(now, 11)),
+        to: to ? parseISO(to) : endOfMonth(now),
+      };
+  }
+};
+
+const loadImageDataUrl = async (url: string): Promise<string | null> => {
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
+};
+
 const ProprietarioOverview = () => {
   const { data: apartments = [], isLoading: aptLoading } = useOwnerApartments();
   const { data: bookings = [], isLoading: bkLoading } = useOwnerBookings();
   const bookingIds = useMemo(() => bookings.map((b) => b.id), [bookings]);
   const { data: guestCounts } = useOwnerGuestCounts(bookingIds);
+
+  const [period, setPeriod] = useState<PeriodPreset>("last_12");
+  const [customFrom, setCustomFrom] = useState<string>("");
+  const [customTo, setCustomTo] = useState<string>("");
+  const [exporting, setExporting] = useState(false);
+
+
 
   const loading = aptLoading || bkLoading;
 
