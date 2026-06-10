@@ -70,6 +70,10 @@ const Riprendi = () => {
 
   return (
     <PageTransition>
+      <Seo
+        title="Riprendi prenotazione | BAZHOUSE"
+        description="Riprendi la tua prenotazione BAZHOUSE da dove l'avevi lasciata. I dati inseriti sono stati conservati per completare la prenotazione."
+      />
       <Navbar />
       <main className="pt-32 pb-24 min-h-[70vh]">
         <div className="mx-auto max-w-xl px-6 text-center">
