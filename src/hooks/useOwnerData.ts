@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useUserRoles } from "./useUserRoles";
+import { useUserRoles } from "@/hooks/useUserRoles";
 
 export interface OwnerApartment {
   id: string;
