@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import PageTransition from "@/components/PageTransition";
+import Seo from "@/components/Seo";
 
 const Unsubscribe = () => {
   const [searchParams] = useSearchParams();
