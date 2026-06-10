@@ -173,6 +173,21 @@ const Navbar = () => {
                           </Link>
                         </motion.div>
                       )}
+                      {isProprietario && (
+                        <motion.div
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.02, duration: 0.2 }}
+                        >
+                          <Link
+                            to="/proprietario"
+                            className="flex items-center gap-3 px-4 py-2.5 font-sans text-sm text-primary font-medium hover:bg-primary/10 transition-colors duration-200"
+                          >
+                            <Home size={16} />
+                            Dashboard Proprietario
+                          </Link>
+                        </motion.div>
+                      )}
                       {dropdownItems.map((item, idx) => (
                         <motion.div
                           key={item.to}
