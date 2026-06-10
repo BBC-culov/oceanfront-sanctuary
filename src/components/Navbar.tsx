@@ -278,6 +278,15 @@ const Navbar = () => {
                       Dashboard
                     </Link>
                   )}
+                  {isProprietario && (
+                    <Link
+                      to="/proprietario"
+                      className="font-sans text-sm tracking-widest uppercase text-primary font-medium inline-flex items-center gap-2"
+                    >
+                      <Home size={16} />
+                      Dashboard Proprietario
+                    </Link>
+                  )}
                   <Link
                     to="/profilo"
                     className="font-sans text-sm tracking-widest uppercase text-foreground inline-flex items-center gap-2"
