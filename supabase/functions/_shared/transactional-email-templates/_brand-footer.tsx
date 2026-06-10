@@ -19,7 +19,7 @@ export const BrandFooter = ({ showWhatsapp = true }: BrandFooterProps) => (
     {showWhatsapp && (
       <Section style={ctaWrap}>
         <Button href={BRAND.whatsappUrl} style={whatsappBtn}>
-          💬 Scrivici su WhatsApp
+          Scrivici su WhatsApp
         </Button>
       </Section>
     )}

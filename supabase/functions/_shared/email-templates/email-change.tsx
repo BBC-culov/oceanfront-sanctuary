@@ -12,8 +12,7 @@ import {
   Link,
   Preview,
   Section,
-  Text,
-} from 'npm:@react-email/components@0.0.22'
+  Text, Img } from 'npm:@react-email/components@0.0.22'
 
 interface EmailChangeEmailProps {
   siteName: string
@@ -30,16 +29,16 @@ export const EmailChangeEmail = ({
 }: EmailChangeEmailProps) => (
   <Html lang="it" dir="ltr">
     <Head />
-    <Preview>Conferma il cambio email — Baz House</Preview>
+    <Preview>Conferma il cambio email — Bazhouse</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
-          <Heading style={logo}>BAZ HOUSE</Heading>
+          <Img src="https://bazhouse.it/logo-bazhouse.png" alt="BAZHOUSE" width="160" height="52" style={{ display: 'block', margin: '0 auto', maxWidth: '160px', height: 'auto', border: 0, outline: 'none', textDecoration: 'none' }} />
         </Section>
         <Section style={content}>
           <Heading style={h1}>Conferma il cambio email</Heading>
           <Text style={text}>
-            Hai richiesto di cambiare il tuo indirizzo email per Baz House da{' '}
+            Hai richiesto di cambiare il tuo indirizzo email per Bazhouse da{' '}
             <Link href={`mailto:${email}`} style={link}>{email}</Link>{' '}
             a{' '}
             <Link href={`mailto:${newEmail}`} style={link}>{newEmail}</Link>.
@@ -55,8 +54,8 @@ export const EmailChangeEmail = ({
           </Text>
         </Section>
         <Section style={footerSection}>
-          <Text style={footerBrand}>Baz House · Boa Vista, Capo Verde</Text>
-          <Text style={footerCopy}>© {new Date().getFullYear()} Baz House. Tutti i diritti riservati.</Text>
+          <Text style={footerBrand}>Bazhouse · Boa Vista, Capo Verde</Text>
+          <Text style={footerCopy}>© {new Date().getFullYear()} Bazhouse. Tutti i diritti riservati.</Text>
         </Section>
       </Container>
     </Body>

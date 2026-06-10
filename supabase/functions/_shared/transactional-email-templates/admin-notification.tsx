@@ -1,8 +1,7 @@
 /// <reference types="npm:@types/react@18.3.1" />
 import * as React from 'npm:react@18.3.1'
 import {
-  Body, Container, Head, Heading, Html, Preview, Section, Text,
-} from 'npm:@react-email/components@0.0.22'
+  Body, Container, Head, Heading, Html, Preview, Section, Text, Img } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
 
 interface AdminNotificationProps {
@@ -30,14 +29,15 @@ const AdminNotificationEmail = ({
       <Body style={main}>
         <Container style={container}>
           <Section style={header}>
-            <Heading style={logo}>BAZ HOUSE — Admin</Heading>
+            <Img src="https://bazhouse.it/logo-bazhouse.png" alt="BAZHOUSE" width="160" height="52" style={{ display: 'block', margin: '0 auto 6px', maxWidth: '160px', height: 'auto', border: 0, outline: 'none', textDecoration: 'none' }} />
+            <Text style={{ textAlign: 'center', fontSize: '11px', letterSpacing: '2px', color: '#999', margin: 0, textTransform: 'uppercase' }}>Admin</Text>
           </Section>
           <Section style={content}>
             <Heading style={h1}>{title}</Heading>
             <Text style={detail}><strong>Ospite:</strong> {guestName} ({guestEmail})</Text>
             <Text style={detail}><strong>Codice:</strong> {bookingCode}</Text>
             <Text style={detail}><strong>Appartamento:</strong> {apartmentName}</Text>
-            <Text style={detail}><strong>Date:</strong> {checkIn} → {checkOut}</Text>
+            <Text style={detail}><strong>Date:</strong> {checkIn} - {checkOut}</Text>
             <Text style={detail}><strong>Totale:</strong> €{totalPrice.toFixed(2)}</Text>
             <Text style={detail}><strong>Pagato:</strong> €{amountPaid.toFixed(2)} ({paymentType === 'deposit' ? 'caparra' : 'intero'})</Text>
           </Section>

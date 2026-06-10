@@ -1,6 +1,6 @@
 /// <reference types="npm:@types/react@18.3.1" />
 import * as React from 'npm:react@18.3.1'
-import { Body, Container, Head, Heading, Html, Preview, Section, Text } from 'npm:@react-email/components@0.0.22'
+import { Body, Container, Head, Heading, Html, Preview, Section, Text, Img } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
 
 interface Props {
@@ -18,7 +18,8 @@ const Email = ({ guestName, guestEmail, bookingCode, priceDiff = 0, newTotal = 0
     <Preview>{`Nuova richiesta di modifica — ${bookingCode ?? ''}`}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Section style={header}><Heading style={logo}>BAZ HOUSE — Admin</Heading></Section>
+        <Section style={header}><Img src="https://bazhouse.it/logo-bazhouse.png" alt="BAZHOUSE" width="160" height="52" style={{ display: 'block', margin: '0 auto 6px', maxWidth: '160px', height: 'auto', border: 0, outline: 'none', textDecoration: 'none' }} />
+            <Text style={{ textAlign: 'center', fontSize: '11px', letterSpacing: '2px', color: '#999', margin: 0, textTransform: 'uppercase' }}>Admin</Text></Section>
         <Section style={content}>
           <Heading style={h1}>Nuova richiesta di modifica</Heading>
           <Text style={detail}><strong>Ospite:</strong> {guestName} ({guestEmail})</Text>

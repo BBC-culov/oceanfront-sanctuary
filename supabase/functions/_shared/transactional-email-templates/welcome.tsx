@@ -1,8 +1,7 @@
 /// <reference types="npm:@types/react@18.3.1" />
 import * as React from 'npm:react@18.3.1'
 import {
-  Body, Container, Head, Heading, Html, Link, Preview, Section, Text, Button,
-} from 'npm:@react-email/components@0.0.22'
+  Body, Container, Head, Heading, Html, Link, Preview, Section, Text, Button, Img } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
 import { BrandFooter } from './_brand-footer.tsx'
 
@@ -11,17 +10,17 @@ interface WelcomeProps { guestName?: string }
 const WelcomeEmail = ({ guestName }: WelcomeProps) => (
   <Html lang="it" dir="ltr">
     <Head />
-    <Preview>Benvenuto su Baz House! 🌴</Preview>
+    <Preview>Benvenuto su Bazhouse!</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
-          <Heading style={logo}>BAZ HOUSE</Heading>
+          <Img src="https://bazhouse.it/logo-bazhouse.png" alt="BAZHOUSE" width="160" height="52" style={{ display: 'block', margin: '0 auto', maxWidth: '160px', height: 'auto', border: 0, outline: 'none', textDecoration: 'none' }} />
         </Section>
         <Section style={content}>
-          <Heading style={h1}>Benvenuto su Baz House! 🌴</Heading>
+          <Heading style={h1}>Benvenuto su Bazhouse!</Heading>
           <Text style={text}>
             Ciao <strong>{guestName || 'ospite'}</strong>,<br />
-            grazie per esserti registrato su Baz House! Siamo felici di averti con noi.
+            grazie per esserti registrato su Bazhouse! Siamo felici di averti con noi.
           </Text>
           <Text style={text}>
             Ora puoi esplorare i nostri appartamenti esclusivi vista oceano a Boa Vista, Capo Verde, e prenotare la tua prossima vacanza da sogno.
@@ -38,7 +37,7 @@ const WelcomeEmail = ({ guestName }: WelcomeProps) => (
 
 export const template = {
   component: WelcomeEmail,
-  subject: 'Benvenuto su Baz House! 🌴',
+  subject: 'Benvenuto su Bazhouse!',
   displayName: 'Email di benvenuto',
   previewData: { guestName: 'Marco' },
 } satisfies TemplateEntry

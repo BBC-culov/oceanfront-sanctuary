@@ -11,8 +11,7 @@ import {
   Html,
   Preview,
   Section,
-  Text,
-} from 'npm:@react-email/components@0.0.22'
+  Text, Img } from 'npm:@react-email/components@0.0.22'
 
 interface RecoveryEmailProps {
   siteName: string
@@ -25,16 +24,16 @@ export const RecoveryEmail = ({
 }: RecoveryEmailProps) => (
   <Html lang="it" dir="ltr">
     <Head />
-    <Preview>Ripristina la tua password — Baz House</Preview>
+    <Preview>Ripristina la tua password — Bazhouse</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
-          <Heading style={logo}>BAZ HOUSE</Heading>
+          <Img src="https://bazhouse.it/logo-bazhouse.png" alt="BAZHOUSE" width="160" height="52" style={{ display: 'block', margin: '0 auto', maxWidth: '160px', height: 'auto', border: 0, outline: 'none', textDecoration: 'none' }} />
         </Section>
         <Section style={content}>
           <Heading style={h1}>Ripristina la tua password</Heading>
           <Text style={text}>
-            Abbiamo ricevuto una richiesta di ripristino password per il tuo account Baz House. Clicca il pulsante qui sotto per scegliere una nuova password.
+            Abbiamo ricevuto una richiesta di ripristino password per il tuo account Bazhouse. Clicca il pulsante qui sotto per scegliere una nuova password.
           </Text>
           <Button style={button} href={confirmationUrl}>
             Ripristina Password
@@ -44,8 +43,8 @@ export const RecoveryEmail = ({
           </Text>
         </Section>
         <Section style={footerSection}>
-          <Text style={footerBrand}>Baz House · Boa Vista, Capo Verde</Text>
-          <Text style={footerCopy}>© {new Date().getFullYear()} Baz House. Tutti i diritti riservati.</Text>
+          <Text style={footerBrand}>Bazhouse · Boa Vista, Capo Verde</Text>
+          <Text style={footerCopy}>© {new Date().getFullYear()} Bazhouse. Tutti i diritti riservati.</Text>
         </Section>
       </Container>
     </Body>
