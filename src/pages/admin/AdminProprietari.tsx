@@ -17,6 +17,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 
 interface OwnerUser {
   id: string;
@@ -56,6 +59,8 @@ const AdminProprietari = () => {
   const [bookings, setBookings] = useState<BookingRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "incomplete">("all");
+  const [aptCountFilter, setAptCountFilter] = useState<"all" | "0" | "1" | "2+">("all");
   const [assignOpen, setAssignOpen] = useState(false);
   const [selectedOwner, setSelectedOwner] = useState<OwnerUser | null>(null);
   const [selectedApts, setSelectedApts] = useState<Set<string>>(new Set());
@@ -164,10 +169,28 @@ const AdminProprietari = () => {
     }
   };
 
-  const filtered = owners.filter(o =>
-    o.email.toLowerCase().includes(search.toLowerCase()) ||
-    `${o.first_name} ${o.last_name}`.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = owners.filter(o => {
+    const q = search.toLowerCase().trim();
+    const matchesSearch = !q ||
+      o.email.toLowerCase().includes(q) ||
+      `${o.first_name} ${o.last_name}`.toLowerCase().includes(q);
+
+    const count = statsByOwner[o.id]?.apts.length ?? 0;
+    const isActive = count > 0;
+
+    const matchesStatus =
+      statusFilter === "all" ||
+      (statusFilter === "active" && isActive) ||
+      (statusFilter === "incomplete" && !isActive);
+
+    const matchesAptCount =
+      aptCountFilter === "all" ||
+      (aptCountFilter === "0" && count === 0) ||
+      (aptCountFilter === "1" && count === 1) ||
+      (aptCountFilter === "2+" && count >= 2);
+
+    return matchesSearch && matchesStatus && matchesAptCount;
+  });
 
   if (roleLoading) {
     return (
@@ -245,15 +268,47 @@ const AdminProprietari = () => {
         ))}
       </div>
 
-      {/* Search */}
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input
-          placeholder="Cerca proprietario..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-9 font-sans"
-        />
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Cerca per nome o email..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9 font-sans"
+          />
+        </div>
+        <Select value={statusFilter} onValueChange={(v: any) => setStatusFilter(v)}>
+          <SelectTrigger className="w-full sm:w-44 font-sans">
+            <SelectValue placeholder="Stato" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tutti gli stati</SelectItem>
+            <SelectItem value="active">Attivi</SelectItem>
+            <SelectItem value="incomplete">Incompleti</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={aptCountFilter} onValueChange={(v: any) => setAptCountFilter(v)}>
+          <SelectTrigger className="w-full sm:w-52 font-sans">
+            <SelectValue placeholder="N. appartamenti" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Qualsiasi numero</SelectItem>
+            <SelectItem value="0">Nessun appartamento</SelectItem>
+            <SelectItem value="1">1 appartamento</SelectItem>
+            <SelectItem value="2+">2 o più</SelectItem>
+          </SelectContent>
+        </Select>
+        {(search || statusFilter !== "all" || aptCountFilter !== "all") && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => { setSearch(""); setStatusFilter("all"); setAptCountFilter("all"); }}
+          >
+            <X className="w-4 h-4 mr-1" /> Reset
+          </Button>
+        )}
       </div>
 
       {/* Owner cards */}
@@ -289,9 +344,21 @@ const AdminProprietari = () => {
                           <Home className="w-4 h-4 text-primary" />
                         </div>
                         <div className="min-w-0">
-                          <p className="font-sans text-sm font-semibold text-foreground truncate">
-                            {o.first_name || o.last_name ? `${o.first_name} ${o.last_name}`.trim() : o.email}
-                          </p>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="font-sans text-sm font-semibold text-foreground truncate">
+                              {o.first_name || o.last_name ? `${o.first_name} ${o.last_name}`.trim() : o.email}
+                            </p>
+                            <Badge
+                              variant={st.apts.length > 0 ? "default" : "outline"}
+                              className={`font-sans text-[9px] uppercase tracking-wider ${
+                                st.apts.length > 0
+                                  ? "bg-emerald-500/15 text-emerald-700 hover:bg-emerald-500/15 border-emerald-500/30"
+                                  : "border-amber-500/40 text-amber-600"
+                              }`}
+                            >
+                              {st.apts.length > 0 ? "Attivo" : "Incompleto"}
+                            </Badge>
+                          </div>
                           <div className="flex flex-col gap-0.5 mt-0.5">
                             <span className="font-sans text-xs text-muted-foreground flex items-center gap-1 truncate">
                               <Mail className="w-3 h-3 shrink-0" /> {o.email}
