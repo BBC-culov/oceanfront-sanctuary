@@ -27,7 +27,7 @@ const Email = ({ guestName, bookingCode, priceDiff = 0, newTotal = 0 }: Props) =
           <Section style={box}>
             <Text style={detailRow}>Nuovo totale stimato: <strong>€{Number(newTotal).toFixed(2)}</strong></Text>
             <Text style={detailRow}>
-              Differenza: <strong style={{ color: priceDiff >= 0 ? '#1a3329' : '#166534' }}>
+              Differenza: <strong style={{ color: priceDiff >= 0 ? '#0E3D2C' : '#166534' }}>
                 {priceDiff >= 0 ? '+' : ''}€{Number(priceDiff).toFixed(2)}
               </strong>
             </Text>
@@ -54,7 +54,7 @@ const container = { maxWidth: '600px', margin: '0 auto' }
 const header = { backgroundColor: '#ffffff', padding: '32px 40px 24px', textAlign: 'center' as const, borderBottom: '3px solid #0E3D2C' }
 const logo = { margin: '0', color: '#f5f0eb', fontSize: '24px', fontWeight: '300' as const, letterSpacing: '0.1em', fontFamily: 'Georgia, serif' }
 const content = { padding: '40px' }
-const h1 = { fontSize: '22px', fontWeight: '300' as const, color: '#1a3329', margin: '0 0 24px', fontFamily: 'Georgia, serif' }
+const h1 = { fontSize: '22px', fontWeight: '300' as const, color: '#0E3D2C', margin: '0 0 24px', fontFamily: 'Georgia, serif' }
 const text = { fontSize: '15px', color: '#555', lineHeight: '1.6', margin: '0 0 16px' }
 const box = { backgroundColor: '#f8f6f3', padding: '20px', margin: '0 0 24px', borderRadius: '6px', border: '1px solid #e8e4df' }
 const detailRow = { margin: '0 0 6px', fontSize: '14px', color: '#555', lineHeight: '1.6' }

@@ -64,5 +64,5 @@ const container = { maxWidth: '600px', margin: '0 auto' }
 const header = { backgroundColor: '#ffffff', padding: '28px 40px 20px', textAlign: 'center' as const, borderBottom: '3px solid #0E3D2C' }
 const logo = { margin: '0', color: '#f5f0eb', fontSize: '20px', fontWeight: '300' as const, letterSpacing: '0.1em', fontFamily: 'Georgia, serif' }
 const content = { padding: '32px 40px' }
-const h1 = { fontSize: '20px', fontWeight: '300' as const, color: '#1a3329', margin: '0 0 16px', fontFamily: 'Georgia, serif' }
+const h1 = { fontSize: '20px', fontWeight: '300' as const, color: '#0E3D2C', margin: '0 0 16px', fontFamily: 'Georgia, serif' }
 const detail = { margin: '0 0 8px', fontSize: '14px', color: '#333', lineHeight: '1.5' }
