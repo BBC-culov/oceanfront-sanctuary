@@ -59,6 +59,8 @@ const AdminProprietari = () => {
   const [bookings, setBookings] = useState<BookingRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "incomplete">("all");
+  const [aptCountFilter, setAptCountFilter] = useState<"all" | "0" | "1" | "2+">("all");
   const [assignOpen, setAssignOpen] = useState(false);
   const [selectedOwner, setSelectedOwner] = useState<OwnerUser | null>(null);
   const [selectedApts, setSelectedApts] = useState<Set<string>>(new Set());
