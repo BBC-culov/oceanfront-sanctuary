@@ -38,7 +38,7 @@ export const BrandFooter = ({ showWhatsapp = true }: BrandFooterProps) => (
   </Section>
 )
 
-const footerSection = { padding: '24px 40px 32px', backgroundColor: '#fafafa', textAlign: 'center' as const, borderTop: '1px solid #eee' }
+const footerSection = { padding: '28px 40px 32px', backgroundColor: '#f7f5f2', textAlign: 'center' as const, borderTop: '1px solid #e5e0d8' }
 const ctaWrap = { textAlign: 'center' as const, margin: '4px 0 20px' }
 const whatsappBtn = {
   backgroundColor: '#25D366',
@@ -51,9 +51,9 @@ const whatsappBtn = {
   display: 'inline-block',
   letterSpacing: '0.5px',
 }
-const hr = { borderColor: '#eaeaea', margin: '8px 0 16px' }
+const hr = { borderColor: '#e5e0d8', margin: '8px 0 16px' }
 const contactBlock = { textAlign: 'center' as const }
-const brandLine = { margin: '0 0 6px', fontSize: '12px', color: '#666', fontWeight: 600 }
-const contactLine = { margin: '0 0 10px', fontSize: '12px', color: '#888' }
-const link = { color: '#888', textDecoration: 'underline' }
-const copy = { margin: '0', fontSize: '11px', color: '#bbb' }
+const brandLine = { margin: '0 0 6px', fontSize: '13px', color: '#0E3D2C', fontWeight: 700, letterSpacing: '0.04em' }
+const contactLine = { margin: '0 0 10px', fontSize: '12px', color: '#555' }
+const link = { color: '#0E3D2C', textDecoration: 'underline', fontWeight: 600 }
+const copy = { margin: '0', fontSize: '11px', color: '#888' }
