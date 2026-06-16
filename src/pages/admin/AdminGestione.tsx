@@ -246,8 +246,9 @@ const AdminGestione = () => {
         <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
           <Button onClick={openCreate} className="gap-2">
             <UserPlus className="w-4 h-4" />
-            Nuovo Admin
+            Nuovo Utente
           </Button>
+
         </motion.div>
       </motion.div>
 
