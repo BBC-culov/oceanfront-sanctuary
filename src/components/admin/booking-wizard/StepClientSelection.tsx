@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { supabase } from "@/integrations/supabase/client";
 import { isValidPhone } from "@/lib/bookingValidation";
+import PhonePrefixInput from "@/components/PhonePrefixInput";
 
 export interface ClientSelection {
   mode: "existing" | "new";
@@ -226,19 +227,17 @@ const StepClientSelection = ({ value, onChange }: Props) => {
           </div>
           <div className="space-y-1.5">
             <Label className="font-sans text-xs">Telefono</Label>
-            <div className="relative">
-              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                value={value.new_phone ?? ""}
-                onChange={(e) => onChange({ ...value, new_phone: e.target.value })}
-                placeholder="+39 ..."
-                className="pl-9 font-sans"
-              />
-            </div>
+            <PhonePrefixInput
+              value={value.new_phone ?? ""}
+              onChange={(v) => onChange({ ...value, new_phone: v })}
+              variant="compact"
+              placeholder="333 123 4567"
+            />
             {value.new_phone && !isValidPhone(value.new_phone) && (
               <p className="font-sans text-[11px] text-destructive">Formato telefono non valido</p>
             )}
           </div>
+
         </div>
       )}
     </motion.div>
