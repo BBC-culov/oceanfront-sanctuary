@@ -126,10 +126,40 @@ Deno.serve(async (req) => {
         });
       }
 
+      // Send credentials email (non-blocking on failure)
+      try {
+        const roleLabel = role === "amministratore"
+          ? "Amministratore"
+          : role === "admin"
+          ? "Admin"
+          : role === "proprietario"
+          ? "Proprietario"
+          : "Utente";
+        const siteUrl = Deno.env.get("SITE_URL") ?? "https://bazhousedemo.vercel.app";
+        await adminClient.functions.invoke("send-transactional-email", {
+          body: {
+            templateName: "account-credentials",
+            recipientEmail: email,
+            idempotencyKey: `account-credentials-${newUser.user.id}`,
+            purpose: "transactional",
+            templateData: {
+              firstName: first_name ?? "",
+              email,
+              password,
+              roleLabel,
+              loginUrl: `${siteUrl}/registrati`,
+            },
+          },
+        });
+      } catch (mailErr) {
+        console.error('[manage-admin] credentials email failed:', mailErr);
+      }
+
       return new Response(JSON.stringify({ success: true, user_id: newUser.user.id }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
 
     // UPDATE admin user
     if (action === "update") {
