@@ -22,6 +22,7 @@ import { template as modificationApproved } from './modification-approved.tsx'
 import { template as modificationRejected } from './modification-rejected.tsx'
 import { template as modificationPaymentRequest } from './modification-payment-request.tsx'
 import { template as bookingModified } from './booking-modified.tsx'
+import { template as accountCredentials } from './account-credentials.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'welcome': welcome,
@@ -37,4 +38,6 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'modification-rejected': modificationRejected,
   'modification-payment-request': modificationPaymentRequest,
   'booking-modified': bookingModified,
+  'account-credentials': accountCredentials,
 }
+
