@@ -246,9 +246,9 @@ export default function RequestModificationDialog({ open, onClose, booking, onSu
               <h3 className="flex items-center gap-2 font-sans text-[11px] uppercase tracking-[0.15em] text-muted-foreground mb-3">
                 <Phone className="w-3.5 h-3.5" /> Telefono di contatto
               </h3>
-              <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+39 333 1234567"
-                className={fieldClass(!!errors.guest_phone)} />
+              <PhonePrefixInput value={phone} onChange={setPhone} variant="compact" placeholder="333 123 4567" />
               <ErrorMsg msg={errors.guest_phone} />
+
             </section>
 
             {/* Main guest data */}
