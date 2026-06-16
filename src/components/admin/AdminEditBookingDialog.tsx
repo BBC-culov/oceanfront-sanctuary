@@ -245,8 +245,11 @@ export default function AdminEditBookingDialog({ open, onClose, booking, onSaved
                     </div>
                     <div>
                       <label className="font-sans text-[11px] uppercase tracking-wide text-muted-foreground/80">Telefono</label>
-                      <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className={`w-full mt-1 ${fieldClass(!!errors.guest_phone)}`} />
+                      <div className="mt-1">
+                        <PhonePrefixInput value={phone} onChange={setPhone} variant="compact" />
+                      </div>
                       <ErrorMsg msg={errors.guest_phone} />
+
                     </div>
                   </div>
                 </div>
