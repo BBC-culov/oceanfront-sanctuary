@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { supabase } from "@/integrations/supabase/client";
 import { isValidPhone } from "@/lib/bookingValidation";
+import PhonePrefixInput from "@/components/PhonePrefixInput";
 
 export interface ClientSelection {
   mode: "existing" | "new";
