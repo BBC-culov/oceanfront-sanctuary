@@ -429,8 +429,9 @@ const AdminGestione = () => {
               ) : (
                 <>
                   <UserPlus className="w-4 h-4 text-primary" />
-                  Nuovo Admin
+                  Nuovo Utente
                 </>
+
               )}
             </DialogTitle>
             <DialogDescription className="font-sans text-sm">
