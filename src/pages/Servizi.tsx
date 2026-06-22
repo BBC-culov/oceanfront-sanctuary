@@ -208,7 +208,7 @@ const Servizi = () => {
               transition={{ duration: 0.8, delay: 0.1 }}
               className="font-serif text-4xl md:text-6xl font-light text-[hsl(var(--hero-text))]"
             >
-              Un'ospitalità su misura.
+              Servizi premium per gli ospiti a Boa Vista
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 15 }}
