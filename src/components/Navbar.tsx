@@ -9,7 +9,7 @@ import logo from "@/assets/logo-bazhouse.png";
 const defaultNavLinks = [
   { label: "Home", to: "/" },
   { label: "Affitta", to: "/affitta" },
-  { label: "Compra", to: "/compra" },
+  { label: "Appartamenti", to: "/appartamenti" },
   { label: "Servizi", to: "/servizi" },
   { label: "Chi Siamo", to: "/chi-siamo" },
   { label: "Contatti", to: "/contatti" },
@@ -17,7 +17,6 @@ const defaultNavLinks = [
 
 const compraNavLinks = [
   { label: "Home", to: "/compra" },
-  { label: "Affitta", to: "/affitta" },
   { label: "Chi Siamo", to: "/chi-siamo" },
   { label: "Contatti", to: "/contatti" },
 ];
@@ -137,6 +136,17 @@ const Navbar = () => {
 
         {/* Desktop right side */}
         <div className="hidden lg:flex items-center gap-3">
+          {/* Cross-section CTA: Compra (or Affitta when on /compra) */}
+          <Link
+            to={isCompraSection ? "/affitta" : "/compra"}
+            className={`inline-flex font-sans text-xs tracking-widest uppercase px-5 py-2.5 border transition-all duration-300 hover:scale-105 active:scale-95 ${
+              !isTransparent
+                ? "border-primary/40 text-primary hover:bg-primary hover:text-primary-foreground hover:border-primary"
+                : "border-hero-cta-border/40 text-hero-text hover:bg-hero-cta hover:text-hero-cta-foreground hover:border-hero-cta"
+            }`}
+          >
+            {isCompraSection ? "Affitta" : "Compra"}
+          </Link>
           {user ? (
             <div className="relative" ref={dropdownRef}>
               <motion.button
@@ -277,6 +287,12 @@ const Navbar = () => {
                   {link.label}
                 </Link>
               ))}
+              <Link
+                to={isCompraSection ? "/affitta" : "/compra"}
+                className="font-sans text-xs tracking-widest uppercase border border-primary/40 text-primary px-5 py-2.5"
+              >
+                {isCompraSection ? "Affitta" : "Compra"}
+              </Link>
               {user ? (
                 <>
                   {isAdmin && (
