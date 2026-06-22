@@ -112,11 +112,13 @@ serve(async (req) => {
     const amountToCharge = depositAmount;
 
     // Server-side overlap check to prevent double-booking
-    const { data: overlaps } = await supabaseClient
+    // Use serviceClient (bypasses RLS) so overlap check sees ALL users' bookings,
+    // not just the caller's — required to prevent concurrent double-bookings.
+    const { data: overlaps } = await serviceClient
       .from("bookings")
       .select("id")
       .eq("apartment_id", apartment_id)
-      .in("status", ["pending", "confirmed", "awaiting_verification", "paid"])
+      .in("status", ["incomplete", "pending", "confirmed", "awaiting_verification", "paid"])
       .lt("check_in", check_out)
       .gt("check_out", check_in);
     if (overlaps && overlaps.length > 0) {
