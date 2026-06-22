@@ -581,6 +581,125 @@ export type Database = {
         }
         Relationships: []
       }
+      project_inquiries: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          phone: string | null
+          project_id: string | null
+          read: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          phone?: string | null
+          project_id?: string | null
+          read?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          phone?: string | null
+          project_id?: string | null
+          read?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_inquiries_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          address: string | null
+          apple_maps_url: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          description: string | null
+          display_order: number
+          google_maps_url: string | null
+          id: string
+          images: Json
+          included_services: Json
+          latitude: number | null
+          longitude: number | null
+          price: number | null
+          price_label: string | null
+          published: boolean
+          purchase_info: string | null
+          slug: string
+          subtitle: string | null
+          title: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          address?: string | null
+          apple_maps_url?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          google_maps_url?: string | null
+          id?: string
+          images?: Json
+          included_services?: Json
+          latitude?: number | null
+          longitude?: number | null
+          price?: number | null
+          price_label?: string | null
+          published?: boolean
+          purchase_info?: string | null
+          slug: string
+          subtitle?: string | null
+          title: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          address?: string | null
+          apple_maps_url?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          google_maps_url?: string | null
+          id?: string
+          images?: Json
+          included_services?: Json
+          latitude?: number | null
+          longitude?: number | null
+          price?: number | null
+          price_label?: string | null
+          published?: boolean
+          purchase_info?: string | null
+          slug?: string
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           id: string
