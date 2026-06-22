@@ -106,7 +106,7 @@ const Navbar = () => {
         <Link to="/" className="flex-shrink-0">
           <img
             src={logo}
-            alt="BAZHOUSE"
+            alt="BAZHOUSE — Appartamenti vista oceano a Boa Vista"
             className={`h-8 lg:h-10 w-auto transition-all duration-500 ${
               isTransparent ? "brightness-0 invert" : ""
             }`}

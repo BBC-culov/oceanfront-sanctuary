@@ -6,7 +6,7 @@ const Footer = () => (
     <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
         <div>
-          <img src={logo} alt="BAZHOUSE" className="h-8 mb-6 brightness-0 invert" />
+          <img src={logo} alt="BAZHOUSE — Appartamenti vista oceano a Boa Vista" className="h-8 mb-6 brightness-0 invert" />
           <p className="font-sans text-sm leading-relaxed opacity-70">
             Appartamenti esclusivi vista oceano a Boa Vista, Capo Verde.
             Praia Cabral & Praia da Cruz.
