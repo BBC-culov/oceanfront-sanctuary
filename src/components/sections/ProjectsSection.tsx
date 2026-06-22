@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, MapPin } from "lucide-react";
+import { ArrowUpRight, MapPin, Sparkles } from "lucide-react";
 import { useProjects } from "@/hooks/useProjects";
 
 const ProjectsSection = () => {
@@ -43,52 +43,75 @@ const ProjectsSection = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {projects.map((p, i) => (
-              <motion.div
+              <motion.article
                 key={p.id}
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: i * 0.1 }}
+                className="group relative"
               >
-                <Link to={`/compra/progetti/${p.slug}`} className="group block">
+                <Link
+                  to={`/compra/progetti/${p.slug}`}
+                  className="block bg-background border border-border/60 rounded-sm overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500"
+                >
                   <div className="relative aspect-[4/5] overflow-hidden bg-muted">
                     {p.images[0] ? (
                       <img
                         src={p.images[0]}
                         alt={p.title}
                         loading="lazy"
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                       />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5" />
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-primary/70 via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/10 to-transparent" />
+
+                    {/* Top badge */}
+                    <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-background/90 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                      <Sparkles className="w-3 h-3 text-primary" />
+                      <span className="font-sans text-[10px] tracking-widest uppercase">Investimento</span>
+                    </div>
+
+                    {/* Bottom title overlay */}
                     <div className="absolute bottom-0 left-0 right-0 p-6 text-primary-foreground">
-                      <h3 className="font-serif text-2xl font-light mb-1">{p.title}</h3>
+                      <h3 className="font-serif text-2xl md:text-3xl font-light mb-1 leading-tight">
+                        {p.title}
+                      </h3>
                       {p.subtitle && (
-                        <p className="font-sans text-xs tracking-wide opacity-80">{p.subtitle}</p>
+                        <p className="font-sans text-xs tracking-wide opacity-90 line-clamp-1">
+                          {p.subtitle}
+                        </p>
                       )}
                     </div>
                   </div>
-                  <div className="pt-4 flex items-center justify-between">
-                    <div>
+
+                  <div className="p-5 flex items-center justify-between gap-4">
+                    <div className="min-w-0 flex-1">
                       {p.address && (
-                        <p className="font-sans text-xs text-muted-foreground flex items-center gap-1.5">
-                          <MapPin className="w-3 h-3" />
-                          {p.address}
+                        <p className="font-sans text-xs text-muted-foreground flex items-center gap-1.5 truncate">
+                          <MapPin className="w-3 h-3 flex-shrink-0" />
+                          <span className="truncate">{p.address}</span>
                         </p>
                       )}
                       {p.price && (
-                        <p className="font-serif text-lg mt-1">
-                          {p.price_label ? `${p.price_label} ` : ""}
+                        <p className="font-serif text-xl mt-1.5 text-foreground">
+                          {p.price_label ? (
+                            <span className="text-xs font-sans uppercase tracking-wider text-muted-foreground mr-1">
+                              {p.price_label}
+                            </span>
+                          ) : null}
                           € {p.price.toLocaleString("it-IT")}
                         </p>
                       )}
                     </div>
-                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-1 transition-all" />
+                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <ArrowUpRight className="w-4 h-4" />
+                    </div>
                   </div>
                 </Link>
-              </motion.div>
+              </motion.article>
             ))}
           </div>
         )}
