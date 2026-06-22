@@ -9,6 +9,29 @@ import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Pencil, Trash2, Eye, EyeOff, Upload, X, Loader2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
+import { z } from "zod";
+
+const MAX_IMAGE_MB = 8;
+const MAX_VIDEO_MB = 100;
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/avif"];
+const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
+
+const projectSchema = z.object({
+  title: z.string().trim().min(2, "Titolo: almeno 2 caratteri").max(150, "Titolo troppo lungo"),
+  slug: z.string().trim().min(2, "Slug richiesto").max(150).regex(/^[a-z0-9-]+$/, "Slug: solo minuscole, numeri e trattini"),
+  subtitle: z.string().trim().max(200, "Sottotitolo: max 200 caratteri").optional().nullable(),
+  description: z.string().trim().max(5000, "Descrizione: max 5000 caratteri").optional().nullable(),
+  price: z.number().int().min(0, "Prezzo non valido").max(100_000_000, "Prezzo troppo alto").nullable(),
+  price_label: z.string().trim().max(50).optional().nullable(),
+  address: z.string().trim().max(255).optional().nullable(),
+  latitude: z.number().min(-90).max(90).nullable(),
+  longitude: z.number().min(-180).max(180).nullable(),
+  google_maps_url: z.string().trim().url("URL Google Maps non valido").max(500).optional().or(z.literal("")).nullable(),
+  apple_maps_url: z.string().trim().url("URL Apple Maps non valido").max(500).optional().or(z.literal("")).nullable(),
+  contact_email: z.string().trim().email("Email referente non valida").max(255).optional().or(z.literal("")).nullable(),
+  contact_phone: z.string().trim().max(30).regex(/^[+\d\s()\-]*$/, "Telefono non valido").optional().or(z.literal("")).nullable(),
+  purchase_info: z.string().trim().max(3000).optional().nullable(),
+});
 
 interface ProjectRow {
   id: string;
@@ -108,6 +131,14 @@ const AdminProgetti = () => {
     setUploadingImages(true);
     const newUrls: string[] = [];
     for (const file of Array.from(files)) {
+      if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        toast.error(`"${file.name}": formato non supportato (jpg, png, webp, avif)`);
+        continue;
+      }
+      if (file.size > MAX_IMAGE_MB * 1024 * 1024) {
+        toast.error(`"${file.name}": supera ${MAX_IMAGE_MB}MB`);
+        continue;
+      }
       const path = `projects/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
       const { error } = await supabase.storage.from("apartment-images").upload(path, file, { upsert: true });
       if (error) { toast.error(`Upload immagine fallito: ${error.message}`); continue; }
@@ -120,6 +151,14 @@ const AdminProgetti = () => {
 
   const handleUploadVideo = async (file: File | null) => {
     if (!file || !editing) return;
+    if (!ALLOWED_VIDEO_TYPES.includes(file.type)) {
+      toast.error("Formato video non supportato (mp4, webm, mov)");
+      return;
+    }
+    if (file.size > MAX_VIDEO_MB * 1024 * 1024) {
+      toast.error(`Video troppo grande (max ${MAX_VIDEO_MB}MB)`);
+      return;
+    }
     setUploadingVideo(true);
     const path = `projects/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
     const { error } = await supabase.storage.from("apartment-videos").upload(path, file, { upsert: true });
@@ -143,27 +182,66 @@ const AdminProgetti = () => {
   const save = async () => {
     if (!editing) return;
     const title = (editing.title ?? "").trim();
-    if (!title) { toast.error("Titolo obbligatorio"); return; }
-    const slug = (editing.slug ?? "").trim() || slugify(title);
+    const slug = ((editing.slug ?? "").trim() || slugify(title));
 
-    const payload: any = {
+    const candidate = {
       title,
       slug,
-      subtitle: editing.subtitle || null,
-      description: editing.description || null,
+      subtitle: editing.subtitle ?? null,
+      description: editing.description ?? null,
       price: editing.price ?? null,
-      price_label: editing.price_label || null,
-      images: editing.images ?? [],
-      video_url: editing.video_url || null,
-      address: editing.address || null,
+      price_label: editing.price_label ?? null,
+      address: editing.address ?? null,
       latitude: editing.latitude ?? null,
       longitude: editing.longitude ?? null,
-      google_maps_url: editing.google_maps_url || null,
-      apple_maps_url: editing.apple_maps_url || null,
-      included_services: servicesText.split("\n").map((s) => s.trim()).filter(Boolean),
-      purchase_info: editing.purchase_info || null,
-      contact_email: editing.contact_email || null,
-      contact_phone: editing.contact_phone || null,
+      google_maps_url: editing.google_maps_url ?? null,
+      apple_maps_url: editing.apple_maps_url ?? null,
+      contact_email: editing.contact_email ?? null,
+      contact_phone: editing.contact_phone ?? null,
+      purchase_info: editing.purchase_info ?? null,
+    };
+
+    const parsed = projectSchema.safeParse(candidate);
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message ?? "Dati non validi");
+      return;
+    }
+
+    const services = servicesText.split("\n").map((s) => s.trim()).filter(Boolean);
+    if (services.some((s) => s.length > 120)) {
+      toast.error("Ogni servizio deve essere inferiore a 120 caratteri");
+      return;
+    }
+    if (services.length > 30) {
+      toast.error("Max 30 servizi inclusi");
+      return;
+    }
+
+    // Slug uniqueness check
+    const { data: slugMatch } = await supabase
+      .from("projects" as any)
+      .select("id")
+      .eq("slug", slug)
+      .maybeSingle();
+    if (slugMatch && (slugMatch as any).id !== editing.id) {
+      toast.error("Slug già in uso da un altro progetto");
+      return;
+    }
+
+    const payload: any = {
+      ...parsed.data,
+      subtitle: parsed.data.subtitle || null,
+      description: parsed.data.description || null,
+      price_label: parsed.data.price_label || null,
+      address: parsed.data.address || null,
+      google_maps_url: parsed.data.google_maps_url || null,
+      apple_maps_url: parsed.data.apple_maps_url || null,
+      contact_email: parsed.data.contact_email || null,
+      contact_phone: parsed.data.contact_phone || null,
+      purchase_info: parsed.data.purchase_info || null,
+      images: editing.images ?? [],
+      video_url: editing.video_url || null,
+      included_services: services,
       published: !!editing.published,
       display_order: editing.display_order ?? projects.length,
     };

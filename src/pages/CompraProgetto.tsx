@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { MapPin, ArrowLeft, Check, Mail, Phone, ExternalLink } from "lucide-react";
+import { MapPin, ArrowLeft, Check, Mail, Phone, ExternalLink, Sparkles } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
@@ -59,7 +59,8 @@ const CompraProgetto = () => {
         description={project.subtitle ?? project.description?.slice(0, 155) ?? `${project.title} — progetto immobiliare a Boa Vista.`}
       />
       <Navbar />
-      <main className="pt-24 pb-20">
+
+      <main className="pt-24 pb-20 bg-background">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <Link
             to="/compra"
@@ -68,21 +69,27 @@ const CompraProgetto = () => {
             <ArrowLeft className="w-3 h-3" /> Tutti i progetti
           </Link>
 
+          {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
+            className="mb-10 max-w-4xl"
           >
-            <p className="font-sans text-xs tracking-[0.3em] uppercase text-muted-foreground mb-3">
-              Investimento immobiliare
-            </p>
-            <h1 className="font-serif text-4xl md:text-6xl font-light mb-4">{project.title}</h1>
+            <div className="inline-flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1.5 rounded-full mb-5">
+              <Sparkles className="w-3 h-3" />
+              <span className="font-sans text-[10px] tracking-widest uppercase">Investimento immobiliare</span>
+            </div>
+            <h1 className="font-serif text-4xl md:text-6xl font-light mb-4 leading-tight break-words">
+              {project.title}
+            </h1>
             {project.subtitle && (
-              <p className="font-sans text-lg text-muted-foreground mb-6">{project.subtitle}</p>
+              <p className="font-sans text-lg text-muted-foreground mb-4 break-words">{project.subtitle}</p>
             )}
             {project.address && (
-              <p className="font-sans text-sm text-muted-foreground flex items-center gap-2 mb-10">
-                <MapPin className="w-4 h-4" /> {project.address}
+              <p className="font-sans text-sm text-muted-foreground flex items-start gap-2">
+                <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span className="break-words">{project.address}</span>
               </p>
             )}
           </motion.div>
@@ -90,17 +97,17 @@ const CompraProgetto = () => {
           {/* Gallery */}
           {project.images.length > 0 && (
             <div className="mb-16">
-              <div className="aspect-[16/9] bg-muted overflow-hidden mb-3">
+              <div className="aspect-[16/9] bg-muted overflow-hidden rounded-sm mb-3">
                 <img src={mainImage} alt={project.title} className="w-full h-full object-cover" />
               </div>
               {project.images.length > 1 && (
-                <div className="grid grid-cols-4 md:grid-cols-6 gap-2">
+                <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
                   {project.images.map((img, i) => (
                     <button
                       key={i}
                       onClick={() => setActiveImage(i)}
-                      className={`aspect-square overflow-hidden bg-muted transition-opacity ${
-                        i === activeImage ? "opacity-100 ring-2 ring-primary" : "opacity-70 hover:opacity-100"
+                      className={`aspect-square overflow-hidden bg-muted rounded-sm transition-all ${
+                        i === activeImage ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : "opacity-70 hover:opacity-100"
                       }`}
                     >
                       <img src={img} alt="" className="w-full h-full object-cover" />
@@ -111,13 +118,13 @@ const CompraProgetto = () => {
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
             {/* Main content */}
-            <div className="lg:col-span-2 space-y-12">
+            <div className="lg:col-span-2 space-y-14 min-w-0">
               {project.description && (
                 <section>
-                  <h2 className="font-serif text-2xl mb-4">Il progetto</h2>
-                  <div className="font-sans text-base text-muted-foreground leading-relaxed whitespace-pre-line">
+                  <h2 className="font-serif text-2xl md:text-3xl mb-5 font-light">Il progetto</h2>
+                  <div className="font-sans text-base text-muted-foreground leading-relaxed whitespace-pre-line break-words">
                     {project.description}
                   </div>
                 </section>
@@ -125,21 +132,23 @@ const CompraProgetto = () => {
 
               {project.video_url && (
                 <section>
-                  <h2 className="font-serif text-2xl mb-4">Video render</h2>
-                  <div className="aspect-video bg-muted overflow-hidden">
-                    <video src={project.video_url} controls className="w-full h-full" />
+                  <h2 className="font-serif text-2xl md:text-3xl mb-5 font-light">Video render</h2>
+                  <div className="aspect-video bg-muted overflow-hidden rounded-sm">
+                    <video src={project.video_url} controls className="w-full h-full object-cover" />
                   </div>
                 </section>
               )}
 
               {project.included_services.length > 0 && (
                 <section>
-                  <h2 className="font-serif text-2xl mb-4">Servizi inclusi</h2>
-                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <h2 className="font-serif text-2xl md:text-3xl mb-5 font-light">Servizi inclusi</h2>
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
                     {project.included_services.map((s, i) => (
-                      <li key={i} className="flex items-start gap-2 font-sans text-sm">
-                        <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                        <span>{s}</span>
+                      <li key={i} className="flex items-start gap-3 font-sans text-sm">
+                        <span className="flex-shrink-0 mt-0.5 w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Check className="w-3 h-3 text-primary" />
+                        </span>
+                        <span className="break-words">{s}</span>
                       </li>
                     ))}
                   </ul>
@@ -147,9 +156,9 @@ const CompraProgetto = () => {
               )}
 
               {project.purchase_info && (
-                <section>
-                  <h2 className="font-serif text-2xl mb-4">Modalità di acquisto</h2>
-                  <div className="font-sans text-base text-muted-foreground leading-relaxed whitespace-pre-line">
+                <section className="bg-secondary/40 border border-border rounded-sm p-6 md:p-8">
+                  <h2 className="font-serif text-2xl md:text-3xl mb-5 font-light">Modalità di acquisto</h2>
+                  <div className="font-sans text-base text-muted-foreground leading-relaxed whitespace-pre-line break-words">
                     {project.purchase_info}
                   </div>
                 </section>
@@ -157,14 +166,14 @@ const CompraProgetto = () => {
 
               {(googleMaps || appleMaps) && (
                 <section>
-                  <h2 className="font-serif text-2xl mb-4">Posizione</h2>
+                  <h2 className="font-serif text-2xl md:text-3xl mb-5 font-light">Posizione</h2>
                   <div className="flex flex-wrap gap-3">
                     {googleMaps && (
                       <a
                         href={googleMaps}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-2 font-sans text-xs tracking-widest uppercase border border-border px-5 py-3 hover:bg-secondary transition-colors"
+                        className="inline-flex items-center gap-2 font-sans text-xs tracking-widest uppercase border border-border px-5 py-3 rounded-sm hover:bg-secondary transition-colors"
                       >
                         Google Maps <ExternalLink className="w-3 h-3" />
                       </a>
@@ -174,7 +183,7 @@ const CompraProgetto = () => {
                         href={appleMaps}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-2 font-sans text-xs tracking-widest uppercase border border-border px-5 py-3 hover:bg-secondary transition-colors"
+                        className="inline-flex items-center gap-2 font-sans text-xs tracking-widest uppercase border border-border px-5 py-3 rounded-sm hover:bg-secondary transition-colors"
                       >
                         Apple Maps <ExternalLink className="w-3 h-3" />
                       </a>
@@ -185,32 +194,35 @@ const CompraProgetto = () => {
             </div>
 
             {/* Sidebar */}
-            <aside className="lg:col-span-1">
+            <aside className="lg:col-span-1 min-w-0">
               <div className="sticky top-24 space-y-6">
-                <div className="border border-border p-6 bg-secondary/30">
+                <div className="border border-border rounded-sm bg-card shadow-sm overflow-hidden">
                   {project.price && (
-                    <div className="mb-6 pb-6 border-b border-border">
-                      <p className="font-sans text-xs tracking-widest uppercase text-muted-foreground mb-1">
+                    <div className="p-6 bg-gradient-to-br from-primary/5 to-transparent border-b border-border">
+                      <p className="font-sans text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-1.5">
                         {project.price_label || "Prezzo"}
                       </p>
-                      <p className="font-serif text-3xl">
+                      <p className="font-serif text-3xl md:text-4xl font-light break-words">
                         € {project.price.toLocaleString("it-IT")}
                       </p>
                     </div>
                   )}
-                  <h3 className="font-serif text-xl mb-4">Richiedi informazioni</h3>
-                  <ProjectInquiryForm projectId={project.id} projectTitle={project.title} />
+                  <div className="p-6">
+                    <h3 className="font-serif text-xl mb-4">Richiedi informazioni</h3>
+                    <ProjectInquiryForm projectId={project.id} projectTitle={project.title} />
+                  </div>
                   {(project.contact_email || project.contact_phone) && (
-                    <div className="mt-6 pt-6 border-t border-border space-y-2">
-                      <p className="font-sans text-xs uppercase tracking-wider text-muted-foreground mb-2">
+                    <div className="px-6 pb-6 pt-2 border-t border-border space-y-2.5 bg-secondary/20">
+                      <p className="font-sans text-[10px] uppercase tracking-[0.2em] text-muted-foreground pt-4 mb-1">
                         Oppure contattaci
                       </p>
                       {project.contact_email && (
                         <a
                           href={`mailto:${project.contact_email}`}
-                          className="flex items-center gap-2 font-sans text-sm hover:text-primary"
+                          className="flex items-center gap-2 font-sans text-sm hover:text-primary break-all"
                         >
-                          <Mail className="w-4 h-4" /> {project.contact_email}
+                          <Mail className="w-4 h-4 flex-shrink-0" />
+                          <span className="break-all">{project.contact_email}</span>
                         </a>
                       )}
                       {project.contact_phone && (
@@ -218,7 +230,8 @@ const CompraProgetto = () => {
                           href={`tel:${project.contact_phone}`}
                           className="flex items-center gap-2 font-sans text-sm hover:text-primary"
                         >
-                          <Phone className="w-4 h-4" /> {project.contact_phone}
+                          <Phone className="w-4 h-4 flex-shrink-0" />
+                          <span>{project.contact_phone}</span>
                         </a>
                       )}
                     </div>
