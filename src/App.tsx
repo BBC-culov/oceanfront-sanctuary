@@ -45,6 +45,11 @@ import ProprietarioOverview from "./pages/proprietario/ProprietarioOverview";
 import ProprietarioAppartamenti from "./pages/proprietario/ProprietarioAppartamenti";
 import ProprietarioDisponibilita from "./pages/proprietario/ProprietarioDisponibilita";
 import ProprietarioPrenotazioni from "./pages/proprietario/ProprietarioPrenotazioni";
+import Affitta from "./pages/Affitta";
+import Compra from "./pages/Compra";
+import CompraProgetto from "./pages/CompraProgetto";
+import AdminProgetti from "./pages/admin/AdminProgetti";
+import AdminRichiesteProgetti from "./pages/admin/AdminRichiesteProgetti";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -76,6 +81,9 @@ const AnimatedRoutes = () => {
           <Route path="/" element={<Index />} />
           <Route path="/chi-siamo" element={<ChiSiamo />} />
           <Route path="/servizi" element={<Servizi />} />
+          <Route path="/affitta" element={<Affitta />} />
+          <Route path="/compra" element={<Compra />} />
+          <Route path="/compra/progetti/:slug" element={<CompraProgetto />} />
           <Route path="/appartamenti" element={<Appartamenti />} />
           <Route path="/appartamenti/:slug" element={<AppartamentoDetail />} />
           <Route path="/prenota" element={<Prenota />} />
@@ -100,6 +108,8 @@ const AnimatedRoutes = () => {
             <Route path="prenotazioni/:id" element={<AdminPrenotazioneDetail />} />
             <Route path="appartamenti" element={<AdminAppartamenti />} />
             <Route path="servizi" element={<AdminServizi />} />
+            <Route path="progetti" element={<AdminProgetti />} />
+            <Route path="richieste-progetti" element={<AdminRichiesteProgetti />} />
             <Route path="gestione" element={<AdminGestione />} />
             <Route path="proprietari" element={<AdminProprietari />} />
             <Route path="sito" element={<AdminGestioneSito />} />

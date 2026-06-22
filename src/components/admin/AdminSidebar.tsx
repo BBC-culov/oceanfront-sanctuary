@@ -143,6 +143,8 @@ export function AdminSidebar() {
                 {[
                   { title: "Appartamenti", to: "/admin/appartamenti", icon: Building2 },
                   { title: "Servizi Extra", to: "/admin/servizi", icon: Sparkles },
+                  { title: "Progetti Compra", to: "/admin/progetti", icon: Building2 },
+                  { title: "Richieste Progetti", to: "/admin/richieste-progetti", icon: CalendarDays },
                   { title: "Gestione Admin", to: "/admin/gestione", icon: Users },
                   { title: "Gestione Proprietari", to: "/admin/proprietari", icon: Home },
                   { title: "Gestione Sito", to: "/admin/sito", icon: Settings },

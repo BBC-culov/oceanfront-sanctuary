@@ -6,10 +6,18 @@ import { supabase } from "@/integrations/supabase/client";
 import type { User as SupaUser } from "@supabase/supabase-js";
 import logo from "@/assets/logo-bazhouse.png";
 
-const navLinks = [
+const defaultNavLinks = [
   { label: "Home", to: "/" },
-  { label: "Appartamenti", to: "/appartamenti" },
+  { label: "Affitta", to: "/affitta" },
+  { label: "Compra", to: "/compra" },
   { label: "Servizi", to: "/servizi" },
+  { label: "Chi Siamo", to: "/chi-siamo" },
+  { label: "Contatti", to: "/contatti" },
+];
+
+const compraNavLinks = [
+  { label: "Home", to: "/compra" },
+  { label: "Affitta", to: "/affitta" },
   { label: "Chi Siamo", to: "/chi-siamo" },
   { label: "Contatti", to: "/contatti" },
 ];
@@ -30,8 +38,10 @@ const Navbar = () => {
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const mainPages = ["/", "/appartamenti", "/servizi", "/chi-siamo", "/contatti"];
-  const noHero = !mainPages.includes(location.pathname);
+  const isCompraSection = location.pathname.startsWith("/compra");
+  const navLinks = isCompraSection ? compraNavLinks : defaultNavLinks;
+  const heroPages = ["/", "/affitta", "/compra", "/appartamenti", "/servizi", "/chi-siamo", "/contatti"];
+  const noHero = !heroPages.includes(location.pathname);
   const isTransparent = !noHero && !scrolled;
 
   useEffect(() => {
