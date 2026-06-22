@@ -65,16 +65,26 @@ const HeroSection = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.8 }}
-          className="mt-10"
+          className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
         >
-          <Link to="/appartamenti">
+          <Link to="/affitta">
             <motion.span
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.97 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
               className="inline-block font-sans text-xs tracking-[0.2em] uppercase px-8 py-4 border border-hero-cta-border/50 text-hero-text backdrop-blur-sm bg-hero-text/5 transition-all duration-300 hover:bg-hero-text/10"
             >
-              Scopri gli Appartamenti
+              Voglio Affittare
+            </motion.span>
+          </Link>
+          <Link to="/compra">
+            <motion.span
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              className="inline-block font-sans text-xs tracking-[0.2em] uppercase px-8 py-4 border border-hero-cta-border/50 text-hero-text backdrop-blur-sm bg-hero-text/5 transition-all duration-300 hover:bg-hero-text/10"
+            >
+              Voglio Comprare
             </motion.span>
           </Link>
         </motion.div>
