@@ -4,11 +4,11 @@ import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
 import heroImage from "@/assets/hero-ocean.jpg";
 
 const headlines = [
-  "Acquista in un luogo straordinario.\nTrasforma la tua casa in un patrimonio.",
-  "Residenze esclusive, pensate\nper essere vissute e valorizzate nel tempo.",
-  "Più di una casa sul mare.\nUn patrimonio che può lavorare anche quando non ci sei.",
-  "Location straordinarie.\nCase esclusive. Opportunità di valorizzazione.",
-  "Acquista una casa. Costruisci una rendita potenziale.\nVivi entrambe.",
+  "Acquista in un luogo straordinario. Trasforma la tua casa in un patrimonio.",
+  "Residenze esclusive, pensate per essere vissute e valorizzate nel tempo.",
+  "Più di una casa sul mare. Un patrimonio che può lavorare anche quando non ci sei.",
+  "Location straordinarie. Case esclusive. Opportunità di valorizzazione.",
+  "Acquista una casa. Costruisci una rendita potenziale. Vivi entrambe.",
 ];
 
 
