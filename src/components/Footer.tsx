@@ -1,12 +1,11 @@
 import { Link } from "react-router-dom";
-import logo from "@/assets/logo-bazhouse.png";
 
 const Footer = () => (
   <footer className="bg-primary text-primary-foreground">
     <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
         <div>
-          <img src={logo} alt="BAZHOUSE — Appartamenti vista oceano a Boa Vista" className="h-8 mb-6 brightness-0 invert" />
+          <span className="font-serif text-2xl tracking-[0.2em] block mb-6">BAZHOUSE</span>
           <p className="font-sans text-sm leading-relaxed opacity-70">
             Appartamenti esclusivi vista oceano a Boa Vista, Capo Verde.
             Praia Cabral & Praia da Cruz.
@@ -17,7 +16,6 @@ const Footer = () => (
           <div className="flex flex-col gap-2">
             {[
               { label: "Home", to: "/" },
-              { label: "Appartamenti", to: "/appartamenti" },
               { label: "Servizi", to: "/servizi" },
               { label: "Chi Siamo", to: "/chi-siamo" },
               { label: "Contatti", to: "/contatti" },

@@ -4,22 +4,16 @@ import { Menu, X, LogOut, UserCircle, User, CalendarDays, LayoutDashboard, Home 
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import type { User as SupaUser } from "@supabase/supabase-js";
-import logo from "@/assets/logo-bazhouse.png";
+
 
 const defaultNavLinks = [
   { label: "Home", to: "/" },
-  { label: "Affitta", to: "/affitta" },
-  { label: "Appartamenti", to: "/appartamenti" },
   { label: "Servizi", to: "/servizi" },
   { label: "Chi Siamo", to: "/chi-siamo" },
   { label: "Contatti", to: "/contatti" },
 ];
 
-const compraNavLinks = [
-  { label: "Home", to: "/compra" },
-  { label: "Chi Siamo", to: "/chi-siamo" },
-  { label: "Contatti", to: "/contatti" },
-];
+const compraNavLinks = defaultNavLinks;
 
 const dropdownItems = [
   { label: "Profilo", to: "/profilo", icon: User },
@@ -103,14 +97,14 @@ const Navbar = () => {
       }`}
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
-        <Link to="/" className="flex-shrink-0">
-          <img
-            src={logo}
-            alt="BAZHOUSE — Appartamenti vista oceano a Boa Vista"
-            className={`h-8 lg:h-10 w-auto transition-all duration-500 ${
-              isTransparent ? "brightness-0 invert" : ""
+        <Link to="/" className="flex-shrink-0" aria-label="BAZHOUSE — Home">
+          <span
+            className={`font-serif text-2xl lg:text-3xl tracking-[0.2em] transition-colors duration-500 ${
+              isTransparent ? "text-hero-text" : "text-foreground"
             }`}
-          />
+          >
+            BAZHOUSE
+          </span>
         </Link>
 
         {/* Desktop nav links */}
@@ -136,17 +130,6 @@ const Navbar = () => {
 
         {/* Desktop right side */}
         <div className="hidden lg:flex items-center gap-3">
-          {/* Cross-section CTA: Compra (or Affitta when on /compra) */}
-          <Link
-            to={isCompraSection ? "/affitta" : "/compra"}
-            className={`inline-flex font-sans text-xs tracking-widest uppercase px-5 py-2.5 border transition-all duration-300 hover:scale-105 active:scale-95 ${
-              !isTransparent
-                ? "border-primary/40 text-primary hover:bg-primary hover:text-primary-foreground hover:border-primary"
-                : "border-hero-cta-border/40 text-hero-text hover:bg-hero-cta hover:text-hero-cta-foreground hover:border-hero-cta"
-            }`}
-          >
-            {isCompraSection ? "Affitta" : "Compra"}
-          </Link>
           {user ? (
             <div className="relative" ref={dropdownRef}>
               <motion.button
@@ -287,12 +270,6 @@ const Navbar = () => {
                   {link.label}
                 </Link>
               ))}
-              <Link
-                to={isCompraSection ? "/affitta" : "/compra"}
-                className="font-sans text-xs tracking-widest uppercase border border-primary/40 text-primary px-5 py-2.5"
-              >
-                {isCompraSection ? "Affitta" : "Compra"}
-              </Link>
               {user ? (
                 <>
                   {isAdmin && (
