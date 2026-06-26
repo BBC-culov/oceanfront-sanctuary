@@ -16,7 +16,6 @@ const Footer = () => (
           <div className="flex flex-col gap-2">
             {[
               { label: "Home", to: "/" },
-              { label: "Appartamenti", to: "/appartamenti" },
               { label: "Servizi", to: "/servizi" },
               { label: "Chi Siamo", to: "/chi-siamo" },
               { label: "Contatti", to: "/contatti" },
