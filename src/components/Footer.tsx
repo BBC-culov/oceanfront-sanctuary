@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
+import logoWhite from "@/assets/logo-bazhouse-white.png.asset.json";
 
 const Footer = () => (
   <footer className="bg-primary text-primary-foreground">
     <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
         <div>
-          <span className="font-serif text-2xl tracking-[0.2em] block mb-6">BAZHOUSE</span>
+          <img src={logoWhite.url} alt="BAZHOUSE" className="h-12 w-auto mb-6" />
+
           <p className="font-sans text-sm leading-relaxed opacity-70">
             Appartamenti esclusivi vista oceano a Boa Vista, Capo Verde.
             Praia Cabral & Praia da Cruz.

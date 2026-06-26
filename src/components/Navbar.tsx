@@ -4,6 +4,9 @@ import { Menu, X, LogOut, UserCircle, User, CalendarDays, LayoutDashboard, Home 
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import type { User as SupaUser } from "@supabase/supabase-js";
+import logoWhite from "@/assets/logo-bazhouse-white.png.asset.json";
+import logoDark from "@/assets/logo-bazhouse-dark.png.asset.json";
+
 
 
 const defaultNavLinks = [
@@ -97,15 +100,14 @@ const Navbar = () => {
       }`}
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
-        <Link to="/" className="flex-shrink-0" aria-label="BAZHOUSE — Home">
-          <span
-            className={`font-serif text-2xl lg:text-3xl tracking-[0.2em] transition-colors duration-500 ${
-              isTransparent ? "text-hero-text" : "text-foreground"
-            }`}
-          >
-            BAZHOUSE
-          </span>
+        <Link to="/" className="flex-shrink-0 flex items-center" aria-label="BAZHOUSE — Home">
+          <img
+            src={isTransparent ? logoWhite.url : logoDark.url}
+            alt="BAZHOUSE"
+            className="h-10 lg:h-12 w-auto transition-opacity duration-500"
+          />
         </Link>
+
 
         {/* Desktop nav links */}
         <div className="hidden lg:flex items-center gap-8">
