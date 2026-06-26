@@ -270,12 +270,6 @@ const Navbar = () => {
                   {link.label}
                 </Link>
               ))}
-              <Link
-                to={isCompraSection ? "/affitta" : "/compra"}
-                className="font-sans text-xs tracking-widest uppercase border border-primary/40 text-primary px-5 py-2.5"
-              >
-                {isCompraSection ? "Affitta" : "Compra"}
-              </Link>
               {user ? (
                 <>
                   {isAdmin && (
