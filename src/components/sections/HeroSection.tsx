@@ -58,7 +58,7 @@ const HeroSection = () => {
           transition={{ delay: 0.5, duration: 1 }}
           className="mt-6 font-sans text-sm md:text-base max-w-2xl mx-auto leading-relaxed tracking-wide text-hero-text-muted drop-shadow-[0_1px_8px_rgba(0,0,0,0.3)]"
         >
-          Per questo realizziamo solo residenze in location che il tempo non può replicare.
+          BazHouse seleziona, realizza e valorizza immobili in destinazioni straordinarie, accompagnando ogni cliente con l'affidabilità di una società europea e la presenza concreta di un partner locale.
 
         </motion.p>
 
