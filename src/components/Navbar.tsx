@@ -8,18 +8,12 @@ import logo from "@/assets/logo-bazhouse.png";
 
 const defaultNavLinks = [
   { label: "Home", to: "/" },
-  { label: "Affitta", to: "/affitta" },
-  { label: "Appartamenti", to: "/appartamenti" },
   { label: "Servizi", to: "/servizi" },
   { label: "Chi Siamo", to: "/chi-siamo" },
   { label: "Contatti", to: "/contatti" },
 ];
 
-const compraNavLinks = [
-  { label: "Home", to: "/compra" },
-  { label: "Chi Siamo", to: "/chi-siamo" },
-  { label: "Contatti", to: "/contatti" },
-];
+const compraNavLinks = defaultNavLinks;
 
 const dropdownItems = [
   { label: "Profilo", to: "/profilo", icon: User },
