@@ -97,14 +97,14 @@ const Navbar = () => {
       }`}
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
-        <Link to="/" className="flex-shrink-0">
-          <img
-            src={logo}
-            alt="BAZHOUSE — Appartamenti vista oceano a Boa Vista"
-            className={`h-8 lg:h-10 w-auto transition-all duration-500 ${
-              isTransparent ? "brightness-0 invert" : ""
+        <Link to="/" className="flex-shrink-0" aria-label="BAZHOUSE — Home">
+          <span
+            className={`font-serif text-2xl lg:text-3xl tracking-[0.2em] transition-colors duration-500 ${
+              isTransparent ? "text-hero-text" : "text-foreground"
             }`}
-          />
+          >
+            BAZHOUSE
+          </span>
         </Link>
 
         {/* Desktop nav links */}
