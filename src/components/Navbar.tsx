@@ -4,7 +4,7 @@ import { Menu, X, LogOut, UserCircle, User, CalendarDays, LayoutDashboard, Home 
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import type { User as SupaUser } from "@supabase/supabase-js";
-import logo from "@/assets/logo-bazhouse.png";
+
 
 const defaultNavLinks = [
   { label: "Home", to: "/" },
