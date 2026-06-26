@@ -4,11 +4,13 @@ import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
 import heroImage from "@/assets/hero-ocean.jpg";
 
 const headlines = [
-  "Il tuo appartamento esclusivo\nvista oceano a Boa Vista.",
-  "Svegliati davanti\nall'Atlantico.",
-  "Vista mare. Privacy totale.\nComfort assoluto.",
-  "Più di un hotel.\nIl tuo spazio sull'oceano.",
+  "Acquista in un luogo straordinario.\nTrasforma la tua casa in un patrimonio.",
+  "Residenze esclusive, pensate\nper essere vissute e valorizzate nel tempo.",
+  "Più di una casa sul mare.\nUn patrimonio che può lavorare anche quando non ci sei.",
+  "Location straordinarie.\nCase esclusive. Opportunità di valorizzazione.",
+  "Acquista una casa. Costruisci una rendita potenziale.\nVivi entrambe.",
 ];
+
 
 const HeroSection = () => {
   const [index, setIndex] = useState(0);
@@ -56,9 +58,8 @@ const HeroSection = () => {
           transition={{ delay: 0.5, duration: 1 }}
           className="mt-6 font-sans text-sm md:text-base max-w-2xl mx-auto leading-relaxed tracking-wide text-hero-text-muted drop-shadow-[0_1px_8px_rgba(0,0,0,0.3)]"
         >
-          Appartamenti vista mare nelle esclusive Praia Cabral e Praia da Cruz.
-          Indipendenza totale, comfort di alto livello e accesso a servizi premium
-          riservati ai nostri ospiti.
+          Per questo realizziamo solo residenze in location che il tempo non può replicare.
+
         </motion.p>
 
         <motion.div
