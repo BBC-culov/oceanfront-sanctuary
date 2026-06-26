@@ -35,9 +35,9 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-primary/70 via-primary/45 to-primary/65" />
       </motion.div>
 
-      <div className="relative z-10 text-center px-6 max-w-4xl">
+      <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
         {/* Fixed-height container for headline to prevent layout shift */}
-        <div className="h-[180px] md:h-[220px] lg:h-[260px] flex items-center justify-center">
+        <div className="min-h-[200px] md:min-h-[220px] lg:min-h-[240px] flex items-center justify-center">
           <AnimatePresence mode="wait">
             <motion.h1
               key={index}
@@ -45,7 +45,7 @@ const HeroSection = () => {
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
               transition={{ duration: 1, ease: "easeInOut" }}
-              className="font-serif text-4xl md:text-6xl lg:text-7xl font-light leading-tight whitespace-pre-line text-hero-text drop-shadow-[0_2px_20px_rgba(0,0,0,0.3)]"
+              className="font-serif text-3xl md:text-5xl lg:text-6xl font-light leading-[1.15] text-balance text-hero-text drop-shadow-[0_2px_20px_rgba(0,0,0,0.3)]"
             >
               {headlines[index]}
             </motion.h1>
