@@ -48,9 +48,9 @@ const TiltCard = ({
 
 /* ── Phone numbers per lingua ── */
 const phoneNumbers = [
-  { flag: "🇮🇹", lang: "Italiano", number: "+39 347 7504352", href: "tel:+393477504352" },
-  { flag: "🇬🇧", lang: "Inglese e Spagnolo", number: "+39 348 2303498", href: "tel:+393482303498" },
-  { flag: "🇵🇹", lang: "Portoghese", number: "+238 951 2567", href: "tel:+2389512567" },
+  { code: "it", lang: "Italiano", number: "+39 347 7504352", href: "tel:+393477504352" },
+  { code: "gb", lang: "Inglese e Spagnolo", number: "+39 348 2303498", href: "tel:+393482303498" },
+  { code: "pt", lang: "Portoghese", number: "+238 951 2567", href: "tel:+2389512567" },
 ];
 
 /* ── Contact items ── */
