@@ -221,8 +221,10 @@ const Contatti = () => {
                   viewport={{ once: true }}
                   transition={{ duration: 0.7, delay: item.delay }}
                   style={{ perspective: 800 }}
+                  className="h-full"
                 >
-                  <TiltCard>
+                  <TiltCard className="h-full">
+
                     <Wrapper
                       {...wrapperProps}
                       className={`block p-8 bg-gradient-to-br ${item.gradient} border border-border/50 backdrop-blur-sm hover:border-primary/30 transition-colors duration-500 group h-full`}
