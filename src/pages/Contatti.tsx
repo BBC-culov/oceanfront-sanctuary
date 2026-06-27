@@ -48,9 +48,9 @@ const TiltCard = ({
 
 /* ── Phone numbers per lingua ── */
 const phoneNumbers = [
-  { flag: "🇮🇹", lang: "Italiano", number: "+39 347 7504352", href: "tel:+393477504352" },
-  { flag: "🇬🇧", lang: "Inglese e Spagnolo", number: "+39 348 2303498", href: "tel:+393482303498" },
-  { flag: "🇵🇹", lang: "Portoghese", number: "+238 951 2567", href: "tel:+2389512567" },
+  { code: "it", lang: "Italiano", number: "+39 347 7504352", href: "tel:+393477504352" },
+  { code: "gb", lang: "Inglese e Spagnolo", number: "+39 348 2303498", href: "tel:+393482303498" },
+  { code: "pt", lang: "Portoghese", number: "+238 951 2567", href: "tel:+2389512567" },
 ];
 
 /* ── Contact items ── */
@@ -203,7 +203,7 @@ const Contatti = () => {
             </motion.div>
 
             {/* 3D tilt contact cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
               {contacts.map((item) => {
                 const Wrapper: any = item.href ? "a" : "div";
                 const wrapperProps: any = item.href
@@ -221,8 +221,10 @@ const Contatti = () => {
                   viewport={{ once: true }}
                   transition={{ duration: 0.7, delay: item.delay }}
                   style={{ perspective: 800 }}
+                  className="h-full"
                 >
-                  <TiltCard>
+                  <TiltCard className="h-full">
+
                     <Wrapper
                       {...wrapperProps}
                       className={`block p-8 bg-gradient-to-br ${item.gradient} border border-border/50 backdrop-blur-sm hover:border-primary/30 transition-colors duration-500 group h-full`}
@@ -257,7 +259,16 @@ const Contatti = () => {
                                     href={p.href}
                                     className="flex items-center gap-3 group/phone"
                                   >
-                                    <span className="text-xl leading-none" aria-hidden>{p.flag}</span>
+                                    <img
+                                      src={`https://flagcdn.com/w40/${p.code}.png`}
+                                      srcSet={`https://flagcdn.com/w80/${p.code}.png 2x`}
+                                      width={28}
+                                      height={20}
+                                      alt={p.lang}
+                                      className="rounded-sm shadow-sm object-cover w-7 h-5 flex-shrink-0"
+                                      loading="lazy"
+                                    />
+
                                     <span className="flex flex-col">
                                       <span className="font-sans text-[10px] tracking-widest uppercase text-muted-foreground">
                                         {p.lang}
