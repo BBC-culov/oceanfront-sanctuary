@@ -46,24 +46,32 @@ const TiltCard = ({
   );
 };
 
+/* ── Phone numbers per lingua ── */
+const phoneNumbers = [
+  { flag: "🇮🇹", lang: "Italiano", number: "+39 347 7504352", href: "tel:+393477504352" },
+  { flag: "🇬🇧", lang: "Inglese e Spagnolo", number: "+39 348 2303498", href: "tel:+393482303498" },
+  { flag: "🇵🇹", lang: "Portoghese", number: "+238 951 2567", href: "tel:+2389512567" },
+];
+
 /* ── Contact items ── */
 const contacts = [
   {
     icon: Phone,
     label: "Telefono",
-    value: "+238 000 0000",
+    value: "Parla con il tuo referente",
     sub: "Lun – Sab · 9:00 – 18:00",
-    href: "tel:+2380000000",
+    href: null as string | null,
     gradient: "from-primary/20 to-primary/5",
     iconBg: "bg-primary/15",
     delay: 0,
+    phones: phoneNumbers,
   },
   {
     icon: MessageCircle,
     label: "WhatsApp",
     value: "Scrivici su WhatsApp",
     sub: "Risposta entro poche ore",
-    href: "https://wa.me/2380000000",
+    href: "https://wa.me/393477505352",
     gradient: "from-[#25D366]/15 to-[#25D366]/5",
     iconBg: "bg-[#25D366]/15",
     delay: 0.15,
@@ -71,9 +79,9 @@ const contacts = [
   {
     icon: Mail,
     label: "Email",
-    value: "info@bazhouse.it",
+    value: "info@easyclickweb.com",
     sub: "Ti rispondiamo entro 24h",
-    href: "mailto:info@bazhouse.it",
+    href: "mailto:info@easyclickweb.com",
     gradient: "from-accent/20 to-accent/5",
     iconBg: "bg-accent/15",
     delay: 0.3,
@@ -196,7 +204,16 @@ const Contatti = () => {
 
             {/* 3D tilt contact cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {contacts.map((item) => (
+              {contacts.map((item) => {
+                const Wrapper: any = item.href ? "a" : "div";
+                const wrapperProps: any = item.href
+                  ? {
+                      href: item.href,
+                      target: item.href.startsWith("http") ? "_blank" : undefined,
+                      rel: "noopener noreferrer",
+                    }
+                  : {};
+                return (
                 <motion.div
                   key={item.label}
                   initial={{ opacity: 0, y: 40 }}
@@ -206,11 +223,9 @@ const Contatti = () => {
                   style={{ perspective: 800 }}
                 >
                   <TiltCard>
-                    <a
-                      href={item.href}
-                      target={item.href.startsWith("http") ? "_blank" : undefined}
-                      rel="noopener noreferrer"
-                      className={`block p-8 bg-gradient-to-br ${item.gradient} border border-border/50 backdrop-blur-sm hover:border-primary/30 transition-colors duration-500 group`}
+                    <Wrapper
+                      {...wrapperProps}
+                      className={`block p-8 bg-gradient-to-br ${item.gradient} border border-border/50 backdrop-blur-sm hover:border-primary/30 transition-colors duration-500 group h-full`}
                       style={{ transformStyle: "preserve-3d" }}
                     >
                       {/* Icon floating above card */}
@@ -233,34 +248,66 @@ const Contatti = () => {
                         <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-2">
                           {item.label}
                         </p>
-                        <p className="font-serif text-lg md:text-xl font-light mb-2 group-hover:text-primary transition-colors duration-300">
-                          {item.value}
-                        </p>
-                        <p className="font-sans text-xs text-muted-foreground">
-                          {item.sub}
-                        </p>
+                        {item.phones ? (
+                          <>
+                            <ul className="space-y-3 mb-3">
+                              {item.phones.map((p) => (
+                                <li key={p.number}>
+                                  <a
+                                    href={p.href}
+                                    className="flex items-center gap-3 group/phone"
+                                  >
+                                    <span className="text-xl leading-none" aria-hidden>{p.flag}</span>
+                                    <span className="flex flex-col">
+                                      <span className="font-sans text-[10px] tracking-widest uppercase text-muted-foreground">
+                                        {p.lang}
+                                      </span>
+                                      <span className="font-serif text-base font-light group-hover/phone:text-primary transition-colors">
+                                        {p.number}
+                                      </span>
+                                    </span>
+                                  </a>
+                                </li>
+                              ))}
+                            </ul>
+                            <p className="font-sans text-xs text-muted-foreground">
+                              {item.sub}
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <p className="font-serif text-lg md:text-xl font-light mb-2 group-hover:text-primary transition-colors duration-300">
+                              {item.value}
+                            </p>
+                            <p className="font-sans text-xs text-muted-foreground">
+                              {item.sub}
+                            </p>
+                          </>
+                        )}
                       </div>
 
-                      {/* Animated arrow */}
-                      <motion.div
-                        className="mt-6 font-sans text-xs tracking-[0.2em] uppercase text-primary flex items-center gap-2"
-                        style={{ transform: "translateZ(30px)" }}
-                      >
-                        <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          Contattaci
-                        </span>
-                        <motion.span
-                          className="inline-block"
-                          animate={{ x: [0, 4, 0] }}
-                          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                      {item.href && (
+                        <motion.div
+                          className="mt-6 font-sans text-xs tracking-[0.2em] uppercase text-primary flex items-center gap-2"
+                          style={{ transform: "translateZ(30px)" }}
                         >
-                          →
-                        </motion.span>
-                      </motion.div>
-                    </a>
+                          <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            Contattaci
+                          </span>
+                          <motion.span
+                            className="inline-block"
+                            animate={{ x: [0, 4, 0] }}
+                            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                          >
+                            →
+                          </motion.span>
+                        </motion.div>
+                      )}
+                    </Wrapper>
                   </TiltCard>
                 </motion.div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Location info */}
