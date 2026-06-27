@@ -4,7 +4,6 @@ import PageTransition from "@/components/PageTransition";
 import Seo from "@/components/Seo";
 import HeroSection from "@/components/sections/HeroSection";
 import WhySection from "@/components/sections/WhySection";
-import ApartmentsSection from "@/components/sections/ApartmentsSection";
 import ExperienceSection from "@/components/sections/ExperienceSection";
 import BoaVistaSection from "@/components/sections/BoaVistaSection";
 
@@ -18,8 +17,8 @@ const Index = () => (
     <main>
       <HeroSection />
       <WhySection />
-      <ApartmentsSection />
       <ExperienceSection />
+
       <BoaVistaSection />
     </main>
     <Footer />
