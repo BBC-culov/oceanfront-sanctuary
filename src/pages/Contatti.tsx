@@ -149,9 +149,18 @@ const Contatti = () => {
               transition={{ duration: 0.8, delay: 0.1 }}
               className="font-serif text-3xl md:text-5xl font-light text-[hsl(var(--hero-text))] leading-tight"
             >
-              Parliamo del tuo soggiorno a Boa Vista.
+              Parliamo del tuo progetto a Boa Vista.
             </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.25 }}
+              className="mt-6 font-sans text-sm md:text-base text-[hsl(var(--hero-text-muted))] leading-relaxed max-w-2xl mx-auto"
+            >
+              Che tu stia cercando una casa da vivere, un investimento immobiliare o una proprietà da affittare, il nostro team è a tua disposizione per accompagnarti in ogni fase del percorso.
+            </motion.p>
           </motion.div>
+
         </section>
 
         {/* Contact cards section */}
