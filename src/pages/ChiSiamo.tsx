@@ -16,7 +16,7 @@ const ChiSiamo = () => {
     { num: String(apartmentCount), label: "Residenze esclusive" },
     { num: "5★", label: "Standard di qualità" },
     { num: "24/7", label: "Assistenza dedicata" },
-    { num: "100%", label: "Soddisfazione ospiti" },
+    { num: "100%", label: "Soddisfazione clienti" },
   ];
 
   const heroRef = useRef<HTMLElement>(null);
@@ -30,36 +30,36 @@ const ChiSiamo = () => {
     <PageTransition>
       <Seo
         title="Chi siamo | BAZHOUSE Boa Vista"
-        description="La storia di BAZHOUSE: residenze esclusive vista oceano a Boa Vista, Capo Verde. Lusso discreto, indipendenza e ospitalità su misura."
+        description="BazHouse è un marchio di EasyClick: realizziamo e valorizziamo residenze esclusive a Boa Vista con la solidità di una realtà europea e la conoscenza del territorio."
       />
       <Navbar />
       <main>
         {/* Hero with parallax */}
         <section
           ref={heroRef}
-          className="relative h-[55vh] min-h-[420px] flex items-center justify-center overflow-hidden"
+          className="relative h-[60vh] min-h-[460px] flex items-center justify-center overflow-hidden"
         >
           <motion.div
             className="absolute inset-[-15%] bg-cover bg-center will-change-transform"
             style={{ backgroundImage: `url(${sunsetImg})`, y: heroY }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[hsl(var(--hero-overlay-from)/0.5)] to-[hsl(var(--hero-overlay-to)/0.7)]" />
-          <div className="relative z-10 text-center px-6">
+          <div className="absolute inset-0 bg-gradient-to-b from-[hsl(var(--hero-overlay-from)/0.5)] to-[hsl(var(--hero-overlay-to)/0.75)]" />
+          <div className="relative z-10 text-center px-6 max-w-4xl">
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               className="font-sans text-xs tracking-[0.3em] uppercase text-[hsl(var(--hero-text-muted))] mb-4"
             >
-              La Nostra Storia
+              Chi Siamo
             </motion.p>
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1 }}
-              className="font-serif text-4xl md:text-6xl font-light text-[hsl(var(--hero-text))]"
+              className="font-serif text-3xl md:text-5xl lg:text-6xl font-light leading-[1.15] text-balance text-[hsl(var(--hero-text))]"
             >
-              Chi Siamo — BAZHOUSE Boa Vista
+              Non realizziamo semplicemente immobili.<br className="hidden md:block" /> Costruiamo patrimoni destinati a durare.
             </motion.h1>
           </div>
         </section>
@@ -89,7 +89,7 @@ const ChiSiamo = () => {
           </div>
         </section>
 
-        {/* Il Progetto */}
+        {/* Identità — EasyClick + due mondi */}
         <section className="py-24 lg:py-32">
           <div className="mx-auto max-w-6xl px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -107,21 +107,17 @@ const ChiSiamo = () => {
                   className="h-[1px] bg-primary mb-6"
                 />
                 <p className="font-sans text-xs tracking-[0.3em] uppercase text-muted-foreground mb-4">
-                  Il Progetto
+                  La Nostra Identità
                 </p>
-                <h2 className="font-serif text-3xl md:text-4xl font-light mb-8">
-                  Un progetto europeo con visione internazionale.
+                <h2 className="font-serif text-3xl md:text-4xl font-light mb-8 leading-tight">
+                  Due mondi, una sola visione.
                 </h2>
-                <div className="font-sans text-base text-muted-foreground leading-relaxed space-y-6">
+                <div className="font-sans text-base text-muted-foreground leading-relaxed space-y-5">
                   <p>
-                    BAZHOUSE è un progetto sviluppato da EasyClick, azienda slovena,
-                    attraverso la sua realtà operativa locale Rilab con sede a Boa
-                    Vista. Non siamo un semplice servizio di affitto, ma un team che
-                    investe sull'isola e costruisce relazioni di qualità.
+                    BazHouse è un marchio di <strong className="text-foreground font-medium">EasyClick</strong>, società con sede nel cuore dell'Europa, in Slovenia, e presente a Capo Verde attraverso la propria succursale locale.
                   </p>
                   <p>
-                    Offriamo appartamenti di livello superiore, esperienza
-                    personalizzata e servizi selezionati.
+                    La nostra identità nasce dall'unione di due mondi: la solidità, il metodo e la trasparenza di una realtà europea, insieme alla conoscenza diretta del territorio e del mercato immobiliare di Boa Vista.
                   </p>
                 </div>
               </motion.div>
@@ -144,8 +140,50 @@ const ChiSiamo = () => {
           </div>
         </section>
 
-        {/* Filosofia */}
+        {/* Visione — investimento + lavoro prima della costruzione */}
         <section className="py-24 lg:py-32 bg-secondary">
+          <div className="mx-auto max-w-4xl px-6 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="text-center mb-12"
+            >
+              <motion.div
+                initial={{ width: 0 }}
+                whileInView={{ width: 48 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="h-[1px] bg-primary mx-auto mb-6"
+              />
+              <p className="font-sans text-xs tracking-[0.3em] uppercase text-muted-foreground mb-4">
+                La Nostra Visione
+              </p>
+              <h2 className="font-serif text-3xl md:text-4xl font-light leading-tight">
+                Il nostro lavoro inizia molto prima della costruzione.
+              </h2>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.1 }}
+              className="font-sans text-base md:text-lg text-muted-foreground leading-relaxed space-y-6 max-w-3xl mx-auto"
+            >
+              <p>
+                Crediamo che un investimento immobiliare importante richieda molto più di una bella casa. Richieda una visione, un'attenta selezione delle opportunità e un partner capace di accompagnare il cliente nel tempo.
+              </p>
+              <p>
+                Studiamo il mercato, analizziamo le prospettive di sviluppo, selezioniamo solo le posizioni che riteniamo realmente esclusive e sviluppiamo progetti in cui saremmo i primi a investire.
+              </p>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Filosofia — diamante / smeraldo */}
+        <section className="py-24 lg:py-32">
           <div className="mx-auto max-w-4xl px-6 lg:px-8 text-center">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -160,19 +198,95 @@ const ChiSiamo = () => {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="h-[1px] bg-primary mx-auto mb-6"
               />
-              <p className="font-sans text-xs tracking-[0.3em] uppercase text-muted-foreground mb-6">
-                La Nostra Filosofia
+              <p className="font-sans text-xs tracking-[0.3em] uppercase text-muted-foreground mb-8">
+                Il Valore della Posizione
               </p>
               <motion.p
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 1, delay: 0.3 }}
-                className="font-serif text-2xl md:text-4xl font-light leading-relaxed italic"
+                className="font-serif text-2xl md:text-3xl lg:text-4xl font-light leading-relaxed italic text-foreground"
               >
-                "Indipendenza totale, comfort completo, privacy e accesso a
-                servizi premium in posizione privilegiata fronte mare."
+                "Come un diamante o uno smeraldo, ciò che è raro tende a conservare il proprio fascino e il proprio valore."
               </motion.p>
+              <p className="mt-10 font-sans text-base text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+                Per noi il valore di un immobile nasce prima di tutto dalla sua posizione. Per questo realizziamo residenze solo in luoghi che difficilmente potranno essere replicati: fronte oceano, a pochi passi dalle spiagge più belle e nei contesti più esclusivi di Boa Vista.
+              </p>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Oltre la consegna */}
+        <section className="py-24 lg:py-32 bg-secondary">
+          <div className="mx-auto max-w-6xl px-6 lg:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 0.15 }}
+                className="overflow-hidden group order-2 lg:order-1"
+              >
+                <img
+                  src={sunsetImg}
+                  alt="Tramonto a Boa Vista"
+                  className="w-full aspect-[4/3] object-cover transition-transform duration-700 group-hover:scale-105"
+                  loading="lazy"
+                />
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+                className="order-1 lg:order-2"
+              >
+                <motion.div
+                  initial={{ width: 0 }}
+                  whileInView={{ width: 48 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  className="h-[1px] bg-primary mb-6"
+                />
+                <p className="font-sans text-xs tracking-[0.3em] uppercase text-muted-foreground mb-4">
+                  Oltre la Consegna
+                </p>
+                <h2 className="font-serif text-3xl md:text-4xl font-light mb-8 leading-tight">
+                  La nostra missione non termina con le chiavi.
+                </h2>
+                <div className="font-sans text-base text-muted-foreground leading-relaxed space-y-5">
+                  <p>
+                    Continuiamo ad affiancare ogni proprietario nella valorizzazione del proprio investimento, mettendo a disposizione partner locali qualificati per la gestione degli affitti turistici e strumenti digitali che consentono di monitorare prenotazioni, occupazione e performance della proprietà in modo semplice e trasparente.
+                  </p>
+                  <p>
+                    L'obiettivo è permettere ai nostri clienti di vivere la propria casa ogni volta che lo desiderano e, quando scelgono di non utilizzarla, affidarne la gestione a professionisti selezionati, mantenendo sempre il controllo del proprio patrimonio.
+                  </p>
+                  <p>
+                    Per noi questo significa creare valore: offrire un immobile straordinario, accompagnarlo con servizi di qualità e costruire un rapporto di fiducia destinato a durare nel tempo.
+                  </p>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* Closing statement */}
+        <section className="py-24 lg:py-32 bg-primary">
+          <div className="mx-auto max-w-4xl px-6 lg:px-8 text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.9 }}
+            >
+              <p className="font-serif text-2xl md:text-3xl lg:text-4xl font-light leading-relaxed text-primary-foreground">
+                Acquistare una casa è una decisione importante.
+              </p>
+              <p className="mt-4 font-serif text-2xl md:text-3xl lg:text-4xl font-light leading-relaxed italic text-primary-foreground/90">
+                Scegliere il partner che la valorizzerà negli anni lo è ancora di più.
+              </p>
             </motion.div>
           </div>
         </section>
@@ -190,17 +304,17 @@ const ChiSiamo = () => {
                 Vuoi saperne di più?
               </h2>
               <p className="font-sans text-sm text-muted-foreground mb-8 max-w-lg mx-auto leading-relaxed">
-                Scopri i nostri appartamenti o contattaci per creare il tuo soggiorno su misura.
+                Scopri i nostri progetti o contattaci per parlare del tuo investimento.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="/appartamenti">
+                <a href="/compra">
                   <motion.span
                     whileHover={{ scale: 1.05, y: -2 }}
                     whileTap={{ scale: 0.97 }}
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
                     className="inline-block font-sans text-xs tracking-[0.2em] uppercase bg-primary text-primary-foreground px-8 py-4 hover:bg-primary/90 transition-colors duration-300 shadow-md"
                   >
-                    Gli Appartamenti
+                    I Nostri Progetti
                   </motion.span>
                 </a>
                 <a href="/contatti">
