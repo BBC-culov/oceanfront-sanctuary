@@ -46,24 +46,32 @@ const TiltCard = ({
   );
 };
 
+/* ── Phone numbers per lingua ── */
+const phoneNumbers = [
+  { flag: "🇮🇹", lang: "Italiano", number: "+39 347 7504352", href: "tel:+393477504352" },
+  { flag: "🇬🇧", lang: "Inglese e Spagnolo", number: "+39 348 2303498", href: "tel:+393482303498" },
+  { flag: "🇵🇹", lang: "Portoghese", number: "+238 951 2567", href: "tel:+2389512567" },
+];
+
 /* ── Contact items ── */
 const contacts = [
   {
     icon: Phone,
     label: "Telefono",
-    value: "+238 000 0000",
+    value: "Parla con il tuo referente",
     sub: "Lun – Sab · 9:00 – 18:00",
-    href: "tel:+2380000000",
+    href: null as string | null,
     gradient: "from-primary/20 to-primary/5",
     iconBg: "bg-primary/15",
     delay: 0,
+    phones: phoneNumbers,
   },
   {
     icon: MessageCircle,
     label: "WhatsApp",
     value: "Scrivici su WhatsApp",
     sub: "Risposta entro poche ore",
-    href: "https://wa.me/2380000000",
+    href: "https://wa.me/393477505352",
     gradient: "from-[#25D366]/15 to-[#25D366]/5",
     iconBg: "bg-[#25D366]/15",
     delay: 0.15,
@@ -71,9 +79,9 @@ const contacts = [
   {
     icon: Mail,
     label: "Email",
-    value: "info@bazhouse.it",
+    value: "info@easyclickweb.com",
     sub: "Ti rispondiamo entro 24h",
-    href: "mailto:info@bazhouse.it",
+    href: "mailto:info@easyclickweb.com",
     gradient: "from-accent/20 to-accent/5",
     iconBg: "bg-accent/15",
     delay: 0.3,
