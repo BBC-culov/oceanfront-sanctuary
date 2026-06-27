@@ -259,7 +259,16 @@ const Contatti = () => {
                                     href={p.href}
                                     className="flex items-center gap-3 group/phone"
                                   >
-                                    <span className="text-xl leading-none" aria-hidden>{p.flag}</span>
+                                    <img
+                                      src={`https://flagcdn.com/w40/${p.code}.png`}
+                                      srcSet={`https://flagcdn.com/w80/${p.code}.png 2x`}
+                                      width={28}
+                                      height={20}
+                                      alt={p.lang}
+                                      className="rounded-sm shadow-sm object-cover w-7 h-5 flex-shrink-0"
+                                      loading="lazy"
+                                    />
+
                                     <span className="flex flex-col">
                                       <span className="font-sans text-[10px] tracking-widest uppercase text-muted-foreground">
                                         {p.lang}
