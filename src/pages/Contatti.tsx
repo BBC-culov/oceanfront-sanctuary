@@ -204,7 +204,16 @@ const Contatti = () => {
 
             {/* 3D tilt contact cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {contacts.map((item) => (
+              {contacts.map((item) => {
+                const Wrapper: any = item.href ? "a" : "div";
+                const wrapperProps: any = item.href
+                  ? {
+                      href: item.href,
+                      target: item.href.startsWith("http") ? "_blank" : undefined,
+                      rel: "noopener noreferrer",
+                    }
+                  : {};
+                return (
                 <motion.div
                   key={item.label}
                   initial={{ opacity: 0, y: 40 }}
@@ -214,11 +223,9 @@ const Contatti = () => {
                   style={{ perspective: 800 }}
                 >
                   <TiltCard>
-                    <a
-                      href={item.href}
-                      target={item.href.startsWith("http") ? "_blank" : undefined}
-                      rel="noopener noreferrer"
-                      className={`block p-8 bg-gradient-to-br ${item.gradient} border border-border/50 backdrop-blur-sm hover:border-primary/30 transition-colors duration-500 group`}
+                    <Wrapper
+                      {...wrapperProps}
+                      className={`block p-8 bg-gradient-to-br ${item.gradient} border border-border/50 backdrop-blur-sm hover:border-primary/30 transition-colors duration-500 group h-full`}
                       style={{ transformStyle: "preserve-3d" }}
                     >
                       {/* Icon floating above card */}
@@ -241,34 +248,66 @@ const Contatti = () => {
                         <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-2">
                           {item.label}
                         </p>
-                        <p className="font-serif text-lg md:text-xl font-light mb-2 group-hover:text-primary transition-colors duration-300">
-                          {item.value}
-                        </p>
-                        <p className="font-sans text-xs text-muted-foreground">
-                          {item.sub}
-                        </p>
+                        {item.phones ? (
+                          <>
+                            <ul className="space-y-3 mb-3">
+                              {item.phones.map((p) => (
+                                <li key={p.number}>
+                                  <a
+                                    href={p.href}
+                                    className="flex items-center gap-3 group/phone"
+                                  >
+                                    <span className="text-xl leading-none" aria-hidden>{p.flag}</span>
+                                    <span className="flex flex-col">
+                                      <span className="font-sans text-[10px] tracking-widest uppercase text-muted-foreground">
+                                        {p.lang}
+                                      </span>
+                                      <span className="font-serif text-base font-light group-hover/phone:text-primary transition-colors">
+                                        {p.number}
+                                      </span>
+                                    </span>
+                                  </a>
+                                </li>
+                              ))}
+                            </ul>
+                            <p className="font-sans text-xs text-muted-foreground">
+                              {item.sub}
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <p className="font-serif text-lg md:text-xl font-light mb-2 group-hover:text-primary transition-colors duration-300">
+                              {item.value}
+                            </p>
+                            <p className="font-sans text-xs text-muted-foreground">
+                              {item.sub}
+                            </p>
+                          </>
+                        )}
                       </div>
 
-                      {/* Animated arrow */}
-                      <motion.div
-                        className="mt-6 font-sans text-xs tracking-[0.2em] uppercase text-primary flex items-center gap-2"
-                        style={{ transform: "translateZ(30px)" }}
-                      >
-                        <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          Contattaci
-                        </span>
-                        <motion.span
-                          className="inline-block"
-                          animate={{ x: [0, 4, 0] }}
-                          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                      {item.href && (
+                        <motion.div
+                          className="mt-6 font-sans text-xs tracking-[0.2em] uppercase text-primary flex items-center gap-2"
+                          style={{ transform: "translateZ(30px)" }}
                         >
-                          →
-                        </motion.span>
-                      </motion.div>
-                    </a>
+                          <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            Contattaci
+                          </span>
+                          <motion.span
+                            className="inline-block"
+                            animate={{ x: [0, 4, 0] }}
+                            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                          >
+                            →
+                          </motion.span>
+                        </motion.div>
+                      )}
+                    </Wrapper>
                   </TiltCard>
                 </motion.div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Location info */}
