@@ -203,7 +203,7 @@ const Contatti = () => {
             </motion.div>
 
             {/* 3D tilt contact cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
               {contacts.map((item) => {
                 const Wrapper: any = item.href ? "a" : "div";
                 const wrapperProps: any = item.href
