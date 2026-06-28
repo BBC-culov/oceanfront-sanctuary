@@ -119,6 +119,8 @@ const ApartmentsSection = () => {
             </div>
           </>
         )}
+          </>
+        )}
       </div>
     </section>
   );
