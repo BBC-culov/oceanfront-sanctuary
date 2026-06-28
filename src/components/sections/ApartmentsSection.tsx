@@ -77,6 +77,14 @@ const ApartmentsSection = () => {
           </p>
         </motion.div>
 
+        {apartments.length === 0 && !isLoading ? (
+          <div className="text-center py-16">
+            <p className="font-sans text-base text-muted-foreground">
+              Nessun appartamento disponibile al momento. Torna a trovarci presto.
+            </p>
+          </div>
+        ) : (
+          <>
         {/* Residences grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {residences.map((apt, i) => (
