@@ -62,9 +62,9 @@ const Appartamenti = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1 }}
-              className="font-serif text-4xl md:text-6xl font-light text-[hsl(var(--hero-text))]"
+              className="font-serif text-4xl md:text-6xl font-light text-[hsl(var(--hero-text))] text-balance max-w-4xl"
             >
-              I Nostri Appartamenti
+              Appartamenti in affitto dei nostri clienti
             </motion.h1>
           </div>
         </section>
