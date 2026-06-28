@@ -7,12 +7,11 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import heroImg from "@/assets/hero-appartamenti.jpg";
 import { useApartments } from "@/hooks/useApartments";
-import staticApartments from "@/data/apartments";
 
 const Appartamenti = () => {
   const heroRef = useRef<HTMLElement>(null);
   const { data: dbApartments } = useApartments();
-  const apartments = (dbApartments && dbApartments.length > 0) ? dbApartments : staticApartments;
+  const apartments = dbApartments ?? [];
   const itemListJsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
