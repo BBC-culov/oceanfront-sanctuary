@@ -73,7 +73,7 @@ const ApartmentsSection = () => {
           <p className="font-sans text-xs tracking-[0.3em] uppercase text-muted-foreground mb-4">Gli Appartamenti</p>
           <h2 className="font-serif text-4xl md:text-5xl font-light mb-6">Eleganza fronte mare.</h2>
           <p className="font-sans text-base text-muted-foreground leading-relaxed">
-            {apartments.length} residenze esclusive, ognuna con la propria personalità. Scopri quella perfetta per la tua esperienza a Boa Vista.
+            Affitta la tua residenza esclusiva, ognuna con la propria personalità. Scopri quella perfetta per la tua esperienza a Boa Vista.
           </p>
         </motion.div>
 
