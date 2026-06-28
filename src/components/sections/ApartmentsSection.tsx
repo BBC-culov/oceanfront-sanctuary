@@ -58,8 +58,8 @@ const cardVariants = {
 };
 
 const ApartmentsSection = () => {
-  const { data: dbApartments } = useApartments();
-  const apartments = dbApartments && dbApartments.length > 0 ? dbApartments : staticApartments;
+  const { data: dbApartments, isLoading } = useApartments();
+  const apartments = dbApartments ?? [];
 
   const residences = apartments.filter((a) => a.category === "residence");
   const penthouses = apartments.filter((a) => a.category === "penthouse");
