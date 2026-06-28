@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logoWhite from "@/assets/logo-bazhouse-white.png.asset.json";
+const logoWhite = { url: "/logo-bazhouse-white.png" };
 
 const Footer = () => (
   <footer className="bg-primary text-primary-foreground">
