@@ -144,7 +144,7 @@ serve(async (req) => {
         await serviceClient.functions.invoke("send-transactional-email", {
           body: {
             templateName: "admin-notification",
-            recipientEmail: "info@bazhouse.it",
+            recipientEmail: "info@bazhouse.com",
             idempotencyKey: `admin-booking-${booking_id}`,
             templateData: {
               guestName: booking.guest_name,
@@ -187,7 +187,7 @@ serve(async (req) => {
         await serviceClient.functions.invoke("send-transactional-email", {
           body: {
             templateName: "admin-notification",
-            recipientEmail: "info@bazhouse.it",
+            recipientEmail: "info@bazhouse.com",
             idempotencyKey: `admin-mod-paid-${booking_id}-${Date.now()}`,
             templateData: {
               guestName: booking.guest_name,
@@ -239,7 +239,7 @@ serve(async (req) => {
         await serviceClient.functions.invoke("send-transactional-email", {
           body: {
             templateName: "admin-notification",
-            recipientEmail: "info@bazhouse.it",
+            recipientEmail: "info@bazhouse.com",
             idempotencyKey: `admin-balance-${booking_id}`,
             templateData: {
               guestName: booking.guest_name,

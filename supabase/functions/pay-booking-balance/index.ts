@@ -75,7 +75,7 @@ serve(async (req) => {
       customerId = customers.data[0].id;
     }
 
-    const ALLOWED_ORIGINS = ["https://bazhouse.it", "https://www.bazhouse.it", "https://bazhousedemo.vercel.app"];
+    const ALLOWED_ORIGINS = ["https://bazhouse.com", "https://www.bazhouse.com", "https://bazhousedemo.vercel.app"];
 
 
     const reqOrigin = req.headers.get("origin");

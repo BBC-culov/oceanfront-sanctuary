@@ -177,7 +177,7 @@ serve(async (req) => {
 
       modAmount = diff;
       modExpiresAt = Math.floor(Date.now() / 1000) + 24 * 60 * 60;
-      const ALLOWED_ORIGINS = ["https://bazhouse.it", "https://www.bazhouse.it", "https://bazhousedemo.vercel.app"];
+      const ALLOWED_ORIGINS = ["https://bazhouse.com", "https://www.bazhouse.com", "https://bazhousedemo.vercel.app"];
 
       const reqOrigin = req.headers.get("origin");
 

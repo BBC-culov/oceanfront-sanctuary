@@ -167,7 +167,7 @@ serve(async (req) => {
       await adminClient.functions.invoke("send-transactional-email", {
         body: {
           templateName: "modification-request-admin",
-          recipientEmail: "info@bazhouse.it",
+          recipientEmail: "info@bazhouse.com",
           idempotencyKey: `mod-req-admin-${created.id}`,
           templateData: {
             guestName: booking.guest_name,
