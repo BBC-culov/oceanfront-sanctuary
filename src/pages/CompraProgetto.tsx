@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { MapPin, ArrowLeft, Check, Mail, Phone, ExternalLink, Sparkles } from "lucide-react";
+import { MapPin, ArrowLeft, Check, Mail, Phone, ExternalLink, Sparkles, Download } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
@@ -94,33 +94,35 @@ const CompraProgetto = () => {
             )}
           </motion.div>
 
-          {/* Gallery */}
-          {project.images.length > 0 && (
-            <div className="mb-16">
-              <div className="aspect-[16/9] bg-muted overflow-hidden rounded-sm mb-3">
-                <img src={mainImage} alt={project.title} className="w-full h-full object-cover" />
-              </div>
-              {project.images.length > 1 && (
-                <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
-                  {project.images.map((img, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setActiveImage(i)}
-                      className={`aspect-square overflow-hidden bg-muted rounded-sm transition-all ${
-                        i === activeImage ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : "opacity-70 hover:opacity-100"
-                      }`}
-                    >
-                      <img src={img} alt="" className="w-full h-full object-cover" />
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
             {/* Main content */}
             <div className="lg:col-span-2 space-y-14 min-w-0">
+              {/* 1. Video render */}
+              {project.video_url && (
+                <section>
+                  <h2 className="font-serif text-2xl md:text-3xl mb-5 font-light">Video render</h2>
+                  <div className="aspect-video bg-muted overflow-hidden rounded-sm">
+                    <video src={project.video_url} controls className="w-full h-full object-cover" />
+                  </div>
+                </section>
+              )}
+
+              {/* 2. Brochure download */}
+              {project.brochure_url && (
+                <section>
+                  <a
+                    href={project.brochure_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    download
+                    className="inline-flex items-center gap-2 font-sans text-xs tracking-[0.2em] uppercase px-6 py-4 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors rounded-sm"
+                  >
+                    <Download className="w-4 h-4" /> Scarica la brochure
+                  </a>
+                </section>
+              )}
+
+              {/* 3. Descrizione */}
               {project.description && (
                 <section>
                   <h2 className="font-serif text-2xl md:text-3xl mb-5 font-light">Il progetto</h2>
@@ -130,12 +132,28 @@ const CompraProgetto = () => {
                 </section>
               )}
 
-              {project.video_url && (
+              {/* 4. Galleria foto */}
+              {project.images.length > 0 && (
                 <section>
-                  <h2 className="font-serif text-2xl md:text-3xl mb-5 font-light">Video render</h2>
-                  <div className="aspect-video bg-muted overflow-hidden rounded-sm">
-                    <video src={project.video_url} controls className="w-full h-full object-cover" />
+                  <h2 className="font-serif text-2xl md:text-3xl mb-5 font-light">Galleria</h2>
+                  <div className="aspect-[16/9] bg-muted overflow-hidden rounded-sm mb-3">
+                    <img src={mainImage} alt={project.title} className="w-full h-full object-cover" />
                   </div>
+                  {project.images.length > 1 && (
+                    <div className="grid grid-cols-4 md:grid-cols-6 gap-2">
+                      {project.images.map((img, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setActiveImage(i)}
+                          className={`aspect-square overflow-hidden bg-muted rounded-sm transition-all ${
+                            i === activeImage ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : "opacity-70 hover:opacity-100"
+                          }`}
+                        >
+                          <img src={img} alt="" className="w-full h-full object-cover" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </section>
               )}
 
