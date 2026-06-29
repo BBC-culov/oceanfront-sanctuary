@@ -138,13 +138,19 @@ const PrivacyPolicy = () => (
 
           <section>
             <h2 className="font-serif text-xl text-foreground">8. Data Retention</h2>
-            <p>Personal data is retained:</p>
+            <p>We apply the following retention periods, enforced automatically by a nightly job:</p>
             <ul className="list-disc pl-5 space-y-1">
-              <li>For the duration of the contractual relationship</li>
-              <li>Up to 24 months for marketing and profiling purposes</li>
-              <li>As required by applicable legal obligations</li>
+              <li><strong>Incomplete bookings</strong> (never finalized): deleted after 30 days.</li>
+              <li><strong>Rejected modification requests</strong>: deleted after 12 months.</li>
+              <li><strong>Closed project inquiries</strong>: deleted after 24 months.</li>
+              <li><strong>Email logs and unsubscribe tokens</strong>: deleted after 12 months (or 7 days from use, for tokens).</li>
+              <li><strong>Guest identification data</strong> (ID document, date of birth, additional guest details): anonymized 24 months after check-out.</li>
+              <li><strong>Confirmed bookings and payment records</strong>: retained for 10 years to comply with mandatory tax and accounting obligations (Art. 2220 Italian Civil Code and equivalent Slovenian / Cabo Verde rules), after which they are anonymized.</li>
+              <li><strong>Marketing and profiling data</strong>: maximum 24 months from last interaction.</li>
             </ul>
+            <p className="text-xs">An internal audit log of every retention operation is kept and made available to the supervisory authority upon request.</p>
           </section>
+
 
           <section>
             <h2 className="font-serif text-xl text-foreground">9. User Rights</h2>
