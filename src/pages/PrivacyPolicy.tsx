@@ -194,9 +194,101 @@ const PrivacyPolicy = () => (
             <p>For any inquiries: <a href="mailto:privacy@easyclickweb.com" className="text-primary">privacy@easyclickweb.com</a></p>
           </section>
 
+          <section>
+            <h2 className="font-serif text-xl text-foreground">15. Sub-processors</h2>
+            <p>
+              To deliver the Website and related services, the Company relies on the following sub-processors. Each of them processes personal data on behalf of EasyClick d.o.o. under a Data Processing Agreement (DPA) compliant with Art. 28 GDPR. The list may be updated from time to time; the current version is always available on this page.
+            </p>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm border border-border/40 rounded-md">
+                <thead className="bg-muted/40">
+                  <tr>
+                    <th className="p-2 font-serif text-foreground">Provider</th>
+                    <th className="p-2 font-serif text-foreground">Purpose</th>
+                    <th className="p-2 font-serif text-foreground">Location</th>
+                    <th className="p-2 font-serif text-foreground">DPA</th>
+                  </tr>
+                </thead>
+                <tbody className="align-top">
+                  <tr className="border-t border-border/40">
+                    <td className="p-2">Lovable (Lovable AB)</td>
+                    <td className="p-2">Application platform & build environment</td>
+                    <td className="p-2">Sweden / EU</td>
+                    <td className="p-2"><a href="https://lovable.dev/dpa" target="_blank" rel="noopener noreferrer" className="text-primary underline">View DPA</a></td>
+                  </tr>
+                  <tr className="border-t border-border/40">
+                    <td className="p-2">Supabase (Supabase Inc.)</td>
+                    <td className="p-2">Database, authentication, storage, edge functions</td>
+                    <td className="p-2">EU (Frankfurt, AWS eu-central-1)</td>
+                    <td className="p-2"><a href="https://supabase.com/legal/dpa" target="_blank" rel="noopener noreferrer" className="text-primary underline">View DPA</a></td>
+                  </tr>
+                  <tr className="border-t border-border/40">
+                    <td className="p-2">Stripe (Stripe Payments Europe Ltd.)</td>
+                    <td className="p-2">Payment processing (deposit & balance)</td>
+                    <td className="p-2">Ireland / EU</td>
+                    <td className="p-2"><a href="https://stripe.com/legal/dpa" target="_blank" rel="noopener noreferrer" className="text-primary underline">View DPA</a></td>
+                  </tr>
+                  <tr className="border-t border-border/40">
+                    <td className="p-2">Resend (Resend Inc.)</td>
+                    <td className="p-2">Transactional & authentication emails</td>
+                    <td className="p-2">USA (SCC in place)</td>
+                    <td className="p-2"><a href="https://resend.com/legal/dpa" target="_blank" rel="noopener noreferrer" className="text-primary underline">View DPA</a></td>
+                  </tr>
+                  <tr className="border-t border-border/40">
+                    <td className="p-2">Hostinger International Ltd.</td>
+                    <td className="p-2">Web hosting of the static frontend</td>
+                    <td className="p-2">EU (Lithuania / Netherlands)</td>
+                    <td className="p-2"><a href="https://www.hostinger.com/legal/data-processing-agreement" target="_blank" rel="noopener noreferrer" className="text-primary underline">View DPA</a></td>
+                  </tr>
+                  <tr className="border-t border-border/40">
+                    <td className="p-2">Google Ireland Ltd. (Analytics)</td>
+                    <td className="p-2">Website traffic analytics</td>
+                    <td className="p-2">Ireland / EU (SCC for US transfers)</td>
+                    <td className="p-2"><a href="https://business.safety.google/adsprocessorterms/" target="_blank" rel="noopener noreferrer" className="text-primary underline">View DPA</a></td>
+                  </tr>
+                  <tr className="border-t border-border/40">
+                    <td className="p-2">Meta Platforms Ireland Ltd. (Facebook Pixel)</td>
+                    <td className="p-2">Marketing & remarketing</td>
+                    <td className="p-2">Ireland / EU (SCC for US transfers)</td>
+                    <td className="p-2"><a href="https://www.facebook.com/legal/terms/dataprocessing" target="_blank" rel="noopener noreferrer" className="text-primary underline">View DPA</a></td>
+                  </tr>
+                  <tr className="border-t border-border/40">
+                    <td className="p-2">WhatsApp Ireland Ltd. (Meta)</td>
+                    <td className="p-2">Customer communication via WhatsApp Business</td>
+                    <td className="p-2">Ireland / EU</td>
+                    <td className="p-2"><a href="https://www.whatsapp.com/legal/business-data-transfer-addendum" target="_blank" rel="noopener noreferrer" className="text-primary underline">View DPA</a></td>
+                  </tr>
+                  <tr className="border-t border-border/40">
+                    <td className="p-2">PayPal (Europe) S.à r.l. et Cie, S.C.A.</td>
+                    <td className="p-2">Alternative payment processing</td>
+                    <td className="p-2">Luxembourg / EU</td>
+                    <td className="p-2"><a href="https://www.paypal.com/uk/webapps/mpp/ua/legalhub-full" target="_blank" rel="noopener noreferrer" className="text-primary underline">View Legal Hub</a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs mt-3">
+              Users may request the updated list of sub-processors at any time by writing to <a href="mailto:privacy@easyclickweb.com" className="text-primary">privacy@easyclickweb.com</a>.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="font-serif text-xl text-foreground">16. Role of studionavi.it</h2>
+            <p>
+              <strong>studionavi.it</strong> has acted exclusively as technical developer of the Website on behalf of EasyClick d.o.o. (Bazhouse).
+            </p>
+            <p>
+              studionavi.it is <strong>not the Data Controller</strong> and <strong>not a Data Processor</strong> of any personal data collected, stored, or processed through this Website. It does not access, manage, or retain user data, bookings, payments, or communications.
+            </p>
+            <p>
+              Sole and exclusive Data Controller is <strong>EasyClick d.o.o.</strong> (Bazhouse brand), reachable at <a href="mailto:privacy@easyclickweb.com" className="text-primary">privacy@easyclickweb.com</a>.
+            </p>
+          </section>
+
           <p className="text-xs text-muted-foreground/60 pt-4 border-t border-border/40">
-            Last updated: March 2026
+            Last updated: June 2026
           </p>
+
         </motion.div>
       </div>
     </main>
