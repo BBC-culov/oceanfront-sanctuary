@@ -69,6 +69,7 @@ const empty: Partial<ProjectRow> = {
   price_label: "A partire da",
   images: [],
   video_url: "",
+  brochure_url: "",
   address: "",
   latitude: null,
   longitude: null,
@@ -97,6 +98,7 @@ const AdminProgetti = () => {
   const [saving, setSaving] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [uploadingBrochure, setUploadingBrochure] = useState(false);
   const [servicesText, setServicesText] = useState("");
 
   const load = async () => {
@@ -132,9 +134,19 @@ const AdminProgetti = () => {
 
   const handleUploadImages = async (files: FileList | null) => {
     if (!files || !editing) return;
+    const currentCount = (editing.images ?? []).length;
+    const remaining = MAX_IMAGES - currentCount;
+    if (remaining <= 0) {
+      toast.error(`Limite massimo di ${MAX_IMAGES} foto raggiunto`);
+      return;
+    }
     setUploadingImages(true);
     const newUrls: string[] = [];
-    for (const file of Array.from(files)) {
+    const filesArr = Array.from(files).slice(0, remaining);
+    if (files.length > remaining) {
+      toast.warning(`Caricate solo ${remaining} foto (limite ${MAX_IMAGES} totali)`);
+    }
+    for (const file of filesArr) {
       if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
         toast.error(`"${file.name}": formato non supportato (jpg, png, webp, avif)`);
         continue;
@@ -151,6 +163,29 @@ const AdminProgetti = () => {
     }
     setEditing({ ...editing, images: [...(editing.images ?? []), ...newUrls] });
     setUploadingImages(false);
+  };
+
+  const handleUploadBrochure = async (file: File | null) => {
+    if (!file || !editing) return;
+    if (!ALLOWED_BROCHURE_TYPES.includes(file.type)) {
+      toast.error("Solo file PDF supportati per la brochure");
+      return;
+    }
+    if (file.size > MAX_BROCHURE_MB * 1024 * 1024) {
+      toast.error(`Brochure troppo grande (max ${MAX_BROCHURE_MB}MB)`);
+      return;
+    }
+    setUploadingBrochure(true);
+    const path = `projects/brochures/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+    const { error } = await supabase.storage.from("apartment-images").upload(path, file, { upsert: true, contentType: "application/pdf" });
+    if (error) {
+      toast.error(`Upload brochure fallito: ${error.message}`);
+      setUploadingBrochure(false);
+      return;
+    }
+    const { data } = supabase.storage.from("apartment-images").getPublicUrl(path);
+    setEditing({ ...editing, brochure_url: data.publicUrl });
+    setUploadingBrochure(false);
   };
 
   const handleUploadVideo = async (file: File | null) => {
