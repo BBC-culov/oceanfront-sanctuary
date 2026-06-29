@@ -50,7 +50,7 @@ const AdminNotificationEmail = ({
 export const template = {
   component: AdminNotificationEmail,
   subject: (data: Record<string, any>) => `${data.notificationType === 'balance' ? 'Saldo ricevuto' : 'Nuova prenotazione'} ${data.bookingCode || ''}`,
-  to: 'info@bazhouse.it',
+  to: 'info@bazhouse.com',
   displayName: 'Notifica admin',
   previewData: {
     guestName: 'Marco Rossi', guestEmail: 'marco@example.com', apartmentName: 'Ocean View Suite',

@@ -37,7 +37,7 @@ const Email = ({ guestName, guestEmail, bookingCode, priceDiff = 0, newTotal = 0
 export const template = {
   component: Email,
   subject: (d: Record<string, any>) => `Nuova richiesta di modifica — ${d.bookingCode || ''}`,
-  to: 'info@bazhouse.it',
+  to: 'info@bazhouse.com',
   displayName: 'Modifica — admin',
   previewData: { guestName: 'Marco Rossi', guestEmail: 'marco@example.com', bookingCode: 'ABC12345', priceDiff: 120, newTotal: 1320, requestId: 'xxx' },
 } satisfies TemplateEntry
