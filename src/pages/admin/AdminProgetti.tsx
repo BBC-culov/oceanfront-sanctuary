@@ -280,6 +280,7 @@ const AdminProgetti = () => {
       purchase_info: parsed.data.purchase_info || null,
       images: editing.images ?? [],
       video_url: editing.video_url || null,
+      brochure_url: editing.brochure_url || null,
       included_services: services,
       published: !!editing.published,
       display_order: editing.display_order ?? projects.length,
@@ -441,6 +442,26 @@ const AdminProgetti = () => {
                   {uploadingVideo ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                   Carica video
                   <input type="file" accept="video/*" hidden onChange={(e) => handleUploadVideo(e.target.files?.[0] ?? null)} />
+                </label>
+              </div>
+
+              {/* Brochure PDF */}
+              <div>
+                <Label>Brochure PDF (scaricabile dagli utenti)</Label>
+                {editing.brochure_url && (
+                  <div className="mb-2 flex items-center gap-3 text-sm">
+                    <a href={editing.brochure_url} target="_blank" rel="noreferrer" className="underline truncate">
+                      Brochure caricata
+                    </a>
+                    <button onClick={() => setEditing({ ...editing, brochure_url: "" })} className="text-xs text-destructive">
+                      Rimuovi
+                    </button>
+                  </div>
+                )}
+                <label className="inline-flex items-center gap-2 cursor-pointer border border-dashed border-border px-4 py-2 text-sm">
+                  {uploadingBrochure ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                  Carica brochure (PDF, max {MAX_BROCHURE_MB}MB)
+                  <input type="file" accept="application/pdf" hidden onChange={(e) => handleUploadBrochure(e.target.files?.[0] ?? null)} />
                 </label>
               </div>
 
