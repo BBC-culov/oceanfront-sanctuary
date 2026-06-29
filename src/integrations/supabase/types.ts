@@ -431,6 +431,33 @@ export type Database = {
           },
         ]
       }
+      data_retention_log: {
+        Row: {
+          details: Json | null
+          executed_at: string
+          id: string
+          operation: string
+          rows_affected: number
+          target_table: string
+        }
+        Insert: {
+          details?: Json | null
+          executed_at?: string
+          id?: string
+          operation: string
+          rows_affected?: number
+          target_table: string
+        }
+        Update: {
+          details?: Json | null
+          executed_at?: string
+          id?: string
+          operation?: string
+          rows_affected?: number
+          target_table?: string
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
@@ -846,6 +873,7 @@ export type Database = {
           read_ct: number
         }[]
       }
+      run_data_retention_cleanup: { Args: never; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "user" | "amministratore" | "proprietario"
