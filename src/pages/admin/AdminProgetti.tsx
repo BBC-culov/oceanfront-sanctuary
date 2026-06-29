@@ -13,8 +13,11 @@ import { z } from "zod";
 
 const MAX_IMAGE_MB = 8;
 const MAX_VIDEO_MB = 100;
+const MAX_BROCHURE_MB = 25;
+const MAX_IMAGES = 30;
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/avif"];
 const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
+const ALLOWED_BROCHURE_TYPES = ["application/pdf"];
 
 const projectSchema = z.object({
   title: z.string().trim().min(2, "Titolo: almeno 2 caratteri").max(150, "Titolo troppo lungo"),
@@ -43,6 +46,7 @@ interface ProjectRow {
   price_label: string | null;
   images: string[];
   video_url: string | null;
+  brochure_url: string | null;
   address: string | null;
   latitude: number | null;
   longitude: number | null;
@@ -65,6 +69,7 @@ const empty: Partial<ProjectRow> = {
   price_label: "A partire da",
   images: [],
   video_url: "",
+  brochure_url: "",
   address: "",
   latitude: null,
   longitude: null,
@@ -93,6 +98,7 @@ const AdminProgetti = () => {
   const [saving, setSaving] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [uploadingBrochure, setUploadingBrochure] = useState(false);
   const [servicesText, setServicesText] = useState("");
 
   const load = async () => {
@@ -128,9 +134,19 @@ const AdminProgetti = () => {
 
   const handleUploadImages = async (files: FileList | null) => {
     if (!files || !editing) return;
+    const currentCount = (editing.images ?? []).length;
+    const remaining = MAX_IMAGES - currentCount;
+    if (remaining <= 0) {
+      toast.error(`Limite massimo di ${MAX_IMAGES} foto raggiunto`);
+      return;
+    }
     setUploadingImages(true);
     const newUrls: string[] = [];
-    for (const file of Array.from(files)) {
+    const filesArr = Array.from(files).slice(0, remaining);
+    if (files.length > remaining) {
+      toast.warning(`Caricate solo ${remaining} foto (limite ${MAX_IMAGES} totali)`);
+    }
+    for (const file of filesArr) {
       if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
         toast.error(`"${file.name}": formato non supportato (jpg, png, webp, avif)`);
         continue;
@@ -147,6 +163,29 @@ const AdminProgetti = () => {
     }
     setEditing({ ...editing, images: [...(editing.images ?? []), ...newUrls] });
     setUploadingImages(false);
+  };
+
+  const handleUploadBrochure = async (file: File | null) => {
+    if (!file || !editing) return;
+    if (!ALLOWED_BROCHURE_TYPES.includes(file.type)) {
+      toast.error("Solo file PDF supportati per la brochure");
+      return;
+    }
+    if (file.size > MAX_BROCHURE_MB * 1024 * 1024) {
+      toast.error(`Brochure troppo grande (max ${MAX_BROCHURE_MB}MB)`);
+      return;
+    }
+    setUploadingBrochure(true);
+    const path = `projects/brochures/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+    const { error } = await supabase.storage.from("apartment-images").upload(path, file, { upsert: true, contentType: "application/pdf" });
+    if (error) {
+      toast.error(`Upload brochure fallito: ${error.message}`);
+      setUploadingBrochure(false);
+      return;
+    }
+    const { data } = supabase.storage.from("apartment-images").getPublicUrl(path);
+    setEditing({ ...editing, brochure_url: data.publicUrl });
+    setUploadingBrochure(false);
   };
 
   const handleUploadVideo = async (file: File | null) => {
@@ -241,6 +280,7 @@ const AdminProgetti = () => {
       purchase_info: parsed.data.purchase_info || null,
       images: editing.images ?? [],
       video_url: editing.video_url || null,
+      brochure_url: editing.brochure_url || null,
       included_services: services,
       published: !!editing.published,
       display_order: editing.display_order ?? projects.length,
@@ -371,7 +411,7 @@ const AdminProgetti = () => {
 
               {/* Images */}
               <div>
-                <Label>Galleria foto</Label>
+                <Label>Galleria foto ({(editing.images ?? []).length}/{MAX_IMAGES})</Label>
                 <div className="grid grid-cols-4 gap-2 mt-2">
                   {(editing.images ?? []).map((url, i) => (
                     <div key={i} className="relative aspect-square bg-muted overflow-hidden">
@@ -402,6 +442,26 @@ const AdminProgetti = () => {
                   {uploadingVideo ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                   Carica video
                   <input type="file" accept="video/*" hidden onChange={(e) => handleUploadVideo(e.target.files?.[0] ?? null)} />
+                </label>
+              </div>
+
+              {/* Brochure PDF */}
+              <div>
+                <Label>Brochure PDF (scaricabile dagli utenti)</Label>
+                {editing.brochure_url && (
+                  <div className="mb-2 flex items-center gap-3 text-sm">
+                    <a href={editing.brochure_url} target="_blank" rel="noreferrer" className="underline truncate">
+                      Brochure caricata
+                    </a>
+                    <button onClick={() => setEditing({ ...editing, brochure_url: "" })} className="text-xs text-destructive">
+                      Rimuovi
+                    </button>
+                  </div>
+                )}
+                <label className="inline-flex items-center gap-2 cursor-pointer border border-dashed border-border px-4 py-2 text-sm">
+                  {uploadingBrochure ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                  Carica brochure (PDF, max {MAX_BROCHURE_MB}MB)
+                  <input type="file" accept="application/pdf" hidden onChange={(e) => handleUploadBrochure(e.target.files?.[0] ?? null)} />
                 </label>
               </div>
 
