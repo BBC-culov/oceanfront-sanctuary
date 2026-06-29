@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
 import Seo from "@/components/Seo";
 import CompraHeroSection from "@/components/sections/CompraHeroSection";
+import BoaVistaDescriptionSection from "@/components/sections/BoaVistaDescriptionSection";
 import ProjectsSection from "@/components/sections/ProjectsSection";
 
 const Compra = () => (
@@ -14,6 +15,7 @@ const Compra = () => (
     <Navbar />
     <main>
       <CompraHeroSection />
+      <BoaVistaDescriptionSection />
       <ProjectsSection />
     </main>
     <Footer />
