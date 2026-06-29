@@ -141,11 +141,12 @@ const AdminProgetti = () => {
       return;
     }
     setUploadingImages(true);
-    const newUrls: string[] = [];
     const filesArr = Array.from(files).slice(0, remaining);
     if (files.length > remaining) {
       toast.warning(`Caricate solo ${remaining} foto (limite ${MAX_IMAGES} totali)`);
     }
+
+    const valid: File[] = [];
     for (const file of filesArr) {
       if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
         toast.error(`"${file.name}": formato non supportato (jpg, png, webp, avif)`);
@@ -155,13 +156,31 @@ const AdminProgetti = () => {
         toast.error(`"${file.name}": supera ${MAX_IMAGE_MB}MB`);
         continue;
       }
-      const path = `projects/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-      const { error } = await supabase.storage.from("apartment-images").upload(path, file, { upsert: true });
-      if (error) { toast.error(`Upload immagine fallito: ${error.message}`); continue; }
-      const { data } = supabase.storage.from("apartment-images").getPublicUrl(path);
-      newUrls.push(data.publicUrl);
+      valid.push(file);
     }
-    setEditing({ ...editing, images: [...(editing.images ?? []), ...newUrls] });
+
+    const results = await Promise.all(
+      valid.map(async (file) => {
+        const uid = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+        const path = `projects/${uid}-${safeName}`;
+        const { error } = await supabase.storage
+          .from("apartment-images")
+          .upload(path, file, { upsert: false, contentType: file.type });
+        if (error) {
+          toast.error(`Upload "${file.name}" fallito: ${error.message}`);
+          return null;
+        }
+        const { data } = supabase.storage.from("apartment-images").getPublicUrl(path);
+        return data.publicUrl;
+      })
+    );
+
+    const newUrls = results.filter((u): u is string => !!u);
+    if (newUrls.length > 0) {
+      setEditing((prev) => (prev ? { ...prev, images: [...(prev.images ?? []), ...newUrls] } : prev));
+      toast.success(`${newUrls.length} foto caricate`);
+    }
     setUploadingImages(false);
   };
 
