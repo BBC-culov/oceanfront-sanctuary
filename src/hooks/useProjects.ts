@@ -13,6 +13,7 @@ export interface Project {
   price_label: string | null;
   images: string[];
   video_url: string | null;
+  brochure_url: string | null;
   address: string | null;
   latitude: number | null;
   longitude: number | null;

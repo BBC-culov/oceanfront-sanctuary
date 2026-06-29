@@ -13,8 +13,11 @@ import { z } from "zod";
 
 const MAX_IMAGE_MB = 8;
 const MAX_VIDEO_MB = 100;
+const MAX_BROCHURE_MB = 25;
+const MAX_IMAGES = 30;
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/avif"];
 const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
+const ALLOWED_BROCHURE_TYPES = ["application/pdf"];
 
 const projectSchema = z.object({
   title: z.string().trim().min(2, "Titolo: almeno 2 caratteri").max(150, "Titolo troppo lungo"),
@@ -43,6 +46,7 @@ interface ProjectRow {
   price_label: string | null;
   images: string[];
   video_url: string | null;
+  brochure_url: string | null;
   address: string | null;
   latitude: number | null;
   longitude: number | null;
