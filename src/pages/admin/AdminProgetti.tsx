@@ -411,7 +411,7 @@ const AdminProgetti = () => {
 
               {/* Images */}
               <div>
-                <Label>Galleria foto</Label>
+                <Label>Galleria foto ({(editing.images ?? []).length}/{MAX_IMAGES})</Label>
                 <div className="grid grid-cols-4 gap-2 mt-2">
                   {(editing.images ?? []).map((url, i) => (
                     <div key={i} className="relative aspect-square bg-muted overflow-hidden">
