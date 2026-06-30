@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import logo from "@/assets/logo-bazhouse.png";
+import logoAsset from "@/assets/logo-bazhouse-white.png.asset.json";
 
 // Hero images to preload
 import heroOcean from "@/assets/hero-ocean.jpg";
@@ -75,9 +75,9 @@ const SiteLoader = ({ onComplete }: { onComplete: () => void }) => {
 
       {/* Logo */}
       <motion.img
-        src={logo}
+        src={logoAsset.url}
         alt="BAZHOUSE"
-        className="h-12 md:h-16 w-auto brightness-0 invert mb-10 relative z-10"
+        className="h-12 md:h-16 w-auto mb-10 relative z-10"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
