@@ -44,9 +44,20 @@ const Footer = () => (
           </div>
         </div>
       </div>
-      <div className="mt-16 pt-8 border-t border-primary-foreground/20 text-center">
+      <div className="mt-16 pt-8 border-t border-primary-foreground/20 text-center space-y-2">
         <p className="font-sans text-xs opacity-50">
           © {new Date().getFullYear()} BAZHOUSE — Un progetto EasyClick / Rilab
+        </p>
+        <p className="font-sans text-xs opacity-40">
+          Site made by{" "}
+          <a
+            href="https://studionavi.it"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:opacity-100 hover:underline transition-opacity"
+          >
+            Studionavi.it
+          </a>
         </p>
       </div>
     </div>
