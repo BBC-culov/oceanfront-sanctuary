@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import logoAsset from "@/assets/logo-bazhouse-white.png.asset.json";
+
+const logoUrl = "/logo-bazhouse-white.png";
 
 // Hero images to preload
 import heroOcean from "@/assets/hero-ocean.jpg";
