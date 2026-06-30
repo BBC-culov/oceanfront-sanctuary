@@ -76,7 +76,7 @@ const SiteLoader = ({ onComplete }: { onComplete: () => void }) => {
 
       {/* Logo */}
       <motion.img
-        src={logoAsset.url}
+        src={logoUrl}
         alt="BAZHOUSE"
         className="h-12 md:h-16 w-auto mb-10 relative z-10"
         initial={{ opacity: 0, y: 20 }}
