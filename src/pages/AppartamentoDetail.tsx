@@ -134,9 +134,11 @@ const AppartamentoDetail = () => {
                   >
                     <img
                       src={img}
-                      alt={`${apt.name} — foto ${i + 1}`}
+                      alt={`${apt.name} a Boa Vista, Capo Verde — foto ${i + 1}`}
                       className={`w-full object-cover transition-transform duration-700 group-hover:scale-105 ${i === 0 ? "aspect-[4/3] md:aspect-auto md:h-full" : "aspect-[4/3]"}`}
                       loading={i === 0 ? "eager" : "lazy"}
+                      decoding={i === 0 ? "sync" : "async"}
+                      {...(i === 0 ? { fetchPriority: "high" as any } : {})}
                     />
                     {i === 2 && extraCount > 0 && (
                       <div className="absolute inset-0 bg-foreground/40 flex items-center justify-center transition-colors group-hover:bg-foreground/50">
