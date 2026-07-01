@@ -56,6 +56,7 @@ const Unsubscribe = () => {
   return (
     <PageTransition>
       <Seo
+        noindex
         title="Disiscrizione email | BAZHOUSE"
         description="Annulla l'iscrizione alle email promozionali di BAZHOUSE. Continuerai a ricevere solo comunicazioni essenziali sulla tua prenotazione."
       />

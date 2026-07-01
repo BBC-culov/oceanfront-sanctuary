@@ -71,6 +71,7 @@ const Riprendi = () => {
   return (
     <PageTransition>
       <Seo
+        noindex
         title="Riprendi prenotazione | BAZHOUSE"
         description="Riprendi la tua prenotazione BAZHOUSE da dove l'avevi lasciata. I dati inseriti sono stati conservati per completare la prenotazione."
       />

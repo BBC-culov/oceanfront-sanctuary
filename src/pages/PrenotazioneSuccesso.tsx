@@ -82,6 +82,7 @@ const PrenotazioneSuccesso = () => {
   return (
     <PageTransition>
       <Seo
+        noindex
         title="Conferma Prenotazione | BAZHOUSE"
         description="La tua prenotazione BAZHOUSE è stata confermata. Verrai contattato per organizzare il pagamento e il saldo finale prima del check-in."
       />
