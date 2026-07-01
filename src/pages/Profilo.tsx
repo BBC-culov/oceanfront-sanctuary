@@ -292,6 +292,7 @@ const Profilo = () => {
   return (
     <PageTransition>
       <Seo
+        noindex
         title="Area riservata | BAZHOUSE"
         description="Gestisci il tuo profilo BAZHOUSE: prenotazioni, saldi, dati personali e preferenze account."
       />

@@ -63,23 +63,50 @@ const AppartamentoDetail = () => {
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${apt.mapQuery}`;
   const appleMapsUrl = `https://maps.apple.com/?q=${apt.mapQuery}`;
 
+  const heroImg = apt.gallery?.[0];
+  const priceValue = (apt as any).pricePerNight;
+
   return (
     <PageTransition>
       <Seo
-        title={`${apt.name} — Appartamento vista oceano | BAZHOUSE`}
+        title={`${apt.name} — Appartamento vista oceano a Boa Vista | Bazhouse`}
         description={(apt.description || `Soggiorna in ${apt.name} a Boa Vista, Capo Verde.`).slice(0, 158)}
         type="product"
-        jsonLd={{
-          "@context": "https://schema.org",
-          "@type": "Accommodation",
-          name: apt.name,
-          description: apt.description,
-          image: apt.gallery,
-          numberOfBedrooms: (apt as any).bedrooms,
-          numberOfBathroomsTotal: (apt as any).bathrooms,
-          occupancy: { "@type": "QuantitativeValue", value: (apt as any).maxGuests },
-          address: { "@type": "PostalAddress", addressLocality: "Boa Vista", addressCountry: "CV" },
-        }}
+        image={heroImg}
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Accommodation",
+            name: apt.name,
+            description: apt.description,
+            image: apt.gallery,
+            numberOfBedrooms: (apt as any).bedrooms,
+            numberOfBathroomsTotal: (apt as any).bathrooms,
+            floorSize: (apt as any).size ? { "@type": "QuantitativeValue", value: (apt as any).size, unitCode: "MTK" } : undefined,
+            occupancy: { "@type": "QuantitativeValue", value: (apt as any).maxGuests },
+            address: { "@type": "PostalAddress", addressLocality: "Boa Vista", addressRegion: "Sal Rei", addressCountry: "CV" },
+            amenityFeature: (apt as any).amenities?.map((a: string) => ({ "@type": "LocationFeatureSpecification", name: a })),
+            ...(priceValue ? {
+              offers: {
+                "@type": "Offer",
+                priceCurrency: "EUR",
+                price: priceValue,
+                priceSpecification: { "@type": "UnitPriceSpecification", price: priceValue, priceCurrency: "EUR", unitCode: "DAY" },
+                availability: "https://schema.org/InStock",
+                url: `https://bazhouse.com/appartamenti/${slug}`,
+              },
+            } : {}),
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: "https://bazhouse.com/" },
+              { "@type": "ListItem", position: 2, name: "Appartamenti", item: "https://bazhouse.com/appartamenti" },
+              { "@type": "ListItem", position: 3, name: apt.name, item: `https://bazhouse.com/appartamenti/${slug}` },
+            ],
+          },
+        ]}
       />
       <Navbar />
       <main className="pt-24">
@@ -107,9 +134,11 @@ const AppartamentoDetail = () => {
                   >
                     <img
                       src={img}
-                      alt={`${apt.name} — foto ${i + 1}`}
+                      alt={`${apt.name} a Boa Vista, Capo Verde — foto ${i + 1}`}
                       className={`w-full object-cover transition-transform duration-700 group-hover:scale-105 ${i === 0 ? "aspect-[4/3] md:aspect-auto md:h-full" : "aspect-[4/3]"}`}
                       loading={i === 0 ? "eager" : "lazy"}
+                      decoding={i === 0 ? "sync" : "async"}
+                      {...(i === 0 ? { fetchPriority: "high" as any } : {})}
                     />
                     {i === 2 && extraCount > 0 && (
                       <div className="absolute inset-0 bg-foreground/40 flex items-center justify-center transition-colors group-hover:bg-foreground/50">

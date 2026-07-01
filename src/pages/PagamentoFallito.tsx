@@ -33,6 +33,7 @@ const PagamentoFallito = () => {
   return (
     <PageTransition>
       <Seo
+        noindex
         title="Pagamento non riuscito | BAZHOUSE"
         description="Si è verificato un errore durante il pagamento della prenotazione BAZHOUSE. Riprova o contatta il team di assistenza."
       />

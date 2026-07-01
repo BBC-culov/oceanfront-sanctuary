@@ -213,6 +213,7 @@ const PrenotazioneDetail = () => {
   return (
     <PageTransition>
       <Seo
+        noindex
         title="Dettaglio Prenotazione | BAZHOUSE"
         description="Visualizza i dettagli della tua prenotazione BAZHOUSE: date, ospiti, servizi, pagamenti e richieste di modifica."
       />
