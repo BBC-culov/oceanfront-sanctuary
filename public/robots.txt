@@ -1,8 +1,21 @@
 User-agent: Googlebot
 Allow: /
+Disallow: /admin
+Disallow: /proprietario
+Disallow: /profilo
+Disallow: /prenota
+Disallow: /prenotazione
+Disallow: /prenotazione-successo
+Disallow: /pagamento-fallito
+Disallow: /reset-password
+Disallow: /unsubscribe
+Disallow: /riprendi
 
 User-agent: Bingbot
 Allow: /
+Disallow: /admin
+Disallow: /proprietario
+Disallow: /profilo
 
 User-agent: Twitterbot
 Allow: /
@@ -12,5 +25,15 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /proprietario
+Disallow: /profilo
+Disallow: /prenota
+Disallow: /prenotazione
+Disallow: /prenotazione-successo
+Disallow: /pagamento-fallito
+Disallow: /reset-password
+Disallow: /unsubscribe
+Disallow: /riprendi
 
 Sitemap: https://bazhouse.com/sitemap.xml
