@@ -95,11 +95,15 @@ serve(async (req) => {
           const svc = dbServices?.find((d: any) => d.id === entry.id);
           if (!svc || !svc.is_active) continue;
           const unit = Number(svc.price);
-          trustedServicesTotal += unit * entry.quantity;
+          const isPerNight =
+            svc.name.toLowerCase().includes("noleggio") ||
+            svc.name.toLowerCase().includes("giorno");
+          const quantity = isPerNight ? nights : entry.quantity;
+          trustedServicesTotal += unit * quantity;
           trustedServiceLineItems.push({
             name: svc.name,
             unit_price: unit,
-            quantity: entry.quantity,
+            quantity,
           });
         }
         trustedServicesTotal = Math.round(trustedServicesTotal * 100) / 100;
