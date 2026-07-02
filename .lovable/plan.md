@@ -1,71 +1,53 @@
+# Perché bazhouse.com non appare (ancora) su Google
 
-# Piano: Doppio percorso Affitta / Compra
+## Diagnosi
 
-## 1. Homepage (`/`) — Hero con due percorsi
-- Mantenere l'attuale homepage come hub
-- Sostituire il pulsante "Scopri gli appartamenti" con due CTA:
-  - **Voglio affittare** → `/affitta` (la homepage attuale dei contenuti affitti)
-  - **Voglio comprare** → `/compra`
-- Nel menu principale (Navbar) sostituire la voce "Appartamenti" con due voci: **Affitta** e **Compra**
+Il sito è online da meno di 1 settimana e non è mai stato segnalato a Google. In questa condizione **è normale non apparire per nessuna ricerca**, inclusa `site:bazhouse.com`. Google deve prima:
 
-## 2. Sezione Affitta (`/affitta`)
-- Replica della homepage attuale (hero, descrizione, elenco appartamenti, calendario, servizi, mappa, chi siamo, contatti)
-- Menu mostra le voci attuali + voce extra **Compra** che porta a `/compra`
-- Nessuna modifica alle logiche esistenti di prenotazione/calendario
+1. **Scoprire** il dominio (via link esterni o segnalazione manuale in Search Console)
+2. **Scansionare** le pagine (Googlebot le visita)
+3. **Indicizzarle** (decidere di metterle nel proprio indice)
+4. **Classificarle** (per keyword competitive: settimane/mesi + autorità)
 
-## 3. Nuova sezione Compra (`/compra`)
-- Stesso linguaggio visivo (font Cormorant + Outfit, palette sand/beige/ocean/green)
-- **Menu dedicato**: Home (`/compra`), Chi siamo, Contatti — niente Appartamenti/Servizi/Calendario
-- **Hero** con copy provvisorio orientato all'investimento (es. "Investi in Boa Vista. Progetti immobiliari curati, rendita e lifestyle.") + CTA "Scopri i progetti" che scrolla alla lista progetti
-- **Sezione progetti**: griglia di card alimentate da nuova tabella `projects`
-- **Footer/Chi siamo/Contatti**: riusati con stesse pagine
+Per un sito nuovo senza backlink e senza Search Console, il punto 1 può richiedere settimane. Va forzato manualmente.
 
-## 4. Scheda dettaglio progetto (`/compra/progetti/:slug`)
-Campi mostrati:
-- Galleria fotografica (lightbox come per appartamenti)
-- Video render (player se presente)
-- Descrizione completa
-- Posizione con link **Google Maps** e **Apple Maps**
-- Servizi inclusi (lista)
-- Prezzo del progetto
-- Modalità di prenotazione / opzione di acquisto (testo libero)
-- **Form richiesta informazioni** (nome, email, telefono con prefisso, messaggio) → invia email via funzione esistente
-- Informazioni di contatto
-- Nessun check-in/check-out, nessun calendario, nessuna logica di booking
+Nota sulle aspettative:
+- `site:bazhouse.com` → apparirà entro **1–3 settimane** dopo aver inviato la sitemap
+- Ricerca brand `bazhouse` → **2–6 settimane**
+- Keyword generiche tipo *"appartamenti Boa Vista"* → **3–12 mesi**, richiede contenuti + backlink + tempo. Nessuno può garantire la prima pagina in tempi brevi su query competitive.
 
-## 5. Database — nuova tabella `projects`
-Campi principali:
-- titolo, slug, sottotitolo, descrizione
-- prezzo (numero) + label prezzo opzionale (es. "A partire da")
-- immagini (array URL), video URL
-- coordinate (lat/lng) + indirizzo testuale, link Google Maps, link Apple Maps
-- servizi inclusi (array)
-- modalità acquisto (testo)
-- contatto referente (email/telefono)
-- pubblicato (boolean), ordinamento
+Il lato tecnico SEO è già a posto (title, meta, canonical, JSON-LD, sitemap, robots.txt, hreflang, geo tag). Il collo di bottiglia oggi è **la comunicazione a Google**, non il codice.
 
-Richieste informazioni salvate in tabella `project_inquiries` (nome, email, telefono, messaggio, project_id).
+## Cosa faccio in build mode
 
-Storage: nuovo bucket pubblico `project-media` per foto/video.
+### 1. Collegamento Google Search Console via connector Lovable
+- Aggiungo la proprietà `https://bazhouse.com/` tramite l'API Site Verification
+- Genero il **token meta-tag** di verifica Google
+- Inserisco il tag `<meta name="google-site-verification" content="..." />` nell'`<head>` di `index.html`
+- Ti chiedo di **pubblicare** il sito (necessario perché Google deve leggere il tag sul dominio live)
+- Dopo la pubblicazione, chiamo l'endpoint di verifica e aggiungo il sito alle proprietà di Search Console
 
-## 6. Admin panel
-- Nuova voce sidebar **Progetti** → `/admin/progetti`
-- Lista progetti con CRUD, riordino drag-and-drop, toggle pubblicato
-- Form progetto con upload multiplo immagini e upload video
-- Nuova voce **Richieste Progetti** → lista inquiries con stato letto/non letto
+### 2. Submit della sitemap
+- Invio `https://bazhouse.com/sitemap.xml` a Search Console via API
+- Richiedo l'ispezione URL delle pagine chiave (home, `/affitta`, `/compra`, `/appartamenti`) per accelerare la scoperta
 
-## 7. Dettagli tecnici
-- Routing: aggiungere `/affitta`, `/compra`, `/compra/progetti/:slug` in `App.tsx`. La rotta `/` diventa una landing minimal con hero + 2 CTA (riusando layout esistente); in alternativa, `/` resta l'attuale homepage affitti e i due CTA puntano a `/` e `/compra` — **scelta proposta**: `/` = hub con 2 CTA, `/affitta` = ex homepage.
-- Navbar: rendere link configurabile in base alla "sezione" corrente (affitta vs compra) per mostrare il menu giusto.
-- Email inquiry: riuso edge function `send-transactional-email` con nuovo template `project-inquiry`.
-- Memoria progetto: aggiornare l'index per riflettere la nuova architettura a due percorsi.
+### 3. Report di stato
+- Ti dico esattamente quali pagine risultano *indicizzate*, *scoperte ma non indicizzate*, o *escluse*, con la motivazione fornita da Google
+- Se emergono errori tecnici (canonical duplicato, blocco robots, ecc.) li correggo subito
 
-## Copy provvisorio Hero Compra
-> **Investi a Boa Vista.**
-> Progetti immobiliari selezionati, costruiti con la stessa cura con cui ospitiamo. Rendita, lifestyle, una casa al mare che lavora per te.
-> CTA: *Scopri i progetti*
+## Cosa NON posso fare al posto tuo
 
-## Fuori scope (per ora)
-- Pagamento online del progetto
-- Area cliente lato acquirente
-- Multilingua della sezione Compra (resta in italiano come il resto)
+- **Backlink**: Google dà autorità in base a chi ti linka. Serve strategia off-page (directory turismo Capo Verde, PR, partnership, social).
+- **Google Business Profile**: se offri servizi locali a Boa Vista, va creata una scheda GBP (fuori dal codice).
+- **Contenuti freschi**: un blog con articoli su Boa Vista, guide di viaggio, ecc. aumenta drasticamente le pagine indicizzabili e le query intercettate.
+
+## Prerequisiti da parte tua
+
+- Il connector **Google Search Console** deve essere collegato al workspace Lovable (te lo chiederò al primo step in build mode se non lo è già)
+- Devi **pubblicare il sito** dopo che inserisco il meta-tag di verifica, altrimenti Google non può leggerlo
+
+## Dettagli tecnici
+
+- Endpoint usati: `siteVerification/v1/token` (META), `siteVerification/v1/webResource?verificationMethod=META`, `webmasters/v3/sites/{siteUrl}` (PUT), `webmasters/v3/sites/{siteUrl}/sitemaps/{feedpath}` (PUT), `v1/urlInspection/index:inspect`
+- Nessuna modifica alla logica applicativa, solo aggiunta di **un meta tag** in `index.html`
+- Zero rischi di rottura funzionalità
