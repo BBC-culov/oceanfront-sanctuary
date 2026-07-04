@@ -5,8 +5,8 @@ import { Section, Text, Button, Hr } from 'npm:@react-email/components@0.0.22'
 const BRAND = {
   name: 'Bazhouse',
   email: 'info@bazhouse.com',
-  phone: '+39 348 230 3498',
-  whatsappUrl: 'https://wa.me/393482303498',
+  phone: '+39 347 750 4352',
+  whatsappUrl: 'https://wa.me/393477504352',
   address: 'Boa Vista, Cabo Verde',
 }
 

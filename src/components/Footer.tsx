@@ -46,7 +46,7 @@ const Footer = () => (
       </div>
       <div className="mt-16 pt-8 border-t border-primary-foreground/20 text-center space-y-2">
         <p className="font-sans text-xs opacity-50">
-          © {new Date().getFullYear()} BAZHOUSE — Un progetto EasyClick / Rilab
+          © {new Date().getFullYear()} BAZHOUSE — Un progetto EasyClick / ReelUp
         </p>
         <p className="font-sans text-xs opacity-40">
           Site made by{" "}
