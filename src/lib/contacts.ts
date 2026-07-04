@@ -2,10 +2,10 @@
 
 export const BRAND_CONTACTS = {
   email: "info@bazhouse.com",
-  phoneDisplay: "+39 348 230 3498",
-  phoneTel: "+393482303498",
-  whatsappNumber: "393482303498",
-  whatsappUrl: "https://wa.me/393482303498",
+  phoneDisplay: "+39 347 750 4352",
+  phoneTel: "+393477504352",
+  whatsappNumber: "393477504352",
+  whatsappUrl: "https://wa.me/393477504352",
   address: "Boa Vista, Cabo Verde",
   siteUrl: "https://bazhouse.com",
 } as const;
