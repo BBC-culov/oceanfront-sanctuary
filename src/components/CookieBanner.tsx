@@ -47,7 +47,7 @@ const CookieBanner = () => {
             </div>
 
             <p className="font-sans text-xs text-muted-foreground leading-relaxed mb-3">
-              Utilizziamo solo cookie tecnici necessari. Nessun tracciamento.{" "}
+              Utilizziamo cookie per migliorare la tua esperienza di navigazione.{" "}
               <Link to="/privacy" className="text-primary hover:underline underline-offset-2">
                 Privacy Policy
               </Link>
