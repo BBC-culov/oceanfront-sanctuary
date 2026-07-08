@@ -13,7 +13,7 @@ const ChiSiamo = () => {
   const apartmentCount = apartments?.length ?? 0;
 
   const values = [
-    { num: String(apartmentCount), label: "Residenze esclusive" },
+    { num: "8+", label: "Residenze esclusive" },
     { num: "5★", label: "Standard di qualità" },
     { num: "24/7", label: "Assistenza dedicata" },
     { num: "100%", label: "Soddisfazione clienti" },
