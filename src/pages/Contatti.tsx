@@ -71,7 +71,7 @@ const contacts = [
     label: "WhatsApp",
     value: "Scrivici su WhatsApp",
     sub: "Risposta entro poche ore",
-    href: "https://wa.me/393477505352",
+    href: "https://wa.me/393477504352",
     gradient: "from-[#25D366]/15 to-[#25D366]/5",
     iconBg: "bg-[#25D366]/15",
     delay: 0.15,
