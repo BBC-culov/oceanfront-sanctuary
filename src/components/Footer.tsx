@@ -40,7 +40,7 @@ const Footer = () => (
           <div className="font-sans text-sm space-y-2 opacity-70">
             <p>Praia Cabral & Praia da Cruz</p>
             <p>Boa Vista, Capo Verde</p>
-            <p className="mt-4">info@easyclickweb.com</p>
+            <p className="mt-4">info@bazhouse.com</p>
           </div>
         </div>
       </div>

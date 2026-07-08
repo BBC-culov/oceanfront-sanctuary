@@ -79,9 +79,9 @@ const contacts = [
   {
     icon: Mail,
     label: "Email",
-    value: "info@easyclickweb.com",
+    value: "info@bazhouse.com",
     sub: "Ti rispondiamo entro 24h",
-    href: "mailto:info@easyclickweb.com",
+    href: "mailto:info@bazhouse.com",
     gradient: "from-accent/20 to-accent/5",
     iconBg: "bg-accent/15",
     delay: 0.3,
