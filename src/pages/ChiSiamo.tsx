@@ -114,7 +114,7 @@ const ChiSiamo = () => {
                 </h2>
                 <div className="font-sans text-base text-muted-foreground leading-relaxed space-y-5">
                   <p>
-                    BazHouse è un marchio di <strong className="text-foreground font-medium">EasyClick</strong>, società con sede nel cuore dell'Europa, in Slovenia, e presente a Capo Verde attraverso la propria succursale locale.
+                    BazHouse è un marchio di <strong className="text-foreground font-medium">EasyClick</strong>, società con sede nel cuore dell'Europa, in Slovenia, e presente a Capo Verde attraverso la propria succursale locale REELUP.
                   </p>
                   <p>
                     La nostra identità nasce dall'unione di due mondi: la solidità, il metodo e la trasparenza di una realtà europea, insieme alla conoscenza diretta del territorio e del mercato immobiliare di Boa Vista.
