@@ -194,7 +194,7 @@ async function handleWebhook(req: Request): Promise<Response> {
       template_name: emailType,
       recipient_email: payload.data.email,
       status: 'sent',
-      provider_message_id: (result as any)?.id ?? null,
+      metadata: { provider: 'resend', provider_id: (result as any)?.id ?? null },
     })
     console.log('Auth email sent via Resend', { emailType, email: payload.data.email })
     return new Response(JSON.stringify({ success: true }), {
