@@ -154,7 +154,7 @@ const Registrati = () => {
       email: registerForm.email,
       password: registerForm.password,
       options: {
-        emailRedirectTo: "https://bazhousedemo.vercel.app",
+        emailRedirectTo: window.location.origin,
         data: {
           first_name: registerForm.firstName,
           last_name: registerForm.lastName,
@@ -329,7 +329,7 @@ const Registrati = () => {
                           }
                           setLoading(true);
                           const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
-                            redirectTo: "https://bazhousedemo.vercel.app/reset-password",
+                             redirectTo: `${window.location.origin}/reset-password`,
                           });
                           setLoading(false);
                           if (error) {
