@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
 import Seo from "@/components/Seo";
 import { BRAND_CONTACTS } from "@/lib/contacts";
+import { trackCustomEvent } from "@/lib/metaPixel";
 
 const PrenotazioneSuccesso = () => {
   const { id } = useParams<{ id: string }>();
