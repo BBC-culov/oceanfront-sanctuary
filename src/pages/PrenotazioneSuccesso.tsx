@@ -55,6 +55,13 @@ const PrenotazioneSuccesso = () => {
         .single();
       setApartmentName(apt?.name || "Appartamento");
 
+      trackCustomEvent("PrenotazioneCompletata", {
+        booking_id: id,
+        apartment_name: apt?.name,
+        value: b.total_price,
+        currency: "EUR",
+      });
+
       setConfirming(false);
     };
     confirm();
