@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import PhonePrefixInput from "@/components/PhonePrefixInput";
 import { toast } from "sonner";
+import { trackCustomEvent } from "@/lib/metaPixel";
 
 interface Props {
   projectId: string;
@@ -89,6 +90,9 @@ const ProjectInquiryForm = ({ projectId, projectTitle }: Props) => {
       return;
     }
     setSubmitted(true);
+    trackCustomEvent("RichiestaAppuntamentoProgetto", {
+      project_id: projectId,
+    });
     toast.success("Richiesta inviata. Ti contatteremo a breve.");
   };
 

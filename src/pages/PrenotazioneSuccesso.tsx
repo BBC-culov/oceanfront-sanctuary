@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
 import Seo from "@/components/Seo";
 import { BRAND_CONTACTS } from "@/lib/contacts";
+import { trackCustomEvent } from "@/lib/metaPixel";
 
 const PrenotazioneSuccesso = () => {
   const { id } = useParams<{ id: string }>();
@@ -53,6 +54,13 @@ const PrenotazioneSuccesso = () => {
         .eq("id", b.apartment_id)
         .single();
       setApartmentName(apt?.name || "Appartamento");
+
+      trackCustomEvent("PrenotazioneCompletata", {
+        booking_id: id,
+        apartment_name: apt?.name,
+        value: b.total_price,
+        currency: "EUR",
+      });
 
       setConfirming(false);
     };

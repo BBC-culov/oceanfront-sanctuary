@@ -20,6 +20,7 @@ import { isValidPhone, isValidDocumentNumber, isValidZip, isValidFiscalCode } fr
 import { useApartmentBySlug } from "@/hooks/useApartments";
 import { useAdditionalServices } from "@/hooks/useAdditionalServices";
 import { supabase } from "@/integrations/supabase/client";
+import { trackCustomEvent } from "@/lib/metaPixel";
 
 const emptyMainGuest: GuestData = {
   first_name: "", last_name: "", date_of_birth: "", place_of_birth: "",
@@ -308,6 +309,12 @@ const Prenota = () => {
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
+    trackCustomEvent("ClickPrenotaAppartamento", {
+      apartment_name: apt?.name,
+      check_in: checkIn,
+      check_out: checkOut,
+      nights,
+    });
     try {
       const selectedServicesData = services
         .filter((s) => selectedServices.includes(s.id))
