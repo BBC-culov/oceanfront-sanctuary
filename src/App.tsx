@@ -70,6 +70,12 @@ const AnimatedRoutes = () => {
 
   const isAdminRoute = location.pathname.startsWith("/admin") || location.pathname.startsWith("/proprietario");
 
+  // Meta Pixel: init (if consent already given) and fire PageView on route change
+  useEffect(() => {
+    initMetaPixel();
+    trackPageView();
+  }, [location.pathname]);
+
   // Show maintenance page for non-admin routes when maintenance is enabled
   if (!maintenanceLoading && maintenance.enabled && !isAdminRoute) {
     return <MaintenancePage message={maintenance.message} />;
