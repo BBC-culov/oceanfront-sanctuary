@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Cookie } from "lucide-react";
 import { Link } from "react-router-dom";
+import { initMetaPixel } from "@/lib/metaPixel";
 
 const COOKIE_KEY = "bazhouse_cookie_consent";
 
