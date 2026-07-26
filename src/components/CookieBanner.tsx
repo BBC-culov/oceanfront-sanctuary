@@ -25,6 +25,7 @@ const CookieBanner = () => {
     localStorage.setItem(COOKIE_KEY, value);
     setConsent(value);
     setVisible(false);
+    if (value === "accepted") initMetaPixel();
   };
 
   if (consent || !visible) return null;
