@@ -309,6 +309,12 @@ const Prenota = () => {
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
+    trackCustomEvent("ClickPrenotaAppartamento", {
+      apartment_name: apt?.name,
+      check_in: checkIn,
+      check_out: checkOut,
+      nights,
+    });
     try {
       const selectedServicesData = services
         .filter((s) => selectedServices.includes(s.id))
