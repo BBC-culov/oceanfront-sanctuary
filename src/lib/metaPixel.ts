@@ -1,7 +1,7 @@
 // Meta (Facebook) Pixel — consent-gated loader + event helpers.
 // The pixel script is only injected AFTER the user accepts cookies.
 
-const PIXEL_ID = "1053507033899259";
+const PIXEL_ID = "1345445894467225";
 const COOKIE_KEY = "bazhouse_cookie_consent";
 
 declare global {
