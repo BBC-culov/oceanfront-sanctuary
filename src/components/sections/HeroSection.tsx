@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import heroImage from "@/assets/hero-ocean.jpg";
+import { trackCustomEvent } from "@/lib/metaPixel";
 
 const headlines = [
   "Acquista in un luogo straordinario. Trasforma la tua casa in un patrimonio.",
