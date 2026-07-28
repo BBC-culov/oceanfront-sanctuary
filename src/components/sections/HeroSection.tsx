@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import heroImage from "@/assets/hero-ocean.jpg";
+import { trackCustomEvent } from "@/lib/metaPixel";
 
 const headlines = [
   "Acquista in un luogo straordinario. Trasforma la tua casa in un patrimonio.",
@@ -68,7 +69,7 @@ const HeroSection = () => {
           transition={{ delay: 0.8, duration: 0.8 }}
           className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
         >
-          <Link to="/appartamenti">
+          <Link to="/appartamenti" onClick={() => trackCustomEvent("TastoAffitta")}>
             <motion.span
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.97 }}
