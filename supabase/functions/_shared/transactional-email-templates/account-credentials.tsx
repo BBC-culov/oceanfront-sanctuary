@@ -9,15 +9,14 @@ import { BrandFooter } from './_brand-footer.tsx'
 interface Props {
   firstName?: string
   email: string
-  password: string
   roleLabel?: string
-  loginUrl?: string
+  setupUrl?: string
 }
 
 const ROLE_LABEL_DEFAULT = 'Utente'
 
-const AccountCredentialsEmail = ({ firstName, email, password, roleLabel, loginUrl }: Props) => {
-  const url = loginUrl || 'https://bazhousedemo.vercel.app/registrati'
+const AccountCredentialsEmail = ({ firstName, email, roleLabel, setupUrl }: Props) => {
+  const url = setupUrl || 'https://bazhouse.com/reset-password'
   return (
     <Html lang="it" dir="ltr">
       <Head />
@@ -39,21 +38,20 @@ const AccountCredentialsEmail = ({ firstName, email, password, roleLabel, loginU
               Ciao <strong>{firstName || 'utente'}</strong>,<br />
               è stato creato per te un account Bazhouse con ruolo <strong>{roleLabel || ROLE_LABEL_DEFAULT}</strong>.
             </Text>
-            <Text style={text}>Di seguito trovi le credenziali di accesso:</Text>
+            <Text style={text}>Il tuo indirizzo di accesso è:</Text>
 
             <Section style={credBox}>
               <Text style={credLabel}>Email</Text>
               <Text style={credValue}>{email}</Text>
-              <Text style={credLabel}>Password temporanea</Text>
-              <Text style={credValueMono}>{password}</Text>
             </Section>
 
             <Text style={textSmall}>
-              Per motivi di sicurezza, ti consigliamo di accedere e modificare la password al primo accesso.
+              Per motivi di sicurezza non inviamo password via email. Usa il link sicuro qui sotto per
+              impostare la tua password personale: è valido una sola volta e per un tempo limitato.
             </Text>
 
             <Button style={button} href={url}>
-              Accedi al tuo account
+              Imposta la tua password
             </Button>
 
             <Text style={textSmall}>
@@ -71,7 +69,7 @@ export const template = {
   component: AccountCredentialsEmail,
   subject: 'Le tue credenziali di accesso a Bazhouse',
   displayName: 'Credenziali nuovo account',
-  previewData: { firstName: 'Marco', email: 'marco@example.com', password: 'TempPass1234!', roleLabel: 'Admin' },
+  previewData: { firstName: 'Marco', email: 'marco@example.com', roleLabel: 'Admin', setupUrl: 'https://bazhouse.com/reset-password' },
 } satisfies TemplateEntry
 
 const main = { backgroundColor: '#ffffff', fontFamily: "'Outfit', Arial, sans-serif" }
@@ -84,5 +82,4 @@ const textSmall = { fontSize: '13px', color: '#666', lineHeight: '1.6', margin: 
 const credBox = { backgroundColor: '#f7f5f2', border: '1px solid #e5e0d8', borderRadius: '6px', padding: '20px 24px', margin: '20px 0' }
 const credLabel = { fontSize: '11px', color: '#0E3D2C', textTransform: 'uppercase' as const, letterSpacing: '0.12em', margin: '8px 0 4px', fontWeight: 600 as const }
 const credValue = { fontSize: '15px', color: '#222', margin: '0 0 8px' }
-const credValueMono = { fontSize: '15px', color: '#222', margin: '0 0 8px', fontFamily: 'Menlo, Consolas, monospace', letterSpacing: '0.04em' }
 const button = { backgroundColor: '#0E3D2C', color: '#f5f0eb', fontSize: '12px', borderRadius: '4px', padding: '14px 32px', textDecoration: 'none', textTransform: 'uppercase' as const, letterSpacing: '0.15em' }
