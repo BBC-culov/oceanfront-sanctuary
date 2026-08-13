@@ -129,6 +129,31 @@ const Contatti = () => {
       <Seo
         title="Contatti | BAZHOUSE Boa Vista"
         description="Contatta BAZHOUSE: WhatsApp, email e telefono per informazioni, prenotazioni e assistenza dedicata sui nostri appartamenti vista oceano."
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "ContactPage",
+          name: "Contatti — BAZHOUSE Boa Vista",
+          url: "https://bazhouse.com/contatti",
+          mainEntity: {
+            "@type": "LodgingBusiness",
+            "@id": "https://bazhouse.com/#lodging",
+            name: "BAZHOUSE",
+            url: "https://bazhouse.com/",
+            email: "info@bazhouse.com",
+            address: {
+              "@type": "PostalAddress",
+              addressLocality: "Boa Vista",
+              addressRegion: "Sal Rei",
+              addressCountry: "CV",
+            },
+            contactPoint: phoneNumbers.map((p) => ({
+              "@type": "ContactPoint",
+              telephone: p.number,
+              contactType: "customer service",
+              availableLanguage: p.lang,
+            })),
+          },
+        }}
       />
       <Navbar />
       <main>

@@ -8,6 +8,12 @@ import ApartmentsSection from "@/components/sections/ApartmentsSection";
 import ExperienceSection from "@/components/sections/ExperienceSection";
 import BoaVistaSection from "@/components/sections/BoaVistaSection";
 
+const affittaHeadlines = [
+  "Affitta residenze esclusive vista oceano a Boa Vista.",
+  "Appartamenti in affitto a Praia Cabral e Praia da Cruz, vista Atlantico.",
+  "Soggiorni indipendenti a Boa Vista: penthouse e compact vista mare.",
+];
+
 const Affitta = () => (
   <PageTransition>
     <Seo
@@ -16,7 +22,8 @@ const Affitta = () => (
     />
     <Navbar />
     <main>
-      <HeroSection />
+      <HeroSection headlines={affittaHeadlines} />
+
       <WhySection />
       <ApartmentsSection />
       <ExperienceSection />
