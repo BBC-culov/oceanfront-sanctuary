@@ -57,6 +57,30 @@ const CompraProgetto = () => {
       <Seo
         title={`${project.title} — Compra | BAZHOUSE`}
         description={project.subtitle ?? project.description?.slice(0, 155) ?? `${project.title} — progetto immobiliare a Boa Vista.`}
+        image={project.images[0]}
+        type="product"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: project.title,
+          description:
+            project.subtitle ?? project.description?.slice(0, 300) ?? `${project.title} — progetto immobiliare a Boa Vista.`,
+          image: project.images.length ? project.images : undefined,
+          url: `https://bazhouse.com/compra/progetti/${slug}`,
+          brand: { "@type": "Brand", name: "Bazhouse" },
+          category: "Real Estate",
+          ...(project.price
+            ? {
+                offers: {
+                  "@type": "Offer",
+                  price: project.price,
+                  priceCurrency: "EUR",
+                  availability: "https://schema.org/InStock",
+                  url: `https://bazhouse.com/compra/progetti/${slug}`,
+                },
+              }
+            : {}),
+        }}
       />
       <Navbar />
 
