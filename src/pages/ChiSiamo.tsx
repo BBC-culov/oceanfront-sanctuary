@@ -30,7 +30,21 @@ const ChiSiamo = () => {
     <PageTransition>
       <Seo
         title="Chi siamo | BAZHOUSE Boa Vista"
-        description="BazHouse è un marchio di EasyClick: realizziamo e valorizziamo residenze esclusive a Boa Vista con la solidità di una realtà europea e la conoscenza del territorio."
+        description="BazHouse, marchio di EasyClick: realizziamo e valorizziamo residenze esclusive a Boa Vista con solidità europea e conoscenza del territorio."
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "AboutPage",
+          name: "Chi siamo — BAZHOUSE Boa Vista",
+          url: "https://bazhouse.com/chi-siamo",
+          about: {
+            "@type": "Organization",
+            name: "Bazhouse",
+            url: "https://bazhouse.com/",
+            description:
+              "Residenze esclusive vista oceano a Boa Vista, Capo Verde: affitto, vendita e gestione immobiliare.",
+            areaServed: "Boa Vista, Cabo Verde",
+          },
+        }}
       />
       <Navbar />
       <main>
@@ -59,7 +73,7 @@ const ChiSiamo = () => {
               transition={{ duration: 0.8, delay: 0.1 }}
               className="font-serif text-3xl md:text-5xl lg:text-6xl font-light leading-[1.15] text-balance text-[hsl(var(--hero-text))]"
             >
-              Non realizziamo semplicemente immobili.<br className="hidden md:block" /> Costruiamo patrimoni destinati a durare.
+              Chi siamo: residenze esclusive a Boa Vista.<br className="hidden md:block" /> Non realizziamo semplicemente immobili, costruiamo patrimoni destinati a durare.
             </motion.h1>
           </div>
         </section>
