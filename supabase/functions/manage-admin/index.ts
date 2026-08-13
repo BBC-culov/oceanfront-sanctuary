@@ -126,7 +126,7 @@ Deno.serve(async (req) => {
         });
       }
 
-      // Send credentials email (non-blocking on failure)
+      // Send account-setup email with a one-time password link (never the plaintext password)
       try {
         const roleLabel = role === "amministratore"
           ? "Amministratore"
@@ -135,7 +135,16 @@ Deno.serve(async (req) => {
           : role === "proprietario"
           ? "Proprietario"
           : "Utente";
-        const siteUrl = Deno.env.get("SITE_URL") ?? "https://bazhousedemo.vercel.app";
+        const siteUrl = Deno.env.get("SITE_URL") ?? "https://bazhouse.com";
+
+        // One-time recovery link: the user sets their own password on first access
+        const { data: linkData, error: linkError } = await adminClient.auth.admin.generateLink({
+          type: "recovery",
+          email,
+          options: { redirectTo: `${siteUrl}/reset-password` },
+        });
+        if (linkError) throw linkError;
+
         await adminClient.functions.invoke("send-transactional-email", {
           body: {
             templateName: "account-credentials",
@@ -145,15 +154,15 @@ Deno.serve(async (req) => {
             templateData: {
               firstName: first_name ?? "",
               email,
-              password,
               roleLabel,
-              loginUrl: `${siteUrl}/registrati`,
+              setupUrl: linkData?.properties?.action_link ?? `${siteUrl}/reset-password`,
             },
           },
         });
       } catch (mailErr) {
-        console.error('[manage-admin] credentials email failed:', mailErr);
+        console.error('[manage-admin] account setup email failed:', mailErr);
       }
+
 
       return new Response(JSON.stringify({ success: true, user_id: newUser.user.id }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
