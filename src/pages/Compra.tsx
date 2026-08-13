@@ -11,6 +11,15 @@ const Compra = () => (
     <Seo
       title="Compra — Investimento immobiliare a Boa Vista | BAZHOUSE"
       description="Progetti immobiliari selezionati a Boa Vista. Investi in una casa al mare con la cura BAZHOUSE: rendita, lifestyle e gestione professionale."
+      jsonLd={{
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: "Progetti immobiliari a Boa Vista — BAZHOUSE",
+        url: "https://bazhouse.com/compra",
+        description:
+          "Progetti immobiliari selezionati a Boa Vista, Capo Verde: acquisto, rendita e gestione professionale con BAZHOUSE.",
+        isPartOf: { "@id": "https://bazhouse.com/#website" },
+      }}
     />
     <Navbar />
     <main>

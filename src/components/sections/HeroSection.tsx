@@ -4,7 +4,7 @@ import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
 import heroImage from "@/assets/hero-ocean.jpg";
 import { trackCustomEvent } from "@/lib/metaPixel";
 
-const headlines = [
+const defaultHeadlines = [
   "Acquista in un luogo straordinario. Trasforma la tua casa in un patrimonio.",
   "Residenze esclusive, pensate per essere vissute e valorizzate nel tempo.",
   "Più di una casa sul mare. Un patrimonio che può lavorare anche quando non ci sei.",
@@ -13,7 +13,7 @@ const headlines = [
 ];
 
 
-const HeroSection = () => {
+const HeroSection = ({ headlines = defaultHeadlines }: { headlines?: string[] }) => {
   const [index, setIndex] = useState(0);
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
@@ -25,7 +25,8 @@ const HeroSection = () => {
   useEffect(() => {
     const timer = setInterval(() => setIndex((i) => (i + 1) % headlines.length), 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [headlines.length]);
+
 
   return (
     <section ref={ref} className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
