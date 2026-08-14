@@ -28,6 +28,11 @@ const CompraProgetto = () => {
   if (!project) {
     return (
       <PageTransition>
+        <Seo
+          title="Progetto non trovato | BAZHOUSE"
+          description="Il progetto immobiliare richiesto non è disponibile."
+          noindex
+        />
         <Navbar />
         <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-6">
           <h1 className="font-serif text-3xl">Progetto non trovato</h1>
