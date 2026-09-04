@@ -123,7 +123,7 @@ const AnimatedRoutes = () => {
             <Route path="sito" element={<AdminGestioneSito />} />
           </Route>
           {/* Proprietario routes */}
-          <Route path="/proprietario" element={<ProprietarioLayout />}>
+          <Route path="/proprietario" element={<ErrorBoundary area="proprietario" compact><ProprietarioLayout /></ErrorBoundary>}>
             <Route index element={<ProprietarioOverview />} />
             <Route path="appartamenti" element={<ProprietarioAppartamenti />} />
             <Route path="disponibilita" element={<ProprietarioDisponibilita />} />
