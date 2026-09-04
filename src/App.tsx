@@ -10,6 +10,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import { initMetaPixel, trackPageView } from "@/lib/metaPixel";
 import { useMaintenanceMode } from "@/hooks/useMaintenanceMode";
 import MaintenancePage from "@/components/MaintenancePage";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import ChiSiamo from "./pages/ChiSiamo";
 import Servizi from "./pages/Servizi";
@@ -93,7 +94,7 @@ const AnimatedRoutes = () => {
           <Route path="/compra/progetti/:slug" element={<CompraProgetto />} />
           <Route path="/appartamenti" element={<Appartamenti />} />
           <Route path="/appartamenti/:slug" element={<AppartamentoDetail />} />
-          <Route path="/prenota" element={<Prenota />} />
+          <Route path="/prenota" element={<ErrorBoundary area="prenotazione" compact><Prenota /></ErrorBoundary>} />
           <Route path="/contatti" element={<Contatti />} />
           <Route path="/registrati" element={<Registrati />} />
           <Route path="/reset-password" element={<ResetPassword />} />
@@ -102,13 +103,13 @@ const AnimatedRoutes = () => {
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />
           <Route path="/rental-agreement" element={<RentalAgreement />} />
-          <Route path="/prenotazione/:id" element={<PrenotazioneDetail />} />
+          <Route path="/prenotazione/:id" element={<ErrorBoundary area="prenotazione-dettaglio" compact><PrenotazioneDetail /></ErrorBoundary>} />
           <Route path="/prenotazione-successo/:id" element={<PrenotazioneSuccesso />} />
           <Route path="/pagamento-fallito" element={<PagamentoFallito />} />
           <Route path="/unsubscribe" element={<Unsubscribe />} />
           <Route path="/riprendi/:token" element={<Riprendi />} />
           {/* Admin routes */}
-          <Route path="/admin" element={<AdminLayout />}>
+          <Route path="/admin" element={<ErrorBoundary area="admin" compact><AdminLayout /></ErrorBoundary>}>
             <Route index element={<AdminOverview />} />
             <Route path="prenotazioni" element={<AdminPrenotazioni />} />
             <Route path="prenotazioni/nuova" element={<AdminPrenotazioneNuova />} />
@@ -122,7 +123,7 @@ const AnimatedRoutes = () => {
             <Route path="sito" element={<AdminGestioneSito />} />
           </Route>
           {/* Proprietario routes */}
-          <Route path="/proprietario" element={<ProprietarioLayout />}>
+          <Route path="/proprietario" element={<ErrorBoundary area="proprietario" compact><ProprietarioLayout /></ErrorBoundary>}>
             <Route index element={<ProprietarioOverview />} />
             <Route path="appartamenti" element={<ProprietarioAppartamenti />} />
             <Route path="disponibilita" element={<ProprietarioDisponibilita />} />
