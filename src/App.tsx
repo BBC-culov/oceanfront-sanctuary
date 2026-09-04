@@ -10,6 +10,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import { initMetaPixel, trackPageView } from "@/lib/metaPixel";
 import { useMaintenanceMode } from "@/hooks/useMaintenanceMode";
 import MaintenancePage from "@/components/MaintenancePage";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import ChiSiamo from "./pages/ChiSiamo";
 import Servizi from "./pages/Servizi";
