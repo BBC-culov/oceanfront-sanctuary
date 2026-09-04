@@ -109,7 +109,7 @@ const AnimatedRoutes = () => {
           <Route path="/unsubscribe" element={<Unsubscribe />} />
           <Route path="/riprendi/:token" element={<Riprendi />} />
           {/* Admin routes */}
-          <Route path="/admin" element={<AdminLayout />}>
+          <Route path="/admin" element={<ErrorBoundary area="admin" compact><AdminLayout /></ErrorBoundary>}>
             <Route index element={<AdminOverview />} />
             <Route path="prenotazioni" element={<AdminPrenotazioni />} />
             <Route path="prenotazioni/nuova" element={<AdminPrenotazioneNuova />} />
