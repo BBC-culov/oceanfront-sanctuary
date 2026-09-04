@@ -103,7 +103,7 @@ const AnimatedRoutes = () => {
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />
           <Route path="/rental-agreement" element={<RentalAgreement />} />
-          <Route path="/prenotazione/:id" element={<PrenotazioneDetail />} />
+          <Route path="/prenotazione/:id" element={<ErrorBoundary area="prenotazione-dettaglio" compact><PrenotazioneDetail /></ErrorBoundary>} />
           <Route path="/prenotazione-successo/:id" element={<PrenotazioneSuccesso />} />
           <Route path="/pagamento-fallito" element={<PagamentoFallito />} />
           <Route path="/unsubscribe" element={<Unsubscribe />} />
