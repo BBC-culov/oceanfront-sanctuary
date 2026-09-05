@@ -5,7 +5,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import Stripe from "https://esm.sh/stripe@18.5.0";
-import { computeBookingPrice } from "../_shared/booking-pricing.ts";
+import { computeBookingPrice, calcDeposit } from "../_shared/booking-pricing.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -135,7 +135,7 @@ serve(async (req) => {
     const newBalance = Math.round((newTotal - amountPaid) * 100) / 100;
 
     updateData.total_price = newTotal;
-    updateData.deposit_amount = Math.round(newTotal * 0.2 * 100) / 100;
+    updateData.deposit_amount = calcDeposit(newTotal);
 
     // ---- update booking ----
     const { error: updErr } = await adminClient

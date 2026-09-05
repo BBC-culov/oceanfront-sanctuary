@@ -223,7 +223,7 @@ serve(async (req) => {
     }
 
     const totalPrice = Math.round((accommodationTotal + trustedServicesTotal) * 100) / 100;
-    const depositAmount = Math.round(totalPrice * 0.2 * 100) / 100;
+    const depositAmount = calcDeposit(totalPrice);
 
     // Manual booking is always created as pending with 0 paid.
     // Admin generates a Stripe payment link (deposit or full) to send to the client.
@@ -363,7 +363,7 @@ serve(async (req) => {
               product_data: {
                 name: payment_link_type === "full"
                   ? `Pagamento totale — ${apartment.name}`
-                  : `Caparra (20%) — ${apartment.name}`,
+                  : `Caparra (${DEPOSIT_PERCENT_LABEL}) — ${apartment.name}`,
                 description: `Prenotazione #${booking.booking_code}`,
               },
             },
