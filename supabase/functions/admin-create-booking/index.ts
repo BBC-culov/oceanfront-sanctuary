@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import Stripe from "https://esm.sh/stripe@18.5.0";
+import { calcDeposit, DEPOSIT_PERCENT_LABEL } from "../_shared/booking-pricing.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
