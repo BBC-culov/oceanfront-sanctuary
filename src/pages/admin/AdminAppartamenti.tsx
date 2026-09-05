@@ -1,6 +1,4 @@
-import { useEffect, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,6 +7,7 @@ import { toast } from "@/hooks/use-toast";
 import ApartmentWizard from "@/components/admin/ApartmentWizard";
 import AvailabilityManagerDialog from "@/components/admin/AvailabilityManagerDialog";
 import SortableApartmentCard from "@/components/admin/SortableApartmentCard";
+import { useAdminApartments, type ApartmentRow } from "@/hooks/useAdminApartments";
 import {
   DndContext,
   closestCenter,
@@ -18,30 +17,6 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { SortableContext, arrayMove, rectSortingStrategy } from "@dnd-kit/sortable";
-
-interface ApartmentRow {
-  id: string;
-  slug: string;
-  name: string;
-  tagline: string | null;
-  description: string | null;
-  category: string;
-  price_per_night: number;
-  guests: number;
-  bedrooms: number;
-  bathrooms: number;
-  sqm: number;
-  services: string[];
-  address: string | null;
-  is_active: boolean;
-  images?: string[];
-  videos?: string[];
-  map_query?: string | null;
-  check_in_time: string;
-  check_out_time: string;
-  display_order?: number;
-  is_featured?: boolean;
-}
 
 const emptyApt: Omit<ApartmentRow, "id"> = {
   slug: "",
@@ -63,42 +38,22 @@ const emptyApt: Omit<ApartmentRow, "id"> = {
 };
 
 const AdminAppartamenti = () => {
-  const queryClient = useQueryClient();
-  const [apartments, setApartments] = useState<ApartmentRow[]>([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    apartments,
+    setApartments,
+    loading,
+    fetchApartments,
+    invalidatePublicCache,
+    saveApartment,
+    deleteApartment,
+    toggleActive,
+    toggleFeatured,
+    persistOrder,
+  } = useAdminApartments();
   const [editing, setEditing] = useState<ApartmentRow | null>(null);
   const [creating, setCreating] = useState(false);
   const [availabilityFor, setAvailabilityFor] = useState<ApartmentRow | null>(null);
 
-  const invalidatePublicCache = () => {
-    queryClient.invalidateQueries({ queryKey: ["apartments-public"] });
-    queryClient.invalidateQueries({ queryKey: ["apartment-public"] });
-  };
-
-  const fetchApartments = async () => {
-    const { data } = await supabase
-      .from("apartments")
-      .select("*")
-      .order("is_featured", { ascending: false })
-      .order("display_order", { ascending: true })
-      .order("name", { ascending: true });
-    setApartments(
-      (data ?? []).map((a: any) => ({
-        ...a,
-        services: Array.isArray(a.services) ? a.services : [],
-        images: Array.isArray(a.images) ? a.images : [],
-        videos: Array.isArray(a.videos) ? a.videos : [],
-      }))
-    );
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchApartments();
-    // No realtime subscription: data is refetched after every create/update/delete
-    // performed in this page. A single admin works at a time, so a persistent
-    // WebSocket would only consume realtime hours without practical benefit.
-  }, []);
 
   const openCreate = () => {
     setEditing(null);
