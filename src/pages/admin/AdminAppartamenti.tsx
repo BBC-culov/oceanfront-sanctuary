@@ -1,6 +1,4 @@
-import { useEffect, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,6 +7,7 @@ import { toast } from "@/hooks/use-toast";
 import ApartmentWizard from "@/components/admin/ApartmentWizard";
 import AvailabilityManagerDialog from "@/components/admin/AvailabilityManagerDialog";
 import SortableApartmentCard from "@/components/admin/SortableApartmentCard";
+import { useAdminApartments, type ApartmentRow } from "@/hooks/useAdminApartments";
 import {
   DndContext,
   closestCenter,
@@ -18,30 +17,6 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { SortableContext, arrayMove, rectSortingStrategy } from "@dnd-kit/sortable";
-
-interface ApartmentRow {
-  id: string;
-  slug: string;
-  name: string;
-  tagline: string | null;
-  description: string | null;
-  category: string;
-  price_per_night: number;
-  guests: number;
-  bedrooms: number;
-  bathrooms: number;
-  sqm: number;
-  services: string[];
-  address: string | null;
-  is_active: boolean;
-  images?: string[];
-  videos?: string[];
-  map_query?: string | null;
-  check_in_time: string;
-  check_out_time: string;
-  display_order?: number;
-  is_featured?: boolean;
-}
 
 const emptyApt: Omit<ApartmentRow, "id"> = {
   slug: "",
@@ -63,42 +38,22 @@ const emptyApt: Omit<ApartmentRow, "id"> = {
 };
 
 const AdminAppartamenti = () => {
-  const queryClient = useQueryClient();
-  const [apartments, setApartments] = useState<ApartmentRow[]>([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    apartments,
+    setApartments,
+    loading,
+    fetchApartments,
+    invalidatePublicCache,
+    saveApartment,
+    deleteApartment,
+    toggleActive,
+    toggleFeatured,
+    persistOrder,
+  } = useAdminApartments();
   const [editing, setEditing] = useState<ApartmentRow | null>(null);
   const [creating, setCreating] = useState(false);
   const [availabilityFor, setAvailabilityFor] = useState<ApartmentRow | null>(null);
 
-  const invalidatePublicCache = () => {
-    queryClient.invalidateQueries({ queryKey: ["apartments-public"] });
-    queryClient.invalidateQueries({ queryKey: ["apartment-public"] });
-  };
-
-  const fetchApartments = async () => {
-    const { data } = await supabase
-      .from("apartments")
-      .select("*")
-      .order("is_featured", { ascending: false })
-      .order("display_order", { ascending: true })
-      .order("name", { ascending: true });
-    setApartments(
-      (data ?? []).map((a: any) => ({
-        ...a,
-        services: Array.isArray(a.services) ? a.services : [],
-        images: Array.isArray(a.images) ? a.images : [],
-        videos: Array.isArray(a.videos) ? a.videos : [],
-      }))
-    );
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchApartments();
-    // No realtime subscription: data is refetched after every create/update/delete
-    // performed in this page. A single admin works at a time, so a persistent
-    // WebSocket would only consume realtime hours without practical benefit.
-  }, []);
 
   const openCreate = () => {
     setEditing(null);
@@ -118,131 +73,19 @@ const AdminAppartamenti = () => {
   const handleSave = async (form: Omit<ApartmentRow, "id">, servicesInput: string, images: string[], videos: string[]) => {
     const services = servicesInput.split(",").map((s) => s.trim()).filter(Boolean);
     const payload = { ...form, services, images, videos } as any;
-
-    if (creating) {
-      const { error } = await supabase.from("apartments").insert(payload);
-      if (error) {
-        toast({ title: "Errore", description: error.message, variant: "destructive" });
-        return;
-      }
-      toast({ title: "Appartamento creato" });
-    } else if (editing) {
-      const { error } = await supabase.from("apartments").update(payload).eq("id", editing.id);
-      if (error) {
-        toast({ title: "Errore", description: error.message, variant: "destructive" });
-        return;
-      }
-      toast({ title: "Appartamento aggiornato" });
-    }
-    closeForm();
-    fetchApartments();
-    invalidatePublicCache();
-  };
-
-  // Extract a safe storage path from a public URL for the given bucket.
-  // Rejects traversal/absolute/non-whitelisted characters to prevent abuse.
-  const extractStoragePath = (url: string, bucket: string): string | null => {
-    const marker = `/${bucket}/`;
-    const idx = url.indexOf(marker);
-    if (idx === -1) return null;
-    try {
-      const decoded = decodeURIComponent(url.slice(idx + marker.length));
-      if (
-        decoded.startsWith("/") ||
-        decoded.includes("..") ||
-        decoded.includes("\0") ||
-        decoded.includes("\\") ||
-        !/^[A-Za-z0-9._\-/]+$/.test(decoded)
-      ) {
-        return null;
-      }
-      return decoded;
-    } catch {
-      return null;
-    }
+    const ok = await saveApartment(payload, creating ? undefined : editing?.id);
+    if (ok) closeForm();
   };
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Sei sicuro di voler eliminare "${name}"?`)) return;
-
-    const apt = apartments.find((a) => a.id === id);
-
-    // Best-effort cleanup of storage assets BEFORE deleting the row.
-    // Failures are non-blocking: we still proceed with DB delete and
-    // surface a non-destructive warning so the admin knows.
-    const imagePaths = (apt?.images ?? [])
-      .map((u) => extractStoragePath(u, "apartment-images"))
-      .filter((p): p is string => !!p);
-    const videoPaths = (apt?.videos ?? [])
-      .map((u) => extractStoragePath(u, "apartment-videos"))
-      .filter((p): p is string => !!p);
-
-    const cleanupErrors: string[] = [];
-    if (imagePaths.length > 0) {
-      const { error: imgErr } = await supabase.storage.from("apartment-images").remove(imagePaths);
-      if (imgErr) cleanupErrors.push(`immagini: ${imgErr.message}`);
-    }
-    if (videoPaths.length > 0) {
-      const { error: vidErr } = await supabase.storage.from("apartment-videos").remove(videoPaths);
-      if (vidErr) cleanupErrors.push(`video: ${vidErr.message}`);
-    }
-
-    const { error } = await supabase.from("apartments").delete().eq("id", id);
-    if (error) {
-      toast({ title: "Errore", description: error.message, variant: "destructive" });
-    } else {
-      setApartments((prev) => prev.filter((a) => a.id !== id));
-      if (cleanupErrors.length > 0) {
-        toast({
-          title: "Appartamento eliminato",
-          description: `Alcuni file non sono stati rimossi dallo storage (${cleanupErrors.join("; ")})`,
-        });
-      } else {
-        toast({ title: "Appartamento eliminato" });
-      }
-      invalidatePublicCache();
-    }
-  };
-
-  const toggleActive = async (apt: ApartmentRow) => {
-    const { error } = await supabase.from("apartments").update({ is_active: !apt.is_active }).eq("id", apt.id);
-    if (error) {
-      toast({ title: "Errore", description: error.message, variant: "destructive" });
-    } else {
-      setApartments((prev) => prev.map((a) => a.id === apt.id ? { ...a, is_active: !a.is_active } : a));
-      toast({ title: apt.is_active ? "Disattivato" : "Attivato" });
-      invalidatePublicCache();
-    }
-  };
-
-  const toggleFeatured = async (apt: ApartmentRow) => {
-    const next = !apt.is_featured;
-    setApartments((prev) => prev.map((a) => a.id === apt.id ? { ...a, is_featured: next } : a));
-    const { error } = await supabase.from("apartments").update({ is_featured: next }).eq("id", apt.id);
-    if (error) {
-      toast({ title: "Errore", description: error.message, variant: "destructive" });
-      // rollback
-      setApartments((prev) => prev.map((a) => a.id === apt.id ? { ...a, is_featured: !next } : a));
-    } else {
-      toast({ title: next ? "Aggiunto in evidenza" : "Rimosso dall'evidenza" });
-      invalidatePublicCache();
-    }
+    await deleteApartment(id);
   };
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
 
-  const persistOrder = async (list: ApartmentRow[]) => {
-    // Assign 10, 20, 30… to keep room for future inserts
-    const updates = list.map((apt, idx) => ({ id: apt.id, display_order: (idx + 1) * 10 }));
-    // Optimistic UI already applied; persist sequentially
-    await Promise.all(
-      updates.map((u) =>
-        supabase.from("apartments").update({ display_order: u.display_order }).eq("id", u.id)
-      )
-    );
-  };
 
   const handleDragEnd = (event: DragEndEvent, isActiveTab: boolean) => {
     const { active, over } = event;

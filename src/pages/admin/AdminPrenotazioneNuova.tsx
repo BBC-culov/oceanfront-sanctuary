@@ -22,6 +22,7 @@ import StepBilling, { type BillingData } from "@/components/booking/StepBilling"
 import StepRecap from "@/components/booking/StepRecap";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { DEPOSIT_PERCENT_LABEL } from "@/lib/bookingDeposit";
 
 const emptyMainGuest: GuestData = {
   first_name: "", last_name: "", date_of_birth: "", place_of_birth: "",
@@ -342,7 +343,7 @@ const AdminPrenotazioneNuova = () => {
                 <div>
                   <h3 className="font-serif text-lg text-foreground">Link di pagamento</h3>
                   <p className="font-sans text-xs text-muted-foreground mt-0.5">
-                    La prenotazione viene creata in attesa. Genera un link Stripe da inviare al cliente per la caparra (20%) o il totale (100%). Validità 24h.
+                    La prenotazione viene creata in attesa. Genera un link Stripe da inviare al cliente per la caparra ({DEPOSIT_PERCENT_LABEL}) o il totale (100%). Validità 24h.
                   </p>
                 </div>
                 <RadioGroup
@@ -351,7 +352,7 @@ const AdminPrenotazioneNuova = () => {
                   className="space-y-2"
                 >
                   {[
-                    { v: "deposit", label: "Link caparra (20%)", desc: "Il cliente paga solo l'acconto. Saldo da incassare in seguito." },
+                    { v: "deposit", label: `Link caparra (${DEPOSIT_PERCENT_LABEL})`, desc: "Il cliente paga solo l'acconto. Saldo da incassare in seguito." },
                     { v: "full", label: "Link pagamento totale (100%)", desc: "Il cliente salda l'intero importo in un'unica transazione." },
                     { v: "none", label: "Nessun link ora", desc: "Crea solo la prenotazione. Potrai generare il link più tardi dal dettaglio." },
                   ].map((o) => (

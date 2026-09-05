@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { buildMediaPath, uploadImage, uploadPdf, uploadVideo } from "@/lib/mediaStorage";
+import { useAdminProjects, type ProjectRow } from "@/hooks/useAdminProjects";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -36,29 +37,6 @@ const projectSchema = z.object({
   purchase_info: z.string().trim().max(3000).optional().nullable(),
 });
 
-interface ProjectRow {
-  id: string;
-  title: string;
-  slug: string;
-  subtitle: string | null;
-  description: string | null;
-  price: number | null;
-  price_label: string | null;
-  images: string[];
-  video_url: string | null;
-  brochure_url: string | null;
-  address: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  google_maps_url: string | null;
-  apple_maps_url: string | null;
-  included_services: string[];
-  purchase_info: string | null;
-  contact_email: string | null;
-  contact_phone: string | null;
-  published: boolean;
-  display_order: number;
-}
 
 const empty: Partial<ProjectRow> = {
   title: "",
@@ -92,30 +70,13 @@ function slugify(s: string) {
 }
 
 const AdminProgetti = () => {
-  const [projects, setProjects] = useState<ProjectRow[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { projects, loading, isSlugTaken, saveProject, togglePublished, deleteProject } = useAdminProjects();
   const [editing, setEditing] = useState<Partial<ProjectRow> | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [uploadingBrochure, setUploadingBrochure] = useState(false);
   const [servicesText, setServicesText] = useState("");
-
-  const load = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("projects" as any)
-      .select("*")
-      .order("display_order", { ascending: true });
-    setLoading(false);
-    if (error) {
-      toast.error("Errore caricamento progetti");
-      return;
-    }
-    setProjects((data ?? []) as any);
-  };
-
-  useEffect(() => { load(); }, []);
 
   const openNew = () => {
     setEditing({ ...empty });
@@ -161,18 +122,15 @@ const AdminProgetti = () => {
 
     const results = await Promise.all(
       valid.map(async (file) => {
-        const uid = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-        const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-        const path = `projects/${uid}-${safeName}`;
-        const { error } = await supabase.storage
-          .from("apartment-images")
-          .upload(path, file, { upsert: false, contentType: file.type });
+        const { url, error } = await uploadImage(buildMediaPath("projects", file.name), file, {
+          upsert: false,
+          contentType: file.type,
+        });
         if (error) {
-          toast.error(`Upload "${file.name}" fallito: ${error.message}`);
+          toast.error(`Upload "${file.name}" fallito: ${error}`);
           return null;
         }
-        const { data } = supabase.storage.from("apartment-images").getPublicUrl(path);
-        return data.publicUrl;
+        return url ?? null;
       })
     );
 
@@ -195,15 +153,13 @@ const AdminProgetti = () => {
       return;
     }
     setUploadingBrochure(true);
-    const path = `projects/brochures/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-    const { error } = await supabase.storage.from("apartment-images").upload(path, file, { upsert: true, contentType: "application/pdf" });
+    const { url, error } = await uploadPdf(buildMediaPath("projects/brochures", file.name), file);
     if (error) {
-      toast.error(`Upload brochure fallito: ${error.message}`);
+      toast.error(`Upload brochure fallito: ${error}`);
       setUploadingBrochure(false);
       return;
     }
-    const { data } = supabase.storage.from("apartment-images").getPublicUrl(path);
-    setEditing({ ...editing, brochure_url: data.publicUrl });
+    setEditing({ ...editing, brochure_url: url ?? null });
     setUploadingBrochure(false);
   };
 
@@ -218,15 +174,13 @@ const AdminProgetti = () => {
       return;
     }
     setUploadingVideo(true);
-    const path = `projects/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-    const { error } = await supabase.storage.from("apartment-videos").upload(path, file, { upsert: true });
+    const { url, error } = await uploadVideo(buildMediaPath("projects", file.name), file);
     if (error) {
-      toast.error(`Upload video fallito: ${error.message}`);
+      toast.error(`Upload video fallito: ${error}`);
       setUploadingVideo(false);
       return;
     }
-    const { data } = supabase.storage.from("apartment-videos").getPublicUrl(path);
-    setEditing({ ...editing, video_url: data.publicUrl });
+    setEditing({ ...editing, video_url: url ?? null });
     setUploadingVideo(false);
   };
 
@@ -276,12 +230,7 @@ const AdminProgetti = () => {
     }
 
     // Slug uniqueness check
-    const { data: slugMatch } = await supabase
-      .from("projects" as any)
-      .select("id")
-      .eq("slug", slug)
-      .maybeSingle();
-    if (slugMatch && (slugMatch as any).id !== editing.id) {
+    if (await isSlugTaken(slug, editing.id)) {
       toast.error("Slug già in uso da un altro progetto");
       return;
     }
@@ -306,34 +255,16 @@ const AdminProgetti = () => {
     };
 
     setSaving(true);
-    let error;
-    if (editing.id) {
-      ({ error } = await supabase.from("projects" as any).update(payload).eq("id", editing.id));
-    } else {
-      ({ error } = await supabase.from("projects" as any).insert(payload));
-    }
+    const ok = await saveProject(payload, editing.id);
     setSaving(false);
-    if (error) {
-      toast.error(`Errore: ${error.message}`);
-      return;
-    }
-    toast.success("Progetto salvato");
-    close();
-    load();
+    if (ok) close();
   };
 
-  const togglePublish = async (p: ProjectRow) => {
-    const { error } = await supabase.from("projects" as any).update({ published: !p.published }).eq("id", p.id);
-    if (error) { toast.error("Errore"); return; }
-    load();
-  };
+  const togglePublish = (p: ProjectRow) => togglePublished(p);
 
   const remove = async (p: ProjectRow) => {
     if (!confirm(`Eliminare "${p.title}"?`)) return;
-    const { error } = await supabase.from("projects" as any).delete().eq("id", p.id);
-    if (error) { toast.error("Errore"); return; }
-    toast.success("Progetto eliminato");
-    load();
+    await deleteProject(p);
   };
 
   return (

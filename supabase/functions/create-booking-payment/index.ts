@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
+import { calcDeposit, DEPOSIT_PERCENT_LABEL } from "../_shared/booking-pricing.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -112,7 +113,7 @@ serve(async (req) => {
 
     const trustedTotalPrice = Math.round((accommodationTotal + trustedServicesTotal) * 100) / 100;
     const chosenPaymentType = "deposit";
-    const depositAmount = Math.round(trustedTotalPrice * 0.2 * 100) / 100;
+    const depositAmount = calcDeposit(trustedTotalPrice);
     const amountToCharge = depositAmount;
 
     // Server-side overlap check to prevent double-booking
@@ -218,7 +219,7 @@ serve(async (req) => {
         unit_amount: Math.round(amountToCharge * 100),
         product_data: {
           name: `Caparra — ${apartment.name}`,
-          description: `Caparra 20% per soggiorno ${nights} notti (${check_in} → ${check_out})`,
+          description: `Caparra ${DEPOSIT_PERCENT_LABEL} per soggiorno ${nights} notti (${check_in} → ${check_out})`,
         },
       },
       quantity: 1,
