@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { BUCKETS, buildMediaPath, removeByPublicUrl, uploadImage, uploadVideo } from "@/lib/mediaStorage";
 
 interface ApartmentForm {
   slug: string;
@@ -189,23 +190,28 @@ const ApartmentWizard = ({
     onSave(form, servicesInput, images, videos);
   };
 
+  const uploadMedia = async (
+    files: FileList,
+    uploader: typeof uploadImage | typeof uploadVideo,
+    errorTitle: string
+  ) => {
+    const folder = editId || form.slug || `new-${Date.now()}`;
+    const urls: string[] = [];
+    for (const file of Array.from(files)) {
+      const { url, error } = await uploader(buildMediaPath(folder, file.name), file);
+      if (error) {
+        toast({ title: errorTitle, description: error, variant: "destructive" });
+        continue;
+      }
+      if (url) urls.push(url);
+    }
+    return urls;
+  };
+
   const handleUpload = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     setUploading(true);
-    const folder = editId || form.slug || `new-${Date.now()}`;
-    const newUrls: string[] = [];
-
-    for (const file of Array.from(files)) {
-      const ext = file.name.split(".").pop();
-      const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const { error } = await supabase.storage.from("apartment-images").upload(path, file, { upsert: true });
-      if (error) {
-        toast({ title: "Errore upload", description: error.message, variant: "destructive" });
-        continue;
-      }
-      const { data: urlData } = supabase.storage.from("apartment-images").getPublicUrl(path);
-      newUrls.push(urlData.publicUrl);
-    }
+    const newUrls = await uploadMedia(files, uploadImage, "Errore upload");
     setImages((prev) => [...prev, ...newUrls]);
     setUploading(false);
   };
@@ -213,76 +219,18 @@ const ApartmentWizard = ({
   const handleVideoUpload = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     setUploadingVideo(true);
-    const folder = editId || form.slug || `new-${Date.now()}`;
-    const newUrls: string[] = [];
-
-    for (const file of Array.from(files)) {
-      const ext = file.name.split(".").pop();
-      const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const { error } = await supabase.storage.from("apartment-videos").upload(path, file, { upsert: true });
-      if (error) {
-        toast({ title: "Errore upload video", description: error.message, variant: "destructive" });
-        continue;
-      }
-      const { data: urlData } = supabase.storage.from("apartment-videos").getPublicUrl(path);
-      newUrls.push(urlData.publicUrl);
-    }
+    const newUrls = await uploadMedia(files, uploadVideo, "Errore upload video");
     setVideos((prev) => [...prev, ...newUrls]);
     setUploadingVideo(false);
   };
 
-  // Sanitizes a storage path extracted from a public URL.
-  // Prevents path traversal (../) and absolute paths from being passed
-  // to Supabase Storage `.remove()`, which could otherwise be abused
-  // to delete files outside the intended folder if the URL is tampered with.
-  const sanitizeStoragePath = (rawPath: string): string | null => {
-    try {
-      // Decode any percent-encoded sequences first so traversal attempts
-      // hidden behind URL encoding are caught.
-      const decoded = decodeURIComponent(rawPath);
-      // Reject absolute paths, traversal segments, null bytes and backslashes.
-      if (
-        decoded.startsWith("/") ||
-        decoded.includes("..") ||
-        decoded.includes("\0") ||
-        decoded.includes("\\")
-      ) {
-        return null;
-      }
-      // Allow only a conservative whitelist of characters used by our uploads:
-      // letters, digits, dash, underscore, dot and forward slash (for folder).
-      if (!/^[A-Za-z0-9._\-/]+$/.test(decoded)) {
-        return null;
-      }
-      return decoded;
-    } catch {
-      return null;
-    }
-  };
-
   const removeVideo = async (url: string) => {
-    const bucketUrl = `/apartment-videos/`;
-    const pathStart = url.indexOf(bucketUrl);
-    if (pathStart !== -1) {
-      const rawPath = url.slice(pathStart + bucketUrl.length);
-      const safePath = sanitizeStoragePath(rawPath);
-      if (safePath) {
-        await supabase.storage.from("apartment-videos").remove([safePath]);
-      }
-    }
+    await removeByPublicUrl(BUCKETS.videos, url);
     setVideos((prev) => prev.filter((u) => u !== url));
   };
 
   const removeImage = async (url: string) => {
-    const bucketUrl = `/apartment-images/`;
-    const pathStart = url.indexOf(bucketUrl);
-    if (pathStart !== -1) {
-      const rawPath = url.slice(pathStart + bucketUrl.length);
-      const safePath = sanitizeStoragePath(rawPath);
-      if (safePath) {
-        await supabase.storage.from("apartment-images").remove([safePath]);
-      }
-    }
+    await removeByPublicUrl(BUCKETS.images, url);
     setImages((prev) => prev.filter((u) => u !== url));
   };
 
