@@ -37,29 +37,6 @@ const projectSchema = z.object({
   purchase_info: z.string().trim().max(3000).optional().nullable(),
 });
 
-interface ProjectRow {
-  id: string;
-  title: string;
-  slug: string;
-  subtitle: string | null;
-  description: string | null;
-  price: number | null;
-  price_label: string | null;
-  images: string[];
-  video_url: string | null;
-  brochure_url: string | null;
-  address: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  google_maps_url: string | null;
-  apple_maps_url: string | null;
-  included_services: string[];
-  purchase_info: string | null;
-  contact_email: string | null;
-  contact_phone: string | null;
-  published: boolean;
-  display_order: number;
-}
 
 const empty: Partial<ProjectRow> = {
   title: "",
@@ -93,30 +70,13 @@ function slugify(s: string) {
 }
 
 const AdminProgetti = () => {
-  const [projects, setProjects] = useState<ProjectRow[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { projects, loading, isSlugTaken, saveProject, togglePublished, deleteProject } = useAdminProjects();
   const [editing, setEditing] = useState<Partial<ProjectRow> | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [uploadingBrochure, setUploadingBrochure] = useState(false);
   const [servicesText, setServicesText] = useState("");
-
-  const load = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("projects" as any)
-      .select("*")
-      .order("display_order", { ascending: true });
-    setLoading(false);
-    if (error) {
-      toast.error("Errore caricamento progetti");
-      return;
-    }
-    setProjects((data ?? []) as any);
-  };
-
-  useEffect(() => { load(); }, []);
 
   const openNew = () => {
     setEditing({ ...empty });
@@ -270,12 +230,7 @@ const AdminProgetti = () => {
     }
 
     // Slug uniqueness check
-    const { data: slugMatch } = await supabase
-      .from("projects" as any)
-      .select("id")
-      .eq("slug", slug)
-      .maybeSingle();
-    if (slugMatch && (slugMatch as any).id !== editing.id) {
+    if (await isSlugTaken(slug, editing.id)) {
       toast.error("Slug già in uso da un altro progetto");
       return;
     }
@@ -300,34 +255,16 @@ const AdminProgetti = () => {
     };
 
     setSaving(true);
-    let error;
-    if (editing.id) {
-      ({ error } = await supabase.from("projects" as any).update(payload).eq("id", editing.id));
-    } else {
-      ({ error } = await supabase.from("projects" as any).insert(payload));
-    }
+    const ok = await saveProject(payload, editing.id);
     setSaving(false);
-    if (error) {
-      toast.error(`Errore: ${error.message}`);
-      return;
-    }
-    toast.success("Progetto salvato");
-    close();
-    load();
+    if (ok) close();
   };
 
-  const togglePublish = async (p: ProjectRow) => {
-    const { error } = await supabase.from("projects" as any).update({ published: !p.published }).eq("id", p.id);
-    if (error) { toast.error("Errore"); return; }
-    load();
-  };
+  const togglePublish = (p: ProjectRow) => togglePublished(p);
 
   const remove = async (p: ProjectRow) => {
     if (!confirm(`Eliminare "${p.title}"?`)) return;
-    const { error } = await supabase.from("projects" as any).delete().eq("id", p.id);
-    if (error) { toast.error("Errore"); return; }
-    toast.success("Progetto eliminato");
-    load();
+    await deleteProject(p);
   };
 
   return (
