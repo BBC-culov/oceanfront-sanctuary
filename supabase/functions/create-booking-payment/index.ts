@@ -54,9 +54,7 @@ serve(async (req) => {
     if (isNaN(checkInDate.getTime()) || isNaN(checkOutDate.getTime())) {
       throw new Error("Date non valide");
     }
-    const nights = Math.round(
-      (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24)
-    );
+    const nights = nightsBetween(checkInDate, checkOutDate);
     if (nights < 1) throw new Error("Durata soggiorno non valida");
 
     // Fetch apartment from DB - trusted source for price & name
