@@ -249,7 +249,7 @@ const AvailabilityCalendar = ({ apartmentSlug, apartmentId, onDateSelect }: Avai
               {checkIn && checkOut && (
                 <>
                   <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="font-sans text-[10px] tracking-wider uppercase text-primary text-center pt-1">
-                    {Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))} notti
+                    {countNights(checkIn, checkOut)} notti
                   </motion.p>
                   <motion.button
                     initial={{ opacity: 0, y: 8 }}

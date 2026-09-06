@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { format, differenceInDays, parseISO } from "date-fns";
+import { format, parseISO } from "date-fns";
+import { countNights } from "@/lib/nights";
 import { it } from "date-fns/locale";
 import {
   CalendarCheck, Users, PlaneTakeoff, PlaneLanding,
@@ -67,7 +68,7 @@ const StepRecap = ({
 }: StepRecapProps) => {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [showTermsError, setShowTermsError] = useState(false);
-  const nights = differenceInDays(parseISO(checkOut), parseISO(checkIn));
+  const nights = countNights(checkIn, checkOut);
   const accommodationTotal = pricePerNight * nights;
   const selectedServices = services.filter((s) => selectedServiceIds.includes(s.id));
   const getServiceTotal = (s: AdditionalService) =>

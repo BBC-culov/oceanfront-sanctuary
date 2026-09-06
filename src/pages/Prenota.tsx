@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo } from "react";
 import { useSearchParams, Link, Navigate, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, LogIn } from "lucide-react";
-import { differenceInDays, parseISO } from "date-fns";
+import { parseISO } from "date-fns";
+import { countNights } from "@/lib/nights";
 import { toast } from "sonner";
 
 import Navbar from "@/components/Navbar";
@@ -160,7 +161,7 @@ const Prenota = () => {
 
   const nights = useMemo(() => {
     if (!checkIn || !checkOut) return 0;
-    return differenceInDays(parseISO(checkOut), parseISO(checkIn));
+    return countNights(checkIn, checkOut);
   }, [checkIn, checkOut]);
 
   if (!slug || !checkIn || !checkOut || !apt || nights <= 0) {

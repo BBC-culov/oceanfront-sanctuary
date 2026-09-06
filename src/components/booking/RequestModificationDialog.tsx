@@ -1,7 +1,7 @@
 // Client-side dialog: request modifications (dates, main guest, flight, additional guests, services, notes)
 // Sends to request-booking-modification edge function.
 import { useEffect, useMemo, useState } from "react";
-import { differenceInDays } from "date-fns";
+import { countNights } from "@/lib/nights";
 import { Loader2, X, CalendarDays, PlaneTakeoff, Sparkles, MessageSquare, Phone, User, Users, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -111,7 +111,7 @@ export default function RequestModificationDialog({ open, onClose, booking, onSu
 
   if (!open) return null;
 
-  const nights = checkIn && checkOut ? differenceInDays(new Date(checkOut), new Date(checkIn)) : 0;
+  const nights = countNights(checkIn, checkOut);
 
   const toggleService = (id: string) =>
     setSelectedSvcIds((prev) => (prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]));

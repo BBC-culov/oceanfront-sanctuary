@@ -6,8 +6,9 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   format, startOfMonth, endOfMonth, startOfWeek, endOfWeek,
   addMonths, subMonths, eachDayOfInterval, isSameMonth,
-  isSameDay, isToday, isBefore, startOfDay, addDays, differenceInDays, parseISO,
+  isSameDay, isToday, isBefore, startOfDay, addDays, parseISO,
 } from "date-fns";
+import { countNights } from "@/lib/nights";
 import { it } from "date-fns/locale";
 
 export interface StayData {
@@ -74,7 +75,7 @@ const StepStay = ({ value, onChange }: Props) => {
   const selectedApt = apartments.find((a) => a.id === value.apartment_id);
   const checkIn = value.check_in ? parseISO(value.check_in) : null;
   const checkOut = value.check_out ? parseISO(value.check_out) : null;
-  const nights = checkIn && checkOut ? Math.max(0, differenceInDays(checkOut, checkIn)) : 0;
+  const nights = countNights(checkIn, checkOut);
 
   const today = startOfDay(new Date());
   const monthStart = startOfMonth(currentMonth);

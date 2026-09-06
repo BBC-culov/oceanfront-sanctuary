@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
-import { format, differenceInDays } from "date-fns";
+import { format } from "date-fns";
+import { countNights } from "@/lib/nights";
 import { it } from "date-fns/locale";
 import {
   ArrowLeft, CalendarCheck, User, Users, PlaneTakeoff, PlaneLanding,
@@ -147,7 +148,7 @@ const AdminPrenotazioneDetail = () => {
 
   if (!booking) return null;
 
-  const nights = differenceInDays(new Date(booking.check_out), new Date(booking.check_in));
+  const nights = countNights(booking.check_in, booking.check_out);
   const sc = getStatusConfig(booking.status);
   const StatusIcon = sc.icon;
   const services: any[] = booking.selected_services || [];

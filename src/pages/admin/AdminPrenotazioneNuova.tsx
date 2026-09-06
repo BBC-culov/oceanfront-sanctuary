@@ -2,7 +2,8 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, Loader2, Check, Wand2 } from "lucide-react";
-import { differenceInDays, parseISO } from "date-fns";
+import { parseISO } from "date-fns";
+import { countNights } from "@/lib/nights";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -69,7 +70,7 @@ const AdminPrenotazioneNuova = () => {
   );
   const nights =
     stay.check_in && stay.check_out
-      ? Math.max(0, differenceInDays(parseISO(stay.check_out), parseISO(stay.check_in)))
+      ? countNights(stay.check_in, stay.check_out)
       : 0;
   const pricePerNight = apt?.pricePerNight ?? 0;
 
