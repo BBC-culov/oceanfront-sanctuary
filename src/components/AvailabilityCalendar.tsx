@@ -7,6 +7,7 @@ import {
   addMonths, subMonths, eachDayOfInterval, isSameMonth,
   isSameDay, isToday, isBefore, startOfDay, addDays,
 } from "date-fns";
+import { countNights } from "@/lib/nights";
 import { it } from "date-fns/locale";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
