@@ -7,6 +7,7 @@ import {
   addMonths, subMonths, eachDayOfInterval, isSameMonth,
   isSameDay, isToday, isBefore, startOfDay, addDays,
 } from "date-fns";
+import { countNights } from "@/lib/nights";
 import { it } from "date-fns/locale";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -249,7 +250,7 @@ const AvailabilityCalendar = ({ apartmentSlug, apartmentId, onDateSelect }: Avai
               {checkIn && checkOut && (
                 <>
                   <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="font-sans text-[10px] tracking-wider uppercase text-primary text-center pt-1">
-                    {Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))} notti
+                    {countNights(checkIn, checkOut)} notti
                   </motion.p>
                   <motion.button
                     initial={{ opacity: 0, y: 8 }}

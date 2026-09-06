@@ -14,7 +14,8 @@ import PhonePrefixInput from "@/components/PhonePrefixInput";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
 import Seo from "@/components/Seo";
-import { format, differenceInDays } from "date-fns";
+import { format } from "date-fns";
+import { countNights } from "@/lib/nights";
 import { it } from "date-fns/locale";
 
 const profileSchema = z.object({
@@ -515,7 +516,7 @@ const Profilo = () => {
                   <div className="space-y-3">
                     {bookings.map((booking, idx) => {
                       const status = getStatusConfig(booking.status);
-                      const nights = differenceInDays(new Date(booking.check_out), new Date(booking.check_in));
+                      const nights = countNights(booking.check_in, booking.check_out);
                       return (
                         <Link to={`/prenotazione/${booking.id}`} key={booking.id}>
                           <motion.div

@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
-import { calcDeposit, DEPOSIT_PERCENT_LABEL } from "../_shared/booking-pricing.ts";
+import { calcDeposit, DEPOSIT_PERCENT_LABEL, nightsBetween } from "../_shared/booking-pricing.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -54,9 +54,7 @@ serve(async (req) => {
     if (isNaN(checkInDate.getTime()) || isNaN(checkOutDate.getTime())) {
       throw new Error("Date non valide");
     }
-    const nights = Math.round(
-      (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24)
-    );
+    const nights = nightsBetween(checkInDate, checkOutDate);
     if (nights < 1) throw new Error("Durata soggiorno non valida");
 
     // Fetch apartment from DB - trusted source for price & name

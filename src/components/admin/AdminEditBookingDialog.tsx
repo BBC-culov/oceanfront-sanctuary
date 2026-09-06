@@ -2,7 +2,7 @@
 // Supports dates, contact, full main guest, flight, services, additional guests, notes.
 // Can generate a 24h Stripe "modification" payment link for a positive price diff.
 import { useEffect, useState } from "react";
-import { differenceInDays } from "date-fns";
+import { countNights } from "@/lib/nights";
 import { Loader2, X, CalendarDays, PlaneTakeoff, Sparkles, MessageSquare, Phone, CreditCard, Mail, Users, User, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -110,7 +110,7 @@ export default function AdminEditBookingDialog({ open, onClose, booking, onSaved
 
   if (!open) return null;
 
-  const nights = checkIn && checkOut ? differenceInDays(new Date(checkOut), new Date(checkIn)) : 0;
+  const nights = countNights(checkIn, checkOut);
   const toggleService = (id: string) =>
     setSelectedSvcIds((prev) => (prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]));
 

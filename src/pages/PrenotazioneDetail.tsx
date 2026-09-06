@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-import { format, differenceInDays } from "date-fns";
+import { format } from "date-fns";
+import { countNights } from "@/lib/nights";
 import { it } from "date-fns/locale";
 import {
   ArrowLeft, CalendarCheck, Building2, Users, PlaneTakeoff, PlaneLanding,
@@ -206,7 +207,7 @@ const PrenotazioneDetail = () => {
 
   const status = getStatusConfig(booking.status);
   const StatusIcon = status.icon;
-  const nights = differenceInDays(new Date(booking.check_out), new Date(booking.check_in));
+  const nights = countNights(booking.check_in, booking.check_out);
   const services: { name: string; price: number }[] = Array.isArray(booking.selected_services) ? booking.selected_services : [];
   const coverImg = apartment?.images?.[0] ?? null;
 

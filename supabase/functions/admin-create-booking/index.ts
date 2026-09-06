@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import Stripe from "https://esm.sh/stripe@18.5.0";
-import { calcDeposit, DEPOSIT_PERCENT_LABEL } from "../_shared/booking-pricing.ts";
+import { calcDeposit, DEPOSIT_PERCENT_LABEL, nightsBetween } from "../_shared/booking-pricing.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -106,9 +106,7 @@ serve(async (req) => {
     if (!isNonEmpty(apartment_id)) errors.push("Appartamento richiesto");
     if (!isIsoDate(check_in) || !isIsoDate(check_out)) errors.push("Date non valide");
 
-    const checkInDate = new Date(check_in);
-    const checkOutDate = new Date(check_out);
-    const nights = Math.round((checkOutDate.getTime() - checkInDate.getTime()) / 86400000);
+    const nights = nightsBetween(check_in, check_out);
     if (nights < 1) errors.push("Soggiorno minimo 1 notte");
 
     // Main guest

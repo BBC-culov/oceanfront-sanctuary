@@ -23,10 +23,18 @@ export interface PriceResult {
   trustedServices: ServiceLine[];
 }
 
+// Single source of truth for the nights calculation (mirrored client-side in
+// src/lib/nights.ts). Uses UTC midnights so DST can never shift the result.
+export function nightsBetween(checkIn: string | Date, checkOut: string | Date): number {
+  const a = new Date(checkIn);
+  const b = new Date(checkOut);
+  if (isNaN(a.getTime()) || isNaN(b.getTime())) return 0;
+  const utc = (d: Date) => Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+  return Math.max(0, Math.round((utc(b) - utc(a)) / 86400000));
+}
+
 export function computeBookingPrice(input: PriceInput): PriceResult {
-  const checkIn = new Date(input.check_in);
-  const checkOut = new Date(input.check_out);
-  const nights = Math.round((checkOut.getTime() - checkIn.getTime()) / 86400000);
+  const nights = nightsBetween(input.check_in, input.check_out);
 
   const accommodationTotal = Math.round(Number(input.apartment.price_per_night) * nights * 100) / 100;
 

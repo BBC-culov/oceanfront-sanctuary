@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
-import { format, differenceInDays } from "date-fns";
+import { format } from "date-fns";
+import { countNights } from "@/lib/nights";
 import { it } from "date-fns/locale";
 import {
   Search, Trash2, ChevronDown, CalendarDays, Eye, Clock,
@@ -217,7 +218,7 @@ const AdminPrenotazioni = () => {
             {filtered.map((b, i) => {
               const sc = getStatusConfig(b.status);
               const StatusIcon = sc.icon;
-              const nights = differenceInDays(new Date(b.check_out), new Date(b.check_in));
+              const nights = countNights(b.check_in, b.check_out);
 
               return (
                 <motion.div
