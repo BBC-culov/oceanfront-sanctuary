@@ -85,6 +85,7 @@ const AppartamentoDetail = () => {
             floorSize: (apt as any).size ? { "@type": "QuantitativeValue", value: (apt as any).size, unitCode: "MTK" } : undefined,
             occupancy: { "@type": "QuantitativeValue", value: (apt as any).maxGuests },
             address: { "@type": "PostalAddress", addressLocality: "Boa Vista", addressRegion: "Sal Rei", addressCountry: "CV" },
+            geo: { "@type": "GeoCoordinates", latitude: 16.1772, longitude: -22.9167 },
             amenityFeature: (apt as any).amenities?.map((a: string) => ({ "@type": "LocationFeatureSpecification", name: a })),
             ...(priceValue ? {
               offers: {

@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import SiteLoader from "@/components/SiteLoader";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -47,7 +47,6 @@ import ProprietarioOverview from "./pages/proprietario/ProprietarioOverview";
 import ProprietarioAppartamenti from "./pages/proprietario/ProprietarioAppartamenti";
 import ProprietarioDisponibilita from "./pages/proprietario/ProprietarioDisponibilita";
 import ProprietarioPrenotazioni from "./pages/proprietario/ProprietarioPrenotazioni";
-import Affitta from "./pages/Affitta";
 import Compra from "./pages/Compra";
 import CompraProgetto from "./pages/CompraProgetto";
 import AdminProgetti from "./pages/admin/AdminProgetti";
@@ -89,7 +88,7 @@ const AnimatedRoutes = () => {
           <Route path="/" element={<Index />} />
           <Route path="/chi-siamo" element={<ChiSiamo />} />
           <Route path="/servizi" element={<Servizi />} />
-          <Route path="/affitta" element={<Affitta />} />
+          <Route path="/affitta" element={<Navigate to="/appartamenti" replace />} />
           <Route path="/compra" element={<Compra />} />
           <Route path="/compra/progetti/:slug" element={<CompraProgetto />} />
           <Route path="/appartamenti" element={<Appartamenti />} />
