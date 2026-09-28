@@ -47,7 +47,6 @@ import ProprietarioOverview from "./pages/proprietario/ProprietarioOverview";
 import ProprietarioAppartamenti from "./pages/proprietario/ProprietarioAppartamenti";
 import ProprietarioDisponibilita from "./pages/proprietario/ProprietarioDisponibilita";
 import ProprietarioPrenotazioni from "./pages/proprietario/ProprietarioPrenotazioni";
-import Affitta from "./pages/Affitta";
 import Compra from "./pages/Compra";
 import CompraProgetto from "./pages/CompraProgetto";
 import AdminProgetti from "./pages/admin/AdminProgetti";
