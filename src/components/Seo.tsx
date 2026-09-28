@@ -14,8 +14,8 @@ const SITE_URL = "https://bazhouse.com";
 
 const Seo = ({ title, description, type = "website", image, noindex, jsonLd }: SeoProps) => {
   const { pathname } = useLocation();
-  const fullTitle = title.length > 60 ? title.slice(0, 57) + "..." : title;
-  const desc = description.length > 160 ? description.slice(0, 157) + "..." : description;
+  const fullTitle = title;
+  const desc = description.length > 165 ? description.slice(0, 162).trimEnd() + "…" : description;
   const blocks = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
   const canonical = `${SITE_URL}${pathname}`;
   const ogImage = image ? (image.startsWith("http") ? image : `${SITE_URL}${image}`) : `${SITE_URL}/og-image.png`;

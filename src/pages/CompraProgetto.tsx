@@ -64,7 +64,7 @@ const CompraProgetto = () => {
         description={project.subtitle ?? project.description?.slice(0, 155) ?? `${project.title} — progetto immobiliare a Boa Vista.`}
         image={project.images[0]}
         type="product"
-        jsonLd={{
+        jsonLd={[{
           "@context": "https://schema.org",
           "@type": "Product",
           name: project.title,
@@ -85,7 +85,31 @@ const CompraProgetto = () => {
                 },
               }
             : {}),
-        }}
+        }, {
+          "@context": "https://schema.org",
+          "@type": "Place",
+          name: project.title,
+          address: {
+            "@type": "PostalAddress",
+            ...(project.address ? { streetAddress: project.address } : {}),
+            addressLocality: "Sal Rei",
+            addressRegion: "Boa Vista",
+            addressCountry: "CV",
+          },
+          geo: {
+            "@type": "GeoCoordinates",
+            latitude: project.latitude ?? 16.1815,
+            longitude: project.longitude ?? -22.915,
+          },
+        }, {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: "https://bazhouse.com/" },
+            { "@type": "ListItem", position: 2, name: "Compra", item: "https://bazhouse.com/compra" },
+            { "@type": "ListItem", position: 3, name: project.title, item: `https://bazhouse.com/compra/progetti/${slug}` },
+          ],
+        }]}
       />
       <Navbar />
 
