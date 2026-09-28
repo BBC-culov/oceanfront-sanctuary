@@ -1,17 +1,56 @@
 # BAZHOUSE
 
-> Appartamenti esclusivi vista oceano a Boa Vista, Capo Verde. Praia Cabral e Praia da Cruz: lusso discreto, indipendenza totale, servizi premium per gli ospiti.
+> Residenze esclusive vista oceano a Sal Rei, Boa Vista (Capo Verde), nelle zone di Praia Cabral e Praia da Cruz. Lusso discreto, indipendenza totale, servizi premium e transfer aeroportuale incluso. Sezione dedicata anche all'acquisto e all'investimento immobiliare.
 
-## Pages
+## Il brand
 
-- [Home](/): Panoramica delle residenze BAZHOUSE e dell'esperienza a Boa Vista.
-- [Chi siamo](/chi-siamo): Identità del brand, valori e visione di ospitalità.
-- [Appartamenti](/appartamenti): Catalogo delle residenze disponibili (penthouse e compact).
-- [Servizi](/servizi): Servizi inclusi (transfer aeroporto, welcome) ed esperienze su richiesta.
-- [Contatti](/contatti): Canali diretti WhatsApp, email e telefono.
+BAZHOUSE offre appartamenti privati di alto livello a Boa Vista, pensati per chi cerca "più di un hotel": la libertà di una casa propria con il comfort e l'assistenza di una struttura premium. Target: viaggiatori italiani e internazionali, coppie, famiglie, amanti di surf e kitesurf.
+
+## Residenze (affitto)
+
+Tipologie: Penthouse (ampie, terrazze vista oceano) e Compact (soluzioni raccolte e funzionali).
+
+- [Freedom](https://bazhouse.com/appartamenti/freedom)
+- [Relax](https://bazhouse.com/appartamenti/relax)
+- [Inspiration](https://bazhouse.com/appartamenti/inspiration)
+- [Ocean View](https://bazhouse.com/appartamenti/ocean-view)
+- [Adventure](https://bazhouse.com/appartamenti/adventure)
+- [Coral](https://bazhouse.com/appartamenti/coral)
+- [Tramonto](https://bazhouse.com/appartamenti/tramonto)
+- [Duna](https://bazhouse.com/appartamenti/duna)
+
+Capienza, camere, metratura e prezzi aggiornati sono indicati in ogni scheda.
+
+## Servizi inclusi
+
+- Transfer privato aeroportuale andata/ritorno sempre incluso (Aeroporto Aristides Pereira, BVC).
+- Assistenza dedicata prima e durante il soggiorno (WhatsApp).
+- Circuito vantaggi con partner locali: ristoranti, surf, escursioni.
+- Servizi extra su richiesta prenotabili online.
+
+Prenotazione online con caparra del 20% tramite Stripe; saldo prima dell'arrivo.
+
+## Compra e investi
+
+- [Compra](https://bazhouse.com/compra): progetti immobiliari a Boa Vista per acquisto e investimento.
+- [Playa de Cruz](https://bazhouse.com/compra/progetti/playadecruz): progetto residenziale a Praia da Cruz, Sal Rei.
+
+## Pagine principali
+
+- [Home](https://bazhouse.com/)
+- [Appartamenti](https://bazhouse.com/appartamenti)
+- [Servizi](https://bazhouse.com/servizi)
+- [Chi siamo](https://bazhouse.com/chi-siamo)
+- [Contatti](https://bazhouse.com/contatti)
+
+## Contatti ufficiali
+
+- WhatsApp / Telefono: +39 347 750 4352
+- Email: info@bazhouse.com
+- Sito: https://bazhouse.com
 
 ## Optional
 
-- [Privacy Policy](/privacy-policy)
-- [Refund Policy](/refund-policy)
-- [Rental Agreement](/rental-agreement)
+- [Privacy Policy](https://bazhouse.com/privacy-policy)
+- [Refund Policy](https://bazhouse.com/refund-policy)
+- [Rental Agreement](https://bazhouse.com/rental-agreement)

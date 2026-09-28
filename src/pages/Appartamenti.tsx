@@ -11,15 +11,21 @@ import { useApartments } from "@/hooks/useApartments";
 const Appartamenti = () => {
   const heroRef = useRef<HTMLElement>(null);
   const { data: dbApartments } = useApartments();
-  const apartments = dbApartments ?? [];
+  const FALLBACK = [
+    ["freedom", "Freedom"], ["relax", "Relax"], ["inspiration", "Inspiration"], ["ocean-view", "Ocean View"],
+    ["adventure", "Adventure"], ["coral", "Coral"], ["tramonto", "Tramonto"], ["duna", "Duna"],
+  ].map(([slug, name]) => ({ slug, name }));
+  const apartments = dbApartments?.length ? dbApartments : FALLBACK;
   const itemListJsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: "Appartamenti BAZHOUSE",
+    name: "Appartamenti BAZHOUSE a Boa Vista",
+    url: "https://bazhouse.com/appartamenti",
+    numberOfItems: apartments.length,
     itemListElement: apartments.map((a, i) => ({
       "@type": "ListItem",
       position: i + 1,
-      url: `/appartamenti/${a.slug}`,
+      url: `https://bazhouse.com/appartamenti/${a.slug}`,
       name: a.name,
     })),
   };
