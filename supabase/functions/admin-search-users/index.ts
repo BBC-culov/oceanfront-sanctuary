@@ -54,11 +54,15 @@ Deno.serve(async (req) => {
     );
 
     // Also match by profile name/phone
-    const { data: profiles } = await adminClient
-      .from("profiles")
-      .select("user_id, first_name, last_name, phone")
-      .or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%,phone.ilike.%${q}%`)
-      .limit(50);
+    // Strip PostgREST filter syntax and LIKE wildcards so input stays plain data
+    const safeQ = q.replace(/[,()*%_\\:."']/g, " ").replace(/\s+/g, " ").trim();
+    const { data: profiles } = safeQ.length < 2
+      ? { data: [] as any[] }
+      : await adminClient
+          .from("profiles")
+          .select("user_id, first_name, last_name, phone")
+          .or(`first_name.ilike.%${safeQ}%,last_name.ilike.%${safeQ}%,phone.ilike.%${safeQ}%`)
+          .limit(50);
 
     const profileMap = new Map<string, any>();
     (profiles ?? []).forEach((p: any) => profileMap.set(p.user_id, p));
