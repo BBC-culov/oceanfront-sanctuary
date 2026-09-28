@@ -9,7 +9,7 @@ import ProjectsSection from "@/components/sections/ProjectsSection";
 const Compra = () => (
   <PageTransition>
     <Seo
-      title="Compra — Investimento immobiliare a Boa Vista | BAZHOUSE"
+      title="Comprare Casa a Boa Vista, Capo Verde | Investimenti BAZHOUSE"
       description="Progetti immobiliari selezionati a Boa Vista. Investi in una casa al mare con la cura BAZHOUSE: rendita, lifestyle e gestione professionale."
       jsonLd={{
         "@context": "https://schema.org",
