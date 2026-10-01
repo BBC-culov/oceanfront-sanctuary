@@ -16,6 +16,13 @@ Allow: /
 Disallow: /admin
 Disallow: /proprietario
 Disallow: /profilo
+Disallow: /prenota
+Disallow: /prenotazione
+Disallow: /prenotazione-successo
+Disallow: /pagamento-fallito
+Disallow: /reset-password
+Disallow: /unsubscribe
+Disallow: /riprendi
 
 User-agent: Twitterbot
 Allow: /

@@ -31,6 +31,8 @@ const ChiSiamo = () => {
       <Seo
         title="Chi siamo | BAZHOUSE Boa Vista"
         description="BazHouse, marchio di EasyClick: realizziamo e valorizziamo residenze esclusive a Boa Vista con solidità europea e conoscenza del territorio."
+        image={aerialImg}
+        breadcrumbs={[{ name: "Chi siamo", path: "/chi-siamo" }]}
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "AboutPage",

@@ -180,6 +180,20 @@ const Servizi = () => {
       <Seo
         title="Servizi premium per gli ospiti | BAZHOUSE Boa Vista"
         description="Transfer aeroportuale, welcome kit, pulizie, esperienze e circuito vantaggi: tutti i servizi inclusi e su richiesta per gli ospiti BAZHOUSE."
+        image={heroImg}
+        breadcrumbs={[{ name: "Servizi", path: "/servizi" }]}
+        jsonLd={[
+          ["Transfer aeroporto Boa Vista (BVC) andata e ritorno", "Transfer privato dall'aeroporto Aristides Pereira alla residenza, incluso nel soggiorno."],
+          ["Assistenza concierge e housekeeping", "Assistenza dedicata agli ospiti e servizio di pulizia degli appartamenti."],
+          ["Noleggio veicoli", "Noleggio di quad, auto, moto e bici su richiesta a Boa Vista."],
+        ].map(([name, description]) => ({
+          "@context": "https://schema.org",
+          "@type": "Service",
+          name,
+          description,
+          provider: { "@id": "https://bazhouse.com/#lodging" },
+          areaServed: { "@type": "Place", name: "Boa Vista, Cabo Verde" },
+        }))}
       />
       <Navbar />
       <main>

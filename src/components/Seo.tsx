@@ -8,16 +8,32 @@ interface SeoProps {
   image?: string;
   noindex?: boolean;
   jsonLd?: Record<string, any> | Record<string, any>[];
+  /** Breadcrumb trail after Home, e.g. [{ name: "Servizi", path: "/servizi" }] */
+  breadcrumbs?: { name: string; path: string }[];
 }
 
 const SITE_URL = "https://bazhouse.com";
 
-const Seo = ({ title, description, type = "website", image, noindex, jsonLd }: SeoProps) => {
+const Seo = ({ title, description, type = "website", image, noindex, jsonLd, breadcrumbs }: SeoProps) => {
   const { pathname } = useLocation();
   const fullTitle = title;
   const desc = description.length > 165 ? description.slice(0, 162).trimEnd() + "…" : description;
-  const blocks = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
-  const canonical = `${SITE_URL}${pathname}`;
+  const blocks = jsonLd ? (Array.isArray(jsonLd) ? [...jsonLd] : [jsonLd]) : [];
+  if (breadcrumbs?.length) {
+    const trail = [{ name: "Home", path: "/" }, ...breadcrumbs];
+    blocks.push({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: trail.map((b, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: b.name,
+        item: `${SITE_URL}${b.path}`,
+      })),
+    });
+  }
+  const cleanPath = pathname.replace(/\/+$/, "") || "/";
+  const canonical = `${SITE_URL}${cleanPath}`;
   const ogImage = image ? (image.startsWith("http") ? image : `${SITE_URL}${image}`) : `${SITE_URL}/og-image.png`;
 
   return (

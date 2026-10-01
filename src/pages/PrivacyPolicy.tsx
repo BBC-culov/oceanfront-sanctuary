@@ -9,6 +9,7 @@ const PrivacyPolicy = () => (
     <Seo
       title="Privacy Policy | BAZHOUSE"
       description="Informativa sulla privacy di BAZHOUSE: come raccogliamo, usiamo e proteggiamo i dati personali degli utenti del sito."
+      jsonLd={{ "@context": "https://schema.org", "@type": "WebPage", name: "Privacy Policy — BAZHOUSE", url: "https://bazhouse.com/privacy-policy", isPartOf: { "@id": "https://bazhouse.com/#website" } }}
     />
     <Navbar />
     <main className="min-h-screen bg-background pt-28 pb-16 px-4 sm:px-6 lg:px-8">

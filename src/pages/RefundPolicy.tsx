@@ -9,6 +9,7 @@ const RefundPolicy = () => (
     <Seo
       title="Refund & Cancellation Policy | BAZHOUSE"
       description="Politica di rimborso e cancellazione per le prenotazioni BAZHOUSE a Boa Vista, Capo Verde. Termini, tempistiche e modalità."
+      jsonLd={{ "@context": "https://schema.org", "@type": "WebPage", name: "Refund & Cancellation Policy — BAZHOUSE", url: "https://bazhouse.com/refund-policy", isPartOf: { "@id": "https://bazhouse.com/#website" } }}
     />
     <Navbar />
     <main className="min-h-screen bg-background pt-28 pb-16 px-4 sm:px-6 lg:px-8">

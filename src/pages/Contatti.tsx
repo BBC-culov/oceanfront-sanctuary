@@ -129,6 +129,8 @@ const Contatti = () => {
       <Seo
         title="Contatti | BAZHOUSE Boa Vista"
         description="Contatta BAZHOUSE: WhatsApp, email e telefono per informazioni, prenotazioni e assistenza dedicata sui nostri appartamenti vista oceano."
+        image={heroImg}
+        breadcrumbs={[{ name: "Contatti", path: "/contatti" }]}
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "ContactPage",

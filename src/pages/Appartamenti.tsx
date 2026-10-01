@@ -41,6 +41,7 @@ const Appartamenti = () => {
         title="Affitto Appartamenti a Boa Vista, Capo Verde | BAZHOUSE"
         description="Scopri gli appartamenti BAZHOUSE: residenze esclusive vista mare a Praia Cabral e Praia da Cruz, Boa Vista. Penthouse e compact disponibili."
         jsonLd={itemListJsonLd}
+        breadcrumbs={[{ name: "Appartamenti", path: "/appartamenti" }]}
       />
       <Navbar />
       <main>

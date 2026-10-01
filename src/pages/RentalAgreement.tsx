@@ -9,6 +9,7 @@ const RentalAgreement = () => (
     <Seo
       title="Rental Agreement | BAZHOUSE"
       description="Contratto di locazione BAZHOUSE: termini e condizioni per il soggiorno negli appartamenti vista oceano a Boa Vista, Capo Verde."
+      jsonLd={{ "@context": "https://schema.org", "@type": "WebPage", name: "Rental Agreement — BAZHOUSE", url: "https://bazhouse.com/rental-agreement", isPartOf: { "@id": "https://bazhouse.com/#website" } }}
     />
     <Navbar />
     <main className="min-h-screen bg-background pt-28 pb-16 px-4 sm:px-6 lg:px-8">
