@@ -158,7 +158,7 @@ async function handleWebhook(req: Request): Promise<Response> {
   }
 
   const emailType = payload.data.action_type
-  console.log('Auth email event', { emailType, email: payload.data.email, run_id })
+  console.log('Auth email event', { emailType, run_id })
 
   const EmailTemplate = EMAIL_TEMPLATES[emailType]
   if (!EmailTemplate) {

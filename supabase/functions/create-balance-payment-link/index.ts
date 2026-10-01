@@ -63,7 +63,15 @@ serve(async (req) => {
 
     // Action: send_email — send payment link email to guest
     if (action === "send_email") {
-      if (!payment_link) throw new Error("Link di pagamento mancante");
+      // Only send the link generated and stored server-side for this booking
+      const storedLink = booking.balance_payment_url as string | null;
+      if (!storedLink || !storedLink.startsWith("https://checkout.stripe.com/")) {
+        throw new Error("Link di pagamento mancante");
+      }
+      if (payment_link && payment_link !== storedLink) {
+        throw new Error("Link di pagamento non valido");
+      }
+      const safeLink = storedLink;
 
       const formatDate = (d: string) => {
         const date = new Date(d);
@@ -92,7 +100,7 @@ serve(async (req) => {
             amountPaid: booking.amount_paid,
             checkIn: formatDate(booking.check_in),
             checkOut: formatDate(booking.check_out),
-            paymentLink: payment_link,
+            paymentLink: safeLink,
           },
         }),
       });
