@@ -46,7 +46,14 @@ serve(async (req) => {
       .from("apartments").select("name").eq("id", booking.apartment_id).single();
 
     if (action === "send_email") {
-      if (!payment_link) return json(400, { error: "Link mancante" });
+      // Only send the link generated and stored server-side for this booking
+      const storedLink = (booking as any).modification_payment_url as string | null;
+      if (!storedLink || !storedLink.startsWith("https://checkout.stripe.com/")) {
+        return json(400, { error: "Link mancante" });
+      }
+      if (payment_link && payment_link !== storedLink) {
+        return json(400, { error: "Link non valido" });
+      }
       try {
         await adminClient.functions.invoke("send-transactional-email", {
           body: {
@@ -58,7 +65,7 @@ serve(async (req) => {
               apartmentName: apt?.name ?? "Appartamento",
               bookingCode: booking.booking_code,
               amount: (booking as any).modification_amount_due ?? 0,
-              paymentLink: payment_link,
+              paymentLink: storedLink,
             },
           },
         });
