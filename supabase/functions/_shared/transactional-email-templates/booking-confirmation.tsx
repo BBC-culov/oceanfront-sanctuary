@@ -55,7 +55,7 @@ const BookingConfirmationEmail = ({
             <Text style={text}>
               Puoi visualizzare i dettagli della tua prenotazione nella sezione "Le mie prenotazioni" del tuo profilo.
             </Text>
-            <Button style={button} href="https://bazhousedemo.vercel.app/profilo">
+            <Button style={button} href="https://bazhouse.com/profilo">
               Le mie prenotazioni
             </Button>
           </Section>

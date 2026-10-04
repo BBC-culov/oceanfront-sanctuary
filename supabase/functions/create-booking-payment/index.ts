@@ -124,7 +124,13 @@ serve(async (req) => {
       .in("status", ["incomplete", "pending", "confirmed", "awaiting_verification", "paid"])
       .lt("check_in", check_out)
       .gt("check_out", check_in);
-    if (overlaps && overlaps.length > 0) {
+    const { data: blocks } = await serviceClient
+      .from("apartment_availability_blocks")
+      .select("id")
+      .eq("apartment_id", apartment_id)
+      .lt("start_date", check_out)
+      .gte("end_date", check_in);
+    if ((overlaps && overlaps.length > 0) || (blocks && blocks.length > 0)) {
       return new Response(
         JSON.stringify({ error: "Date non più disponibili per questo appartamento" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 409 },
@@ -135,7 +141,7 @@ serve(async (req) => {
     const resumeToken = crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, "").slice(0, 16);
 
     // 1. Create booking in DB with status "incomplete" (becomes "awaiting_verification" after Stripe success)
-    const { data: booking, error: bookingError } = await supabaseClient
+    const { data: booking, error: bookingError } = await serviceClient
       .from("bookings")
       .insert({
         apartment_id,
@@ -181,7 +187,7 @@ serve(async (req) => {
 
     // 2. Insert additional guests
     if (additional_guests && additional_guests.length > 0) {
-      const { error: guestsError } = await supabaseClient
+      const { error: guestsError } = await serviceClient
         .from("booking_guests")
         .insert(
           additional_guests.map((g: any) => ({
@@ -223,7 +229,7 @@ serve(async (req) => {
       quantity: 1,
     }];
 
-    const ALLOWED_ORIGINS = ["https://bazhouse.com", "https://www.bazhouse.com", "https://bazhousedemo.vercel.app"];
+    const ALLOWED_ORIGINS = ["https://bazhouse.com", "https://www.bazhouse.com"];
 
 
     const reqOrigin = req.headers.get("origin");

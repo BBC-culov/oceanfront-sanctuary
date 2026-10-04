@@ -63,7 +63,7 @@ export const template = {
     apartmentName: 'Ocean View Suite',
     checkIn: '2025-08-01',
     checkOut: '2025-08-08',
-    resumeUrl: 'https://bazhousedemo.vercel.app/riprendi/abc123',
+    resumeUrl: 'https://bazhouse.com/riprendi/abc123',
   },
 } satisfies TemplateEntry
 
