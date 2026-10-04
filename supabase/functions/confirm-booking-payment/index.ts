@@ -217,6 +217,13 @@ serve(async (req) => {
 
     } else if (type === "balance") {
       if (booking.status !== "confirmed") throw new Error("Prenotazione non confermata");
+      const remainingCents = Math.round((Number(booking.total_price ?? 0) - Number(booking.amount_paid ?? 0)) * 100);
+      if (remainingCents <= 0) {
+        return new Response(JSON.stringify({ ok: true }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (paidCents < remainingCents) throw new Error("Importo pagato insufficiente per il saldo");
 
       const { error: updateErr } = await serviceClient
         .from("bookings")
