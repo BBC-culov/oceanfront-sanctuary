@@ -203,7 +203,7 @@ Deno.serve(async (req) => {
       status: 'sent',
       metadata: { provider: 'resend', provider_id: (result as any)?.id ?? null },
     })
-    console.log('Email sent via Resend', { templateName, effectiveRecipient })
+    console.log('Email sent via Resend', { templateName })
     return new Response(JSON.stringify({ success: true, id: (result as any)?.id ?? null }), {
       status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })

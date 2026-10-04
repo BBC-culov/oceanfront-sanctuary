@@ -22,6 +22,13 @@
       "when": 1791146932433,
       "tag": "0002_lock_modification_request_inserts",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791148356936,
+      "tag": "0003_drop_user_booking_insert_policy",
+      "breakpoints": true
     }
   ]
 }
