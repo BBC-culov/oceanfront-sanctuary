@@ -209,7 +209,7 @@ Deno.serve(async (req) => {
     })
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
-    console.error('Resend send failed', { templateName, effectiveRecipient, error: message })
+    console.error('Resend send failed', { templateName, error: message })
     await supabase.from('email_send_log').insert({
       message_id: messageId,
       template_name: templateName,
@@ -217,7 +217,7 @@ Deno.serve(async (req) => {
       status: 'failed',
       error_message: message.slice(0, 500),
     })
-    return new Response(JSON.stringify({ error: message }), {
+    return new Response(JSON.stringify({ error: 'Invio email non riuscito' }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }

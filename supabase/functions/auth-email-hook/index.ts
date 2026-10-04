@@ -196,13 +196,13 @@ async function handleWebhook(req: Request): Promise<Response> {
       status: 'sent',
       metadata: { provider: 'resend', provider_id: (result as any)?.id ?? null },
     })
-    console.log('Auth email sent via Resend', { emailType, email: payload.data.email })
+    console.log('Auth email sent via Resend', { emailType })
     return new Response(JSON.stringify({ success: true }), {
       status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
-    console.error('Resend send failed', { emailType, email: payload.data.email, error: message })
+    console.error('Resend send failed', { emailType, error: message })
     await supabase.from('email_send_log').insert({
       message_id: messageId,
       template_name: emailType,

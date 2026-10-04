@@ -141,7 +141,7 @@ serve(async (req) => {
         price_diff: priceDiff,
         customer_note: customer_note ?? null,
       }).select().single();
-    if (cErr) return json(500, { error: `Errore creazione richiesta: ${cErr.message}` });
+    if (cErr) { console.error("[req-mod] insert failed:", cErr); return json(500, { error: "Errore creazione richiesta" }); }
 
     // Mark booking as modification_pending (preserves original status indirectly via request snapshot)
     await adminClient.from("bookings").update({ status: "modification_pending" } as any).eq("id", booking_id);
