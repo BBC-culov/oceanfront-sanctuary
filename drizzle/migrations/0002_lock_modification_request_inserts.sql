@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Users can create modification requests on own bookings" ON public.booking_modification_requests;

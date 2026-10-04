@@ -5,7 +5,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import Stripe from "https://esm.sh/stripe@18.5.0";
-import { calcDeposit, DEPOSIT_PERCENT_LABEL } from "../_shared/booking-pricing.ts";
+import { calcDeposit, computeBookingPrice } from "../_shared/booking-pricing.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -120,15 +120,34 @@ serve(async (req) => {
       }
     }
 
-    updateData.total_price = request.new_total;
-    updateData.deposit_amount = calcDeposit(Number(request.new_total));
+    // Recompute the total server-side — never trust the stored new_total.
+    const { data: aptPrice } = await adminClient
+      .from("apartments").select("price_per_night, guests").eq("id", booking.apartment_id).single();
+    if (!aptPrice) return json(404, { error: "Appartamento non trovato" });
+    const { data: catalog } = await adminClient
+      .from("additional_services").select("id, name, price, is_active");
+    const svcRaw = (changes as any).selected_services ?? booking.selected_services ?? [];
+    const svcIds: string[] = (Array.isArray(svcRaw) ? svcRaw : [])
+      .map((s: any) => (typeof s === "string" ? s : s?.id)).filter(Boolean);
+    const priced = computeBookingPrice({
+      apartment: { price_per_night: aptPrice.price_per_night, guests: aptPrice.guests },
+      check_in: (changes as any).check_in ?? booking.check_in,
+      check_out: (changes as any).check_out ?? booking.check_out,
+      serviceIds: svcIds,
+      servicesCatalog: catalog ?? [],
+    });
+    if (priced.nights < 1) return json(400, { error: "Soggiorno minimo 1 notte" });
+    const trustedTotal = priced.totalPrice;
+    if ("selected_services" in updateData) updateData.selected_services = priced.trustedServices;
+    updateData.total_price = trustedTotal;
+    updateData.deposit_amount = calcDeposit(trustedTotal);
     updateData.status = restore_status;
 
     // Optional payment link (24h) when there's a positive diff
     let modPaymentUrl: string | null = null;
     let modExpiresAt: number | null = null;
     let modSessionId: string | null = null;
-    const diff = Number(request.price_diff ?? 0);
+    const diff = Math.round((trustedTotal - Number(booking.total_price ?? 0)) * 100) / 100;
 
     if (generate_modification_link && diff > 0) {
       const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
@@ -198,7 +217,7 @@ serve(async (req) => {
           templateData: {
             guestName: booking.guest_name,
             bookingCode: booking.booking_code,
-            newTotal: request.new_total,
+            newTotal: trustedTotal,
             priceDiff: diff,
             paymentLink: modPaymentUrl,
             adminNote: admin_note ?? "",

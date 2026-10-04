@@ -183,7 +183,7 @@ serve(async (req) => {
       .select()
       .single();
 
-    if (bookingError) throw new Error(`Errore creazione prenotazione: ${bookingError.message}`);
+    if (bookingError) { console.error("Booking insert failed:", bookingError); throw new Error("Errore creazione prenotazione"); }
 
     // 2. Insert additional guests
     if (additional_guests && additional_guests.length > 0) {
