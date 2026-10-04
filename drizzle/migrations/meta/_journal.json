@@ -15,6 +15,13 @@
       "when": 1791145275212,
       "tag": "0001_fix_retention_inquiries",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791146932433,
+      "tag": "0002_lock_modification_request_inserts",
+      "breakpoints": true
     }
   ]
 }
