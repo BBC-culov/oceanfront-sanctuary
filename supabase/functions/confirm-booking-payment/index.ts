@@ -66,15 +66,17 @@ serve(async (req) => {
     }
     // Also verify session payment_type matches the requested type when set
     const sessionPaymentType = stripeSession.metadata?.payment_type;
+    // The verified Stripe session metadata is the only source of truth.
     const expectedTypes: Record<string, string[]> = {
       initial: ["deposit", "full"],
       full: ["full", "deposit"],
       balance: ["balance"],
       modification: ["modification"],
     };
-    if (sessionPaymentType && expectedTypes[type] && !expectedTypes[type].includes(sessionPaymentType)) {
+    if (!sessionPaymentType || !expectedTypes[type] || !expectedTypes[type].includes(sessionPaymentType)) {
       throw new Error("Tipo di pagamento non corrispondente");
     }
+    const paidCents = Number(stripeSession.amount_total ?? 0);
 
     const apartmentName = (booking as any).apartments?.name || "Appartamento";
 
@@ -88,7 +90,9 @@ serve(async (req) => {
 
       // "full" forces full payment regardless of stored payment_type (admin link case).
       // "initial" respects the stored payment_type (deposit vs full).
-      const isFull = type === "full" || booking.payment_type === "full";
+      // Full only if the Stripe session itself is a full payment covering the total.
+      const isFull = sessionPaymentType === "full" &&
+        paidCents >= Math.round(Number(booking.total_price ?? 0) * 100);
       const amountPaid = isFull ? booking.total_price : booking.deposit_amount;
       const newPaymentType = isFull ? "full" : booking.payment_type;
 
@@ -167,7 +171,13 @@ serve(async (req) => {
     } else if (type === "modification") {
       // Modification payment received: clear modification_amount_due,
       // record amount toward amount_paid, clear modification link state.
-      const modAmount = Number((booking as any).modification_amount_due ?? 0);
+      // Idempotency: only apply if this is the session currently pending
+      if ((booking as any).modification_session_id !== session_id) {
+        return new Response(JSON.stringify({ ok: true }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const modAmount = Math.min(Number((booking as any).modification_amount_due ?? 0), paidCents / 100);
       const newAmountPaid = Math.round((Number(booking.amount_paid ?? 0) + modAmount) * 100) / 100;
 
       const { error: updErr } = await serviceClient
