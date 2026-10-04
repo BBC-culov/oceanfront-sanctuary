@@ -136,7 +136,7 @@ serve(async (req) => {
       const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
       modExpiresAt = Math.floor(Date.now() / 1000) + 24 * 60 * 60;
-      const ALLOWED_ORIGINS = ["https://bazhouse.com", "https://www.bazhouse.com", "https://bazhousedemo.vercel.app"];
+      const ALLOWED_ORIGINS = ["https://bazhouse.com", "https://www.bazhouse.com"];
 
       const reqOrigin = req.headers.get("origin");
 

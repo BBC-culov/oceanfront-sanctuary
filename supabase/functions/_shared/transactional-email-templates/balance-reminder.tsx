@@ -40,7 +40,7 @@ const BalanceReminderEmail = ({
               <Text style={warningSubtext}>Check-in: {checkIn} (tra {daysLeft} giorni)</Text>
             </Section>
             <Text style={text}>Accedi al tuo profilo per completare il pagamento del saldo.</Text>
-            <Button style={button} href="https://bazhousedemo.vercel.app/profilo">
+            <Button style={button} href="https://bazhouse.com/profilo">
               Paga il saldo
             </Button>
           </Section>
