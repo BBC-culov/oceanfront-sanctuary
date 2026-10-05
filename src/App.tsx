@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { lazy, Suspense, useState, useCallback, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,46 +11,47 @@ import { initMetaPixel, trackPageView } from "@/lib/metaPixel";
 import { useMaintenanceMode } from "@/hooks/useMaintenanceMode";
 import MaintenancePage from "@/components/MaintenancePage";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import Index from "./pages/Index";
-import ChiSiamo from "./pages/ChiSiamo";
-import Servizi from "./pages/Servizi";
-import Appartamenti from "./pages/Appartamenti";
-import Contatti from "./pages/Contatti";
-import AppartamentoDetail from "./pages/AppartamentoDetail";
-import Prenota from "./pages/Prenota";
-import PrenotazioneDetail from "./pages/PrenotazioneDetail";
-import PrenotazioneSuccesso from "./pages/PrenotazioneSuccesso";
-import PagamentoFallito from "./pages/PagamentoFallito";
-import NotFound from "./pages/NotFound";
-import Registrati from "./pages/Registrati";
-import ResetPassword from "./pages/ResetPassword";
-import Profilo from "./pages/Profilo";
-import Privacy from "./pages/Privacy";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import RefundPolicy from "./pages/RefundPolicy";
-import RentalAgreement from "./pages/RentalAgreement";
 import CookieBanner from "./components/CookieBanner";
-import AdminLayout from "./components/admin/AdminLayout";
-import AdminOverview from "./pages/admin/AdminOverview";
-import AdminPrenotazioni from "./pages/admin/AdminPrenotazioni";
-import AdminAppartamenti from "./pages/admin/AdminAppartamenti";
-import AdminGestione from "./pages/admin/AdminGestione";
-import AdminProprietari from "./pages/admin/AdminProprietari";
-import AdminGestioneSito from "./pages/admin/AdminGestioneSito";
-import AdminServizi from "./pages/admin/AdminServizi";
-import AdminPrenotazioneDetail from "./pages/admin/AdminPrenotazioneDetail";
-import AdminPrenotazioneNuova from "./pages/admin/AdminPrenotazioneNuova";
-import Unsubscribe from "./pages/Unsubscribe";
-import Riprendi from "./pages/Riprendi";
-import ProprietarioLayout from "./components/proprietario/ProprietarioLayout";
-import ProprietarioOverview from "./pages/proprietario/ProprietarioOverview";
-import ProprietarioAppartamenti from "./pages/proprietario/ProprietarioAppartamenti";
-import ProprietarioDisponibilita from "./pages/proprietario/ProprietarioDisponibilita";
-import ProprietarioPrenotazioni from "./pages/proprietario/ProprietarioPrenotazioni";
-import Compra from "./pages/Compra";
-import CompraProgetto from "./pages/CompraProgetto";
-import AdminProgetti from "./pages/admin/AdminProgetti";
-import AdminRichiesteProgetti from "./pages/admin/AdminRichiesteProgetti";
+
+const Index = lazy(() => import("./pages/Index"));
+const ChiSiamo = lazy(() => import("./pages/ChiSiamo"));
+const Servizi = lazy(() => import("./pages/Servizi"));
+const Appartamenti = lazy(() => import("./pages/Appartamenti"));
+const Contatti = lazy(() => import("./pages/Contatti"));
+const AppartamentoDetail = lazy(() => import("./pages/AppartamentoDetail"));
+const Prenota = lazy(() => import("./pages/Prenota"));
+const PrenotazioneDetail = lazy(() => import("./pages/PrenotazioneDetail"));
+const PrenotazioneSuccesso = lazy(() => import("./pages/PrenotazioneSuccesso"));
+const PagamentoFallito = lazy(() => import("./pages/PagamentoFallito"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Registrati = lazy(() => import("./pages/Registrati"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const Profilo = lazy(() => import("./pages/Profilo"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const RefundPolicy = lazy(() => import("./pages/RefundPolicy"));
+const RentalAgreement = lazy(() => import("./pages/RentalAgreement"));
+const AdminLayout = lazy(() => import("./components/admin/AdminLayout"));
+const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
+const AdminPrenotazioni = lazy(() => import("./pages/admin/AdminPrenotazioni"));
+const AdminAppartamenti = lazy(() => import("./pages/admin/AdminAppartamenti"));
+const AdminGestione = lazy(() => import("./pages/admin/AdminGestione"));
+const AdminProprietari = lazy(() => import("./pages/admin/AdminProprietari"));
+const AdminGestioneSito = lazy(() => import("./pages/admin/AdminGestioneSito"));
+const AdminServizi = lazy(() => import("./pages/admin/AdminServizi"));
+const AdminPrenotazioneDetail = lazy(() => import("./pages/admin/AdminPrenotazioneDetail"));
+const AdminPrenotazioneNuova = lazy(() => import("./pages/admin/AdminPrenotazioneNuova"));
+const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
+const Riprendi = lazy(() => import("./pages/Riprendi"));
+const ProprietarioLayout = lazy(() => import("./components/proprietario/ProprietarioLayout"));
+const ProprietarioOverview = lazy(() => import("./pages/proprietario/ProprietarioOverview"));
+const ProprietarioAppartamenti = lazy(() => import("./pages/proprietario/ProprietarioAppartamenti"));
+const ProprietarioDisponibilita = lazy(() => import("./pages/proprietario/ProprietarioDisponibilita"));
+const ProprietarioPrenotazioni = lazy(() => import("./pages/proprietario/ProprietarioPrenotazioni"));
+const Compra = lazy(() => import("./pages/Compra"));
+const CompraProgetto = lazy(() => import("./pages/CompraProgetto"));
+const AdminProgetti = lazy(() => import("./pages/admin/AdminProgetti"));
+const AdminRichiesteProgetti = lazy(() => import("./pages/admin/AdminRichiesteProgetti"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -84,7 +85,8 @@ const AnimatedRoutes = () => {
   return (
     <>
       <AnimatePresence mode="wait">
-        <Routes location={location} key={location.pathname}>
+        <Suspense fallback={null}>
+          <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Index />} />
           <Route path="/chi-siamo" element={<ChiSiamo />} />
           <Route path="/servizi" element={<Servizi />} />
@@ -129,7 +131,8 @@ const AnimatedRoutes = () => {
             <Route path="prenotazioni" element={<ProprietarioPrenotazioni />} />
           </Route>
           <Route path="*" element={<NotFound />} />
-        </Routes>
+          </Routes>
+        </Suspense>
       </AnimatePresence>
       {!isAdminRoute && <WhatsAppButton />}
       {!isAdminRoute && <CookieBanner />}
