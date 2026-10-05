@@ -30,10 +30,16 @@ const HeroSection = ({ headlines = defaultHeadlines }: { headlines?: string[] })
 
   return (
     <section ref={ref} className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
-      <motion.div
-        className="absolute inset-[-15%] bg-cover bg-center will-change-transform"
-        style={{ backgroundImage: `url(${heroImage})`, y: bgY }}
-      >
+      <motion.div className="absolute inset-[-15%] will-change-transform" style={{ y: bgY }}>
+        <img
+          src={heroImage}
+          alt=""
+          width={1920}
+          height={1080}
+          fetchPriority="high"
+          decoding="async"
+          className="h-full w-full object-cover object-center"
+        />
         <div className="absolute inset-0 bg-gradient-to-b from-primary/70 via-primary/45 to-primary/65" />
       </motion.div>
 

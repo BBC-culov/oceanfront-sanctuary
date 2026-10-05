@@ -3,26 +3,31 @@ import { motion } from "framer-motion";
 
 const logoUrl = "/logo-bazhouse-white.png";
 
-// Hero images to preload
 import heroOcean from "@/assets/hero-ocean.jpg";
 import heroAppartamenti from "@/assets/hero-appartamenti.jpg";
 import heroServizi from "@/assets/hero-servizi.jpg";
 import heroContatti from "@/assets/hero-contatti.jpg";
 
-const imagesToPreload = [heroOcean, heroAppartamenti, heroServizi, heroContatti];
+const getCurrentHero = () => {
+  const path = window.location.pathname;
+  if (path === "/" || path === "/compra") return heroOcean;
+  if (path === "/appartamenti") return heroAppartamenti;
+  if (path === "/servizi") return heroServizi;
+  if (path === "/contatti") return heroContatti;
+  return null;
+};
 
-const preloadImages = (): Promise<void[]> =>
-  Promise.all(
-    imagesToPreload.map(
-      (src) =>
-        new Promise<void>((resolve) => {
-          const img = new Image();
-          img.onload = () => resolve();
-          img.onerror = () => resolve(); // don't block on error
-          img.src = src;
-        })
-    )
-  );
+const preloadCurrentHero = (): Promise<void> => {
+  const src = getCurrentHero();
+  if (!src) return Promise.resolve();
+
+  return new Promise<void>((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve();
+    img.onerror = () => resolve();
+    img.src = src;
+  });
+};
 
 const SiteLoader = ({ onComplete }: { onComplete: () => void }) => {
   const [progress, setProgress] = useState(0);
@@ -30,8 +35,7 @@ const SiteLoader = ({ onComplete }: { onComplete: () => void }) => {
   useEffect(() => {
     let cancelled = false;
 
-    // Start preloading images
-    const imagePromise = preloadImages();
+    const imagePromise = preloadCurrentHero();
 
     // Animate progress while loading
     const steps = [10, 25, 40, 55, 70, 85];
@@ -78,6 +82,9 @@ const SiteLoader = ({ onComplete }: { onComplete: () => void }) => {
       <motion.img
         src={logoUrl}
         alt="BAZHOUSE"
+        width={238}
+        height={64}
+        decoding="async"
         className="h-12 md:h-16 w-auto mb-10 relative z-10"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
