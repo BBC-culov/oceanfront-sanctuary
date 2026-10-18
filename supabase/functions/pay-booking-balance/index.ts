@@ -69,11 +69,10 @@ serve(async (req) => {
       apiVersion: "2025-08-27.basil",
     });
 
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    let customerId: string | undefined;
-    if (customers.data.length > 0) {
-      customerId = customers.data[0].id;
-    }
+    // Never reuse a Stripe customer found by email: it may belong to someone
+    // else and expose their saved payment methods. Stripe Checkout creates or
+    // links a guest customer from the verified account email instead.
+    const customerId: string | undefined = undefined;
 
     const ALLOWED_ORIGINS = ["https://bazhouse.com", "https://www.bazhouse.com"];
 
