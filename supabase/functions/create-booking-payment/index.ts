@@ -114,6 +114,17 @@ serve(async (req) => {
     const depositAmount = calcDeposit(trustedTotalPrice);
     const amountToCharge = depositAmount;
 
+    // The caller's own abandoned (incomplete) attempts for overlapping dates on
+    // this apartment are replaced by this new attempt instead of blocking it.
+    await serviceClient
+      .from("bookings")
+      .delete()
+      .eq("apartment_id", apartment_id)
+      .eq("user_id", user.id)
+      .eq("status", "incomplete")
+      .lt("check_in", check_out)
+      .gt("check_out", check_in);
+
     // Server-side overlap check to prevent double-booking
     // Use serviceClient (bypasses RLS) so overlap check sees ALL users' bookings,
     // not just the caller's — required to prevent concurrent double-bookings.
