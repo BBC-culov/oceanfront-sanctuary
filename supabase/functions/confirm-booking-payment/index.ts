@@ -25,26 +25,38 @@ serve(async (req) => {
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
     if (authError || !user) throw new Error("Utente non autenticato");
 
-    const { booking_id, type, session_id } = await req.json();
-    if (!booking_id) throw new Error("ID prenotazione mancante");
-    if (!session_id || typeof session_id !== "string") {
-      throw new Error("Sessione di pagamento mancante");
-    }
+    const body = await req.json();
+    const { booking_id, type } = body;
+    let session_id: string | undefined = body.session_id;
+    const reconcile = body.reconcile === true;
+    if (!booking_id || typeof booking_id !== "string") throw new Error("ID prenotazione mancante");
 
     const serviceClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // Verify user owns this booking
-    const { data: booking, error: bErr } = await serviceClient
-      .from("bookings")
-      .select("*, apartments(name)")
-      .eq("id", booking_id)
-      .eq("user_id", user.id)
-      .single();
+    const { data: isAdminRole } = await serviceClient.rpc("has_role", { _user_id: user.id, _role: "admin" });
+
+    // Verify user owns this booking (admins may reconcile any booking)
+    let bq = serviceClient.from("bookings").select("*, apartments(name)").eq("id", booking_id);
+    if (!isAdminRole) bq = bq.eq("user_id", user.id);
+    const { data: booking, error: bErr } = await bq.single();
 
     if (bErr || !booking) throw new Error("Prenotazione non trovata");
+
+    // Reconcile mode: verify the balance session stored server-side for this booking
+    if (reconcile) {
+      if (type !== "balance" || !booking.balance_session_id) {
+        return new Response(JSON.stringify({ ok: true, updated: false }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      session_id = booking.balance_session_id as string;
+    }
+    if (!session_id || typeof session_id !== "string") {
+      throw new Error("Sessione di pagamento mancante");
+    }
 
     // SERVER-SIDE STRIPE VERIFICATION — single source of truth.
     // Without this, an authenticated user could call this endpoint directly
@@ -59,6 +71,11 @@ serve(async (req) => {
       throw new Error("Sessione Stripe non valida");
     }
     if (stripeSession.payment_status !== "paid") {
+      if (reconcile) {
+        return new Response(JSON.stringify({ ok: true, updated: false }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       throw new Error("Pagamento non completato");
     }
     if (stripeSession.metadata?.booking_id !== booking_id) {
@@ -227,7 +244,13 @@ serve(async (req) => {
 
       const { error: updateErr } = await serviceClient
         .from("bookings")
-        .update({ amount_paid: booking.total_price, payment_type: "full" })
+        .update({
+          amount_paid: booking.total_price,
+          payment_type: "full",
+          balance_payment_url: null,
+          balance_session_id: null,
+          balance_link_expires_at: null,
+        })
         .eq("id", booking_id);
 
       if (updateErr) throw new Error(`Errore aggiornamento: ${updateErr.message}`);
