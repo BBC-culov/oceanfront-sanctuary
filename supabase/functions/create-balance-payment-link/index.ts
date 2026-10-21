@@ -86,7 +86,7 @@ serve(async (req) => {
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${serviceRoleKey}`,
-          "apikey": Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+          "apikey": serviceRoleKey,
         },
         body: JSON.stringify({
           templateName: "balance-payment-request",
