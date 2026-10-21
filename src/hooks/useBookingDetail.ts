@@ -99,6 +99,18 @@ export function useBookingDetail() {
 
       if (!b) { navigate("/profilo#prenotazioni"); return; }
       setBooking(b);
+      const bR = b as any;
+      if (bR.balance_session_id && Number(bR.amount_paid ?? 0) < Number(bR.total_price ?? 0)) {
+        supabase.functions.invoke("confirm-booking-payment", {
+          body: { booking_id: bR.id, type: "balance", reconcile: true },
+        }).then(async ({ data }) => {
+          if (data?.ok) {
+            const { data: fresh } = await supabase.from("bookings").select("*")
+              .eq("id", bR.id).eq("user_id", session.user.id).single();
+            if (fresh) setBooking(fresh);
+          }
+        }).catch((e) => console.error("Balance reconcile error:", e));
+      }
 
       const { data: apt } = await supabase
         .from("apartments")

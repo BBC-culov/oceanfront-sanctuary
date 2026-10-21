@@ -54,6 +54,17 @@ export function useAdminBookingDetail(id: string | undefined, onMissing: () => v
       const { data: b } = await supabase.from("bookings").select("*").eq("id", id!).single();
       if (!b) { onMissing(); return; }
       setBooking(b);
+      const bR = b as any;
+      if (bR.balance_session_id && Number(bR.amount_paid ?? 0) < Number(bR.total_price ?? 0)) {
+        supabase.functions.invoke("confirm-booking-payment", {
+          body: { booking_id: bR.id, type: "balance", reconcile: true },
+        }).then(async ({ data }) => {
+          if (data?.ok) {
+            const { data: fresh } = await supabase.from("bookings").select("*").eq("id", bR.id).single();
+            if (fresh) setBooking(fresh);
+          }
+        }).catch((e) => console.error("Balance reconcile error:", e));
+      }
 
       // Restore persisted balance link
       const bAny = b as any;
