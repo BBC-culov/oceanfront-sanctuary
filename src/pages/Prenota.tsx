@@ -1,3 +1,4 @@
+import { extractEdgeError } from "@/lib/edgeError";
 import { Link, Navigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, LogIn } from "lucide-react";
@@ -153,7 +154,7 @@ const Prenota = () => {
         },
       });
 
-      if (error) throw new Error(error.message || "Errore durante la creazione del pagamento");
+      if (error) throw new Error(await extractEdgeError(error, "Errore durante la creazione del pagamento"));
       if (data?.error) throw new Error(data.error);
 
       if (data?.url) {
