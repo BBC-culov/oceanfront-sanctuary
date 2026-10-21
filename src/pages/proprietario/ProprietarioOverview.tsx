@@ -1,4 +1,3 @@
-import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -28,18 +27,6 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-import {
-  format,
-  parseISO,
-  startOfMonth,
-  endOfMonth,
-  subMonths,
-  startOfYear,
-  endOfYear,
-  differenceInCalendarMonths,
-  isWithinInterval,
-} from "date-fns";
-import { it } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
