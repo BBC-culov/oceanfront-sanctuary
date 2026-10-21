@@ -4,3 +4,4 @@
 - [x] Fase 2: campi condivisi dialoghi modifica prenotazione
 - [ ] Fase 3: panoramica proprietario, gestione amministratori, Prenota, mappa transfer
 - [ ] Fase 4: unificazione notifiche
+- [ ] Ripristinare chiave Stripe di test (inserita dall'utente)
