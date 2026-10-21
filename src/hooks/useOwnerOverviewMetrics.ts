@@ -119,7 +119,7 @@ export function useOwnerOverviewMetrics() {
   );
 
   return {
-    apartments, loading, period, setPeriod, customFrom, setCustomFrom, customTo, setCustomTo,
+    apartments, bookings, loading, period, setPeriod, customFrom, setCustomFrom, customTo, setCustomTo,
     exporting, setExporting, aptNameById, range, activeBookings, kpis, monthlySeries,
     apartmentBreakdown, topApartment, peakMonth, avgGuests, periodLabel,
   };

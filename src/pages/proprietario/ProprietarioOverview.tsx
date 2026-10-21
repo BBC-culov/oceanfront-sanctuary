@@ -59,7 +59,7 @@ import type { PeriodPreset } from "@/lib/ownerOverview";
 const ProprietarioOverview = () => {
   const metrics = useOwnerOverviewMetrics();
   const {
-    apartments, loading, period, setPeriod, customFrom, setCustomFrom, customTo, setCustomTo,
+    apartments, bookings, loading, period, setPeriod, customFrom, setCustomFrom, customTo, setCustomTo,
     exporting, setExporting, kpis, monthlySeries, apartmentBreakdown, topApartment, peakMonth,
     avgGuests, periodLabel,
   } = metrics;
