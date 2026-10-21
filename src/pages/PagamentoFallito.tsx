@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
 import Seo from "@/components/Seo";
+import { BRAND_CONTACTS } from "@/lib/contacts";
 
 const PagamentoFallito = () => {
   const [searchParams] = useSearchParams();
@@ -74,7 +75,7 @@ const PagamentoFallito = () => {
             </Link>
 
             <a
-              href="https://wa.me/2389573808"
+              href={BRAND_CONTACTS.whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 border border-border text-foreground font-sans text-[11px] tracking-[0.15em] uppercase px-6 py-4 hover:bg-secondary/50 transition-colors"

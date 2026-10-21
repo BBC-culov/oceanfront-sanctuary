@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Loader2, Trash2, CalendarRange, Lock, AlertCircle } from "lucide-react";
 import { format, startOfDay, addDays, isBefore, isSameDay } from "date-fns";
@@ -39,7 +39,7 @@ const AvailabilityManagerDialog = ({ open, onClose, apartmentId, apartmentName }
   const [range, setRange] = useState<DateRange | undefined>();
   const [reason, setReason] = useState("");
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
       const [blocksRes, bookingsRes] = await Promise.all([
@@ -63,7 +63,7 @@ const AvailabilityManagerDialog = ({ open, onClose, apartmentId, apartmentName }
     } finally {
       setLoading(false);
     }
-  };
+  }, [apartmentId]);
 
   useEffect(() => {
     if (open && apartmentId) {
@@ -71,7 +71,7 @@ const AvailabilityManagerDialog = ({ open, onClose, apartmentId, apartmentName }
       setRange(undefined);
       setReason("");
     }
-  }, [open, apartmentId]);
+  }, [open, apartmentId, loadData]);
 
   // Days disabled = booked by clients (cannot be blocked manually here)
   const bookedDays: Date[] = [];

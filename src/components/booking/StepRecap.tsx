@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO } from "date-fns";
 import { countNights } from "@/lib/nights";
+import { calcDeposit } from "@/lib/bookingDeposit";
 import { it } from "date-fns/locale";
 import {
   CalendarCheck, Users, PlaneTakeoff, PlaneLanding,
@@ -76,7 +77,7 @@ const StepRecap = ({
       ? s.price * nights : s.price;
   const servicesTotal = selectedServices.reduce((sum, s) => sum + getServiceTotal(s), 0);
   const grandTotal = accommodationTotal + servicesTotal;
-  const depositAmount = Math.round(grandTotal * 0.2 * 100) / 100;
+  const depositAmount = calcDeposit(grandTotal);
   const remainingBalance = Math.round((grandTotal - depositAmount) * 100) / 100;
 
   return (

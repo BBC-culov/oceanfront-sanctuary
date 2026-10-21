@@ -55,12 +55,12 @@ import { toast } from "@/hooks/use-toast";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import logoUrl from "@/assets/logo-bazhouse.png";
+import { PLATFORM_FEE_RATE } from "@/lib/ownerFees";
 
 // Bookings considered "earned/active"
 const ACTIVE_STATUSES = ["confirmed", "paid", "awaiting_verification", "completed"];
 
 // Platform fee estimate to derive a "margine" indicator (commission retained by BAZHOUSE)
-const PLATFORM_FEE_RATE = 0.15;
 
 const eur = (n: number) =>
   new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
