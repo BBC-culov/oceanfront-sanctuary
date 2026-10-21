@@ -1,16 +1,15 @@
 // Client-side dialog: request modifications (dates, main guest, flight, additional guests, services, notes)
 // Sends to request-booking-modification edge function.
-import { useEffect, useMemo, useState } from "react";
-import { countNights } from "@/lib/nights";
-import { Loader2, X, CalendarDays, PlaneTakeoff, Sparkles, MessageSquare, Phone, User, Users, AlertCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Loader2, X, CalendarDays, PlaneTakeoff, Sparkles, MessageSquare, Phone, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAdditionalServices } from "@/hooks/useAdditionalServices";
 import { extractEdgeError } from "@/lib/edgeError";
-import GuestListEditor, { type GuestRow } from "./GuestListEditor";
-import { mainGuestSchema, stayDatesSchema, guestSchema, flattenZodErrors, type FieldErrors } from "@/lib/modificationValidation";
 import PhonePrefixInput from "@/components/PhonePrefixInput";
+import { useBookingEditForm } from "@/hooks/useBookingEditForm";
+import { ErrorMsg, AdditionalGuestsSection } from "./BookingModificationFormFields";
 
 interface Props {
   open: boolean;
@@ -22,125 +21,31 @@ interface Props {
 const fieldClass = (hasError: boolean) =>
   `w-full h-11 px-3 rounded-md bg-background border text-sm ${hasError ? "border-destructive focus:border-destructive" : "border-border"}`;
 
-const ErrorMsg = ({ msg }: { msg?: string }) =>
-  msg ? <p className="mt-1 text-[11px] text-destructive flex items-center gap-1"><AlertCircle className="w-3 h-3" />{msg}</p> : null;
-
 export default function RequestModificationDialog({ open, onClose, booking, onSubmitted }: Props) {
   const { data: services = [] } = useAdditionalServices();
   const [submitting, setSubmitting] = useState(false);
-  const [errors, setErrors] = useState<FieldErrors>({});
-
-  const [checkIn, setCheckIn] = useState("");
-  const [checkOut, setCheckOut] = useState("");
-  // Main guest
-  const [guestName, setGuestName] = useState("");
-  const [guestLast, setGuestLast] = useState("");
-  const [guestEmail, setGuestEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [gDob, setGDob] = useState("");
-  const [gPob, setGPob] = useState("");
-  const [gNat, setGNat] = useState("");
-  const [gIdType, setGIdType] = useState("id_card");
-  const [gIdNum, setGIdNum] = useState("");
-  const [gIdIss, setGIdIss] = useState("");
-  const [gIdExp, setGIdExp] = useState("");
-  // Flight
-  const [flightOut, setFlightOut] = useState("");
-  const [flightRet, setFlightRet] = useState("");
-  const [airline, setAirline] = useState("");
-  const [arrTime, setArrTime] = useState("");
-  const [depTime, setDepTime] = useState("");
-  const [noTransfer, setNoTransfer] = useState(false);
-  const [notes, setNotes] = useState("");
-  const [selectedSvcIds, setSelectedSvcIds] = useState<string[]>([]);
+  const form = useBookingEditForm(open, booking);
+  const {
+    errors, checkIn, setCheckIn, checkOut, setCheckOut,
+    guestName, setGuestName, guestLast, setGuestLast, guestEmail, setGuestEmail, phone, setPhone,
+    gDob, setGDob, gPob, setGPob, gNat, setGNat, gIdType, setGIdType, gIdNum, setGIdNum,
+    gIdIss, setGIdIss, gIdExp, setGIdExp,
+    flightOut, setFlightOut, flightRet, setFlightRet, airline, setAirline,
+    arrTime, setArrTime, depTime, setDepTime, noTransfer, setNoTransfer, notes,
+    selectedSvcIds, toggleService, guests, setGuests, editGuests, setEditGuests, nights,
+  } = form;
   const [customerNote, setCustomerNote] = useState("");
-  const [guests, setGuests] = useState<GuestRow[]>([]);
-  const [editGuests, setEditGuests] = useState(false);
   const [editMainGuest, setEditMainGuest] = useState(false);
 
   useEffect(() => {
     if (!open || !booking) return;
-    setErrors({});
-    setCheckIn(booking.check_in ?? "");
-    setCheckOut(booking.check_out ?? "");
-    setGuestName(booking.guest_name ?? "");
-    setGuestLast(booking.guest_last_name ?? "");
-    setGuestEmail(booking.guest_email ?? "");
-    setPhone(booking.guest_phone ?? "");
-    setGDob(booking.guest_date_of_birth ?? "");
-    setGPob(booking.guest_place_of_birth ?? "");
-    setGNat(booking.guest_nationality ?? "");
-    setGIdType(booking.guest_id_type ?? "id_card");
-    setGIdNum(booking.guest_id_card_number ?? "");
-    setGIdIss(booking.guest_id_card_issued ?? "");
-    setGIdExp(booking.guest_id_card_expiry ?? "");
-    setFlightOut(booking.flight_outbound ?? "");
-    setFlightRet(booking.flight_return ?? "");
-    setAirline(booking.airline ?? "");
-    setArrTime(booking.arrival_time ?? "");
-    setDepTime(booking.departure_time ?? "");
-    setNoTransfer(!!booking.no_transfer);
-    setNotes(booking.notes ?? "");
-    setSelectedSvcIds(
-      Array.isArray(booking.selected_services)
-        ? booking.selected_services.map((s: any) => (typeof s === "string" ? s : s?.id)).filter(Boolean)
-        : []
-    );
     setCustomerNote("");
-    setEditGuests(false);
     setEditMainGuest(false);
-    (async () => {
-      const { data } = await supabase
-        .from("booking_guests")
-        .select("first_name,last_name,date_of_birth,nationality,id_type,id_card_number,id_card_issued,id_card_expiry")
-        .eq("booking_id", booking.id);
-      setGuests(
-        (data ?? []).map((g: any) => ({
-          first_name: g.first_name ?? "",
-          last_name: g.last_name ?? "",
-          date_of_birth: g.date_of_birth ?? "",
-          nationality: g.nationality ?? "",
-          id_type: g.id_type ?? "id_card",
-          id_card_number: g.id_card_number ?? "",
-          id_card_issued: g.id_card_issued ?? "",
-          id_card_expiry: g.id_card_expiry ?? "",
-        }))
-      );
-    })();
   }, [open, booking]);
 
   if (!open) return null;
 
-  const nights = countNights(checkIn, checkOut);
-
-  const toggleService = (id: string) =>
-    setSelectedSvcIds((prev) => (prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]));
-
-  const validate = (): boolean => {
-    const errs: FieldErrors = {};
-    const dRes = stayDatesSchema.safeParse({ check_in: checkIn, check_out: checkOut });
-    if (!dRes.success) Object.assign(errs, flattenZodErrors(dRes.error));
-    if (editMainGuest) {
-      const mRes = mainGuestSchema.safeParse({
-        guest_name: guestName, guest_last_name: guestLast, guest_email: guestEmail, guest_phone: phone,
-        guest_date_of_birth: gDob, guest_place_of_birth: gPob, guest_nationality: gNat,
-        guest_id_type: gIdType as any, guest_id_card_number: gIdNum,
-        guest_id_card_issued: gIdIss, guest_id_card_expiry: gIdExp,
-      });
-      if (!mRes.success) Object.assign(errs, flattenZodErrors(mRes.error));
-    }
-    if (editGuests) {
-      guests.forEach((g, idx) => {
-        const r = guestSchema.safeParse(g);
-        if (!r.success) {
-          const fl = flattenZodErrors(r.error);
-          for (const k of Object.keys(fl)) errs[`guest_${idx}_${k}`] = fl[k];
-        }
-      });
-    }
-    setErrors(errs);
-    return Object.keys(errs).length === 0;
-  };
+  const validate = () => form.validate({ includeMainGuest: editMainGuest });
 
   const submit = async () => {
     if (!validate()) {
