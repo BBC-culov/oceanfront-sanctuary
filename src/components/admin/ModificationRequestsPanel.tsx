@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Loader2, Check, X, AlertCircle, Link as LinkIcon, Copy } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { extractEdgeError } from "@/lib/edgeError";
 import ModificationDiff from "./ModificationDiff";
 
@@ -49,11 +49,11 @@ export default function ModificationRequestsPanel({ bookingId, originalStatus = 
       });
       if (data?.error) throw new Error(data.error);
       if (error) throw new Error(await extractEdgeError(error));
-      toast({ title: action === "approve" ? "Modifica approvata" : "Richiesta rifiutata" });
+      toast(action === "approve" ? "Modifica approvata" : "Richiesta rifiutata");
       await load();
       onChanged?.();
     } catch (e: any) {
-      toast({ title: "Errore", description: e.message || "Errore", variant: "destructive" });
+      toast.error("Errore", { description: e.message || "Errore" });
     } finally { setBusy(null); }
   };
 

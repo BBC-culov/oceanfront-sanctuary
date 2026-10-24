@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { extractEdgeError } from "@/lib/edgeError";
 
 /**
@@ -91,10 +91,10 @@ export function useAdminBookingDetail(id: string | undefined, onMissing: () => v
   const updateStatus = async (status: string) => {
     const { error } = await supabase.from("bookings").update({ status } as any).eq("id", id!);
     if (error) {
-      toast({ title: "Errore", description: error.message, variant: "destructive" });
+      toast.error("Errore", { description: error.message });
     } else {
       setBooking((prev: any) => ({ ...prev, status }));
-      toast({ title: "Stato aggiornato" });
+      toast("Stato aggiornato");
     }
   };
 
@@ -109,9 +109,9 @@ export function useAdminBookingDetail(id: string | undefined, onMissing: () => v
       setBalanceLink(data.url);
       setBalanceSessionId(data.session_id);
       setLinkExpiresAt(data.expires_at);
-      toast({ title: "Link generato!", description: "Copialo e invialo al cliente." });
+      toast("Link generato!", { description: "Copialo e invialo al cliente." });
     } catch (e: any) {
-      toast({ title: "Errore", description: e.message || "Errore nella generazione del link", variant: "destructive" });
+      toast.error("Errore", { description: e.message || "Errore nella generazione del link" });
     } finally {
       setGeneratingLink(false);
     }
@@ -129,9 +129,9 @@ export function useAdminBookingDetail(id: string | undefined, onMissing: () => v
       setBalanceLink(data.url);
       setBalanceSessionId(data.session_id);
       setLinkExpiresAt(data.expires_at);
-      toast({ title: "Link rigenerato!", description: "Il link precedente è stato invalidato. Nuovo link valido per 24 ore." });
+      toast("Link rigenerato!", { description: "Il link precedente è stato invalidato. Nuovo link valido per 24 ore." });
     } catch (e: any) {
-      toast({ title: "Errore", description: e.message || "Errore nella rigenerazione del link", variant: "destructive" });
+      toast.error("Errore", { description: e.message || "Errore nella rigenerazione del link" });
     } finally {
       setGeneratingLink(false);
     }
@@ -146,9 +146,9 @@ export function useAdminBookingDetail(id: string | undefined, onMissing: () => v
       if (data?.error) throw new Error(data.error);
       if (error) throw new Error(await extractEdgeError(error));
       setEmailSent(true);
-      toast({ title: "Email inviata!", description: `Email con link di pagamento inviata a ${booking.guest_email}` });
+      toast("Email inviata!", { description: `Email con link di pagamento inviata a ${booking.guest_email}` });
     } catch (e: any) {
-      toast({ title: "Errore invio email", description: e.message || "Errore nell'invio dell'email", variant: "destructive" });
+      toast.error("Errore invio email", { description: e.message || "Errore nell'invio dell'email" });
     } finally {
       setSendingEmail(false);
     }

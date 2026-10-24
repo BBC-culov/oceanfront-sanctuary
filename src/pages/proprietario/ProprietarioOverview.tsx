@@ -37,7 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useOwnerOverviewMetrics } from "@/hooks/useOwnerOverviewMetrics";
 import { exportOwnerReportPdf } from "@/lib/ownerPdfExport";
 import { eur, CHART_COLORS } from "@/lib/ownerOverview";
@@ -55,9 +55,9 @@ const ProprietarioOverview = () => {
     setExporting(true);
     try {
       await exportOwnerReportPdf(metrics);
-      toast({ title: "Report scaricato", description: "Il PDF è stato generato." });
+      toast("Report scaricato", { description: "Il PDF è stato generato." });
     } catch (e: any) {
-      toast({ title: "Errore export", description: e?.message ?? "Impossibile generare il PDF.", variant: "destructive" });
+      toast.error("Errore export", { description: e?.message ?? "Impossibile generare il PDF." });
     } finally {
       setExporting(false);
     }

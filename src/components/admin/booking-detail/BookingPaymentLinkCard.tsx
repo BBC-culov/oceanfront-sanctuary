@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { CreditCard, XCircle, Link as LinkIcon, Copy, Loader2, Mail, CheckCircle2 } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { DEPOSIT_RATE } from "@/lib/bookingDeposit";
 
 interface Props {
@@ -76,7 +76,7 @@ const BookingPaymentLinkCard = ({
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(balanceLink);
-                    toast({ title: "Link copiato!", description: "Puoi inviarlo al cliente." });
+                    toast("Link copiato!", { description: "Puoi inviarlo al cliente." });
                   }}
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground text-xs font-medium rounded-sm hover:bg-primary/90 transition-colors"
                 >

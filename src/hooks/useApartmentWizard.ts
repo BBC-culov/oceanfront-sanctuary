@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { BUCKETS, buildMediaPath, removeByPublicUrl, uploadImage, uploadVideo } from "@/lib/mediaStorage";
 import { STEPS, validateStep, type ApartmentForm, type ValidationErrors } from "@/components/admin/apartment-wizard/types";
 
@@ -78,7 +78,7 @@ export function useApartmentWizard({
         setErrors(stepErrors);
         setDirection(s > step ? 1 : -1);
         setStep(s);
-        toast({ title: "Correggi gli errori", description: "Alcuni campi non sono validi", variant: "destructive" });
+        toast.error("Correggi gli errori", { description: "Alcuni campi non sono validi" });
         return;
       }
     }
@@ -95,7 +95,7 @@ export function useApartmentWizard({
     for (const file of Array.from(files)) {
       const { url, error } = await uploader(buildMediaPath(folder, file.name), file);
       if (error) {
-        toast({ title: errorTitle, description: error, variant: "destructive" });
+        toast.error(errorTitle, { description: error });
         continue;
       }
       if (url) urls.push(url);

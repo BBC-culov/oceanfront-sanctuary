@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Globe, Shield, AlertTriangle, CheckCircle2, Wrench, ExternalLink } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -64,13 +64,10 @@ const AdminGestioneSito = () => {
       .update({ value: newData as any, updated_at: new Date().toISOString() })
       .eq("key", "maintenance_mode");
     if (error) {
-      toast({ title: "Errore", description: "Impossibile aggiornare le impostazioni.", variant: "destructive" });
+      toast.error("Errore", { description: "Impossibile aggiornare le impostazioni." });
     } else {
       setMaintenance(newData);
-      toast({
-        title: pendingToggle ? "Manutenzione attivata" : "Manutenzione disattivata",
-        description: pendingToggle ? "Il sito è ora in modalità manutenzione." : "Il sito è di nuovo online.",
-      });
+      toast(pendingToggle ? "Manutenzione attivata" : "Manutenzione disattivata", { description: pendingToggle ? "Il sito è ora in modalità manutenzione." : "Il sito è di nuovo online." });
     }
     setSaving(false);
   };
@@ -82,9 +79,9 @@ const AdminGestioneSito = () => {
       .update({ value: maintenance as any, updated_at: new Date().toISOString() })
       .eq("key", "maintenance_mode");
     if (error) {
-      toast({ title: "Errore", description: "Impossibile salvare il messaggio.", variant: "destructive" });
+      toast.error("Errore", { description: "Impossibile salvare il messaggio." });
     } else {
-      toast({ title: "Salvato", description: "Messaggio di manutenzione aggiornato." });
+      toast("Salvato", { description: "Messaggio di manutenzione aggiornato." });
     }
     setSaving(false);
   };

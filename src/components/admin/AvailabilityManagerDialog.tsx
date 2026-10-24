@@ -7,7 +7,7 @@ import type { DateRange } from "react-day-picker";
 import { Calendar } from "@/components/ui/calendar";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -59,7 +59,7 @@ const AvailabilityManagerDialog = ({ open, onClose, apartmentId, apartmentName }
       setBlocks(blocksRes.data ?? []);
       setBookings(bookingsRes.data ?? []);
     } catch (e: any) {
-      toast({ title: "Errore caricamento", description: e.message, variant: "destructive" });
+      toast.error("Errore caricamento", { description: e.message });
     } finally {
       setLoading(false);
     }
@@ -95,7 +95,7 @@ const AvailabilityManagerDialog = ({ open, onClose, apartmentId, apartmentName }
 
   const handleSaveBlock = async () => {
     if (!range?.from || !range?.to) {
-      toast({ title: "Seleziona un intervallo", variant: "destructive" });
+      toast.error("Seleziona un intervallo");
       return;
     }
     // Check overlap with bookings
@@ -107,11 +107,7 @@ const AvailabilityManagerDialog = ({ open, onClose, apartmentId, apartmentName }
       return start < bEnd && addDays(end, 1) > bStart;
     });
     if (overlap) {
-      toast({
-        title: "Conflitto con prenotazioni",
-        description: "Il periodo selezionato si sovrappone a prenotazioni esistenti.",
-        variant: "destructive",
-      });
+      toast.error("Conflitto con prenotazioni", { description: "Il periodo selezionato si sovrappone a prenotazioni esistenti." });
       return;
     }
 
@@ -128,12 +124,12 @@ const AvailabilityManagerDialog = ({ open, onClose, apartmentId, apartmentName }
         created_by: user.id,
       });
       if (error) throw error;
-      toast({ title: "Periodo bloccato" });
+      toast("Periodo bloccato");
       setRange(undefined);
       setReason("");
       await loadData();
     } catch (e: any) {
-      toast({ title: "Errore", description: e.message, variant: "destructive" });
+      toast.error("Errore", { description: e.message });
     } finally {
       setSaving(false);
     }
@@ -147,10 +143,10 @@ const AvailabilityManagerDialog = ({ open, onClose, apartmentId, apartmentName }
         .delete()
         .eq("id", id);
       if (error) throw error;
-      toast({ title: "Blocco rimosso" });
+      toast("Blocco rimosso");
       await loadData();
     } catch (e: any) {
-      toast({ title: "Errore", description: e.message, variant: "destructive" });
+      toast.error("Errore", { description: e.message });
     }
   };
 
