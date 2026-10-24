@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { buildMediaPath, uploadImage, uploadPdf, uploadVideo } from "@/lib/mediaStorage";
+import { useProjectMediaUpload } from "@/hooks/useProjectMediaUpload";
+import { MAX_IMAGE_MB, MAX_VIDEO_MB, MAX_BROCHURE_MB, MAX_IMAGES, ALLOWED_IMAGE_TYPES, ALLOWED_VIDEO_TYPES, ALLOWED_BROCHURE_TYPES, projectSchema, empty, slugify } from "@/lib/projectForm";
 import { useAdminProjects, type ProjectRow } from "@/hooks/useAdminProjects";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,73 +11,13 @@ import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Pencil, Trash2, Eye, EyeOff, Upload, X, Loader2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
-import { z } from "zod";
-
-const MAX_IMAGE_MB = 8;
-const MAX_VIDEO_MB = 100;
-const MAX_BROCHURE_MB = 25;
-const MAX_IMAGES = 30;
-const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/avif"];
-const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
-const ALLOWED_BROCHURE_TYPES = ["application/pdf"];
-
-const projectSchema = z.object({
-  title: z.string().trim().min(2, "Titolo: almeno 2 caratteri").max(150, "Titolo troppo lungo"),
-  slug: z.string().trim().min(2, "Slug richiesto").max(150).regex(/^[a-z0-9-]+$/, "Slug: solo minuscole, numeri e trattini"),
-  subtitle: z.string().trim().max(200, "Sottotitolo: max 200 caratteri").optional().nullable(),
-  description: z.string().trim().max(5000, "Descrizione: max 5000 caratteri").optional().nullable(),
-  price: z.number().int().min(0, "Prezzo non valido").max(100_000_000, "Prezzo troppo alto").nullable(),
-  price_label: z.string().trim().max(50).optional().nullable(),
-  address: z.string().trim().max(255).optional().nullable(),
-  latitude: z.number().min(-90).max(90).nullable(),
-  longitude: z.number().min(-180).max(180).nullable(),
-  google_maps_url: z.string().trim().url("URL Google Maps non valido").max(500).optional().or(z.literal("")).nullable(),
-  apple_maps_url: z.string().trim().url("URL Apple Maps non valido").max(500).optional().or(z.literal("")).nullable(),
-  contact_email: z.string().trim().email("Email referente non valida").max(255).optional().or(z.literal("")).nullable(),
-  contact_phone: z.string().trim().max(30).regex(/^[+\d\s()-]*$/, "Telefono non valido").optional().or(z.literal("")).nullable(),
-  purchase_info: z.string().trim().max(3000).optional().nullable(),
-});
-
-
-const empty: Partial<ProjectRow> = {
-  title: "",
-  slug: "",
-  subtitle: "",
-  description: "",
-  price: null,
-  price_label: "A partire da",
-  images: [],
-  video_url: "",
-  brochure_url: "",
-  address: "",
-  latitude: null,
-  longitude: null,
-  google_maps_url: "",
-  apple_maps_url: "",
-  included_services: [],
-  purchase_info: "",
-  contact_email: "",
-  contact_phone: "",
-  published: false,
-  display_order: 0,
-};
-
-function slugify(s: string) {
-  return s
-    .toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
 
 const AdminProgetti = () => {
   const { projects, loading, isSlugTaken, saveProject, togglePublished, deleteProject } = useAdminProjects();
   const [editing, setEditing] = useState<Partial<ProjectRow> | null>(null);
   const [saving, setSaving] = useState(false);
-  const [uploadingImages, setUploadingImages] = useState(false);
-  const [uploadingVideo, setUploadingVideo] = useState(false);
-  const [uploadingBrochure, setUploadingBrochure] = useState(false);
   const [servicesText, setServicesText] = useState("");
+  const { uploadingImages, uploadingVideo, uploadingBrochure, handleUploadImages, handleUploadBrochure, handleUploadVideo } = useProjectMediaUpload(editing, setEditing);
 
   const openNew = () => {
     setEditing({ ...empty });
@@ -91,97 +32,6 @@ const AdminProgetti = () => {
   const close = () => {
     setEditing(null);
     setServicesText("");
-  };
-
-  const handleUploadImages = async (files: FileList | null) => {
-    if (!files || !editing) return;
-    const currentCount = (editing.images ?? []).length;
-    const remaining = MAX_IMAGES - currentCount;
-    if (remaining <= 0) {
-      toast.error(`Limite massimo di ${MAX_IMAGES} foto raggiunto`);
-      return;
-    }
-    setUploadingImages(true);
-    const filesArr = Array.from(files).slice(0, remaining);
-    if (files.length > remaining) {
-      toast.warning(`Caricate solo ${remaining} foto (limite ${MAX_IMAGES} totali)`);
-    }
-
-    const valid: File[] = [];
-    for (const file of filesArr) {
-      if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-        toast.error(`"${file.name}": formato non supportato (jpg, png, webp, avif)`);
-        continue;
-      }
-      if (file.size > MAX_IMAGE_MB * 1024 * 1024) {
-        toast.error(`"${file.name}": supera ${MAX_IMAGE_MB}MB`);
-        continue;
-      }
-      valid.push(file);
-    }
-
-    const results = await Promise.all(
-      valid.map(async (file) => {
-        const { url, error } = await uploadImage(buildMediaPath("projects", file.name), file, {
-          upsert: false,
-          contentType: file.type,
-        });
-        if (error) {
-          toast.error(`Upload "${file.name}" fallito: ${error}`);
-          return null;
-        }
-        return url ?? null;
-      })
-    );
-
-    const newUrls = results.filter((u): u is string => !!u);
-    if (newUrls.length > 0) {
-      setEditing((prev) => (prev ? { ...prev, images: [...(prev.images ?? []), ...newUrls] } : prev));
-      toast.success(`${newUrls.length} foto caricate`);
-    }
-    setUploadingImages(false);
-  };
-
-  const handleUploadBrochure = async (file: File | null) => {
-    if (!file || !editing) return;
-    if (!ALLOWED_BROCHURE_TYPES.includes(file.type)) {
-      toast.error("Solo file PDF supportati per la brochure");
-      return;
-    }
-    if (file.size > MAX_BROCHURE_MB * 1024 * 1024) {
-      toast.error(`Brochure troppo grande (max ${MAX_BROCHURE_MB}MB)`);
-      return;
-    }
-    setUploadingBrochure(true);
-    const { url, error } = await uploadPdf(buildMediaPath("projects/brochures", file.name), file);
-    if (error) {
-      toast.error(`Upload brochure fallito: ${error}`);
-      setUploadingBrochure(false);
-      return;
-    }
-    setEditing({ ...editing, brochure_url: url ?? null });
-    setUploadingBrochure(false);
-  };
-
-  const handleUploadVideo = async (file: File | null) => {
-    if (!file || !editing) return;
-    if (!ALLOWED_VIDEO_TYPES.includes(file.type)) {
-      toast.error("Formato video non supportato (mp4, webm, mov)");
-      return;
-    }
-    if (file.size > MAX_VIDEO_MB * 1024 * 1024) {
-      toast.error(`Video troppo grande (max ${MAX_VIDEO_MB}MB)`);
-      return;
-    }
-    setUploadingVideo(true);
-    const { url, error } = await uploadVideo(buildMediaPath("projects", file.name), file);
-    if (error) {
-      toast.error(`Upload video fallito: ${error}`);
-      setUploadingVideo(false);
-      return;
-    }
-    setEditing({ ...editing, video_url: url ?? null });
-    setUploadingVideo(false);
   };
 
   const removeImage = (i: number) => {
