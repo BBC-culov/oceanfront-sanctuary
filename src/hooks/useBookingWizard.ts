@@ -8,7 +8,7 @@ import type { GuestData, AdditionalGuestData } from "@/components/booking/StepGu
 import type { FlightData } from "@/components/booking/StepFlightServices";
 import type { BillingData } from "@/components/booking/StepBilling";
 import staticApartments from "@/data/apartments";
-import { isValidPhone, isValidDocumentNumber, isValidZip, isValidFiscalCode } from "@/lib/bookingValidation";
+import { validateGuestsStep, missingFlightFields, validateBilling, CLIENT_ZIP_MSG } from "@/lib/bookingWizardValidation";
 import { useApartmentBySlug } from "@/hooks/useApartments";
 import { useAdditionalServices } from "@/hooks/useAdditionalServices";
 import { supabase } from "@/integrations/supabase/client";
