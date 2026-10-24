@@ -21,7 +21,7 @@ export async function exportOwnerReportPdf({
 
       const logo = await loadImageDataUrl(logoUrl);
       if (logo) {
-        try { doc.addImage(logo, "PNG", margin, 32, 110, 36, undefined, "FAST"); } catch {}
+        try { doc.addImage(logo, "PNG", margin, 32, 110, 36, undefined, "FAST"); } catch (err) { console.error("PDF logo error", err); }
       }
 
       doc.setFont("helvetica", "bold");

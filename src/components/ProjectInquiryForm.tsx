@@ -70,7 +70,7 @@ const ProjectInquiryForm = ({ projectId, projectTitle }: Props) => {
     }
 
     // Phone format check (only digits, +, spaces, parentheses, dashes)
-    if (parsed.data.phone && !/^[+\d\s()\-]+$/.test(parsed.data.phone)) {
+    if (parsed.data.phone && !/^[+\d\s()-]+$/.test(parsed.data.phone)) {
       setErrors({ phone: "Formato telefono non valido" });
       toast.error("Formato telefono non valido");
       return;
