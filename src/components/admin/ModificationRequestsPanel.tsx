@@ -1,6 +1,6 @@
 // Admin panel: review pending modification requests for a booking.
 // Approve (with optional Stripe payment link) or reject (with reason).
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Loader2, Check, X, AlertCircle, Link as LinkIcon, Copy } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,7 +22,7 @@ export default function ModificationRequestsPanel({ bookingId, originalStatus = 
   const [adminNote, setAdminNote] = useState<Record<string, string>>({});
   const [genLink, setGenLink] = useState<Record<string, boolean>>({});
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     const { data } = await supabase
       .from("booking_modification_requests")
@@ -30,9 +30,9 @@ export default function ModificationRequestsPanel({ bookingId, originalStatus = 
       .order("created_at", { ascending: false });
     setRequests(data ?? []);
     setLoading(false);
-  };
+  }, [bookingId]);
 
-  useEffect(() => { load(); }, [bookingId]);
+  useEffect(() => { load(); }, [load]);
 
   const review = async (id: string, action: "approve" | "reject") => {
     setBusy(id);

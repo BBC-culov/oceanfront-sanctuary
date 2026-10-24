@@ -33,7 +33,7 @@ const projectSchema = z.object({
   google_maps_url: z.string().trim().url("URL Google Maps non valido").max(500).optional().or(z.literal("")).nullable(),
   apple_maps_url: z.string().trim().url("URL Apple Maps non valido").max(500).optional().or(z.literal("")).nullable(),
   contact_email: z.string().trim().email("Email referente non valida").max(255).optional().or(z.literal("")).nullable(),
-  contact_phone: z.string().trim().max(30).regex(/^[+\d\s()\-]*$/, "Telefono non valido").optional().or(z.literal("")).nullable(),
+  contact_phone: z.string().trim().max(30).regex(/^[+\d\s()-]*$/, "Telefono non valido").optional().or(z.literal("")).nullable(),
   purchase_info: z.string().trim().max(3000).optional().nullable(),
 });
 

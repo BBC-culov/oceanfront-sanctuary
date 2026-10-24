@@ -1,7 +1,6 @@
-# Roadmap — correzione finding qualità codice
+# Roadmap — secondo audit qualità codice
 
-- [x] Fase 1: caparra riepilogo, WhatsApp pagamento fallito, provvigione 15%, calendario admin, rimozione Affitta, test
-- [x] Fase 2: campi condivisi dialoghi modifica prenotazione
-- [x] Fase 3: panoramica proprietario, gestione amministratori, Prenota, mappa transfer
-- [ ] Fase 4: unificazione notifiche
-- [x] Ripristinare chiave Stripe di test (inserita dall'utente)
+- [x] Fase 1: correzioni piccole e sicure
+- [ ] Fase 2: notifiche unificate
+- [ ] Fase 3: pagine admin grandi (nuova prenotazione, Prenota, servizi, proprietari, progetti)
+- [ ] Fase 4: tipi di dato

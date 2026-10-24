@@ -86,6 +86,8 @@ export function useBookingDetail() {
         setSearchParams({}, { replace: true });
       })();
     }
+    // Intentionally reacts only to URL changes: re-running on helper identity changes would re-confirm payments.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, id, navigate]);
 
   useEffect(() => {
