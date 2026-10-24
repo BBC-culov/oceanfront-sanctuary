@@ -10,7 +10,7 @@ import {
   Search, Trash2, ChevronDown, CalendarDays, Eye, Clock,
   CheckCircle2, XCircle, AlertCircle, Users, Plus, ShieldCheck, BadgeCheck,
 } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { BOOKING_STATUS, getStatusConfig, ATTENTION_STATUSES } from "@/lib/bookingStatus";
 
 interface Booking {
@@ -74,10 +74,10 @@ const AdminPrenotazioni = () => {
   const updateStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("bookings").update({ status } as any).eq("id", id);
     if (error) {
-      toast({ title: "Errore", description: error.message, variant: "destructive" });
+      toast.error("Errore", { description: error.message });
     } else {
       setBookings((prev) => prev.map((b) => b.id === id ? { ...b, status } : b));
-      toast({ title: "Stato aggiornato" });
+      toast("Stato aggiornato");
     }
   };
 
@@ -86,10 +86,10 @@ const AdminPrenotazioni = () => {
     if (!confirm("Sei sicuro di voler eliminare questa prenotazione?")) return;
     const { error } = await supabase.from("bookings").delete().eq("id", id);
     if (error) {
-      toast({ title: "Errore", description: error.message, variant: "destructive" });
+      toast.error("Errore", { description: error.message });
     } else {
       setBookings((prev) => prev.filter((b) => b.id !== id));
-      toast({ title: "Prenotazione eliminata" });
+      toast("Prenotazione eliminata");
     }
   };
 

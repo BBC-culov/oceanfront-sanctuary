@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { BUCKETS, extractStoragePath, removeFiles } from "@/lib/mediaStorage";
 
 export interface ApartmentRow {
@@ -74,10 +74,10 @@ export function useAdminApartments() {
         ? await supabase.from("apartments").update(payload).eq("id", editingId)
         : await supabase.from("apartments").insert(payload);
       if (error) {
-        toast({ title: "Errore", description: error.message, variant: "destructive" });
+        toast.error("Errore", { description: error.message });
         return false;
       }
-      toast({ title: editingId ? "Appartamento aggiornato" : "Appartamento creato" });
+      toast(editingId ? "Appartamento aggiornato" : "Appartamento creato");
       await fetchApartments();
       invalidatePublicCache();
       return true;
@@ -107,17 +107,14 @@ export function useAdminApartments() {
 
       const { error } = await supabase.from("apartments").delete().eq("id", id);
       if (error) {
-        toast({ title: "Errore", description: error.message, variant: "destructive" });
+        toast.error("Errore", { description: error.message });
         return;
       }
       setApartments((prev) => prev.filter((a) => a.id !== id));
       if (cleanupErrors.length > 0) {
-        toast({
-          title: "Appartamento eliminato",
-          description: `Alcuni file non sono stati rimossi dallo storage (${cleanupErrors.join("; ")})`,
-        });
+        toast("Appartamento eliminato", { description: `Alcuni file non sono stati rimossi dallo storage (${cleanupErrors.join("; ")})` });
       } else {
-        toast({ title: "Appartamento eliminato" });
+        toast("Appartamento eliminato");
       }
       invalidatePublicCache();
     },
@@ -128,11 +125,11 @@ export function useAdminApartments() {
     async (apt: ApartmentRow) => {
       const { error } = await supabase.from("apartments").update({ is_active: !apt.is_active }).eq("id", apt.id);
       if (error) {
-        toast({ title: "Errore", description: error.message, variant: "destructive" });
+        toast.error("Errore", { description: error.message });
         return;
       }
       setApartments((prev) => prev.map((a) => (a.id === apt.id ? { ...a, is_active: !a.is_active } : a)));
-      toast({ title: apt.is_active ? "Disattivato" : "Attivato" });
+      toast(apt.is_active ? "Disattivato" : "Attivato");
       invalidatePublicCache();
     },
     [invalidatePublicCache]
@@ -144,12 +141,12 @@ export function useAdminApartments() {
       setApartments((prev) => prev.map((a) => (a.id === apt.id ? { ...a, is_featured: next } : a)));
       const { error } = await supabase.from("apartments").update({ is_featured: next }).eq("id", apt.id);
       if (error) {
-        toast({ title: "Errore", description: error.message, variant: "destructive" });
+        toast.error("Errore", { description: error.message });
         // rollback
         setApartments((prev) => prev.map((a) => (a.id === apt.id ? { ...a, is_featured: !next } : a)));
         return;
       }
-      toast({ title: next ? "Aggiunto in evidenza" : "Rimosso dall'evidenza" });
+      toast(next ? "Aggiunto in evidenza" : "Rimosso dall'evidenza");
       invalidatePublicCache();
     },
     [invalidatePublicCache]

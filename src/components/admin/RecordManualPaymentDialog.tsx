@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Loader2, CreditCard, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { PAYMENT_METHODS } from "@/lib/bookingStatus";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -33,11 +33,11 @@ const RecordManualPaymentDialog = ({
   const handleSubmit = async () => {
     const num = parseFloat(amount);
     if (!num || num <= 0) {
-      toast({ title: "Importo non valido", variant: "destructive" });
+      toast.error("Importo non valido");
       return;
     }
     if (method === "other" && !customMethod.trim()) {
-      toast({ title: "Specifica il metodo di pagamento", variant: "destructive" });
+      toast.error("Specifica il metodo di pagamento");
       return;
     }
 
@@ -72,12 +72,9 @@ const RecordManualPaymentDialog = ({
         .eq("id", bookingId);
       if (uErr) throw uErr;
 
-      toast({
-        title: fullySaldata ? "Prenotazione saldata" : "Pagamento registrato",
-        description: fullySaldata
+      toast(fullySaldata ? "Prenotazione saldata" : "Pagamento registrato", { description: fullySaldata
           ? "La prenotazione risulta ora saldata e confermata."
-          : `Saldo aggiornato: €${newAmountPaid.toFixed(2)} / €${totalPrice.toFixed(2)}`,
-      });
+          : `Saldo aggiornato: €${newAmountPaid.toFixed(2)} / €${totalPrice.toFixed(2)}` });
 
       onRecorded(newAmountPaid, fullySaldata);
       onClose();
@@ -87,11 +84,7 @@ const RecordManualPaymentDialog = ({
       setCustomMethod("");
       setNotes("");
     } catch (e: any) {
-      toast({
-        title: "Errore",
-        description: e?.message || "Errore nel salvataggio del pagamento",
-        variant: "destructive",
-      });
+      toast.error("Errore", { description: e?.message || "Errore nel salvataggio del pagamento" });
     } finally {
       setSubmitting(false);
     }

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Loader2, X, CalendarDays, PlaneTakeoff, Sparkles, MessageSquare, CreditCard, Mail, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useAdditionalServices } from "@/hooks/useAdditionalServices";
 import { extractEdgeError } from "@/lib/edgeError";
 import PhonePrefixInput from "@/components/PhonePrefixInput";
@@ -50,7 +50,7 @@ export default function AdminEditBookingDialog({ open, onClose, booking, onSaved
 
   const submit = async () => {
     if (!validate()) {
-      toast({ title: "Compila correttamente i campi evidenziati", variant: "destructive" });
+      toast.error("Compila correttamente i campi evidenziati");
       return;
     }
     setSubmitting(true);
@@ -81,16 +81,13 @@ export default function AdminEditBookingDialog({ open, onClose, booking, onSaved
       });
       if (data?.error) throw new Error(data.error);
       if (error) throw new Error(await extractEdgeError(error));
-      toast({
-        title: "Prenotazione aggiornata",
-        description: data?.modification_payment_url
+      toast("Prenotazione aggiornata", { description: data?.modification_payment_url
           ? `Link modifica generato (differenza €${Number(data.price_diff).toFixed(2)}).`
-          : `Nuovo totale: €${Number(data.new_total).toFixed(2)}`,
-      });
+          : `Nuovo totale: €${Number(data.new_total).toFixed(2)}` });
       onSaved?.();
       onClose();
     } catch (e: any) {
-      toast({ title: "Errore", description: e.message || "Errore aggiornamento", variant: "destructive" });
+      toast.error("Errore", { description: e.message || "Errore aggiornamento" });
     } finally { setSubmitting(false); }
   };
 

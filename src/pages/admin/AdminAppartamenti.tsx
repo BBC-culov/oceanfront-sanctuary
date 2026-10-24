@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Building2, CheckCircle2, XCircle } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import ApartmentWizard from "@/components/admin/ApartmentWizard";
 import AvailabilityManagerDialog from "@/components/admin/AvailabilityManagerDialog";
 import SortableApartmentCard from "@/components/admin/SortableApartmentCard";
@@ -111,7 +111,7 @@ const AdminAppartamenti = () => {
     persistOrder(reordered)
       .then(() => invalidatePublicCache())
       .catch(() => {
-        toast({ title: "Errore salvataggio ordine", variant: "destructive" });
+        toast.error("Errore salvataggio ordine");
         fetchApartments();
       });
   };

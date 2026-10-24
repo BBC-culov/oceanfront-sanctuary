@@ -1,7 +1,7 @@
 // State and server calls for the admin accounts page (manage-admin function).
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 export interface AdminUser {
   id: string;
@@ -39,7 +39,7 @@ export function useAdminUsers(isAmministratore: boolean) {
       if (error) throw error;
       setUsers(data.users || []);
     } catch (e: any) {
-      toast({ title: "Errore", description: e.message, variant: "destructive" });
+      toast.error("Errore", { description: e.message });
     } finally {
       setLoading(false);
     }
@@ -109,10 +109,10 @@ export function useAdminUsers(isAmministratore: boolean) {
           },
         });
         if (error) throw error;
-        toast({ title: "Aggiornato", description: `${formEmail} aggiornato con successo.` });
+        toast("Aggiornato", { description: `${formEmail} aggiornato con successo.` });
       } else {
         if (!formPassword || formPassword.length < 8) {
-          toast({ title: "Errore", description: "La password deve avere almeno 8 caratteri.", variant: "destructive" });
+          toast.error("Errore", { description: "La password deve avere almeno 8 caratteri." });
           setSubmitting(false);
           return;
         }
@@ -129,17 +129,17 @@ export function useAdminUsers(isAmministratore: boolean) {
         });
         if (error) throw error;
         if (data?.error) {
-          toast({ title: "Errore", description: data.error, variant: "destructive" });
+          toast.error("Errore", { description: data.error });
           setSubmitting(false);
           return;
         }
-        toast({ title: "Creato", description: `Account ${formEmail} creato con successo.` });
+        toast("Creato", { description: `Account ${formEmail} creato con successo.` });
       }
       setDialogOpen(false);
       resetForm();
       fetchUsers();
     } catch (e: any) {
-      toast({ title: "Errore", description: e.message, variant: "destructive" });
+      toast.error("Errore", { description: e.message });
     } finally {
       setSubmitting(false);
     }
@@ -154,16 +154,16 @@ export function useAdminUsers(isAmministratore: boolean) {
       });
       if (error) throw error;
       if (data?.error) {
-        toast({ title: "Errore", description: data.error, variant: "destructive" });
+        toast.error("Errore", { description: data.error });
         setSubmitting(false);
         return;
       }
-      toast({ title: "Eliminato", description: `${deletingUser.email} è stato eliminato.` });
+      toast("Eliminato", { description: `${deletingUser.email} è stato eliminato.` });
       setDeleteDialogOpen(false);
       setDeletingUser(null);
       fetchUsers();
     } catch (e: any) {
-      toast({ title: "Errore", description: e.message, variant: "destructive" });
+      toast.error("Errore", { description: e.message });
     } finally {
       setSubmitting(false);
     }

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, Reorder } from "framer-motion";
 import { Plus, Pencil, Trash2, Sparkles, GripVertical, ToggleLeft, ToggleRight } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -38,7 +38,7 @@ const AdminServizi = () => {
       );
       await Promise.all(updates);
     } catch (err: any) {
-      toast({ title: "Errore riordino", description: err.message, variant: "destructive" });
+      toast.error("Errore riordino", { description: err.message });
       fetchServices();
     } finally {
       setReordering(false);
@@ -51,7 +51,7 @@ const AdminServizi = () => {
       .select("*")
       .order("sort_order");
     if (error) {
-      toast({ title: "Errore", description: error.message, variant: "destructive" });
+      toast.error("Errore", { description: error.message });
     } else {
       setServices((data || []) as ServiceRow[]);
     }
@@ -74,7 +74,7 @@ const AdminServizi = () => {
 
   const handleSave = async () => {
     if (!form.name.trim()) {
-      toast({ title: "Nome obbligatorio", variant: "destructive" });
+      toast.error("Nome obbligatorio");
       return;
     }
     setSaving(true);
@@ -85,18 +85,18 @@ const AdminServizi = () => {
           .update({ name: form.name, description: form.description || null, price: form.price, sort_order: form.sort_order, is_active: form.is_active })
           .eq("id", editing.id);
         if (error) throw error;
-        toast({ title: "Servizio aggiornato" });
+        toast("Servizio aggiornato");
       } else {
         const { error } = await supabase
           .from("additional_services")
           .insert({ name: form.name, description: form.description || null, price: form.price, sort_order: form.sort_order, is_active: form.is_active });
         if (error) throw error;
-        toast({ title: "Servizio creato" });
+        toast("Servizio creato");
       }
       setDialogOpen(false);
       fetchServices();
     } catch (err: any) {
-      toast({ title: "Errore", description: err.message, variant: "destructive" });
+      toast.error("Errore", { description: err.message });
     } finally {
       setSaving(false);
     }
@@ -106,9 +106,9 @@ const AdminServizi = () => {
     if (!confirm("Sei sicuro di voler eliminare questo servizio?")) return;
     const { error } = await supabase.from("additional_services").delete().eq("id", id);
     if (error) {
-      toast({ title: "Errore", description: error.message, variant: "destructive" });
+      toast.error("Errore", { description: error.message });
     } else {
-      toast({ title: "Servizio eliminato" });
+      toast("Servizio eliminato");
       fetchServices();
     }
   };
@@ -119,7 +119,7 @@ const AdminServizi = () => {
       .update({ is_active: !s.is_active })
       .eq("id", s.id);
     if (error) {
-      toast({ title: "Errore", description: error.message, variant: "destructive" });
+      toast.error("Errore", { description: error.message });
     } else {
       fetchServices();
     }

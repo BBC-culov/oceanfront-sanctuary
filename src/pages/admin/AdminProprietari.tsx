@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useAmministratoreCheck } from "@/hooks/useAmministratoreCheck";
 import {
   Home, Loader2, Search, Shield, Mail, Phone, Building2,
@@ -83,7 +83,7 @@ const AdminProprietari = () => {
       setApartments((aptRes.data || []) as Apartment[]);
       setBookings((bkRes.data || []) as BookingRow[]);
     } catch (e: any) {
-      toast({ title: "Errore", description: e.message, variant: "destructive" });
+      toast.error("Errore", { description: e.message });
     } finally {
       setLoading(false);
     }
@@ -157,14 +157,11 @@ const AdminProprietari = () => {
         if (error) throw error;
       }
 
-      toast({
-        title: "Assegnazioni aggiornate",
-        description: `${selectedApts.size} appartamento/i assegnati a ${selectedOwner.email}.`,
-      });
+      toast("Assegnazioni aggiornate", { description: `${selectedApts.size} appartamento/i assegnati a ${selectedOwner.email}.` });
       setAssignOpen(false);
       fetchAll();
     } catch (e: any) {
-      toast({ title: "Errore", description: e.message, variant: "destructive" });
+      toast.error("Errore", { description: e.message });
     } finally {
       setSaving(false);
     }
