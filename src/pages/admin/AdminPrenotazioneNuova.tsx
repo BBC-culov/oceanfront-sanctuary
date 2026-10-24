@@ -9,9 +9,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAdditionalServices } from "@/hooks/useAdditionalServices";
 import { useApartments } from "@/hooks/useApartments";
-import {
-  isValidPhone, isValidDocumentNumber, isValidZip, isValidFiscalCode,
-} from "@/lib/bookingValidation";
+import { validateClientStep, mainGuestFromClient, validateStayStep, validateAdminGuestsStep } from "@/lib/adminBookingValidation";
+import { missingFlightFields, validateBilling, ADMIN_ZIP_MSG } from "@/lib/bookingWizardValidation";
 import { extractEdgeError } from "@/lib/edgeError";
 
 import AdminBookingStepIndicator from "@/components/admin/AdminBookingStepIndicator";
@@ -75,119 +74,26 @@ const AdminPrenotazioneNuova = () => {
   const pricePerNight = apt?.pricePerNight ?? 0;
 
   const validateStep = (s: number): boolean => {
+    const fail = (msg: string | null) => { if (msg) toast.error(msg); return !msg; };
     if (s === 0) {
-      // Cliente
-      if (client.mode === "existing") {
-        if (!client.existing_user_id) {
-          toast.error("Seleziona un cliente esistente o crea un nuovo account");
-          return false;
-        }
-      } else {
-        if (!client.new_first_name?.trim() || !client.new_last_name?.trim()) {
-          toast.error("Inserisci nome e cognome del nuovo cliente");
-          return false;
-        }
-        if (!client.new_email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(client.new_email)) {
-          toast.error("Email cliente non valida");
-          return false;
-        }
-        if (client.new_phone && !isValidPhone(client.new_phone)) {
-          toast.error("Telefono cliente non valido");
-          return false;
-        }
-      }
+      if (!fail(validateClientStep(client))) return false;
       // Auto-fill main guest with client data the first time
-      if (!mainGuest.email) {
-        if (client.mode === "existing") {
-          setMainGuest({
-            ...mainGuest,
-            first_name: client.existing_user_first_name ?? "",
-            last_name: client.existing_user_last_name ?? "",
-            email: client.existing_user_email ?? "",
-            phone: client.existing_user_phone ?? "",
-          });
-        } else {
-          setMainGuest({
-            ...mainGuest,
-            first_name: client.new_first_name ?? "",
-            last_name: client.new_last_name ?? "",
-            email: client.new_email ?? "",
-            phone: client.new_phone ?? "",
-          });
-        }
-      }
+      if (!mainGuest.email) setMainGuest(mainGuestFromClient(client, mainGuest));
       return true;
     }
-
-    if (s === 1) {
-      // Soggiorno
-      if (!stay.apartment_id) { toast.error("Seleziona un appartamento"); return false; }
-      if (!stay.check_in || !stay.check_out) { toast.error("Inserisci le date di check-in e check-out"); return false; }
-      if (nights < 1) { toast.error("Il check-out deve essere successivo al check-in"); return false; }
-      return true;
-    }
-
-    if (s === 2) {
-      // Ospiti
-      const { first_name, last_name, date_of_birth, nationality, id_card_number,
-        id_card_issued, id_card_expiry, email, phone } = mainGuest;
-      if (!first_name || !last_name || !date_of_birth || !nationality || !id_card_number ||
-          !id_card_issued || !id_card_expiry || !email || !phone) {
-        toast.error("Compila tutti i campi obbligatori dell'ospite principale");
-        return false;
-      }
-      if (!isValidPhone(phone)) {
-        toast.error("Telefono ospite non valido (6-15 cifre)"); return false;
-      }
-      if (!isValidDocumentNumber(id_card_number, mainGuest.id_type)) {
-        toast.error("Numero documento ospite non valido"); return false;
-      }
-      if (apt && additionalGuests.length + 1 > apt.guests) {
-        toast.error(`Capacità appartamento superata (max ${apt.guests} ospiti)`);
-        return false;
-      }
-      for (let i = 0; i < additionalGuests.length; i++) {
-        const g = additionalGuests[i];
-        if (!g.first_name || !g.last_name || !g.date_of_birth || !g.nationality ||
-            !g.id_card_number || !g.id_card_issued || !g.id_card_expiry) {
-          toast.error(`Compila tutti i campi dell'ospite ${i + 2}`); return false;
-        }
-        if (!isValidDocumentNumber(g.id_card_number, g.id_type)) {
-          toast.error(`Ospite ${i + 2}: numero documento non valido`); return false;
-        }
-      }
-      return true;
-    }
-
+    if (s === 1) return fail(validateStayStep(stay, nights));
+    if (s === 2) return fail(validateAdminGuestsStep(mainGuest, additionalGuests, apt ? apt.guests : undefined));
     if (s === 3) {
-      // Volo & servizi
-      if (!noTransfer) {
-        const errs: Record<string, boolean> = {};
-        const fields: (keyof FlightData)[] = ["airline", "flight_outbound", "arrival_time", "flight_return", "departure_time"];
-        let hasError = false;
-        for (const f of fields) {
-          if (!flightData[f]) { errs[f] = true; hasError = true; }
-        }
-        if (hasError) {
-          setFlightErrors(errs);
-          toast.error("Compila i dati del volo o spunta 'no transfer'");
-          return false;
-        }
+      const errs = missingFlightFields(noTransfer, flightData);
+      if (Object.keys(errs).length) {
+        setFlightErrors(errs);
+        toast.error("Compila i dati del volo o spunta 'no transfer'");
+        return false;
       }
       setFlightErrors({});
       return true;
     }
-
-    if (s === 4) {
-      const { billing_name, billing_address, billing_city, billing_zip, billing_country, billing_fiscal_code } = billing;
-      if (!billing_name || !billing_address || !billing_city || !billing_zip || !billing_country || !billing_fiscal_code) {
-        toast.error("Compila tutti i dati di fatturazione"); return false;
-      }
-      if (!isValidZip(billing_zip)) { toast.error("CAP non valido"); return false; }
-      if (!isValidFiscalCode(billing_fiscal_code, billing_country)) { toast.error("Tax ID / VAT / P.IVA non valido per il paese selezionato"); return false; }
-      return true;
-    }
-
+    if (s === 4) return fail(validateBilling(billing, { zip: ADMIN_ZIP_MSG }));
     return true;
   };
 
