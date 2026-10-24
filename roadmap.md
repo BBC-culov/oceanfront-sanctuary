@@ -2,5 +2,5 @@
 
 - [x] Fase 1: correzioni piccole e sicure
 - [x] Fase 2: notifiche unificate
-- [ ] Fase 3: pagine admin grandi (nuova prenotazione, Prenota, servizi, proprietari, progetti)
+- [x] Fase 3: pagine admin grandi (nuova prenotazione, Prenota, servizi, proprietari, progetti)
 - [ ] Fase 4: tipi di dato
