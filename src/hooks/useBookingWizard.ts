@@ -8,7 +8,7 @@ import type { GuestData, AdditionalGuestData } from "@/components/booking/StepGu
 import type { FlightData } from "@/components/booking/StepFlightServices";
 import type { BillingData } from "@/components/booking/StepBilling";
 import staticApartments from "@/data/apartments";
-import { isValidPhone, isValidDocumentNumber, isValidZip, isValidFiscalCode } from "@/lib/bookingValidation";
+import { validateGuestsStep, missingFlightFields, validateBilling, CLIENT_ZIP_MSG } from "@/lib/bookingWizardValidation";
 import { useApartmentBySlug } from "@/hooks/useApartments";
 import { useAdditionalServices } from "@/hooks/useAdditionalServices";
 import { supabase } from "@/integrations/supabase/client";
@@ -157,71 +157,27 @@ export function useBookingWizard() {
 
   const validateStep = (s: number): boolean => {
     if (s === 0) {
-      const { first_name, last_name, date_of_birth, nationality, id_card_number, id_card_issued, id_card_expiry, email, phone } = mainGuest;
-      if (!first_name || !last_name || !date_of_birth || !nationality || !id_card_number || !id_card_issued || !id_card_expiry || !email || !phone) {
-        toast.error("Compila tutti i campi obbligatori dell'ospite principale");
-        document.getElementById("step-guest-data")?.scrollIntoView({ behavior: "smooth", block: "start" });
-        return false;
-      }
-      if (!isValidPhone(phone)) {
-        toast.error("Numero di telefono non valido: inserisci solo cifre (6-15 cifre)");
-        return false;
-      }
-      if (!isValidDocumentNumber(id_card_number, mainGuest.id_type)) {
-        const docLabel = mainGuest.id_type === "passport" ? "passaporto" : "carta d'identità";
-        toast.error(`Numero di ${docLabel} non valido: solo lettere e numeri, ${mainGuest.id_type === "passport" ? "6-9" : "7-9"} caratteri`);
-        return false;
-      }
-      for (let i = 0; i < additionalGuests.length; i++) {
-        const g = additionalGuests[i];
-        if (!g.first_name || !g.last_name || !g.date_of_birth || !g.nationality || !g.id_card_number || !g.id_card_issued || !g.id_card_expiry) {
-          toast.error(`Compila tutti i campi dell'ospite ${i + 2}`);
-          return false;
-        }
-        if (!isValidDocumentNumber(g.id_card_number, g.id_type)) {
-          const docLabel = g.id_type === "passport" ? "passaporto" : "carta d'identità";
-          toast.error(`Ospite ${i + 2}: numero di ${docLabel} non valido`);
-          return false;
-        }
-      }
-      return true;
+      const err = validateGuestsStep(mainGuest, additionalGuests);
+      if (!err) return true;
+      toast.error(err.message);
+      if (err.scrollTo) document.getElementById(err.scrollTo)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return false;
     }
     if (s === 1) {
-      if (!noTransfer) {
-        const errs: Record<string, boolean> = {};
-        const fields: (keyof FlightData)[] = ["airline", "flight_outbound", "arrival_time", "flight_return", "departure_time"];
-        let hasError = false;
-        for (const f of fields) {
-          if (!flightData[f]) {
-            errs[f] = true;
-            hasError = true;
-          }
-        }
-        if (hasError) {
-          setFlightErrors(errs);
-          toast.error("Compila tutti i campi del volo oppure seleziona la casella per non usufruire del trasporto");
-          document.getElementById("flight-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
-          return false;
-        }
+      const errs = missingFlightFields(noTransfer, flightData);
+      if (Object.keys(errs).length) {
+        setFlightErrors(errs);
+        toast.error("Compila tutti i campi del volo oppure seleziona la casella per non usufruire del trasporto");
+        document.getElementById("flight-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        return false;
       }
       setFlightErrors({});
       return true;
     }
     if (s === 2) {
-      const { billing_name, billing_address, billing_city, billing_zip, billing_country, billing_fiscal_code } = billing;
-      if (!billing_name || !billing_address || !billing_city || !billing_zip || !billing_country || !billing_fiscal_code) {
-        toast.error("Compila tutti i dati di fatturazione");
-        return false;
-      }
-      if (!isValidZip(billing_zip)) {
-        toast.error("CAP non valido: inserisci solo cifre (3-10 cifre)");
-        return false;
-      }
-      if (!isValidFiscalCode(billing_fiscal_code, billing_country)) {
-        toast.error("Tax ID / VAT / P.IVA non valido per il paese selezionato");
-        return false;
-      }
-      return true;
+      const msg = validateBilling(billing, { zip: CLIENT_ZIP_MSG });
+      if (msg) toast.error(msg);
+      return !msg;
     }
     return true;
   };
