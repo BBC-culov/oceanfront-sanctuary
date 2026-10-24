@@ -29,7 +29,7 @@ export const initMetaPixel = () => {
   (function (f: any, b, e, v, n?: any, t?: any, s?: any) {
     if (f.fbq) return;
     n = f.fbq = function (...args: unknown[]) {
-      if (n.callMethod) n.callMethod(...args);
+      if (n.callMethod) n.callMethod.apply(n, args);
       else n.queue.push(args);
     };
     if (!f._fbq) f._fbq = n;
