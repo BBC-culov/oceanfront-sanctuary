@@ -1,4 +1,5 @@
 import { extractEdgeError } from "@/lib/edgeError";
+import { errorMessage } from "@/lib/dataTypes";
 import { Link, Navigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, LogIn } from "lucide-react";
@@ -165,7 +166,7 @@ const Prenota = () => {
       }
     } catch (err: unknown) {
       console.error(err);
-      toast.error((err instanceof Error ? err.message : undefined) || "Errore durante la prenotazione");
+      toast.error(errorMessage(err) || "Errore durante la prenotazione");
     } finally {
       setIsSubmitting(false);
     }
