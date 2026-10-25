@@ -1,3 +1,4 @@
+import type { BookingData, BookingApartment } from "@/lib/bookingTypes";
 import { motion } from "framer-motion";
 import { Building2, MapPin } from "lucide-react";
 import { format } from "date-fns";
@@ -5,8 +6,8 @@ import { it } from "date-fns/locale";
 import { getStatusConfig } from "@/lib/bookingStatus";
 
 interface BookingHeroCardProps {
-  booking: any;
-  apartment: any;
+  booking: BookingData;
+  apartment: BookingApartment | null;
   nights: number;
 }
 

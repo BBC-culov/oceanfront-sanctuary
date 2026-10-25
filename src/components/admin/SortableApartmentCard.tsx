@@ -1,3 +1,4 @@
+import type { ApartmentRow } from "@/hooks/useAdminApartments";
 import { motion } from "framer-motion";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -27,12 +28,12 @@ export interface ApartmentCardData {
 }
 
 interface Props {
-  apt: ApartmentCardData;
+  apt: ApartmentRow;
   isActiveTab: boolean;
-  onEdit: (apt: any) => void;
-  onAvailability: (apt: any) => void;
-  onToggleActive: (apt: any) => void;
-  onToggleFeatured: (apt: any) => void;
+  onEdit: (apt: ApartmentRow) => void;
+  onAvailability: (apt: ApartmentRow) => void;
+  onToggleActive: (apt: ApartmentRow) => void;
+  onToggleFeatured: (apt: ApartmentRow) => void;
   onDelete: (id: string, name: string) => void;
 }
 

@@ -1,3 +1,4 @@
+import { errorMessage } from "@/lib/dataTypes";
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -64,7 +65,7 @@ const AdminPrenotazioneNuova = () => {
   const [sendEmail, setSendEmail] = useState(true);
 
   const apt = useMemo(
-    () => apartments.find((a: any) => a.id === stay.apartment_id) as any,
+    () => apartments.find((a) => a.id === stay.apartment_id),
     [apartments, stay.apartment_id],
   );
   const nights =
@@ -142,8 +143,8 @@ const AdminPrenotazioneNuova = () => {
         toast.success("Link di pagamento generato — visibile nel dettaglio.");
       }
       navigate(`/admin/prenotazioni/${data.booking_id}`);
-    } catch (e: any) {
-      toast.error(e.message ?? "Errore");
+    } catch (e: unknown) {
+      toast.error(errorMessage(e) ?? "Errore");
     } finally {
       setSubmitting(false);
     }
@@ -236,7 +237,7 @@ const AdminPrenotazioneNuova = () => {
                 additionalGuests={additionalGuests}
                 flightData={flightData}
                 selectedServiceIds={selectedServices}
-                services={services as any}
+                services={services}
                 billing={billing}
                 notes={notes}
                 pricePerNight={pricePerNight}
@@ -255,7 +256,7 @@ const AdminPrenotazioneNuova = () => {
                 </div>
                 <RadioGroup
                   value={paymentLinkType}
-                  onValueChange={(v) => setPaymentLinkType(v as any)}
+                  onValueChange={(v) => setPaymentLinkType(v as typeof paymentLinkType)}
                   className="space-y-2"
                 >
                   {[

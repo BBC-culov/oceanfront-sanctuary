@@ -72,7 +72,7 @@ const AdminAppartamenti = () => {
 
   const handleSave = async (form: Omit<ApartmentRow, "id">, servicesInput: string, images: string[], videos: string[]) => {
     const services = servicesInput.split(",").map((s) => s.trim()).filter(Boolean);
-    const payload = { ...form, services, images, videos } as any;
+    const payload = { ...form, services, images, videos };
     const ok = await saveApartment(payload, creating ? undefined : editing?.id);
     if (ok) closeForm();
   };

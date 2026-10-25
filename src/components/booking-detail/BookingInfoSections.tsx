@@ -1,10 +1,11 @@
+import type { BookingData, BookingApartment } from "@/lib/bookingTypes";
 import { Clock, CreditCard, Mail, Phone, PlaneLanding, PlaneTakeoff, Sparkles, Users } from "lucide-react";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { InfoRow, Section } from "./Section";
 
 /** Main guest personal data. */
-export const GuestInfoSection = ({ booking }: { booking: any }) => (
+export const GuestInfoSection = ({ booking }: { booking: BookingData }) => (
   <Section icon={Users} title="Dati ospite" delay={0.15}>
     <div className="space-y-0">
       <InfoRow label="Nome" value={`${booking.guest_name} ${booking.guest_last_name || ""}`} />
@@ -21,7 +22,7 @@ export const GuestInfoSection = ({ booking }: { booking: any }) => (
 );
 
 /** Flight and transfer times. */
-export const FlightInfoSection = ({ booking }: { booking: any }) => (
+export const FlightInfoSection = ({ booking }: { booking: BookingData }) => (
   <Section icon={PlaneTakeoff} title="Informazioni volo" delay={0.25}>
     <div className="space-y-0">
       <InfoRow icon={PlaneTakeoff} label="Volo andata" value={booking.flight_outbound} />
@@ -47,7 +48,7 @@ export const ServicesSection = ({ services }: { services: { name: string; price:
 );
 
 /** Billing details. */
-export const BillingSection = ({ booking }: { booking: any }) => (
+export const BillingSection = ({ booking }: { booking: BookingData }) => (
   <Section icon={CreditCard} title="Dati fatturazione" delay={0.45}>
     <div className="space-y-0">
       <InfoRow label="Intestatario" value={booking.billing_name} />

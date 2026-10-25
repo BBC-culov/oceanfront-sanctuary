@@ -1,3 +1,4 @@
+import { errorMessage } from "@/lib/dataTypes";
 // Data + actions for the admin "Proprietari" page: owners, apartment assignment, booking stats.
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -60,8 +61,8 @@ export function useAdminOwners(isAmministratore: boolean) {
       setOwners(onlyOwners);
       setApartments((aptRes.data || []) as Apartment[]);
       setBookings((bkRes.data || []) as BookingRow[]);
-    } catch (e: any) {
-      toast.error("Errore", { description: e.message });
+    } catch (e: unknown) {
+      toast.error("Errore", { description: errorMessage(e) });
     } finally {
       setLoading(false);
     }
@@ -138,8 +139,8 @@ export function useAdminOwners(isAmministratore: boolean) {
       toast("Assegnazioni aggiornate", { description: `${selectedApts.size} appartamento/i assegnati a ${selectedOwner.email}.` });
       setAssignOpen(false);
       fetchAll();
-    } catch (e: any) {
-      toast.error("Errore", { description: e.message });
+    } catch (e: unknown) {
+      toast.error("Errore", { description: errorMessage(e) });
     } finally {
       setSaving(false);
     }

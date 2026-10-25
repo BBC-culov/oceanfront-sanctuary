@@ -1,3 +1,4 @@
+import { errorMessage } from "@/lib/dataTypes";
 // Data + actions for the admin "Servizi extra" page (additional_services CRUD and ordering).
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,8 +34,8 @@ export function useAdminServices() {
         supabase.from("additional_services").update({ sort_order: i }).eq("id", s.id)
       );
       await Promise.all(updates);
-    } catch (err: any) {
-      toast.error("Errore riordino", { description: err.message });
+    } catch (err: unknown) {
+      toast.error("Errore riordino", { description: errorMessage(err) });
       fetchServices();
     } finally {
       setReordering(false);
@@ -91,8 +92,8 @@ export function useAdminServices() {
       }
       setDialogOpen(false);
       fetchServices();
-    } catch (err: any) {
-      toast.error("Errore", { description: err.message });
+    } catch (err: unknown) {
+      toast.error("Errore", { description: errorMessage(err) });
     } finally {
       setSaving(false);
     }

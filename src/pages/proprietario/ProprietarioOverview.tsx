@@ -1,3 +1,5 @@
+import type { LucideIcon } from "lucide-react";
+import { errorMessage } from "@/lib/dataTypes";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -56,8 +58,8 @@ const ProprietarioOverview = () => {
     try {
       await exportOwnerReportPdf(metrics);
       toast("Report scaricato", { description: "Il PDF è stato generato." });
-    } catch (e: any) {
-      toast.error("Errore export", { description: e?.message ?? "Impossibile generare il PDF." });
+    } catch (e: unknown) {
+      toast.error("Errore export", { description: errorMessage(e) ?? "Impossibile generare il PDF." });
     } finally {
       setExporting(false);
     }
@@ -318,7 +320,7 @@ const ProprietarioOverview = () => {
   );
 };
 
-const Metric = ({ label, value, icon: Icon }: { label: string; value: string | number; icon: any }) => (
+const Metric = ({ label, value, icon: Icon }: { label: string; value: string | number; icon: LucideIcon }) => (
   <div className="flex items-center gap-2">
     <Icon className="w-4 h-4 text-muted-foreground" />
     <div>

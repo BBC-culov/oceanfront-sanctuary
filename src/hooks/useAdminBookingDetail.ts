@@ -1,3 +1,6 @@
+import type { Tables } from "@/integrations/supabase/types";
+import type { BookingStatus } from "@/lib/bookingStatus";
+import { errorMessage } from "@/lib/dataTypes";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -9,10 +12,10 @@ import { extractEdgeError } from "@/lib/edgeError";
  * status updates and the Stripe balance-link lifecycle.
  */
 export function useAdminBookingDetail(id: string | undefined, onMissing: () => void) {
-  const [booking, setBooking] = useState<any>(null);
-  const [apartment, setApartment] = useState<any>(null);
-  const [guests, setGuests] = useState<any[]>([]);
-  const [manualPayments, setManualPayments] = useState<any[]>([]);
+  const [booking, setBooking] = useState<Tables<"bookings"> | null>(null);
+  const [apartment, setApartment] = useState<Pick<Tables<"apartments">, "name" | "slug" | "images"> | null>(null);
+  const [guests, setGuests] = useState<Tables<"booking_guests">[]>([]);
+  const [manualPayments, setManualPayments] = useState<Tables<"manual_payments">[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [generatingLink, setGeneratingLink] = useState(false);
@@ -51,10 +54,11 @@ export function useAdminBookingDetail(id: string | undefined, onMissing: () => v
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data: b } = await supabase.from("bookings").select("*").eq("id", id!).single();
+      if (!id) return;
+      const { data: b } = await supabase.from("bookings").select("*").eq("id", id).single();
       if (!b) { onMissing(); return; }
       setBooking(b);
-      const bR = b as any;
+      const bR = b;
       if (bR.balance_session_id && Number(bR.amount_paid ?? 0) < Number(bR.total_price ?? 0)) {
         supabase.functions.invoke("confirm-booking-payment", {
           body: { booking_id: bR.id, type: "balance", reconcile: true },
@@ -67,7 +71,7 @@ export function useAdminBookingDetail(id: string | undefined, onMissing: () => v
       }
 
       // Restore persisted balance link
-      const bAny = b as any;
+      const bAny = b;
       if (bAny.balance_payment_url && bAny.balance_link_expires_at) {
         setBalanceLink(bAny.balance_payment_url);
         setBalanceSessionId(bAny.balance_session_id || null);
@@ -88,17 +92,19 @@ export function useAdminBookingDetail(id: string | undefined, onMissing: () => v
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const updateStatus = async (status: string) => {
-    const { error } = await supabase.from("bookings").update({ status } as any).eq("id", id!);
+  const updateStatus = async (status: BookingStatus) => {
+    if (!id) return;
+    const { error } = await supabase.from("bookings").update({ status }).eq("id", id);
     if (error) {
       toast.error("Errore", { description: error.message });
     } else {
-      setBooking((prev: any) => ({ ...prev, status }));
+      setBooking((prev) => prev ? { ...prev, status } : prev);
       toast("Stato aggiornato");
     }
   };
 
   const generateLink = async () => {
+    if (!booking) return;
     setGeneratingLink(true);
     try {
       const { data, error } = await supabase.functions.invoke("create-balance-payment-link", {
@@ -110,14 +116,15 @@ export function useAdminBookingDetail(id: string | undefined, onMissing: () => v
       setBalanceSessionId(data.session_id);
       setLinkExpiresAt(data.expires_at);
       toast("Link generato!", { description: "Copialo e invialo al cliente." });
-    } catch (e: any) {
-      toast.error("Errore", { description: e.message || "Errore nella generazione del link" });
+    } catch (e: unknown) {
+      toast.error("Errore", { description: errorMessage(e) || "Errore nella generazione del link" });
     } finally {
       setGeneratingLink(false);
     }
   };
 
   const regenerateLink = async () => {
+    if (!booking) return;
     setGeneratingLink(true);
     setEmailSent(false);
     try {
@@ -130,14 +137,15 @@ export function useAdminBookingDetail(id: string | undefined, onMissing: () => v
       setBalanceSessionId(data.session_id);
       setLinkExpiresAt(data.expires_at);
       toast("Link rigenerato!", { description: "Il link precedente è stato invalidato. Nuovo link valido per 24 ore." });
-    } catch (e: any) {
-      toast.error("Errore", { description: e.message || "Errore nella rigenerazione del link" });
+    } catch (e: unknown) {
+      toast.error("Errore", { description: errorMessage(e) || "Errore nella rigenerazione del link" });
     } finally {
       setGeneratingLink(false);
     }
   };
 
   const sendLinkEmail = async () => {
+    if (!booking) return;
     setSendingEmail(true);
     try {
       const { data, error } = await supabase.functions.invoke("create-balance-payment-link", {
@@ -147,8 +155,8 @@ export function useAdminBookingDetail(id: string | undefined, onMissing: () => v
       if (error) throw new Error(await extractEdgeError(error));
       setEmailSent(true);
       toast("Email inviata!", { description: `Email con link di pagamento inviata a ${booking.guest_email}` });
-    } catch (e: any) {
-      toast.error("Errore invio email", { description: e.message || "Errore nell'invio dell'email" });
+    } catch (e: unknown) {
+      toast.error("Errore invio email", { description: errorMessage(e) || "Errore nell'invio dell'email" });
     } finally {
       setSendingEmail(false);
     }

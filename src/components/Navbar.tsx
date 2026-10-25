@@ -43,7 +43,7 @@ const Navbar = () => {
   useEffect(() => {
     const checkRoles = async (userId: string) => {
       const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
-      const roles = (data ?? []).map((r: any) => r.role);
+      const roles = (data ?? []).map((r) => r.role);
       setIsAdmin(roles.includes("admin") || roles.includes("amministratore"));
       setIsProprietario(roles.includes("proprietario"));
     };

@@ -7,7 +7,7 @@ interface SeoProps {
   type?: "website" | "article" | "product";
   image?: string;
   noindex?: boolean;
-  jsonLd?: Record<string, any> | Record<string, any>[];
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
   /** Breadcrumb trail after Home, e.g. [{ name: "Servizi", path: "/servizi" }] */
   breadcrumbs?: { name: string; path: string }[];
 }

@@ -1,3 +1,5 @@
+import type { Tables } from "@/integrations/supabase/types";
+import { stringArray } from "@/lib/dataTypes";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import staticApartments from "@/data/apartments";
@@ -26,8 +28,8 @@ export interface ApartmentPublic {
   displayOrder: number;
 }
 
-function mapRow(row: any): ApartmentPublic {
-  const dbImages: string[] = Array.isArray(row.images) ? row.images.filter(Boolean) : [];
+function mapRow(row: Tables<"apartments">): ApartmentPublic {
+  const dbImages: string[] = stringArray(row.images).filter(Boolean);
   
   // If no DB images, fall back to static apartment images
   let cover = dbImages[0] ?? "";
@@ -41,7 +43,7 @@ function mapRow(row: any): ApartmentPublic {
     }
   }
 
-  const videos: string[] = Array.isArray(row.videos) ? row.videos.filter(Boolean) : [];
+  const videos: string[] = stringArray(row.videos).filter(Boolean);
 
   return {
     id: row.id,
@@ -56,7 +58,7 @@ function mapRow(row: any): ApartmentPublic {
     bedrooms: row.bedrooms,
     bathrooms: row.bathrooms,
     sqm: row.sqm,
-    services: Array.isArray(row.services) ? row.services : [],
+    services: stringArray(row.services),
     address: row.address ?? "",
     mapQuery: row.map_query ?? "",
     category: row.category as ApartmentPublic["category"],

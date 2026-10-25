@@ -1,10 +1,11 @@
+import type { Tables } from "@/integrations/supabase/types";
 import { motion } from "framer-motion";
 import { CreditCard, XCircle, Link as LinkIcon, Copy, Loader2, Mail, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { DEPOSIT_RATE } from "@/lib/bookingDeposit";
 
 interface Props {
-  booking: any;
+  booking: Tables<"bookings">;
   balanceLink: string | null;
   linkExpiresAt: number | null;
   generatingLink: boolean;

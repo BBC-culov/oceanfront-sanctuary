@@ -1,3 +1,5 @@
+import type { Tables } from "@/integrations/supabase/types";
+import { stringArray } from "@/lib/dataTypes";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -29,11 +31,11 @@ export interface Project {
   updated_at: string;
 }
 
-function normalize(row: any): Project {
+function normalize(row: Tables<"projects">): Project {
   return {
     ...row,
-    images: Array.isArray(row.images) ? row.images : [],
-    included_services: Array.isArray(row.included_services) ? row.included_services : [],
+    images: stringArray(row.images),
+    included_services: stringArray(row.included_services),
   };
 }
 
@@ -41,11 +43,11 @@ export function useProjects(opts: { onlyPublished?: boolean } = { onlyPublished:
   return useQuery({
     queryKey: ["projects", opts.onlyPublished ?? true],
     queryFn: async (): Promise<Project[]> => {
-      let q = supabase.from("projects" as any).select("*").order("display_order", { ascending: true });
+      let q = supabase.from("projects").select("*").order("display_order", { ascending: true });
       if (opts.onlyPublished) q = q.eq("published", true);
       const { data, error } = await q;
       if (error) throw error;
-      return ((data ?? []) as any[]).map(normalize);
+      return (data ?? []).map(normalize);
     },
   });
 }
@@ -56,9 +58,9 @@ export function useProject(slug: string | undefined) {
     enabled: !!slug,
     queryFn: async (): Promise<Project | null> => {
       const { data, error } = await supabase
-        .from("projects" as any)
+        .from("projects")
         .select("*")
-        .eq("slug", slug!)
+        .eq("slug", slug ?? "")
         .maybeSingle();
       if (error) throw error;
       return data ? normalize(data) : null;

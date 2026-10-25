@@ -1,3 +1,4 @@
+import { errorMessage } from "@/lib/dataTypes";
 // State and server calls for the admin accounts page (manage-admin function).
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,8 +39,8 @@ export function useAdminUsers(isAmministratore: boolean) {
       });
       if (error) throw error;
       setUsers(data.users || []);
-    } catch (e: any) {
-      toast.error("Errore", { description: e.message });
+    } catch (e: unknown) {
+      toast.error("Errore", { description: errorMessage(e) });
     } finally {
       setLoading(false);
     }
@@ -138,8 +139,8 @@ export function useAdminUsers(isAmministratore: boolean) {
       setDialogOpen(false);
       resetForm();
       fetchUsers();
-    } catch (e: any) {
-      toast.error("Errore", { description: e.message });
+    } catch (e: unknown) {
+      toast.error("Errore", { description: errorMessage(e) });
     } finally {
       setSubmitting(false);
     }
@@ -162,8 +163,8 @@ export function useAdminUsers(isAmministratore: boolean) {
       setDeleteDialogOpen(false);
       setDeletingUser(null);
       fetchUsers();
-    } catch (e: any) {
-      toast.error("Errore", { description: e.message });
+    } catch (e: unknown) {
+      toast.error("Errore", { description: errorMessage(e) });
     } finally {
       setSubmitting(false);
     }

@@ -28,7 +28,7 @@ export const useAdminNotifications = (): NotificationCounts => {
       const { data, error } = await supabase
         .from("bookings")
         .select("status")
-        .in("status", ATTENTION_STATUSES as any);
+        .in("status", ATTENTION_STATUSES);
 
       if (!mounted) return;
       if (error) {
@@ -38,7 +38,7 @@ export const useAdminNotifications = (): NotificationCounts => {
 
       const byStatus: Record<string, number> = {};
       for (const row of data ?? []) {
-        const s = (row as any).status as string;
+        const s = row.status;
         byStatus[s] = (byStatus[s] ?? 0) + 1;
       }
       const total = Object.values(byStatus).reduce((a, b) => a + b, 0);

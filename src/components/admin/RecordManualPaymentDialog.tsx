@@ -1,3 +1,5 @@
+import type { TablesUpdate } from "@/integrations/supabase/types";
+import { errorMessage } from "@/lib/dataTypes";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Loader2, CreditCard, CheckCircle2 } from "lucide-react";
@@ -60,7 +62,7 @@ const RecordManualPaymentDialog = ({
       // 2. Update booking amount_paid + status
       const newAmountPaid = Math.round((amountPaid + num) * 100) / 100;
       const fullySaldata = newAmountPaid >= totalPrice;
-      const updates: Record<string, unknown> = { amount_paid: newAmountPaid };
+      const updates: TablesUpdate<"bookings"> = { amount_paid: newAmountPaid };
       if (fullySaldata) {
         // Fully paid -> automatically confirmed + paid
         updates.status = "paid";
@@ -68,7 +70,7 @@ const RecordManualPaymentDialog = ({
 
       const { error: uErr } = await supabase
         .from("bookings")
-        .update(updates as any)
+        .update(updates)
         .eq("id", bookingId);
       if (uErr) throw uErr;
 
@@ -83,8 +85,8 @@ const RecordManualPaymentDialog = ({
       setMethod("cash");
       setCustomMethod("");
       setNotes("");
-    } catch (e: any) {
-      toast.error("Errore", { description: e?.message || "Errore nel salvataggio del pagamento" });
+    } catch (e: unknown) {
+      toast.error("Errore", { description: errorMessage(e) || "Errore nel salvataggio del pagamento" });
     } finally {
       setSubmitting(false);
     }

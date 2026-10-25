@@ -1,3 +1,5 @@
+import type { Tables, TablesUpdate } from "@/integrations/supabase/types";
+import { errorMessage } from "@/lib/dataTypes";
 // Admin: edit booking directly via admin-update-booking edge function.
 // Supports dates, contact, full main guest, flight, services, additional guests, notes.
 // Can generate a 24h Stripe "modification" payment link for a positive price diff.
@@ -15,7 +17,7 @@ import { ErrorMsg, AdditionalGuestsSection } from "@/components/booking/BookingM
 interface Props {
   open: boolean;
   onClose: () => void;
-  booking: any;
+  booking: Tables<"bookings">;
   onSaved?: () => void;
 }
 
@@ -86,8 +88,8 @@ export default function AdminEditBookingDialog({ open, onClose, booking, onSaved
           : `Nuovo totale: €${Number(data.new_total).toFixed(2)}` });
       onSaved?.();
       onClose();
-    } catch (e: any) {
-      toast.error("Errore", { description: e.message || "Errore aggiornamento" });
+    } catch (e: unknown) {
+      toast.error("Errore", { description: errorMessage(e) || "Errore aggiornamento" });
     } finally { setSubmitting(false); }
   };
 

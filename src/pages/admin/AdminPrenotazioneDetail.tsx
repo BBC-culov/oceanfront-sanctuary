@@ -7,7 +7,7 @@ import { countNights } from "@/lib/nights";
 import {
   ArrowLeft, CalendarCheck, CheckCircle2, Building2, ChevronRight, Pencil,
 } from "lucide-react";
-import { BOOKING_STATUS, getStatusConfig } from "@/lib/bookingStatus";
+import { BOOKING_STATUS, getStatusConfig, type BookingStatus } from "@/lib/bookingStatus";
 import RecordManualPaymentDialog from "@/components/admin/RecordManualPaymentDialog";
 import ModificationRequestsPanel from "@/components/admin/ModificationRequestsPanel";
 import AdminEditBookingDialog from "@/components/admin/AdminEditBookingDialog";
@@ -115,7 +115,7 @@ const AdminPrenotazioneDetail = () => {
               <p className="font-sans text-xs text-muted-foreground italic flex-1">{sc.description}</p>
               <select
                 value={booking.status}
-                onChange={(e) => updateStatus(e.target.value)}
+                onChange={(e) => updateStatus(e.target.value as BookingStatus)}
                 className="h-8 rounded-sm border border-border/60 bg-white px-2.5 text-[11px] font-sans cursor-pointer hover:border-primary/50 transition-colors"
               >
                 {Object.entries(BOOKING_STATUS).map(([val, cfg]) => (

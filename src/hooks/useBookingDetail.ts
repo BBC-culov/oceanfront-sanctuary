@@ -1,3 +1,6 @@
+import type { Tables } from "@/integrations/supabase/types";
+import { bookingData, type BookingData, type BookingApartment } from "@/lib/bookingTypes";
+import { errorMessage } from "@/lib/dataTypes";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -11,11 +14,11 @@ export function useBookingDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [booking, setBooking] = useState<any>(null);
-  const [apartment, setApartment] = useState<any>(null);
+  const [booking, setBooking] = useState<BookingData | null>(null);
+  const [apartment, setApartment] = useState<BookingApartment | null>(null);
   const [loading, setLoading] = useState(true);
-  const [pendingMod, setPendingMod] = useState<any>(null);
-  const [modHistory, setModHistory] = useState<any[]>([]);
+  const [pendingMod, setPendingMod] = useState<Tables<"booking_modification_requests"> | null>(null);
+  const [modHistory, setModHistory] = useState<Tables<"booking_modification_requests">[]>([]);
   const [payingMod, setPayingMod] = useState(false);
 
   const reloadBooking = async () => {
@@ -24,14 +27,14 @@ export function useBookingDetail() {
     const { data: b } = await supabase
       .from("bookings").select("*")
       .eq("id", id).eq("user_id", session.user.id).single();
-    if (b) setBooking(b);
+    if (b) setBooking(bookingData(b));
     const { data: all } = await supabase
       .from("booking_modification_requests").select("*")
       .eq("booking_id", id)
       .order("created_at", { ascending: false });
     const list = all ?? [];
-    setPendingMod(list.find((r: any) => r.status === "pending") ?? null);
-    setModHistory(list.filter((r: any) => r.status !== "pending"));
+    setPendingMod(list.find((r) => r.status === "pending") ?? null);
+    setModHistory(list.filter((r) => r.status !== "pending"));
   };
 
   // Handle payment success redirects
@@ -78,7 +81,7 @@ export function useBookingDetail() {
             const { data: b } = await supabase
               .from("bookings").select("*")
               .eq("id", id).eq("user_id", session.user.id).single();
-            if (b) setBooking(b);
+            if (b) setBooking(bookingData(b));
           }
         } catch (e) {
           console.error("Confirm error:", e);
@@ -97,11 +100,11 @@ export function useBookingDetail() {
 
       const { data: b } = await supabase
         .from("bookings").select("*")
-        .eq("id", id!).eq("user_id", session.user.id).single();
+        .eq("id", id ?? "").eq("user_id", session.user.id).single();
 
       if (!b) { navigate("/profilo#prenotazioni"); return; }
-      setBooking(b);
-      const bR = b as any;
+      setBooking(bookingData(b));
+      const bR = b;
       if (bR.balance_session_id && Number(bR.amount_paid ?? 0) < Number(bR.total_price ?? 0)) {
         supabase.functions.invoke("confirm-booking-payment", {
           body: { booking_id: bR.id, type: "balance", reconcile: true },
@@ -109,7 +112,7 @@ export function useBookingDetail() {
           if (data?.ok) {
             const { data: fresh } = await supabase.from("bookings").select("*")
               .eq("id", bR.id).eq("user_id", session.user.id).single();
-            if (fresh) setBooking(fresh);
+            if (fresh) setBooking(bookingData(fresh));
           }
         }).catch((e) => console.error("Balance reconcile error:", e));
       }
@@ -119,15 +122,15 @@ export function useBookingDetail() {
         .select("name, slug, images, address")
         .eq("id", b.apartment_id)
         .single();
-      setApartment(apt);
+      setApartment(apt as BookingApartment | null);
 
       const { data: all } = await supabase
         .from("booking_modification_requests").select("*")
         .eq("booking_id", id!)
         .order("created_at", { ascending: false });
       const list = all ?? [];
-      setPendingMod(list.find((r: any) => r.status === "pending") ?? null);
-      setModHistory(list.filter((r: any) => r.status !== "pending"));
+      setPendingMod(list.find((r) => r.status === "pending") ?? null);
+      setModHistory(list.filter((r) => r.status !== "pending"));
 
       setLoading(false);
     };
@@ -147,17 +150,18 @@ export function useBookingDetail() {
 
   /** Cancels the booking. Returns true on success. */
   const cancelBooking = async (): Promise<boolean> => {
+    if (!booking) return false;
     try {
       const { error } = await supabase
         .from("bookings")
-        .update({ status: "cancelled" as any })
+        .update({ status: "cancelled" })
         .eq("id", booking.id);
       if (error) throw error;
       toast.success("Prenotazione annullata. Per il rimborso del saldo, contatta l'assistenza.");
       window.location.reload();
       return true;
-    } catch (err: any) {
-      toast.error(err.message || "Errore durante l'annullamento");
+    } catch (err: unknown) {
+      toast.error(errorMessage(err) || "Errore durante l'annullamento");
       return false;
     }
   };

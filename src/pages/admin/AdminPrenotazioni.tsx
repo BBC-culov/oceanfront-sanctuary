@@ -1,3 +1,4 @@
+import type { BookingStatus } from "@/lib/bookingStatus";
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -47,10 +48,10 @@ const AdminPrenotazioni = () => {
       supabase.from("bookings").select("*").order("created_at", { ascending: false }),
       supabase.from("apartments").select("id, name"),
     ]);
-    const aptMap = new Map((aRes.data ?? []).map((a: any) => [a.id, a.name]));
+    const aptMap = new Map((aRes.data ?? []).map((a) => [a.id, a.name]));
     setApartments(aRes.data ?? []);
     setBookings(
-      (bRes.data ?? []).map((b: any) => ({ ...b, apartment_name: aptMap.get(b.apartment_id) ?? "—" }))
+      (bRes.data ?? []).map((b) => ({ ...b, apartment_name: aptMap.get(b.apartment_id) ?? "—" }))
     );
     setLoading(false);
   };
@@ -71,8 +72,8 @@ const AdminPrenotazioni = () => {
     });
   }, [bookings, search, filterStatus, filterApartment]);
 
-  const updateStatus = async (id: string, status: string) => {
-    const { error } = await supabase.from("bookings").update({ status } as any).eq("id", id);
+  const updateStatus = async (id: string, status: BookingStatus) => {
+    const { error } = await supabase.from("bookings").update({ status }).eq("id", id);
     if (error) {
       toast.error("Errore", { description: error.message });
     } else {
@@ -283,7 +284,7 @@ const AdminPrenotazioni = () => {
                     <select
                       value={b.status}
                       onClick={(e) => e.stopPropagation()}
-                      onChange={(e) => { e.stopPropagation(); updateStatus(b.id, e.target.value); }}
+                      onChange={(e) => { e.stopPropagation(); updateStatus(b.id, e.target.value as BookingStatus); }}
                       className="h-8 rounded-md border border-border/40 bg-transparent px-2 text-[11px] font-sans appearance-none cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-200 w-24"
                     >
                       {Object.entries(BOOKING_STATUS).map(([val, cfg]) => (

@@ -1,3 +1,4 @@
+import { stringArray } from "@/lib/dataTypes";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserRoles } from "@/hooks/useUserRoles";
@@ -42,12 +43,12 @@ export function useOwnerApartments() {
       const { data, error } = await supabase
         .from("apartments")
         .select("id, slug, name, category, price_per_night, guests, bedrooms, bathrooms, sqm, address, images, is_active")
-        .eq("owner_id", userId!)
+        .eq("owner_id", userId ?? "")
         .order("name");
       if (error) throw error;
-      return (data ?? []).map((a: any) => ({
+      return (data ?? []).map((a) => ({
         ...a,
-        images: Array.isArray(a.images) ? a.images : [],
+        images: stringArray(a.images),
       })) as OwnerApartment[];
     },
     staleTime: 5 * 60 * 1000,
@@ -83,7 +84,7 @@ export function useOwnerGuestCounts(bookingIds: string[]) {
         .in("booking_id", bookingIds);
       if (error) throw error;
       const counts = new Map<string, number>();
-      (data ?? []).forEach((g: any) => {
+      (data ?? []).forEach((g) => {
         counts.set(g.booking_id, (counts.get(g.booking_id) ?? 0) + 1);
       });
       return counts;

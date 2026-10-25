@@ -64,7 +64,8 @@ const AppartamentoDetail = () => {
   const appleMapsUrl = `https://maps.apple.com/?q=${apt.mapQuery}`;
 
   const heroImg = apt.gallery?.[0];
-  const priceValue = (apt as any).pricePerNight;
+  const metadata = apt as typeof apt & { pricePerNight?: number; size?: number; maxGuests?: number; amenities?: string[] };
+  const priceValue = metadata.pricePerNight;
 
   return (
     <PageTransition>
@@ -80,13 +81,13 @@ const AppartamentoDetail = () => {
             name: apt.name,
             description: apt.description,
             image: apt.gallery,
-            numberOfBedrooms: (apt as any).bedrooms,
-            numberOfBathroomsTotal: (apt as any).bathrooms,
-            floorSize: (apt as any).size ? { "@type": "QuantitativeValue", value: (apt as any).size, unitCode: "MTK" } : undefined,
-            occupancy: { "@type": "QuantitativeValue", value: (apt as any).maxGuests },
+            numberOfBedrooms: apt.bedrooms,
+            numberOfBathroomsTotal: apt.bathrooms,
+            floorSize: metadata.size ? { "@type": "QuantitativeValue", value: metadata.size, unitCode: "MTK" } : undefined,
+            occupancy: { "@type": "QuantitativeValue", value: metadata.maxGuests },
             address: { "@type": "PostalAddress", addressLocality: "Boa Vista", addressRegion: "Sal Rei", addressCountry: "CV" },
             geo: { "@type": "GeoCoordinates", latitude: 16.1772, longitude: -22.9167 },
-            amenityFeature: (apt as any).amenities?.map((a: string) => ({ "@type": "LocationFeatureSpecification", name: a })),
+            amenityFeature: metadata.amenities?.map((a: string) => ({ "@type": "LocationFeatureSpecification", name: a })),
             ...(priceValue ? {
               offers: {
                 "@type": "Offer",
@@ -139,7 +140,7 @@ const AppartamentoDetail = () => {
                       className={`w-full object-cover transition-transform duration-700 group-hover:scale-105 ${i === 0 ? "aspect-[4/3] md:aspect-auto md:h-full" : "aspect-[4/3]"}`}
                       loading={i === 0 ? "eager" : "lazy"}
                       decoding={i === 0 ? "sync" : "async"}
-                      {...(i === 0 ? { fetchPriority: "high" as any } : {})}
+                      {...(i === 0 ? { fetchPriority: "high" as const } : {})}
                     />
                     {i === 2 && extraCount > 0 && (
                       <div className="absolute inset-0 bg-foreground/40 flex items-center justify-center transition-colors group-hover:bg-foreground/50">
@@ -178,11 +179,11 @@ const AppartamentoDetail = () => {
                 <div className="flex flex-wrap gap-6 mt-6 pt-6 border-t border-border/40">
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Clock className="w-5 h-5 text-primary" strokeWidth={1.5} />
-                    <span className="font-sans text-sm"><span className="font-medium text-foreground">Check-in:</span> {"checkInTime" in apt ? (apt as any).checkInTime : "15:00"}</span>
+                    <span className="font-sans text-sm"><span className="font-medium text-foreground">Check-in:</span> {"checkInTime" in apt ? apt.checkInTime as string : "15:00"}</span>
                   </div>
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Clock className="w-5 h-5 text-primary" strokeWidth={1.5} />
-                    <span className="font-sans text-sm"><span className="font-medium text-foreground">Check-out:</span> {"checkOutTime" in apt ? (apt as any).checkOutTime : "10:00"}</span>
+                    <span className="font-sans text-sm"><span className="font-medium text-foreground">Check-out:</span> {"checkOutTime" in apt ? apt.checkOutTime as string : "10:00"}</span>
                   </div>
                 </div>
               </motion.div>
@@ -242,7 +243,7 @@ const AppartamentoDetail = () => {
                   </div>
                 </div>
               )}
-              <AvailabilityCalendar apartmentSlug={slug} apartmentId={"id" in apt ? (apt as any).id : undefined} />
+              <AvailabilityCalendar apartmentSlug={slug} apartmentId={"id" in apt ? apt.id as string : undefined} />
             </motion.div>
           </div>
         </section>

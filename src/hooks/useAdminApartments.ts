@@ -1,3 +1,4 @@
+import { stringArray, type ApartmentPayload } from "@/lib/dataTypes";
 import { useCallback, useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -51,11 +52,11 @@ export function useAdminApartments() {
       .order("display_order", { ascending: true })
       .order("name", { ascending: true });
     setApartments(
-      (data ?? []).map((a: any) => ({
+      (data ?? []).map((a) => ({
         ...a,
-        services: Array.isArray(a.services) ? a.services : [],
-        images: Array.isArray(a.images) ? a.images : [],
-        videos: Array.isArray(a.videos) ? a.videos : [],
+        services: stringArray(a.services),
+        images: stringArray(a.images),
+        videos: stringArray(a.videos),
       }))
     );
     setLoading(false);
@@ -69,7 +70,7 @@ export function useAdminApartments() {
   }, [fetchApartments]);
 
   const saveApartment = useCallback(
-    async (payload: any, editingId?: string): Promise<boolean> => {
+    async (payload: ApartmentPayload, editingId?: string): Promise<boolean> => {
       const { error } = editingId
         ? await supabase.from("apartments").update(payload).eq("id", editingId)
         : await supabase.from("apartments").insert(payload);

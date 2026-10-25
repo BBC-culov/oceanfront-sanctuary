@@ -1,10 +1,12 @@
+import type { Tables } from "@/integrations/supabase/types";
+import type { BookingData } from "@/lib/bookingTypes";
 import { motion } from "framer-motion";
 import { AlertTriangle, CheckCircle2, CreditCard, History, Loader2, Pencil, XCircle } from "lucide-react";
 import ModificationDiff from "@/components/admin/ModificationDiff";
 import { Section } from "./Section";
 
 /** Banner shown while a modification request awaits review. */
-export const PendingModificationBanner = ({ pendingMod }: { pendingMod: any }) => (
+export const PendingModificationBanner = ({ pendingMod }: { pendingMod: Tables<"booking_modification_requests"> }) => (
   <motion.div
     initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
     className="bg-violet-50 border border-violet-200 rounded-2xl shadow-sm overflow-hidden"
@@ -33,7 +35,7 @@ export const PendingModificationBanner = ({ pendingMod }: { pendingMod: any }) =
 /** Stripe payment card for the price difference of an approved modification. */
 export const ModificationPaymentCard = ({
   booking, paying, onPay,
-}: { booking: any; paying: boolean; onPay: () => void }) => {
+}: { booking: BookingData; paying: boolean; onPay: () => void }) => {
   const expired = booking.modification_link_expires_at
     ? Date.now() / 1000 > booking.modification_link_expires_at
     : false;
@@ -94,7 +96,7 @@ export const RequestModificationCta = ({ onOpen }: { onOpen: () => void }) => (
 );
 
 /** Reviewed (approved/rejected) modification requests. */
-export const ModificationHistorySection = ({ modHistory }: { modHistory: any[] }) => (
+export const ModificationHistorySection = ({ modHistory }: { modHistory: Tables<"booking_modification_requests">[] }) => (
   <Section icon={History} title="Storico richieste di modifica" delay={0.18}>
     <div className="space-y-4">
       {modHistory.map((r) => {
