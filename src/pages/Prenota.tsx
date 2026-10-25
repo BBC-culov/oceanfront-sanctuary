@@ -115,7 +115,7 @@ const Prenota = () => {
 
       const { data, error } = await supabase.functions.invoke("create-booking-payment", {
         body: {
-          apartment_id: (dbApt as any)?.id || "",
+          apartment_id: dbApt?.id || "",
           apartment_name: apt.name,
           check_in: checkIn,
           check_out: checkOut,
@@ -163,7 +163,7 @@ const Prenota = () => {
       } else {
         throw new Error("URL di pagamento non ricevuto");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
       toast.error(err.message || "Errore durante la prenotazione");
     } finally {

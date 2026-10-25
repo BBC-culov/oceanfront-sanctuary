@@ -232,8 +232,8 @@ const Contatti = () => {
             {/* 3D tilt contact cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
               {contacts.map((item) => {
-                const Wrapper: any = item.href ? "a" : "div";
-                const wrapperProps: any = item.href
+                const Wrapper: "a" | "div" = item.href ? "a" : "div";
+                const wrapperProps: React.AnchorHTMLAttributes<HTMLAnchorElement> = item.href
                   ? {
                       href: item.href,
                       target: item.href.startsWith("http") ? "_blank" : undefined,

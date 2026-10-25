@@ -1,3 +1,4 @@
+import type { Database } from "@/integrations/supabase/types";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -14,7 +15,7 @@ const Riprendi = () => {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
   const [status, setStatus] = useState<Status>("loading");
-  const [booking, setBooking] = useState<any>(null);
+  const [booking, setBooking] = useState<Database["public"]["Functions"]["get_booking_by_resume_token"]["Returns"][number] | null>(null);
   const [apartmentSlug, setApartmentSlug] = useState<string | null>(null);
 
   useEffect(() => {

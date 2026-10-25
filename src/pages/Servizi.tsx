@@ -1,3 +1,4 @@
+import type { TargetAndTransition } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
@@ -83,7 +84,7 @@ interface ServiceCategory {
   tag: string;
   title: string;
   subtitle: string;
-  items: { icon: LucideIcon; label: string; desc: string; hoverAnim?: Record<string, any> }[];
+  items: { icon: LucideIcon; label: string; desc: string; hoverAnim?: TargetAndTransition }[];
   accent?: boolean;
 }
 

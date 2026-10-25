@@ -1,3 +1,4 @@
+import { errorMessage } from "@/lib/dataTypes";
 import { useCallback, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Loader2, Trash2, CalendarRange, Lock, AlertCircle } from "lucide-react";
@@ -58,8 +59,8 @@ const AvailabilityManagerDialog = ({ open, onClose, apartmentId, apartmentName }
       if (bookingsRes.error) throw bookingsRes.error;
       setBlocks(blocksRes.data ?? []);
       setBookings(bookingsRes.data ?? []);
-    } catch (e: any) {
-      toast.error("Errore caricamento", { description: e.message });
+    } catch (e: unknown) {
+      toast.error("Errore caricamento", { description: errorMessage(e) });
     } finally {
       setLoading(false);
     }
@@ -128,8 +129,8 @@ const AvailabilityManagerDialog = ({ open, onClose, apartmentId, apartmentName }
       setRange(undefined);
       setReason("");
       await loadData();
-    } catch (e: any) {
-      toast.error("Errore", { description: e.message });
+    } catch (e: unknown) {
+      toast.error("Errore", { description: errorMessage(e) });
     } finally {
       setSaving(false);
     }
@@ -145,8 +146,8 @@ const AvailabilityManagerDialog = ({ open, onClose, apartmentId, apartmentName }
       if (error) throw error;
       toast("Blocco rimosso");
       await loadData();
-    } catch (e: any) {
-      toast.error("Errore", { description: e.message });
+    } catch (e: unknown) {
+      toast.error("Errore", { description: errorMessage(e) });
     }
   };
 

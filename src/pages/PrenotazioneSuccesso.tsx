@@ -1,3 +1,4 @@
+import type { Tables } from "@/integrations/supabase/types";
 import { useEffect, useState } from "react";
 import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -15,7 +16,7 @@ const PrenotazioneSuccesso = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [confirming, setConfirming] = useState(true);
-  const [booking, setBooking] = useState<any>(null);
+  const [booking, setBooking] = useState<Tables<"bookings"> | null>(null);
   const [apartmentName, setApartmentName] = useState("");
 
   useEffect(() => {

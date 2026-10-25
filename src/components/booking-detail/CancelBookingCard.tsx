@@ -1,3 +1,4 @@
+import type { BookingData } from "@/lib/bookingTypes";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -5,7 +6,7 @@ import { AlertTriangle, Ban } from "lucide-react";
 import { DEPOSIT_PERCENT_LABEL, DEPOSIT_RATE, calcDeposit } from "@/lib/bookingDeposit";
 
 interface CancelBookingCardProps {
-  booking: any;
+  booking: BookingData;
   /** Performs the cancellation; returns false when it failed. */
   onCancel: () => Promise<boolean>;
 }

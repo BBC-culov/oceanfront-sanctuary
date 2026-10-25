@@ -62,7 +62,7 @@ export async function exportOwnerReportPdf({
         margin: { left: margin, right: margin },
       });
 
-      let y = (doc as any).lastAutoTable.finalY + 24;
+      let y = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 24;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(13);
       doc.text("Performance generale", margin, y);
@@ -82,7 +82,7 @@ export async function exportOwnerReportPdf({
         margin: { left: margin, right: margin },
       });
 
-      y = (doc as any).lastAutoTable.finalY + 24;
+      y = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 24;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(13);
       doc.text("Andamento mensile", margin, y);
@@ -98,7 +98,7 @@ export async function exportOwnerReportPdf({
       });
 
       if (activeBookings.length > 0) {
-        y = (doc as any).lastAutoTable.finalY + 24;
+        y = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 24;
         if (y > 720) { doc.addPage(); y = 60; }
         doc.setFont("helvetica", "bold");
         doc.setFontSize(13);

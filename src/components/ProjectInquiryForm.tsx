@@ -77,7 +77,7 @@ const ProjectInquiryForm = ({ projectId, projectTitle }: Props) => {
     }
 
     setSubmitting(true);
-    const { error } = await supabase.from("project_inquiries" as any).insert({
+    const { error } = await supabase.from("project_inquiries").insert({
       project_id: projectId,
       name: parsed.data.name,
       email: parsed.data.email,
