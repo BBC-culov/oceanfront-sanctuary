@@ -4,10 +4,18 @@
 const PIXEL_ID = "1345445894467225";
 const COOKIE_KEY = "bazhouse_cookie_consent";
 
+type PixelFunction = ((...args: unknown[]) => void) & {
+  callMethod?: (...args: unknown[]) => void;
+  queue: unknown[][];
+  push?: PixelFunction;
+  loaded?: boolean;
+  version?: string;
+};
+
 declare global {
   interface Window {
-    fbq?: ((...args: any[]) => void) & { callMethod?: (...a: any[]) => void; queue?: any[]; loaded?: boolean; version?: string };
-    _fbq?: any;
+    fbq?: PixelFunction;
+    _fbq?: PixelFunction;
   }
 }
 
@@ -26,22 +34,23 @@ export const initMetaPixel = () => {
   if (!hasCookieConsent()) return;
 
   // Standard Meta Pixel base code
-  (function (f: any, b, e, v, n?: any, t?: any, s?: any) {
+  (function (f: Window, b: Document, e: "script", v: string) {
     if (f.fbq) return;
-    n = f.fbq = function (...args: unknown[]) {
-      if (n.callMethod) n.callMethod.apply(n, args);
+    const n: PixelFunction = Object.assign(function (...args: unknown[]) {
+      if (n.callMethod) n.callMethod(...args);
       else n.queue.push(args);
-    };
+    }, { queue: [] as unknown[][] });
+    f.fbq = n;
     if (!f._fbq) f._fbq = n;
     n.push = n;
     n.loaded = true;
     n.version = "2.0";
     n.queue = [];
-    t = b.createElement(e);
+    const t = b.createElement(e);
     t.async = true;
     t.src = v;
-    s = b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t, s);
+    const s = b.getElementsByTagName(e)[0];
+    s?.parentNode?.insertBefore(t, s);
   })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
 
   window.fbq?.("init", PIXEL_ID);
@@ -55,7 +64,7 @@ export const trackPageView = () => {
   window.fbq?.("track", "PageView");
 };
 
-export const trackCustomEvent = (name: string, params?: Record<string, any>) => {
+export const trackCustomEvent = (name: string, params?: Record<string, unknown>) => {
   if (!hasCookieConsent()) return;
   if (!initialized) initMetaPixel();
   window.fbq?.("trackCustom", name, params || {});
