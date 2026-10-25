@@ -284,7 +284,7 @@ const AdminPrenotazioni = () => {
                     <select
                       value={b.status}
                       onClick={(e) => e.stopPropagation()}
-                      onChange={(e) => { e.stopPropagation(); updateStatus(b.id, e.target.value); }}
+                      onChange={(e) => { e.stopPropagation(); updateStatus(b.id, e.target.value as BookingStatus); }}
                       className="h-8 rounded-md border border-border/40 bg-transparent px-2 text-[11px] font-sans appearance-none cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-200 w-24"
                     >
                       {Object.entries(BOOKING_STATUS).map(([val, cfg]) => (
