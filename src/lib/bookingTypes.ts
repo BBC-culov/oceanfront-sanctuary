@@ -1,10 +1,10 @@
 import type { Tables } from "@/integrations/supabase/types";
 
-export interface SelectedService {
+export type SelectedService = {
   id: string;
   name: string;
   price: number;
-}
+};
 
 export type BookingData = Omit<Tables<"bookings">, "selected_services"> & {
   selected_services: SelectedService[] | null;
