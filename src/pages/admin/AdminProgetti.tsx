@@ -88,6 +88,8 @@ const AdminProgetti = () => {
 
     const payload: ProjectPayload = {
       ...parsed.data,
+      title: parsed.data.title as string,
+      slug: parsed.data.slug as string,
       subtitle: parsed.data.subtitle || null,
       description: parsed.data.description || null,
       price_label: parsed.data.price_label || null,

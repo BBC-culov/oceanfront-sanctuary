@@ -38,18 +38,18 @@ const AdminRichiesteProgetti = () => {
   const load = async () => {
     setLoading(true);
     const { data, error } = await supabase
-      .from("project_inquiries" as any)
+      .from("project_inquiries")
       .select("*, project:projects(title, slug)")
       .order("created_at", { ascending: false });
     setLoading(false);
     if (error) { toast.error("Errore caricamento"); return; }
-    setInquiries((data ?? []) as any);
+    setInquiries(data ?? []);
   };
 
   useEffect(() => { load(); }, []);
 
   const toggleRead = async (i: Inquiry) => {
-    const { error } = await supabase.from("project_inquiries" as any).update({ read: !i.read }).eq("id", i.id);
+    const { error } = await supabase.from("project_inquiries").update({ read: !i.read }).eq("id", i.id);
     if (error) { toast.error("Errore"); return; }
     load();
   };
@@ -57,7 +57,7 @@ const AdminRichiesteProgetti = () => {
   const markAllRead = async () => {
     const unreadIds = filtered.filter((i) => !i.read).map((i) => i.id);
     if (unreadIds.length === 0) return;
-    const { error } = await supabase.from("project_inquiries" as any).update({ read: true }).in("id", unreadIds);
+    const { error } = await supabase.from("project_inquiries").update({ read: true }).in("id", unreadIds);
     if (error) { toast.error("Errore"); return; }
     toast.success(`${unreadIds.length} richieste segnate come lette`);
     load();
@@ -65,7 +65,7 @@ const AdminRichiesteProgetti = () => {
 
   const remove = async (i: Inquiry) => {
     if (!confirm("Eliminare la richiesta?")) return;
-    const { error } = await supabase.from("project_inquiries" as any).delete().eq("id", i.id);
+    const { error } = await supabase.from("project_inquiries").delete().eq("id", i.id);
     if (error) { toast.error("Errore"); return; }
     toast.success("Richiesta eliminata");
     load();
