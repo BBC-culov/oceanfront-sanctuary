@@ -1,3 +1,5 @@
+import type { Tables } from "@/integrations/supabase/types";
+import type { ServiceReference } from "@/lib/bookingTypes";
 // Shared form state for editing a booking (used by the customer modification
 // request dialog and the admin edit dialog). Pure state/validation — each
 // dialog keeps its own submit logic and markup.
@@ -7,7 +9,7 @@ import { countNights } from "@/lib/nights";
 import type { GuestRow } from "@/components/booking/GuestListEditor";
 import { mainGuestSchema, stayDatesSchema, guestSchema, flattenZodErrors, type FieldErrors } from "@/lib/modificationValidation";
 
-export function useBookingEditForm(open: boolean, booking: any) {
+export function useBookingEditForm(open: boolean, booking: Tables<"bookings"> | null) {
   const [errors, setErrors] = useState<FieldErrors>({});
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
@@ -58,7 +60,7 @@ export function useBookingEditForm(open: boolean, booking: any) {
     setNotes(booking.notes ?? "");
     setSelectedSvcIds(
       Array.isArray(booking.selected_services)
-        ? booking.selected_services.map((s: any) => (typeof s === "string" ? s : s?.id)).filter(Boolean)
+        ? (booking.selected_services as ServiceReference[]).map((s: ServiceReference) => (typeof s === "string" ? s : s?.id)).filter(Boolean)
         : []
     );
     setEditGuests(false);
@@ -68,7 +70,7 @@ export function useBookingEditForm(open: boolean, booking: any) {
         .select("first_name,last_name,date_of_birth,nationality,id_type,id_card_number,id_card_issued,id_card_expiry")
         .eq("booking_id", booking.id);
       setGuests(
-        (data ?? []).map((g: any) => ({
+        (data ?? []).map((g) => ({
           first_name: g.first_name ?? "",
           last_name: g.last_name ?? "",
           date_of_birth: g.date_of_birth ?? "",
@@ -96,7 +98,7 @@ export function useBookingEditForm(open: boolean, booking: any) {
       const mRes = mainGuestSchema.safeParse({
         guest_name: guestName, guest_last_name: guestLast, guest_email: guestEmail, guest_phone: phone,
         guest_date_of_birth: gDob, guest_place_of_birth: gPob, guest_nationality: gNat,
-        guest_id_type: gIdType as any, guest_id_card_number: gIdNum,
+        guest_id_type: gIdType, guest_id_card_number: gIdNum,
         guest_id_card_issued: gIdIss, guest_id_card_expiry: gIdExp,
       });
       if (!mRes.success) Object.assign(errs, flattenZodErrors(mRes.error));
