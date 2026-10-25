@@ -1,3 +1,4 @@
+import type { BookingData, BookingApartment } from "@/lib/bookingTypes";
 import { motion } from "framer-motion";
 import { CheckCircle2, CreditCard, Receipt } from "lucide-react";
 import { Section } from "./Section";
@@ -5,7 +6,7 @@ import { Section } from "./Section";
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
 /** Stay total, deposit paid and remaining balance. */
-export const PriceSummarySection = ({ booking, nights }: { booking: any; nights: number }) => {
+export const PriceSummarySection = ({ booking, nights }: { booking: BookingData; nights: number }) => {
   const paid = booking.amount_paid || 0;
 
   return (
@@ -45,7 +46,7 @@ export const PriceSummarySection = ({ booking, nights }: { booking: any; nights:
 };
 
 /** Informational card about the outstanding balance (no payment button). */
-export const RemainingBalanceCard = ({ booking }: { booking: any }) => {
+export const RemainingBalanceCard = ({ booking }: { booking: BookingData }) => {
   const remaining = round2(booking.total_price - (booking.amount_paid || 0));
 
   return (

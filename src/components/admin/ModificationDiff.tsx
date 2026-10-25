@@ -1,3 +1,6 @@
+import type { Json } from "@/integrations/supabase/types";
+type GuestSnapshot = Record<string, string | null | undefined>;
+type Snapshot = Record<string, unknown> & { additional_guests?: GuestSnapshot[] };
 // Renders a human-readable diff between current_data and requested_changes
 // snapshots stored on a booking_modification_requests row.
 import { format } from "date-fns";
@@ -49,27 +52,27 @@ const isDateLike = (k: string) =>
   k === "check_in" || k === "check_out" ||
   k.endsWith("date_of_birth") || k.endsWith("issued") || k.endsWith("expiry");
 
-const fmtVal = (k: string, v: any): string => {
+const fmtVal = (k: string, v: unknown): string => {
   if (v === null || v === undefined || v === "") return "—";
-  if (k === "id_type" || k === "guest_id_type") return ID_TYPE_LABEL[v] ?? String(v);
+  if (k === "id_type" || k === "guest_id_type") return ID_TYPE_LABEL[String(v)] ?? String(v);
   if (isDateLike(k)) {
-    try { return format(new Date(v), "d MMM yyyy", { locale: it }); } catch { return String(v); }
+    try { return format(new Date(v as string), "d MMM yyyy", { locale: it }); } catch { return String(v); }
   }
   if (k === "no_transfer") return v ? "Sì" : "No";
   if (k === "selected_services" && Array.isArray(v)) {
     if (v.length === 0) return "Nessuno";
-    return v.map((s: any) => (typeof s === "string" ? s : s?.name ?? "?")).join(", ");
+    return v.map((s: string | { name?: string } | null) => (typeof s === "string" ? s : s?.name ?? "?")).join(", ");
   }
   return String(v);
 };
 
-const guestKey = (g: any) =>
+const guestKey = (g: GuestSnapshot) =>
   `${(g?.first_name ?? "").trim().toLowerCase()}|${(g?.last_name ?? "").trim().toLowerCase()}|${g?.date_of_birth ?? ""}`;
 
-const guestLabel = (g: any, idx: number) =>
+const guestLabel = (g: GuestSnapshot, idx: number) =>
   `${g?.first_name ?? ""} ${g?.last_name ?? ""}`.trim() || `Ospite ${idx + 2}`;
 
-function GuestFieldDiff({ label, current, proposed, fieldKey }: { label: string; current: any; proposed: any; fieldKey: string }) {
+function GuestFieldDiff({ label, current, proposed, fieldKey }: { label: string; current: unknown; proposed: unknown; fieldKey: string }) {
   const a = JSON.stringify(current ?? null);
   const b = JSON.stringify(proposed ?? null);
   if (a === b) return null;
@@ -85,10 +88,10 @@ function GuestFieldDiff({ label, current, proposed, fieldKey }: { label: string;
   );
 }
 
-function GuestsDiff({ current, proposed }: { current: any[]; proposed: any[] }) {
-  const cMap = new Map<string, any>();
+function GuestsDiff({ current, proposed }: { current: GuestSnapshot[]; proposed: GuestSnapshot[] }) {
+  const cMap = new Map<string, GuestSnapshot>();
   current.forEach((g) => cMap.set(guestKey(g), g));
-  const pMap = new Map<string, any>();
+  const pMap = new Map<string, GuestSnapshot>();
   proposed.forEach((g) => pMap.set(guestKey(g), g));
 
   const added = proposed.filter((g) => !cMap.has(guestKey(g)));
@@ -114,7 +117,7 @@ function GuestsDiff({ current, proposed }: { current: any[]; proposed: any[] }) 
             {Object.entries(GUEST_FIELD_LABELS).map(([k, label]) => (
               <div key={k} className="flex justify-between gap-2">
                 <span className="text-muted-foreground">{label}</span>
-                <span className="text-foreground font-medium text-right">{fmtVal(k === "id_type" ? "id_type" : k, (g as any)[k])}</span>
+                <span className="text-foreground font-medium text-right">{fmtVal(k === "id_type" ? "id_type" : k, g[k])}</span>
               </div>
             ))}
           </div>
@@ -135,7 +138,7 @@ function GuestsDiff({ current, proposed }: { current: any[]; proposed: any[] }) 
             <span className="text-xs font-semibold text-amber-800">Modifiche a: {guestLabel(p, idx)}</span>
           </div>
           {Object.keys(GUEST_FIELD_LABELS).map((k) => (
-            <GuestFieldDiff key={k} label={GUEST_FIELD_LABELS[k]} fieldKey={k} current={c?.[k]} proposed={(p as any)[k]} />
+            <GuestFieldDiff key={k} label={GUEST_FIELD_LABELS[k]} fieldKey={k} current={c?.[k]} proposed={p[k]} />
           ))}
         </div>
       ))}
@@ -145,10 +148,12 @@ function GuestsDiff({ current, proposed }: { current: any[]; proposed: any[] }) 
 
 export default function ModificationDiff({
   current, proposed,
-}: { current: Record<string, any>; proposed: Record<string, any> }) {
-  const keys = Object.keys(proposed).filter((k) => {
-    const a = JSON.stringify(current?.[k] ?? null);
-    const b = JSON.stringify(proposed?.[k] ?? null);
+}: { current: Json; proposed: Json }) {
+  const currentSnapshot = current as Snapshot;
+  const proposedSnapshot = proposed as Snapshot;
+  const keys = Object.keys(proposedSnapshot).filter((k) => {
+    const a = JSON.stringify(currentSnapshot?.[k] ?? null);
+    const b = JSON.stringify(proposedSnapshot?.[k] ?? null);
     return a !== b;
   });
 
@@ -169,9 +174,9 @@ export default function ModificationDiff({
                 {FIELD_LABELS[k] ?? k}
               </span>
               <div className="flex items-start gap-2 flex-wrap text-sm">
-                <span className="font-sans text-muted-foreground line-through">{fmtVal(k, current?.[k])}</span>
+                <span className="font-sans text-muted-foreground line-through">{fmtVal(k, currentSnapshot?.[k])}</span>
                 <ArrowRight className="w-3.5 h-3.5 text-primary mt-1" />
-                <span className="font-sans text-foreground font-medium">{fmtVal(k, proposed?.[k])}</span>
+                <span className="font-sans text-foreground font-medium">{fmtVal(k, proposedSnapshot?.[k])}</span>
               </div>
             </div>
           ))}
@@ -181,8 +186,8 @@ export default function ModificationDiff({
         <div>
           <p className="font-sans text-xs uppercase tracking-wide text-muted-foreground mb-2">Ospiti aggiuntivi</p>
           <GuestsDiff
-            current={Array.isArray(current?.additional_guests) ? current.additional_guests : []}
-            proposed={Array.isArray(proposed?.additional_guests) ? proposed.additional_guests : []}
+            current={Array.isArray(currentSnapshot?.additional_guests) ? currentSnapshot.additional_guests : []}
+            proposed={Array.isArray(proposedSnapshot?.additional_guests) ? proposedSnapshot.additional_guests : []}
           />
         </div>
       )}

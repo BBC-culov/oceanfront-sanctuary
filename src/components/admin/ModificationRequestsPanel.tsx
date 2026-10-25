@@ -1,3 +1,5 @@
+import type { Tables } from "@/integrations/supabase/types";
+import { errorMessage } from "@/lib/dataTypes";
 // Admin panel: review pending modification requests for a booking.
 // Approve (with optional Stripe payment link) or reject (with reason).
 import { useCallback, useEffect, useState } from "react";
@@ -15,7 +17,7 @@ interface Props {
 }
 
 export default function ModificationRequestsPanel({ bookingId, originalStatus = "confirmed", onChanged }: Props) {
-  const [requests, setRequests] = useState<any[]>([]);
+  const [requests, setRequests] = useState<Tables<"booking_modification_requests">[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState<Record<string, string>>({});
@@ -52,8 +54,8 @@ export default function ModificationRequestsPanel({ bookingId, originalStatus = 
       toast(action === "approve" ? "Modifica approvata" : "Richiesta rifiutata");
       await load();
       onChanged?.();
-    } catch (e: any) {
-      toast.error("Errore", { description: e.message || "Errore" });
+    } catch (e: unknown) {
+      toast.error("Errore", { description: errorMessage(e) || "Errore" });
     } finally { setBusy(null); }
   };
 

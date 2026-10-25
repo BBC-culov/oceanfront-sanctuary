@@ -1,3 +1,4 @@
+import type { Tables } from "@/integrations/supabase/types";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
@@ -5,8 +6,8 @@ import { Wallet, Plus } from "lucide-react";
 import { getPaymentMethodLabel } from "@/lib/bookingStatus";
 
 interface Props {
-  booking: any;
-  manualPayments: any[];
+  booking: Tables<"bookings">;
+  manualPayments: Tables<"manual_payments">[];
   onAdd: () => void;
 }
 

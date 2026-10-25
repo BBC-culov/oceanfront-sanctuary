@@ -1,3 +1,5 @@
+import type { Tables } from "@/integrations/supabase/types";
+import type { SelectedService } from "@/lib/bookingTypes";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import {
@@ -10,8 +12,8 @@ import { Section, InfoRow } from "./DetailSection";
 const fmt = (d?: string | null, pattern = "d MMM yyyy") =>
   d ? format(new Date(d), pattern, { locale: it }) : null;
 
-const BookingInfoGrid = ({ booking, guests }: { booking: any; guests: any[] }) => {
-  const services: any[] = booking.selected_services || [];
+const BookingInfoGrid = ({ booking, guests }: { booking: Tables<"bookings">; guests: Tables<"booking_guests">[] }) => {
+  const services = (booking.selected_services || []) as SelectedService[];
 
   return (
     <>
@@ -65,7 +67,7 @@ const BookingInfoGrid = ({ booking, guests }: { booking: any; guests: any[] }) =
         {guests.length > 0 && (
           <Section icon={Users} title={`Ospiti aggiuntivi (${guests.length})`} delay={0.2}>
             <div className="space-y-3">
-              {guests.map((g: any) => (
+              {guests.map((g) => (
                 <div key={g.id} className="p-3.5 bg-secondary/40 border border-border/30 rounded-sm">
                   <p className="font-sans text-sm font-medium text-foreground mb-2">
                     {g.first_name} {g.last_name}
@@ -103,7 +105,7 @@ const BookingInfoGrid = ({ booking, guests }: { booking: any; guests: any[] }) =
       {services.length > 0 && (
         <Section icon={Sparkles} title="Servizi aggiuntivi" delay={0.32}>
           <div className="divide-y divide-border/30">
-            {services.map((s: any, i: number) => (
+            {services.map((s, i: number) => (
               <div key={i} className="flex justify-between items-center py-2.5">
                 <span className="font-sans text-sm text-foreground">{s.name}</span>
                 <span className="font-sans text-sm font-semibold text-primary">€{s.price}</span>

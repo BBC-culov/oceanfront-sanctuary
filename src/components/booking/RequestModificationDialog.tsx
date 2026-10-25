@@ -1,3 +1,5 @@
+import type { Tables, TablesUpdate } from "@/integrations/supabase/types";
+import { errorMessage } from "@/lib/dataTypes";
 // Client-side dialog: request modifications (dates, main guest, flight, additional guests, services, notes)
 // Sends to request-booking-modification edge function.
 import { useEffect, useState } from "react";
@@ -14,7 +16,7 @@ import { ErrorMsg, AdditionalGuestsSection } from "./BookingModificationFormFiel
 interface Props {
   open: boolean;
   onClose: () => void;
-  booking: any;
+  booking: Tables<"bookings">;
   onSubmitted?: () => void;
 }
 
@@ -54,7 +56,7 @@ export default function RequestModificationDialog({ open, onClose, booking, onSu
     }
     setSubmitting(true);
     try {
-      const changes: Record<string, any> = {
+      const changes: TablesUpdate<"bookings"> = {
         check_in: checkIn,
         check_out: checkOut,
         guest_phone: phone,
@@ -93,8 +95,8 @@ export default function RequestModificationDialog({ open, onClose, booking, onSu
       toast.success("Richiesta inviata! Riceverai una conferma via email.");
       onSubmitted?.();
       onClose();
-    } catch (e: any) {
-      toast.error(e.message || "Errore invio richiesta");
+    } catch (e: unknown) {
+      toast.error(errorMessage(e) || "Errore invio richiesta");
     } finally {
       setSubmitting(false);
     }
