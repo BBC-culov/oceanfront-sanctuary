@@ -1,3 +1,4 @@
+import { normalizeProject, type ProjectPayload } from "@/lib/dataTypes";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -34,7 +35,7 @@ export function useAdminProjects() {
   const load = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase
-      .from("projects" as any)
+      .from("projects")
       .select("*")
       .order("display_order", { ascending: true });
     setLoading(false);
@@ -42,7 +43,7 @@ export function useAdminProjects() {
       toast.error("Errore caricamento progetti");
       return;
     }
-    setProjects((data ?? []) as any);
+    setProjects((data ?? []).map(normalizeProject));
   }, []);
 
   useEffect(() => {
@@ -52,18 +53,18 @@ export function useAdminProjects() {
   /** Returns true when the slug is already used by another project. */
   const isSlugTaken = useCallback(async (slug: string, currentId?: string) => {
     const { data } = await supabase
-      .from("projects" as any)
+      .from("projects")
       .select("id")
       .eq("slug", slug)
       .maybeSingle();
-    return !!data && (data as any).id !== currentId;
+    return !!data && data.id !== currentId;
   }, []);
 
   const saveProject = useCallback(
-    async (payload: any, editingId?: string): Promise<boolean> => {
+    async (payload: ProjectPayload, editingId?: string): Promise<boolean> => {
       const { error } = editingId
-        ? await supabase.from("projects" as any).update(payload).eq("id", editingId)
-        : await supabase.from("projects" as any).insert(payload);
+        ? await supabase.from("projects").update(payload).eq("id", editingId)
+        : await supabase.from("projects").insert(payload);
       if (error) {
         toast.error(`Errore: ${error.message}`);
         return false;
@@ -77,7 +78,7 @@ export function useAdminProjects() {
 
   const togglePublished = useCallback(
     async (p: ProjectRow) => {
-      const { error } = await supabase.from("projects" as any).update({ published: !p.published }).eq("id", p.id);
+      const { error } = await supabase.from("projects").update({ published: !p.published }).eq("id", p.id);
       if (error) {
         toast.error("Errore");
         return;
@@ -89,7 +90,7 @@ export function useAdminProjects() {
 
   const deleteProject = useCallback(
     async (p: ProjectRow) => {
-      const { error } = await supabase.from("projects" as any).delete().eq("id", p.id);
+      const { error } = await supabase.from("projects").delete().eq("id", p.id);
       if (error) {
         toast.error("Errore");
         return;

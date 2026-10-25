@@ -1,3 +1,4 @@
+import type { ProjectPayload } from "@/lib/dataTypes";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useProjectMediaUpload } from "@/hooks/useProjectMediaUpload";
@@ -85,7 +86,7 @@ const AdminProgetti = () => {
       return;
     }
 
-    const payload: any = {
+    const payload: ProjectPayload = {
       ...parsed.data,
       subtitle: parsed.data.subtitle || null,
       description: parsed.data.description || null,

@@ -58,10 +58,10 @@ const AdminOverview = () => {
 
       let recentBookings: RecentBooking[] = [];
       if (recentRes.data && recentRes.data.length > 0) {
-        const aptIds = [...new Set(recentRes.data.map((b: any) => b.apartment_id))];
+        const aptIds = [...new Set(recentRes.data.map((b) => b.apartment_id))];
         const { data: apts } = await supabase.from("apartments").select("id, name").in("id", aptIds);
-        const aptMap = new Map((apts ?? []).map((a: any) => [a.id, a.name]));
-        recentBookings = recentRes.data.map((b: any) => ({
+        const aptMap = new Map((apts ?? []).map((a) => [a.id, a.name]));
+        recentBookings = recentRes.data.map((b) => ({
           ...b,
           apartment_name: aptMap.get(b.apartment_id) ?? "—",
         }));

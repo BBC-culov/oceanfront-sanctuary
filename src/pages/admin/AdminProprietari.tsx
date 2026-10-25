@@ -113,7 +113,7 @@ const AdminProprietari = () => {
             className="pl-9 font-sans"
           />
         </div>
-        <Select value={statusFilter} onValueChange={(v: any) => setStatusFilter(v)}>
+        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
           <SelectTrigger className="w-full sm:w-44 font-sans">
             <SelectValue placeholder="Stato" />
           </SelectTrigger>
@@ -123,7 +123,7 @@ const AdminProprietari = () => {
             <SelectItem value="incomplete">Incompleti</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={aptCountFilter} onValueChange={(v: any) => setAptCountFilter(v)}>
+        <Select value={aptCountFilter} onValueChange={(v) => setAptCountFilter(v as typeof aptCountFilter)}>
           <SelectTrigger className="w-full sm:w-52 font-sans">
             <SelectValue placeholder="N. appartamenti" />
           </SelectTrigger>

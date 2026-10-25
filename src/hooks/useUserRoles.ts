@@ -29,7 +29,7 @@ export function useUserRoles() {
         .select("role")
         .eq("user_id", userId);
       if (error) throw error;
-      return (data ?? []).map((r: any) => r.role as string);
+      return (data ?? []).map((r) => r.role);
     },
     enabled: !!userId,
     staleTime: 10 * 60 * 1000,

@@ -1,3 +1,4 @@
+import type { User } from "@supabase/supabase-js";
 // State, auth, profile autofill, resume-from-link and step validation for the
 // 4-step booking wizard (/prenota). Payment submission stays in the page.
 import { useState, useEffect, useMemo } from "react";
@@ -43,7 +44,7 @@ export function useBookingWizard() {
 
   const { data: services = [] } = useAdditionalServices();
 
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [step, setStep] = useState(0);
   const [mainGuest, setMainGuest] = useState<GuestData>(emptyMainGuest);
@@ -138,7 +139,7 @@ export function useBookingWizard() {
       });
       if (Array.isArray(bk.selected_services)) {
         const ids = bk.selected_services
-          .map((s: any) => (typeof s === "string" ? s : s?.id))
+          .map((s: string | { id?: string } | null) => (typeof s === "string" ? s : s?.id))
           .filter(Boolean);
         setSelectedServices(ids);
       }
