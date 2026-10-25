@@ -165,7 +165,7 @@ const Prenota = () => {
       }
     } catch (err: unknown) {
       console.error(err);
-      toast.error(err.message || "Errore durante la prenotazione");
+      toast.error((err instanceof Error ? err.message : undefined) || "Errore durante la prenotazione");
     } finally {
       setIsSubmitting(false);
     }

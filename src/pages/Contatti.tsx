@@ -233,7 +233,7 @@ const Contatti = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
               {contacts.map((item) => {
                 const Wrapper: "a" | "div" = item.href ? "a" : "div";
-                const wrapperProps: React.AnchorHTMLAttributes<HTMLAnchorElement> = item.href
+                const wrapperProps: { href?: string; target?: string; rel?: string } = item.href
                   ? {
                       href: item.href,
                       target: item.href.startsWith("http") ? "_blank" : undefined,

@@ -179,11 +179,11 @@ const AppartamentoDetail = () => {
                 <div className="flex flex-wrap gap-6 mt-6 pt-6 border-t border-border/40">
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Clock className="w-5 h-5 text-primary" strokeWidth={1.5} />
-                    <span className="font-sans text-sm"><span className="font-medium text-foreground">Check-in:</span> {"checkInTime" in apt ? apt.checkInTime : "15:00"}</span>
+                    <span className="font-sans text-sm"><span className="font-medium text-foreground">Check-in:</span> {"checkInTime" in apt ? apt.checkInTime as string : "15:00"}</span>
                   </div>
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Clock className="w-5 h-5 text-primary" strokeWidth={1.5} />
-                    <span className="font-sans text-sm"><span className="font-medium text-foreground">Check-out:</span> {"checkOutTime" in apt ? apt.checkOutTime : "10:00"}</span>
+                    <span className="font-sans text-sm"><span className="font-medium text-foreground">Check-out:</span> {"checkOutTime" in apt ? apt.checkOutTime as string : "10:00"}</span>
                   </div>
                 </div>
               </motion.div>
@@ -243,7 +243,7 @@ const AppartamentoDetail = () => {
                   </div>
                 </div>
               )}
-              <AvailabilityCalendar apartmentSlug={slug} apartmentId={"id" in apt ? apt.id : undefined} />
+              <AvailabilityCalendar apartmentSlug={slug} apartmentId={"id" in apt ? apt.id as string : undefined} />
             </motion.div>
           </div>
         </section>
