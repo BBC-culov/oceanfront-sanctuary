@@ -11,11 +11,7 @@ import { useApartments } from "@/hooks/useApartments";
 const Appartamenti = () => {
   const heroRef = useRef<HTMLElement>(null);
   const { data: dbApartments } = useApartments();
-  const FALLBACK = [
-    ["freedom", "Freedom"], ["relax", "Relax"], ["inspiration", "Inspiration"], ["ocean-view", "Ocean View"],
-    ["adventure", "Adventure"], ["coral", "Coral"], ["tramonto", "Tramonto"], ["duna", "Duna"],
-  ].map(([slug, name]) => ({ slug, name }));
-  const apartments = dbApartments?.length ? dbApartments : FALLBACK;
+  const apartments = dbApartments ?? [];
   const itemListJsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",

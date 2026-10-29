@@ -23,7 +23,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
 import Seo from "@/components/Seo";
-import staticApartments from "@/data/apartments";
 import { useApartmentBySlug, useApartments } from "@/hooks/useApartments";
 import AvailabilityCalendar from "@/components/AvailabilityCalendar";
 
@@ -31,8 +30,7 @@ const AppartamentoDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: dbApt, isLoading } = useApartmentBySlug(slug);
   const { data: allApartments = [] } = useApartments();
-  const staticApt = staticApartments.find((a) => a.slug === slug);
-  const apt = dbApt || staticApt;
+  const apt = dbApt;
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   // Get alternative apartments (different from current, sorted by price ascending, take 2)
