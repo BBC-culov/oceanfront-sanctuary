@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Users, BedDouble, Maximize, CalendarCheck, Star } from "lucide-react";
 import { useRef } from "react";
 import { useApartments, type ApartmentPublic } from "@/hooks/useApartments";
-import staticApartments from "@/data/apartments";
 
 const FlowingLine = () => {
   const ref = useRef<HTMLDivElement>(null);
@@ -127,7 +126,7 @@ const ApartmentsSection = () => {
 };
 
 interface ApartmentCardProps {
-  apt: ApartmentPublic | (typeof staticApartments)[number];
+  apt: ApartmentPublic;
   featured?: boolean;
 }
 

@@ -4,3 +4,5 @@
 - [x] Fase 2: notifiche unificate
 - [x] Fase 3: pagine admin grandi (nuova prenotazione, Prenota, servizi, proprietari, progetti)
 - [x] Fase 4: tipi di dato — rimossi gli any espliciti dal codice applicativo; esclusi componenti di libreria e file generati
+
+- [ ] Rimuovere appartamenti statici e fallback; verificare catalogo e accesso alla prenotazione.

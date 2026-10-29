@@ -22,7 +22,19 @@ import { trackCustomEvent } from "@/lib/metaPixel";
 import { useBookingWizard } from "@/hooks/useBookingWizard";
 
 const Prenota = () => {
-  const { searchParams, navigate, slug, checkIn, checkOut, resumeToken, dbApt, staticApt, apt, services, user, setUser, authLoading, step, setStep, mainGuest, setMainGuest, additionalGuests, setAdditionalGuests, flightData, setFlightData, selectedServices, setSelectedServices, notes, setNotes, billing, setBilling, noTransfer, setNoTransfer, flightErrors, setFlightErrors, isSubmitting, setIsSubmitting, nights, validateStep, nextStep, prevStep } = useBookingWizard();
+  const { searchParams, navigate, slug, checkIn, checkOut, resumeToken, dbApt, apartmentLoading, apt, services, user, setUser, authLoading, step, setStep, mainGuest, setMainGuest, additionalGuests, setAdditionalGuests, flightData, setFlightData, selectedServices, setSelectedServices, notes, setNotes, billing, setBilling, noTransfer, setNoTransfer, flightErrors, setFlightErrors, isSubmitting, setIsSubmitting, nights, validateStep, nextStep, prevStep } = useBookingWizard();
+
+  if (apartmentLoading) {
+    return (
+      <PageTransition>
+        <Navbar />
+        <main className="pt-24 pb-24 flex items-center justify-center min-h-[60vh]">
+          <p className="font-sans text-sm text-muted-foreground">Caricamento...</p>
+        </main>
+        <Footer />
+      </PageTransition>
+    );
+  }
 
   if (!slug || !checkIn || !checkOut || !apt || nights <= 0) {
     return <Navigate to="/appartamenti" replace />;

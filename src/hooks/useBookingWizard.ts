@@ -8,7 +8,6 @@ import { countNights } from "@/lib/nights";
 import type { GuestData, AdditionalGuestData } from "@/components/booking/StepGuestData";
 import type { FlightData } from "@/components/booking/StepFlightServices";
 import type { BillingData } from "@/components/booking/StepBilling";
-import staticApartments from "@/data/apartments";
 import { validateGuestsStep, missingFlightFields, validateBilling, CLIENT_ZIP_MSG } from "@/lib/bookingWizardValidation";
 import { useApartmentBySlug } from "@/hooks/useApartments";
 import { useAdditionalServices } from "@/hooks/useAdditionalServices";
@@ -38,9 +37,8 @@ export function useBookingWizard() {
   const checkOut = searchParams.get("checkOut");
   const resumeToken = searchParams.get("resume");
 
-  const { data: dbApt } = useApartmentBySlug(slug);
-  const staticApt = staticApartments.find((a) => a.slug === slug);
-  const apt = dbApt || staticApt;
+  const { data: dbApt, isLoading: apartmentLoading } = useApartmentBySlug(slug);
+  const apt = dbApt;
 
   const { data: services = [] } = useAdditionalServices();
 
@@ -194,5 +192,5 @@ export function useBookingWizard() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  return { searchParams, navigate, slug, checkIn, checkOut, resumeToken, dbApt, staticApt, apt, services, user, setUser, authLoading, step, setStep, mainGuest, setMainGuest, additionalGuests, setAdditionalGuests, flightData, setFlightData, selectedServices, setSelectedServices, notes, setNotes, billing, setBilling, noTransfer, setNoTransfer, flightErrors, setFlightErrors, isSubmitting, setIsSubmitting, nights, validateStep, nextStep, prevStep };
+  return { searchParams, navigate, slug, checkIn, checkOut, resumeToken, dbApt, apartmentLoading, apt, services, user, setUser, authLoading, step, setStep, mainGuest, setMainGuest, additionalGuests, setAdditionalGuests, flightData, setFlightData, selectedServices, setSelectedServices, notes, setNotes, billing, setBilling, noTransfer, setNoTransfer, flightErrors, setFlightErrors, isSubmitting, setIsSubmitting, nights, validateStep, nextStep, prevStep };
 }
