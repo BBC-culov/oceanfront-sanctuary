@@ -90,6 +90,10 @@ const AnimatedRoutes = () => {
           <Route path="/chi-siamo" element={<ChiSiamo />} />
           <Route path="/servizi" element={<Servizi />} />
           <Route path="/affitta" element={<Navigate to="/appartamenti" replace />} />
+          {/* Indirizzi del vecchio sito su Hostinger ancora presenti in Google */}
+          <Route path="/index.php" element={<Navigate to="/" replace />} />
+          <Route path="/index.html" element={<Navigate to="/" replace />} />
+          <Route path="/index3.html" element={<Navigate to="/" replace />} />
           <Route path="/compra" element={<Compra />} />
           <Route path="/compra/progetti/:slug" element={<CompraProgetto />} />
           <Route path="/appartamenti" element={<Appartamenti />} />
