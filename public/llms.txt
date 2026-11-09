@@ -10,14 +10,7 @@ BAZHOUSE offre appartamenti privati di alto livello a Boa Vista, pensati per chi
 
 Tipologie: Penthouse (ampie, terrazze vista oceano) e Compact (soluzioni raccolte e funzionali).
 
-- [Freedom](https://bazhouse.com/appartamenti/freedom)
-- [Relax](https://bazhouse.com/appartamenti/relax)
-- [Inspiration](https://bazhouse.com/appartamenti/inspiration)
-- [Ocean View](https://bazhouse.com/appartamenti/ocean-view)
-- [Adventure](https://bazhouse.com/appartamenti/adventure)
-- [Coral](https://bazhouse.com/appartamenti/coral)
-- [Tramonto](https://bazhouse.com/appartamenti/tramonto)
-- [Duna](https://bazhouse.com/appartamenti/duna)
+- [Catalogo appartamenti](https://bazhouse.com/appartamenti): elenco aggiornato delle residenze disponibili.
 
 Capienza, camere, metratura e prezzi aggiornati sono indicati in ogni scheda.
 
