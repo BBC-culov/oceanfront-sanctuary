@@ -114,7 +114,16 @@ const ResetPassword = () => {
     setLoading(false);
 
     if (updateError) {
-      setError(updateError.message);
+      const msg = updateError.message.toLowerCase();
+      if (msg.includes("different from the old")) {
+        setError("La nuova password deve essere diversa da quella attuale.");
+      } else if (msg.includes("session") || msg.includes("expired")) {
+        setError("La sessione di recupero è scaduta. Richiedi un nuovo link dalla pagina di login.");
+      } else if (msg.includes("weak") || msg.includes("pwned") || msg.includes("known")) {
+        setError("Questa password è troppo debole o compromessa. Scegline un'altra.");
+      } else {
+        setError(updateError.message);
+      }
     } else {
       setSuccess(true);
       setTimeout(() => navigate("/"), 3000);
