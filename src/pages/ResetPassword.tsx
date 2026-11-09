@@ -4,6 +4,13 @@ import { Lock, Eye, EyeOff, ArrowRight, CheckCircle, AlertCircle, Loader2, Waves
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  hasRecoveryEvent,
+  initialRecoveryUrl,
+  onRecoveryEvent,
+  parseRecoveryUrl,
+  recoveryErrorMessage,
+} from "@/lib/authRecovery";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
@@ -30,23 +37,61 @@ const ResetPassword = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [isRecovery, setIsRecovery] = useState(false);
+  const [status, setStatus] = useState<"checking" | "ready" | "invalid">("checking");
+  const [invalidMessage, setInvalidMessage] = useState(() => recoveryErrorMessage(initialRecoveryUrl));
+  const isRecovery = status === "ready";
 
   useEffect(() => {
-    // Listen for PASSWORD_RECOVERY event
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
-        setIsRecovery(true);
-      }
-    });
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const markReady = () => { if (!cancelled) setStatus("ready"); };
+    const markInvalid = () => { if (!cancelled) setStatus("invalid"); };
 
-    // Check URL hash for recovery type
-    const hash = window.location.hash;
-    if (hash.includes("type=recovery")) {
-      setIsRecovery(true);
+    // Live hash/query (still present if the auth client has not consumed it yet)
+    const live = parseRecoveryUrl(window.location.hash, window.location.search);
+    const errorInfo = initialRecoveryUrl.errorCode ? initialRecoveryUrl : live.errorCode ? live : null;
+    if (errorInfo) {
+      setInvalidMessage(recoveryErrorMessage(errorInfo));
+      markInvalid();
+      return;
     }
 
-    return () => subscription.unsubscribe();
+    const unsubscribeRecovery = onRecoveryEvent(markReady);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY" || (session && event === "SIGNED_IN")) markReady();
+    });
+
+    const linkHasTokens = initialRecoveryUrl.isRecovery || live.isRecovery;
+    const code = initialRecoveryUrl.code ?? live.code;
+
+    const check = async () => {
+      if (hasRecoveryEvent()) return markReady();
+
+      let { data: { session } } = await supabase.auth.getSession();
+      if (!session && code) {
+        const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+        if (!exchangeError) session = data.session;
+      }
+      if (session) return markReady();
+
+      // Tokens are still being processed: give the auth client a moment.
+      if (linkHasTokens || code) {
+        timer = setTimeout(async () => {
+          const { data: { session: late } } = await supabase.auth.getSession();
+          if (late || hasRecoveryEvent()) markReady(); else markInvalid();
+        }, 4000);
+      } else {
+        markInvalid();
+      }
+    };
+    check();
+
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+      unsubscribeRecovery();
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -69,7 +114,16 @@ const ResetPassword = () => {
     setLoading(false);
 
     if (updateError) {
-      setError(updateError.message);
+      const msg = updateError.message.toLowerCase();
+      if (msg.includes("different from the old")) {
+        setError("La nuova password deve essere diversa da quella attuale.");
+      } else if (msg.includes("session") || msg.includes("expired")) {
+        setError("La sessione di recupero è scaduta. Richiedi un nuovo link dalla pagina di login.");
+      } else if (msg.includes("weak") || msg.includes("pwned") || msg.includes("known")) {
+        setError("Questa password è troppo debole o compromessa. Scegline un'altra.");
+      } else {
+        setError(updateError.message);
+      }
     } else {
       setSuccess(true);
       setTimeout(() => navigate("/"), 3000);
@@ -132,6 +186,11 @@ const ResetPassword = () => {
                       Vai subito alla home →
                     </button>
                   </motion.div>
+                ) : status === "checking" ? (
+                  <div className="flex flex-col items-center justify-center text-center py-10">
+                    <Loader2 className="w-8 h-8 text-primary animate-spin mb-4" />
+                    <p className="text-muted-foreground text-sm font-sans">Verifica del link in corso…</p>
+                  </div>
                 ) : !isRecovery ? (
                   <div className="text-center">
                     <motion.div
@@ -144,7 +203,7 @@ const ResetPassword = () => {
                     </motion.div>
                     <h2 className="font-serif text-2xl text-foreground mb-3">Link non valido</h2>
                     <p className="text-muted-foreground text-sm font-sans mb-6">
-                      Questo link di reset password non è valido o è scaduto. Richiedi un nuovo link dalla pagina di login.
+                      {invalidMessage}
                     </p>
                     <button
                       onClick={() => navigate("/registrati")}
