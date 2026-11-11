@@ -5,3 +5,4 @@
 - All on-screen notifications use `sonner` (errors via `toast.error`, styled red in `ui/sonner.tsx`); the legacy shadcn toaster is no longer mounted.
 - Derive data-access contracts from generated table types; shared JSON/error adapters live in `src/lib/dataTypes.ts` and booking view contracts in `src/lib/bookingTypes.ts`, preserving runtime values and existing validation rules.
 - Public apartment views and booking use only active database apartments; wait for the apartment query before redirecting so valid booking links survive cold loads.
+- Admin manual-booking pricing rules (flat price, custom link amount) live in `src/lib/manualBookingPricing.ts`, mirrored verbatim in `supabase/functions/_shared/manual-booking-pricing.ts`; a test enforces both copies match so client preview and server charge never diverge.
