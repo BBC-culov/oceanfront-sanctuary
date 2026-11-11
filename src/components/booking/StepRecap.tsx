@@ -30,6 +30,8 @@ interface StepRecapProps {
   isSubmitting: boolean;
   /** When true (admin manual booking), hide terms/pay/deposit blocks */
   hideTermsAndPay?: boolean;
+  /** Admin flat price replacing the calculated total */
+  totalOverride?: number;
 }
 
 const Section = ({
