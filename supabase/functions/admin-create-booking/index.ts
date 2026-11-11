@@ -1,7 +1,15 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import Stripe from "https://esm.sh/stripe@18.5.0";
-import { calcDeposit, DEPOSIT_PERCENT_LABEL, nightsBetween } from "../_shared/booking-pricing.ts";
+import { DEPOSIT_PERCENT_LABEL, nightsBetween } from "../_shared/booking-pricing.ts";
+import {
+  resolveLinkAmount,
+  resolveManualTotal,
+  resolveStoredDeposit,
+  validateManualPricing,
+  type ManualLinkType,
+  type ManualTotalMode,
+} from "../_shared/manual-booking-pricing.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -86,7 +94,11 @@ serve(async (req) => {
       // billing
       billing,               // { billing_name, billing_address, billing_city, billing_zip, billing_country, billing_fiscal_code }
       // payment link generation
-      payment_link_type,     // "deposit" | "full" | "none"
+      payment_link_type,     // "deposit" | "full" | "custom" | "none"
+      payment_link_amount: custom_link_amount = null, // when "custom"
+      // price override
+      price_mode = "calculated", // "calculated" | "flat_total" | "per_person"
+      price_amount = null,       // flat amount (total or per person)
       // notifications
       send_email = false,
     } = body ?? {};
@@ -162,8 +174,11 @@ serve(async (req) => {
     }
 
     // Payment link type
-    if (!["deposit", "full", "none"].includes(payment_link_type)) {
+    if (!["deposit", "full", "custom", "none"].includes(payment_link_type)) {
       errors.push("Tipo link pagamento non valido");
+    }
+    if (!["calculated", "flat_total", "per_person"].includes(price_mode)) {
+      errors.push("Modalità prezzo non valida");
     }
 
     if (errors.length > 0) return json(400, { error: errors.join(" • ") });
@@ -221,13 +236,29 @@ serve(async (req) => {
       }
     }
 
-    const totalPrice = Math.round((accommodationTotal + trustedServicesTotal) * 100) / 100;
-    const depositAmount = calcDeposit(totalPrice);
+    const calculatedTotal = Math.round((accommodationTotal + trustedServicesTotal) * 100) / 100;
+    const priceMode = price_mode as ManualTotalMode;
+    const totalPrice = resolveManualTotal(calculatedTotal, priceMode, Number(price_amount), totalGuests);
+    const pricingError = validateManualPricing({
+      mode: priceMode,
+      amount: Number(price_amount),
+      total: totalPrice,
+      linkType: payment_link_type as ManualLinkType,
+      customAmount: Number(custom_link_amount),
+    });
+    if (pricingError) return json(400, { error: pricingError });
+
+    // A custom amount equal to the total is a full payment.
+    const linkType: ManualLinkType =
+      payment_link_type === "custom" && Math.round(Number(custom_link_amount) * 100) >= Math.round(totalPrice * 100)
+        ? "full"
+        : (payment_link_type as ManualLinkType);
+    const depositAmount = resolveStoredDeposit(linkType, totalPrice, Number(custom_link_amount));
 
     // Manual booking is always created as pending with 0 paid.
-    // Admin generates a Stripe payment link (deposit or full) to send to the client.
+    // Admin generates a Stripe payment link (deposit, custom or full) to send to the client.
     const amountPaid = 0;
-    const paymentTypeDb = payment_link_type === "full" ? "full" : "deposit";
+    const paymentTypeDb = linkType === "full" ? "full" : "deposit";
     const bookingStatus: "pending" | "confirmed" = "pending";
 
     // ---------- RESOLVE TARGET USER ----------
@@ -334,13 +365,13 @@ serve(async (req) => {
     let paymentLinkSessionId: string | null = null;
     let paymentLinkAmount = 0;
 
-    if (payment_link_type === "deposit" || payment_link_type === "full") {
+    if (linkType === "deposit" || linkType === "full" || linkType === "custom") {
       try {
         const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
         if (!stripeKey) throw new Error("Stripe non configurato");
         const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
-        paymentLinkAmount = payment_link_type === "full" ? totalPrice : depositAmount;
+        paymentLinkAmount = resolveLinkAmount(linkType, totalPrice, Number(custom_link_amount));
         const expiresAt = Math.floor(Date.now() / 1000) + 24 * 60 * 60;
         const ALLOWED_ORIGINS = ["https://bazhouse.com", "https://www.bazhouse.com"];
 
@@ -360,21 +391,23 @@ serve(async (req) => {
               currency: "eur",
               unit_amount: Math.round(paymentLinkAmount * 100),
               product_data: {
-                name: payment_link_type === "full"
+                name: linkType === "full"
                   ? `Pagamento totale — ${apartment.name}`
-                  : `Caparra (${DEPOSIT_PERCENT_LABEL}) — ${apartment.name}`,
+                  : linkType === "custom"
+                    ? `Caparra — ${apartment.name}`
+                    : `Caparra (${DEPOSIT_PERCENT_LABEL}) — ${apartment.name}`,
                 description: `Prenotazione #${booking.booking_code}`,
               },
             },
             quantity: 1,
           }],
           mode: "payment",
-          success_url: `${origin}/prenotazione/${booking.id}?payment=${payment_link_type === "full" ? "full_success" : "deposit_success"}`,
+          success_url: `${origin}/prenotazione/${booking.id}?payment=${linkType === "full" ? "full_success" : "deposit_success"}&session_id={CHECKOUT_SESSION_ID}`,
           cancel_url: `${origin}/prenotazione/${booking.id}`,
           metadata: {
             booking_id: booking.id,
             booking_code: booking.booking_code,
-            payment_type: payment_link_type === "full" ? "full" : "deposit",
+            payment_type: linkType === "full" ? "full" : "deposit",
             source: "admin_manual",
           },
         });
@@ -417,6 +450,8 @@ serve(async (req) => {
                   bookingCode: booking.booking_code,
                   totalPrice,
                   amountPaid: 0,
+                  amountDue: paymentLinkAmount,
+                  isInitialPayment: true,
                   checkIn: check_in,
                   checkOut: check_out,
                   paymentLink: paymentLinkUrl,

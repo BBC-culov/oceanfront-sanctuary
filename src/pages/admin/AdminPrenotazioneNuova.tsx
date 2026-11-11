@@ -23,7 +23,15 @@ import StepBilling, { type BillingData } from "@/components/booking/StepBilling"
 import StepRecap from "@/components/booking/StepRecap";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Input } from "@/components/ui/input";
 import { DEPOSIT_PERCENT_LABEL } from "@/lib/bookingDeposit";
+import {
+  resolveLinkAmount,
+  resolveManualTotal,
+  validateManualPricing,
+  type ManualLinkType,
+  type ManualTotalMode,
+} from "@/lib/manualBookingPricing";
 
 const emptyMainGuest: GuestData = {
   first_name: "", last_name: "", date_of_birth: "", place_of_birth: "",
@@ -61,7 +69,10 @@ const AdminPrenotazioneNuova = () => {
   const [billing, setBilling] = useState<BillingData>(emptyBilling);
   const [noTransfer, setNoTransfer] = useState(false);
   const [flightErrors, setFlightErrors] = useState<Record<string, boolean>>({});
-  const [paymentLinkType, setPaymentLinkType] = useState<"deposit" | "full" | "none">("deposit");
+  const [paymentLinkType, setPaymentLinkType] = useState<ManualLinkType>("deposit");
+  const [customLinkAmount, setCustomLinkAmount] = useState("");
+  const [priceMode, setPriceMode] = useState<ManualTotalMode>("calculated");
+  const [priceAmount, setPriceAmount] = useState("");
   const [sendEmail, setSendEmail] = useState(true);
 
   const apt = useMemo(
@@ -73,6 +84,26 @@ const AdminPrenotazioneNuova = () => {
       ? countNights(stay.check_in, stay.check_out)
       : 0;
   const pricePerNight = apt?.pricePerNight ?? 0;
+  const guestsCount = 1 + additionalGuests.length;
+  const calculatedTotal = useMemo(() => {
+    const svc = services
+      .filter((s) => selectedServices.includes(s.id))
+      .reduce((sum, s) => {
+        const perNight = s.name.toLowerCase().includes("noleggio") || s.name.toLowerCase().includes("giorno");
+        return sum + s.price * (perNight ? nights : 1);
+      }, 0);
+    return Math.round((pricePerNight * nights + svc) * 100) / 100;
+  }, [services, selectedServices, pricePerNight, nights]);
+  const parseAmount = (v: string) => (v.trim() === "" ? null : Number(v.replace(",", ".")));
+  const finalTotal = resolveManualTotal(calculatedTotal, priceMode, parseAmount(priceAmount), guestsCount);
+  const linkAmount = resolveLinkAmount(paymentLinkType, finalTotal, parseAmount(customLinkAmount));
+  const pricingError = validateManualPricing({
+    mode: priceMode,
+    amount: parseAmount(priceAmount),
+    total: finalTotal,
+    linkType: paymentLinkType,
+    customAmount: parseAmount(customLinkAmount),
+  });
 
   const validateStep = (s: number): boolean => {
     const fail = (msg: string | null) => { if (msg) toast.error(msg); return !msg; };
@@ -109,6 +140,7 @@ const AdminPrenotazioneNuova = () => {
   };
 
   const handleSubmit = async () => {
+    if (pricingError) { toast.error(pricingError); return; }
     setSubmitting(true);
     try {
       const payload = {
@@ -131,6 +163,9 @@ const AdminPrenotazioneNuova = () => {
         notes,
         billing,
         payment_link_type: paymentLinkType,
+        payment_link_amount: paymentLinkType === "custom" ? parseAmount(customLinkAmount) : null,
+        price_mode: priceMode,
+        price_amount: priceMode === "calculated" ? null : parseAmount(priceAmount),
         send_email: sendEmail,
       };
       const { data, error } = await supabase.functions.invoke("admin-create-booking", { body: payload });
@@ -244,14 +279,71 @@ const AdminPrenotazioneNuova = () => {
                 onSubmit={() => {}}
                 isSubmitting={false}
                 hideTermsAndPay
+                totalOverride={priceMode === "calculated" ? undefined : finalTotal}
               />
+
+              {/* Total price override */}
+              <div className="border border-border p-5 space-y-4">
+                <div>
+                  <h3 className="font-serif text-lg text-foreground">Prezzo totale</h3>
+                  <p className="font-sans text-xs text-muted-foreground mt-0.5">
+                    Usa il totale calcolato oppure inserisci un prezzo forfettario. Il saldo successivo viene calcolato su questo totale.
+                  </p>
+                </div>
+                <RadioGroup
+                  value={priceMode}
+                  onValueChange={(v) => setPriceMode(v as ManualTotalMode)}
+                  className="space-y-2"
+                >
+                  {[
+                    { v: "calculated", label: `Totale calcolato (€${calculatedTotal})`, desc: `${nights} notti × €${pricePerNight}, più eventuali servizi.` },
+                    { v: "flat_total", label: "Prezzo forfettario totale", desc: "Un unico prezzo per l'intera prenotazione." },
+                    { v: "per_person", label: "Prezzo forfettario a persona", desc: `Il prezzo inserito viene moltiplicato per ${guestsCount} ${guestsCount === 1 ? "ospite" : "ospiti"}.` },
+                  ].map((o) => (
+                    <label
+                      key={o.v}
+                      htmlFor={`price-${o.v}`}
+                      className={`flex items-start gap-3 p-3 border cursor-pointer transition-all ${
+                        priceMode === o.v ? "border-primary bg-primary/5" : "border-border hover:border-foreground/20"
+                      }`}
+                    >
+                      <RadioGroupItem value={o.v} id={`price-${o.v}`} className="mt-0.5" />
+                      <div>
+                        <p className="font-sans text-sm text-foreground">{o.label}</p>
+                        <p className="font-sans text-xs text-muted-foreground">{o.desc}</p>
+                      </div>
+                    </label>
+                  ))}
+                </RadioGroup>
+                {priceMode !== "calculated" && (
+                  <div className="space-y-1.5">
+                    <label htmlFor="price-amount" className="font-sans text-xs text-muted-foreground">
+                      {priceMode === "per_person" ? "Prezzo a persona (€)" : "Prezzo totale (€)"}
+                    </label>
+                    <Input
+                      id="price-amount"
+                      type="number"
+                      inputMode="decimal"
+                      min={1}
+                      step="0.01"
+                      value={priceAmount}
+                      onChange={(e) => setPriceAmount(e.target.value)}
+                      placeholder={priceMode === "per_person" ? "Es. 2000" : "Es. 1700"}
+                      className="max-w-xs"
+                    />
+                    <p className="font-sans text-sm text-foreground">
+                      Totale prenotazione: <strong>€{finalTotal}</strong>
+                    </p>
+                  </div>
+                )}
+              </div>
 
               {/* Payment link generation */}
               <div className="border border-border p-5 space-y-4">
                 <div>
                   <h3 className="font-serif text-lg text-foreground">Link di pagamento</h3>
                   <p className="font-sans text-xs text-muted-foreground mt-0.5">
-                    La prenotazione viene creata in attesa. Genera un link Stripe da inviare al cliente per la caparra ({DEPOSIT_PERCENT_LABEL}) o il totale (100%). Validità 24h.
+                    La prenotazione viene creata in attesa. Genera un link Stripe da inviare al cliente per la caparra ({DEPOSIT_PERCENT_LABEL}), un importo libero o il totale (100%). Validità 24h (limite massimo di Stripe).
                   </p>
                 </div>
                 <RadioGroup
@@ -261,6 +353,7 @@ const AdminPrenotazioneNuova = () => {
                 >
                   {[
                     { v: "deposit", label: `Link caparra (${DEPOSIT_PERCENT_LABEL})`, desc: "Il cliente paga solo l'acconto. Saldo da incassare in seguito." },
+                    { v: "custom", label: "Importo libero", desc: "Scegli tu la cifra da far pagare ora (es. una caparra fissa). Il resto diventa saldo." },
                     { v: "full", label: "Link pagamento totale (100%)", desc: "Il cliente salda l'intero importo in un'unica transazione." },
                     { v: "none", label: "Nessun link ora", desc: "Crea solo la prenotazione. Potrai generare il link più tardi dal dettaglio." },
                   ].map((o) => (
@@ -279,6 +372,33 @@ const AdminPrenotazioneNuova = () => {
                     </label>
                   ))}
                 </RadioGroup>
+                {paymentLinkType === "custom" && (
+                  <div className="space-y-1.5">
+                    <label htmlFor="link-amount" className="font-sans text-xs text-muted-foreground">
+                      Importo del link (€)
+                    </label>
+                    <Input
+                      id="link-amount"
+                      type="number"
+                      inputMode="decimal"
+                      min={1}
+                      step="0.01"
+                      value={customLinkAmount}
+                      onChange={(e) => setCustomLinkAmount(e.target.value)}
+                      placeholder="Es. 500"
+                      className="max-w-xs"
+                    />
+                  </div>
+                )}
+                {paymentLinkType !== "none" && finalTotal > 0 && (
+                  <p className="font-sans text-sm text-foreground">
+                    Da pagare ora: <strong>€{linkAmount}</strong>
+                    {" · "}Saldo successivo: <strong>€{Math.max(0, Math.round((finalTotal - linkAmount) * 100) / 100)}</strong>
+                  </p>
+                )}
+                {pricingError && (priceAmount !== "" || customLinkAmount !== "" ) && (
+                  <p className="font-sans text-xs text-destructive">{pricingError}</p>
+                )}
               </div>
 
               {/* Email checkbox */}

@@ -30,6 +30,8 @@ interface StepRecapProps {
   isSubmitting: boolean;
   /** When true (admin manual booking), hide terms/pay/deposit blocks */
   hideTermsAndPay?: boolean;
+  /** Admin flat price replacing the calculated total */
+  totalOverride?: number;
 }
 
 const Section = ({
@@ -66,6 +68,7 @@ const StepRecap = ({
   selectedServiceIds, services, billing, notes,
   pricePerNight, onSubmit, isSubmitting,
   hideTermsAndPay = false,
+  totalOverride,
 }: StepRecapProps) => {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [showTermsError, setShowTermsError] = useState(false);
@@ -76,7 +79,9 @@ const StepRecap = ({
     s.name.toLowerCase().includes("noleggio") || s.name.toLowerCase().includes("giorno")
       ? s.price * nights : s.price;
   const servicesTotal = selectedServices.reduce((sum, s) => sum + getServiceTotal(s), 0);
-  const grandTotal = accommodationTotal + servicesTotal;
+  const calculatedTotal = accommodationTotal + servicesTotal;
+  const hasOverride = typeof totalOverride === "number" && totalOverride > 0;
+  const grandTotal = hasOverride ? totalOverride : calculatedTotal;
   const depositAmount = calcDeposit(grandTotal);
   const remainingBalance = Math.round((grandTotal - depositAmount) * 100) / 100;
 
@@ -169,6 +174,7 @@ const StepRecap = ({
       >
         <Row label={`Alloggio (${nights} notti × €${pricePerNight})`} value={`€${accommodationTotal}`} />
         {servicesTotal > 0 && <Row label="Servizi aggiuntivi" value={`€${servicesTotal}`} />}
+        {hasOverride && <Row label="Prezzo forfettario applicato" value={`€${grandTotal}`} />}
         <div className="flex justify-between items-baseline pt-3 mt-2 border-t border-border/50">
           <span className="font-sans text-sm font-semibold text-foreground tracking-wide uppercase">Totale</span>
           <span className="font-serif text-2xl text-foreground">€{grandTotal}</span>
