@@ -14,29 +14,38 @@ interface BalancePaymentRequestProps {
   checkIn?: string
   checkOut?: string
   paymentLink?: string
+  /** Amount charged by the link; defaults to the remaining balance. */
+  amountDue?: number
+  /** First payment of an admin-created booking (deposit or custom amount). */
+  isInitialPayment?: boolean
 }
 
 const BalancePaymentRequestEmail = ({
   guestName, apartmentName, bookingCode,
   totalPrice = 0, amountPaid = 0, checkIn, checkOut, paymentLink,
+  amountDue, isInitialPayment = false,
 }: BalancePaymentRequestProps) => {
-  const balance = totalPrice - amountPaid
+  const remaining = totalPrice - amountPaid
+  const balance = typeof amountDue === 'number' && amountDue > 0 ? amountDue : remaining
+  const laterBalance = Math.max(0, remaining - balance)
   return (
     <Html lang="it" dir="ltr">
       <Head />
-      <Preview>{`Pagamento saldo — Prenotazione #${bookingCode ?? ""}`}</Preview>
+      <Preview>{`${isInitialPayment ? 'Pagamento prenotazione' : 'Pagamento saldo'} — Prenotazione #${bookingCode ?? ""}`}</Preview>
       <Body style={main}>
         <Container style={container}>
           <Section style={header}>
             <Img src="https://lreerhxykovhkfciffnu.supabase.co/storage/v1/object/public/apartment-images/email%2Flogo-bazhouse.png" alt="BAZHOUSE" width="160" height="52" style={{ display: 'block', margin: '0 auto', maxWidth: '160px', height: 'auto', border: 0, outline: 'none', textDecoration: 'none' }} />
           </Section>
           <Section style={content}>
-            <Heading style={h1}>Pagamento Saldo Prenotazione</Heading>
+            <Heading style={h1}>{isInitialPayment ? 'Pagamento Prenotazione' : 'Pagamento Saldo Prenotazione'}</Heading>
             <Text style={text}>
               Gentile <strong>{guestName || 'ospite'}</strong>,
             </Text>
             <Text style={text}>
-              la contattiamo per completare il pagamento del saldo della sua prenotazione <strong>#{bookingCode}</strong> presso <strong>{apartmentName}</strong>.
+              {isInitialPayment
+                ? <>le inviamo il link per il pagamento della sua prenotazione <strong>#{bookingCode}</strong> presso <strong>{apartmentName}</strong>.</>
+                : <>la contattiamo per completare il pagamento del saldo della sua prenotazione <strong>#{bookingCode}</strong> presso <strong>{apartmentName}</strong>.</>}
             </Text>
 
             <Section style={detailsBox}>
@@ -46,8 +55,17 @@ const BalancePaymentRequestEmail = ({
               {checkOut && <Text style={detailRow}>Check-out: <strong>{checkOut}</strong></Text>}
               <Hr style={divider} />
               <Text style={detailRow}>Totale soggiorno: <strong>€{totalPrice.toFixed(2)}</strong></Text>
-              <Text style={detailRow}>Caparra versata: <strong>€{amountPaid.toFixed(2)}</strong></Text>
-              <Text style={balanceText}>Saldo da pagare: <strong>€{balance.toFixed(2)}</strong></Text>
+              {isInitialPayment ? (
+                <>
+                  <Text style={balanceText}>Da pagare ora: <strong>€{balance.toFixed(2)}</strong></Text>
+                  {laterBalance > 0 && <Text style={detailRow}>Saldo successivo: <strong>€{laterBalance.toFixed(2)}</strong></Text>}
+                </>
+              ) : (
+                <>
+                  <Text style={detailRow}>Caparra versata: <strong>€{amountPaid.toFixed(2)}</strong></Text>
+                  <Text style={balanceText}>Saldo da pagare: <strong>€{balance.toFixed(2)}</strong></Text>
+                </>
+              )}
             </Section>
 
             <Text style={text}>
@@ -57,7 +75,7 @@ const BalancePaymentRequestEmail = ({
             {paymentLink && (
               <Section style={{ textAlign: 'center' as const, margin: '32px 0' }}>
                 <Button style={button} href={paymentLink}>
-                  Paga il saldo — €{balance.toFixed(2)}
+                  {isInitialPayment ? 'Paga ora' : 'Paga il saldo'} — €{balance.toFixed(2)}
                 </Button>
               </Section>
             )}
@@ -78,7 +96,7 @@ const BalancePaymentRequestEmail = ({
 
 export const template = {
   component: BalancePaymentRequestEmail,
-  subject: (data: Record<string, any>) => `Pagamento saldo — Prenotazione #${data.bookingCode || ''}`,
+  subject: (data: Record<string, any>) => `${data.isInitialPayment ? 'Pagamento prenotazione' : 'Pagamento saldo'} — Prenotazione #${data.bookingCode || ''}`,
   displayName: 'Richiesta pagamento saldo',
   previewData: {
     guestName: 'Marco Rossi', apartmentName: 'Ocean View Suite', bookingCode: 'ABC12345',
