@@ -10,6 +10,7 @@ import {
   type ManualLinkType,
   type ManualTotalMode,
 } from "../_shared/manual-booking-pricing.ts";
+import { isValidFiscalCode } from "../_shared/fiscal-code.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -41,8 +42,6 @@ const isDocNumber = (v: unknown, type: string) => {
 };
 const isZip = (v: unknown) =>
   typeof v === "string" && /^\d{3,10}$/.test(v.replace(/\s/g, ""));
-const isFiscal = (v: unknown) =>
-  typeof v === "string" && /^[A-Z0-9]{11,16}$/.test(v.replace(/\s/g, "").toUpperCase());
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -170,7 +169,7 @@ serve(async (req) => {
       if (!isNonEmpty(billing.billing_city)) errors.push("Città fatturazione richiesta");
       if (!isZip(billing.billing_zip)) errors.push("CAP fatturazione non valido");
       if (!isNonEmpty(billing.billing_country)) errors.push("Paese fatturazione richiesto");
-      if (!isFiscal(billing.billing_fiscal_code)) errors.push("Codice Fiscale / P.IVA non valido");
+      if (!isValidFiscalCode(billing.billing_fiscal_code, billing.billing_country)) errors.push("Codice Fiscale / P.IVA non valido");
     }
 
     // Payment link type
