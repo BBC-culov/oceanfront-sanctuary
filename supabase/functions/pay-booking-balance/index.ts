@@ -74,7 +74,7 @@ serve(async (req) => {
     // links a guest customer from the verified account email instead.
     const customerId: string | undefined = undefined;
 
-    const ALLOWED_ORIGINS = ["https://bazhouse.com", "https://www.bazhouse.com"];
+    const ALLOWED_ORIGINS = ["https://gestione.bazhouse.com", "https://bazhouse.com", "https://www.bazhouse.com"];
 
 
     const reqOrigin = req.headers.get("origin");

@@ -372,7 +372,7 @@ serve(async (req) => {
 
         paymentLinkAmount = resolveLinkAmount(linkType, totalPrice, Number(custom_link_amount));
         const expiresAt = Math.floor(Date.now() / 1000) + 24 * 60 * 60;
-        const ALLOWED_ORIGINS = ["https://bazhouse.com", "https://www.bazhouse.com"];
+        const ALLOWED_ORIGINS = ["https://gestione.bazhouse.com", "https://bazhouse.com", "https://www.bazhouse.com"];
 
         const reqOrigin = req.headers.get("origin");
 

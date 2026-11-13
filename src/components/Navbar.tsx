@@ -1,3 +1,4 @@
+import { PUBLIC_SITE_ENABLED } from "@/lib/siteMode";
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, LogOut, UserCircle, User, CalendarDays, LayoutDashboard, Home } from "lucide-react";
@@ -23,7 +24,7 @@ const dropdownItems = [
   { label: "Gestisci prenotazioni", to: "/profilo#prenotazioni", icon: CalendarDays },
 ];
 
-const Navbar = () => {
+const PublicNavbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -329,5 +330,7 @@ const Navbar = () => {
     </motion.header>
   );
 };
+
+const Navbar = () => (PUBLIC_SITE_ENABLED ? <PublicNavbar /> : null);
 
 export default Navbar;

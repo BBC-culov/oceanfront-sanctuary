@@ -25,7 +25,7 @@ const WelcomeEmail = ({ guestName }: WelcomeProps) => (
           <Text style={text}>
             Ora puoi esplorare i nostri appartamenti esclusivi vista oceano a Boa Vista, Capo Verde, e prenotare la tua prossima vacanza da sogno.
           </Text>
-          <Button style={button} href="https://bazhouse.com/appartamenti">
+          <Button style={button} href="https://gestione.bazhouse.com/">
             Scopri gli appartamenti
           </Button>
         </Section>
