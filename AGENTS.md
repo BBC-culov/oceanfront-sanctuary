@@ -7,3 +7,4 @@
 - Public apartment views and booking use only active database apartments; wait for the apartment query before redirecting so valid booking links survive cold loads.
 - Admin manual-booking pricing rules (flat price, custom link amount) live in `src/lib/manualBookingPricing.ts`, mirrored verbatim in `supabase/functions/_shared/manual-booking-pricing.ts`; a test enforces both copies match so client preview and server charge never diverge.
 - The Tax ID / VAT rule (`isValidFiscalCode` in `src/lib/bookingValidation.ts`) is mirrored in `supabase/functions/_shared/fiscal-code.ts`; a parity test keeps them equal so the admin wizard never passes a code the server rejects.
+- The public showcase site is disabled via `PUBLIC_SITE_ENABLED` in `src/lib/siteMode.ts` (pages kept, not deleted); only paths in its allowlist stay reachable, so this project serves just the management dashboard.
