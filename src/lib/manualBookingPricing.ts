@@ -39,6 +39,18 @@ export function resolveStoredDeposit(type: ManualLinkType, total: number, custom
   return type === "custom" ? round2(Number(customAmount ?? 0)) : calcDeposit(total);
 }
 
+/** Amount of the first link of an unpaid booking (also used when it is regenerated):
+ *  the whole total for a full-payment booking, else the stored deposit (20% or custom). */
+export function resolveInitialLinkAmount(
+  paymentType: string | null | undefined,
+  total: number,
+  storedDeposit: number | null | undefined,
+): number {
+  if (paymentType === "full") return round2(total);
+  const dep = Number(storedDeposit ?? 0);
+  return dep > 0 ? round2(Math.min(dep, Number(total))) : calcDeposit(total);
+}
+
 /** Returns an Italian error message or null when the pricing choices are valid. */
 export function validateManualPricing(input: {
   mode: ManualTotalMode;

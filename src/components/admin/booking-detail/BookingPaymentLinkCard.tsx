@@ -2,7 +2,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { motion } from "framer-motion";
 import { CreditCard, XCircle, Link as LinkIcon, Copy, Loader2, Mail, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
-import { calcDeposit } from "@/lib/bookingDeposit";
+import { resolveInitialLinkAmount } from "@/lib/manualBookingPricing";
 
 interface Props {
   booking: Tables<"bookings">;
@@ -27,9 +27,7 @@ const BookingPaymentLinkCard = ({
   const isExpired = linkExpiresAt ? Date.now() / 1000 > linkExpiresAt : false;
   const remaining = Math.round((booking.total_price - booking.amount_paid) * 100) / 100;
   // The first link charges the stored deposit (20% or the admin's custom amount), or the total.
-  const initialLinkAmount = booking.payment_type === "full"
-    ? booking.total_price
-    : Number(booking.deposit_amount) > 0 ? Number(booking.deposit_amount) : calcDeposit(booking.total_price);
+  const initialLinkAmount = resolveInitialLinkAmount(booking.payment_type, booking.total_price, booking.deposit_amount);
 
   return (
     <motion.div
