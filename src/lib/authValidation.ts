@@ -16,7 +16,7 @@ export const registerSchema = z.object({
     .regex(/[A-Z]/, "La password deve contenere almeno una lettera maiuscola")
     .regex(/[0-9]/, "La password deve contenere almeno un numero"),
   confirmPassword: z.string(),
-  acceptPrivacy: z.literal(true, { errorMap: () => ({ message: "Devi accettare la Privacy Policy, il Rental Agreement e la Refund Policy" }) }),
+  acceptPrivacy: z.literal(true, { error: "Devi accettare la Privacy Policy, il Rental Agreement e la Refund Policy" }),
 }).refine(data => data.password === data.confirmPassword, {
   message: "Le password non corrispondono",
   path: ["confirmPassword"],
@@ -27,7 +27,7 @@ export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 /** Flattens a Zod error into a { field: message } map for inline display. */
 export function zodFieldErrors(error: z.ZodError): Record<string, string> {
   const fieldErrors: Record<string, string> = {};
-  error.errors.forEach(err => {
+  error.issues.forEach(err => {
     if (err.path[0]) fieldErrors[String(err.path[0])] = err.message;
   });
   return fieldErrors;

@@ -102,7 +102,7 @@ const ResetPassword = () => {
     const result = passwordSchema.safeParse({ password, confirmPassword });
     if (!result.success) {
       const errs: Record<string, string> = {};
-      result.error.errors.forEach(err => {
+      result.error.issues.forEach(err => {
         if (err.path[0]) errs[String(err.path[0])] = err.message;
       });
       setFieldErrors(errs);
