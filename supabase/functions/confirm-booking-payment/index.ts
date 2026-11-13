@@ -26,7 +26,8 @@ serve(async (req) => {
     if (authError || !user) throw new Error("Utente non autenticato");
 
     const body = await req.json();
-    const { booking_id, type } = body;
+    const { booking_id } = body;
+    let type: string = body.type;
     let session_id: string | undefined = body.session_id;
     const reconcile = body.reconcile === true;
     if (!booking_id || typeof booking_id !== "string") throw new Error("ID prenotazione mancante");
@@ -83,6 +84,15 @@ serve(async (req) => {
     }
     // Also verify session payment_type matches the requested type when set
     const sessionPaymentType = stripeSession.metadata?.payment_type;
+    // Reconcile: the stored link of an unpaid booking may be its first payment
+    // (deposit/full link from admin). Record it as the initial payment.
+    if (
+      reconcile && type === "balance" &&
+      (sessionPaymentType === "deposit" || sessionPaymentType === "full") &&
+      (booking.status === "pending" || booking.status === "incomplete")
+    ) {
+      type = "initial";
+    }
     // The verified Stripe session metadata is the only source of truth.
     const expectedTypes: Record<string, string[]> = {
       initial: ["deposit", "full"],

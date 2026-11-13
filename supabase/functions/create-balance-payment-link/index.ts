@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
+import { resolveInitialLinkAmount } from "../_shared/manual-booking-pricing.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -53,6 +54,13 @@ serve(async (req) => {
     if (booking.amount_paid >= booking.total_price) throw new Error("La prenotazione è già stata saldata");
 
     const remainingAmount = booking.total_price - booking.amount_paid;
+    // An unpaid pending booking still needs its first payment (deposit, custom deposit or full):
+    // regenerating must charge that same amount, not the whole remaining balance.
+    const isInitialPayment = booking.status === "pending" && Number(booking.amount_paid ?? 0) === 0;
+    const initialType: "deposit" | "full" = booking.payment_type === "full" ? "full" : "deposit";
+    const linkAmount = isInitialPayment
+      ? resolveInitialLinkAmount(booking.payment_type, Number(booking.total_price), Number(booking.deposit_amount))
+      : remainingAmount;
 
     // Get apartment name
     const { data: apt } = await serviceClient
@@ -98,6 +106,8 @@ serve(async (req) => {
             bookingCode: booking.booking_code,
             totalPrice: booking.total_price,
             amountPaid: booking.amount_paid,
+            amountDue: linkAmount,
+            isInitialPayment,
             checkIn: formatDate(booking.check_in),
             checkOut: formatDate(booking.check_out),
             paymentLink: safeLink,
@@ -158,23 +168,39 @@ serve(async (req) => {
         {
           price_data: {
             currency: "eur",
-            unit_amount: Math.round(remainingAmount * 100),
-            product_data: {
-              name: `Saldo — ${apt?.name || "Prenotazione"}`,
-              description: `Saldo rimanente prenotazione #${booking.booking_code}`,
-            },
+            unit_amount: Math.round(linkAmount * 100),
+            product_data: isInitialPayment
+              ? {
+                  name: initialType === "full"
+                    ? `Pagamento totale — ${apt?.name || "Prenotazione"}`
+                    : `Caparra — ${apt?.name || "Prenotazione"}`,
+                  description: `Prenotazione #${booking.booking_code}`,
+                }
+              : {
+                  name: `Saldo — ${apt?.name || "Prenotazione"}`,
+                  description: `Saldo rimanente prenotazione #${booking.booking_code}`,
+                },
           },
           quantity: 1,
         },
       ],
       mode: "payment",
-      success_url: `${origin}/prenotazione/${booking.id}?payment=balance_success&session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${origin}/prenotazione/${booking.id}?payment=${
+        isInitialPayment ? `${initialType}_success` : "balance_success"
+      }&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/prenotazione/${booking.id}`,
-      metadata: {
-        booking_id: booking.id,
-        booking_code: booking.booking_code,
-        payment_type: "balance",
-      },
+      metadata: isInitialPayment
+        ? {
+            booking_id: booking.id,
+            booking_code: booking.booking_code,
+            payment_type: initialType,
+            source: "admin_manual",
+          }
+        : {
+            booking_id: booking.id,
+            booking_code: booking.booking_code,
+            payment_type: "balance",
+          },
     });
 
     // Save link info to booking for persistence
@@ -185,7 +211,7 @@ serve(async (req) => {
     } as any).eq("id", booking.id);
 
     return new Response(
-      JSON.stringify({ url: session.url, expires_at: expiresAt, session_id: session.id }),
+      JSON.stringify({ url: session.url, expires_at: expiresAt, session_id: session.id, amount: linkAmount }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
   } catch (error) {
