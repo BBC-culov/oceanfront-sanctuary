@@ -2,7 +2,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { motion } from "framer-motion";
 import { CreditCard, XCircle, Link as LinkIcon, Copy, Loader2, Mail, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
-import { DEPOSIT_RATE } from "@/lib/bookingDeposit";
+import { calcDeposit } from "@/lib/bookingDeposit";
 
 interface Props {
   booking: Tables<"bookings">;
@@ -26,6 +26,10 @@ const BookingPaymentLinkCard = ({
   const isNewBookingLink = booking.status === "pending" && booking.amount_paid === 0;
   const isExpired = linkExpiresAt ? Date.now() / 1000 > linkExpiresAt : false;
   const remaining = Math.round((booking.total_price - booking.amount_paid) * 100) / 100;
+  // The first link charges the stored deposit (20% or the admin's custom amount), or the total.
+  const initialLinkAmount = booking.payment_type === "full"
+    ? booking.total_price
+    : Number(booking.deposit_amount) > 0 ? Number(booking.deposit_amount) : calcDeposit(booking.total_price);
 
   return (
     <motion.div
@@ -46,7 +50,7 @@ const BookingPaymentLinkCard = ({
           </h3>
           <p className="font-sans text-xs text-muted-foreground">
             {isNewBookingLink
-              ? `Link Stripe da inviare al cliente per ${booking.payment_type === "full" ? "saldare l'intero importo" : "versare la caparra"} di €${booking.payment_type === "full" ? booking.total_price : Math.round(booking.total_price * DEPOSIT_RATE * 100) / 100}`
+              ? `Link Stripe da inviare al cliente per ${booking.payment_type === "full" ? "saldare l'intero importo" : "versare la caparra"} di €${initialLinkAmount}`
               : `Genera un link di pagamento Stripe da inviare al cliente per saldare €${remaining}`}
           </p>
         </div>
