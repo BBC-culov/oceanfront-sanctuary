@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
+  resolveInitialLinkAmount,
   resolveLinkAmount,
   resolveManualTotal,
   resolveStoredDeposit,
@@ -54,5 +55,20 @@ describe("regole client e server allineate", () => {
     const body = (p: string) =>
       readFileSync(resolve(__dirname, p), "utf8").split("\n").filter((l) => !l.startsWith("//") && !l.startsWith("import")).join("\n");
     expect(body("../../supabase/functions/_shared/manual-booking-pricing.ts")).toBe(body("../lib/manualBookingPricing.ts"));
+  });
+});
+
+describe("prenotazione manuale: primo link (anche quando viene rigenerato)", () => {
+  it("caparra libera di 500 € resta 500 € su un totale di 1.300 €", () => {
+    expect(resolveInitialLinkAmount("deposit", 1300, 500)).toBe(500);
+  });
+  it("caparra standard salvata = 20% del totale (1.300 € → 260 €)", () => {
+    expect(resolveInitialLinkAmount("deposit", 1300, 260)).toBe(260);
+  });
+  it("senza caparra salvata usa il 20%", () => {
+    expect(resolveInitialLinkAmount("deposit", 1300, 0)).toBe(260);
+  });
+  it("prenotazione con pagamento totale chiede l'intero importo", () => {
+    expect(resolveInitialLinkAmount("full", 1300, 260)).toBe(1300);
   });
 });
