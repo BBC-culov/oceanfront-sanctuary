@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BAZHOUSE — Appartamenti Esclusivi Vista Oceano a Boa Vista</title>
+    <meta name="description" content="Appartamenti esclusivi vista oceano a Boa Vista, Capo Verde. Praia Cabral e Praia da Cruz. Indipendenza totale, comfort di alto livello e servizi premium." />
+    <meta property="og:title" content="BAZHOUSE — Appartamenti Vista Oceano a Boa Vista" />
+    <meta property="og:description" content="Il tuo spazio esclusivo sull'Atlantico. Appartamenti premium a Boa Vista, Capo Verde." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://bazhouse.com/" />
+    <meta property="og:image" content="https://bazhouse.com/og-image.png" />
+    <meta property="og:image:alt" content="BAZHOUSE" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="BAZHOUSE — Appartamenti Vista Oceano a Boa Vista" />
+    <meta name="twitter:description" content="Il tuo spazio esclusivo sull'Atlantico. Appartamenti premium a Boa Vista, Capo Verde." />
+    <meta name="twitter:image" content="https://bazhouse.com/og-image.png" />
+    <meta name="google-site-verification" content="aJPU6g02Pb6NgtqIZNrhv4rwAiRvR9SiIbqeH5wVy0s" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="/favicon-48x48.png" type="image/png" sizes="48x48" />
+    <link rel="icon" href="/favicon-96x96.png" type="image/png" sizes="96x96" />
+    <link rel="icon" href="/favicon-192x192.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="alternate" hreflang="it" href="https://bazhouse.com/" />
+    <link rel="alternate" hreflang="x-default" href="https://bazhouse.com/" />
+    <meta name="geo.region" content="CV-BV" />
+    <meta name="geo.placename" content="Boa Vista, Sal Rei" />
+    <meta name="geo.position" content="16.1839;-22.9066" />
+    <meta name="ICBM" content="16.1839, -22.9066" />
+    <meta name="author" content="Bazhouse" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="theme-color" content="#0f3a2e" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&amp;family=Outfit:wght@200;300;400;500;600&amp;display=swap" />
+    <link rel="preconnect" href="https://lreerhxykovhkfciffnu.supabase.co" crossorigin />
+    <link rel="dns-prefetch" href="https://lreerhxykovhkfciffnu.supabase.co" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "LodgingBusiness",
+        "@id": "https://bazhouse.com/#lodging",
+        "name": "BAZHOUSE",
+        "url": "https://bazhouse.com/",
+        "description": "Appartamenti esclusivi vista oceano a Boa Vista, Capo Verde.",
+        "image": "https://bazhouse.com/logo-bazhouse-dark.png",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Boa Vista",
+          "addressRegion": "Sal Rei",
+          "addressCountry": "CV"
+        },
+        "geo": { "@type": "GeoCoordinates", "latitude": 16.1839, "longitude": -22.9066 },
+        "telephone": "+39 347 750 4352",
+        "email": "info@bazhouse.com",
+        "currenciesAccepted": "EUR, CVE",
+        "paymentAccepted": "Carta di credito, Stripe",
+        "availableLanguage": ["it", "en", "pt"],
+        "checkinTime": "15:00",
+        "checkoutTime": "10:00",
+        "areaServed": "Boa Vista, Cabo Verde",
+        "priceRange": "€€€"
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "@id": "https://bazhouse.com/#website",
+        "name": "BAZHOUSE",
+        "url": "https://bazhouse.com/"
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
