@@ -1,7 +1,8 @@
+import { PUBLIC_SITE_ENABLED } from "@/lib/siteMode";
 import { Link } from "react-router-dom";
 const logoWhite = { url: "/logo-bazhouse-white.png" };
 
-const Footer = () => (
+const Footer = () => !PUBLIC_SITE_ENABLED ? null : (
   <footer className="bg-primary text-primary-foreground">
     <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-12">

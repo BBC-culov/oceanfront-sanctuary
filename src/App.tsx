@@ -11,6 +11,9 @@ import { useMaintenanceMode } from "@/hooks/useMaintenanceMode";
 import MaintenancePage from "@/components/MaintenancePage";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import CookieBanner from "./components/CookieBanner";
+import { PUBLIC_SITE_ENABLED, isPathAllowedInGestione } from "@/lib/siteMode";
+
+const GestioneLogin = lazy(() => import("./pages/GestioneLogin"));
 
 const Index = lazy(() => import("./pages/Index"));
 const ChiSiamo = lazy(() => import("./pages/ChiSiamo"));
@@ -72,12 +75,18 @@ const AnimatedRoutes = () => {
 
   // Meta Pixel: init (if consent already given) and fire PageView on route change
   useEffect(() => {
+    if (!PUBLIC_SITE_ENABLED) return;
     initMetaPixel();
     trackPageView();
   }, [location.pathname]);
 
   // Show maintenance page for non-admin routes when maintenance is enabled
-  if (!maintenanceLoading && maintenance.enabled && !isAdminRoute) {
+  // Sito vetrina disattivato: le pagine pubbliche rimandano all'accesso gestione
+  if (!PUBLIC_SITE_ENABLED && !isPathAllowedInGestione(location.pathname)) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (PUBLIC_SITE_ENABLED && !maintenanceLoading && maintenance.enabled && !isAdminRoute) {
     return <MaintenancePage message={maintenance.message} />;
   }
 
@@ -86,7 +95,7 @@ const AnimatedRoutes = () => {
       <AnimatePresence mode="wait">
         <Suspense fallback={null}>
           <Routes location={location} key={location.pathname}>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={PUBLIC_SITE_ENABLED ? <Index /> : <GestioneLogin />} />
           <Route path="/chi-siamo" element={<ChiSiamo />} />
           <Route path="/servizi" element={<Servizi />} />
           <Route path="/affitta" element={<Navigate to="/appartamenti" replace />} />
@@ -137,14 +146,14 @@ const AnimatedRoutes = () => {
           </Routes>
         </Suspense>
       </AnimatePresence>
-      {!isAdminRoute && <WhatsAppButton />}
-      {!isAdminRoute && <CookieBanner />}
+      {PUBLIC_SITE_ENABLED && !isAdminRoute && <WhatsAppButton />}
+      {PUBLIC_SITE_ENABLED && !isAdminRoute && <CookieBanner />}
     </>
   );
 };
 
 const App = () => {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(PUBLIC_SITE_ENABLED);
   const handleComplete = useCallback(() => setLoading(false), []);
 
   return (

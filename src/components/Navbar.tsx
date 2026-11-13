@@ -1,3 +1,4 @@
+import { PUBLIC_SITE_ENABLED } from "@/lib/siteMode";
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, LogOut, UserCircle, User, CalendarDays, LayoutDashboard, Home } from "lucide-react";
@@ -24,6 +25,7 @@ const dropdownItems = [
 ];
 
 const Navbar = () => {
+  if (!PUBLIC_SITE_ENABLED) return null;
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
