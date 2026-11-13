@@ -16,7 +16,7 @@ interface Props {
 const ROLE_LABEL_DEFAULT = 'Utente'
 
 const AccountCredentialsEmail = ({ firstName, email, roleLabel, setupUrl }: Props) => {
-  const url = setupUrl || 'https://bazhouse.com/reset-password'
+  const url = setupUrl || 'https://gestione.bazhouse.com/reset-password'
   return (
     <Html lang="it" dir="ltr">
       <Head />
@@ -69,7 +69,7 @@ export const template = {
   component: AccountCredentialsEmail,
   subject: 'Le tue credenziali di accesso a Bazhouse',
   displayName: 'Credenziali nuovo account',
-  previewData: { firstName: 'Marco', email: 'marco@example.com', roleLabel: 'Admin', setupUrl: 'https://bazhouse.com/reset-password' },
+  previewData: { firstName: 'Marco', email: 'marco@example.com', roleLabel: 'Admin', setupUrl: 'https://gestione.bazhouse.com/reset-password' },
 } satisfies TemplateEntry
 
 const main = { backgroundColor: '#ffffff', fontFamily: "'Outfit', Arial, sans-serif" }

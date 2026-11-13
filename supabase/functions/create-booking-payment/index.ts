@@ -239,7 +239,7 @@ serve(async (req) => {
       quantity: 1,
     }];
 
-    const ALLOWED_ORIGINS = ["https://bazhouse.com", "https://www.bazhouse.com"];
+    const ALLOWED_ORIGINS = ["https://gestione.bazhouse.com", "https://bazhouse.com", "https://www.bazhouse.com"];
 
 
     const reqOrigin = req.headers.get("origin");

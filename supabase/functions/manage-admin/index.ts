@@ -135,7 +135,7 @@ Deno.serve(async (req) => {
           : role === "proprietario"
           ? "Proprietario"
           : "Utente";
-        const siteUrl = Deno.env.get("SITE_URL") ?? "https://bazhouse.com";
+        const siteUrl = Deno.env.get("SITE_URL") ?? "https://gestione.bazhouse.com";
 
         // One-time recovery link: the user sets their own password on first access
         const { data: linkData, error: linkError } = await adminClient.auth.admin.generateLink({

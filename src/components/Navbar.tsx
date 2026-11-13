@@ -24,8 +24,7 @@ const dropdownItems = [
   { label: "Gestisci prenotazioni", to: "/profilo#prenotazioni", icon: CalendarDays },
 ];
 
-const Navbar = () => {
-  if (!PUBLIC_SITE_ENABLED) return null;
+const PublicNavbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -331,5 +330,7 @@ const Navbar = () => {
     </motion.header>
   );
 };
+
+const Navbar = () => (PUBLIC_SITE_ENABLED ? <PublicNavbar /> : null);
 
 export default Navbar;
