@@ -10,6 +10,7 @@ import {
   type ManualLinkType,
   type ManualTotalMode,
 } from "../_shared/manual-booking-pricing.ts";
+import { isValidPhone } from "../_shared/phone.ts";
 import { isValidFiscalCode } from "../_shared/fiscal-code.ts";
 
 const corsHeaders = {
@@ -30,11 +31,7 @@ const isEmail = (v: unknown) =>
 const isNonEmpty = (v: unknown) => typeof v === "string" && v.trim().length > 0;
 const isIsoDate = (v: unknown) =>
   typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) && !isNaN(new Date(v).getTime());
-const isPhone = (v: unknown) => {
-  if (typeof v !== "string") return false;
-  const digits = v.replace(/\+\d+\s*/, "").replace(/\s/g, "");
-  return /^\d{6,15}$/.test(digits);
-};
+const isPhone = (v: unknown) => typeof v === "string" && isValidPhone(v);
 const isDocNumber = (v: unknown, type: string) => {
   if (typeof v !== "string") return false;
   const cleaned = v.replace(/\s/g, "").toUpperCase();

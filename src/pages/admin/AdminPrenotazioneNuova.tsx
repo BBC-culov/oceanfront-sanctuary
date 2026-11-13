@@ -57,6 +57,7 @@ const AdminPrenotazioneNuova = () => {
 
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Form state
   const [client, setClient] = useState<ClientSelection>({ mode: "existing" });
@@ -135,12 +136,14 @@ const AdminPrenotazioneNuova = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const prev = () => {
+    setSubmitError(null);
     setStep((s) => Math.max(s - 1, 0));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleSubmit = async () => {
-    if (pricingError) { toast.error(pricingError); return; }
+    if (pricingError) { setSubmitError(pricingError); toast.error(pricingError); return; }
+    setSubmitError(null);
     setSubmitting(true);
     try {
       const payload = {
@@ -179,7 +182,9 @@ const AdminPrenotazioneNuova = () => {
       }
       navigate(`/admin/prenotazioni/${data.booking_id}`);
     } catch (e: unknown) {
-      toast.error(errorMessage(e) ?? "Errore");
+      const msg = errorMessage(e) ?? "Errore";
+      setSubmitError(msg);
+      toast.error(msg, { duration: 10000 });
     } finally {
       setSubmitting(false);
     }
@@ -422,6 +427,13 @@ const AdminPrenotazioneNuova = () => {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {step === TOTAL_STEPS - 1 && submitError && (
+          <div role="alert" className="mt-8 border border-destructive/40 bg-destructive/10 p-4">
+            <p className="font-sans text-sm font-semibold text-destructive">Prenotazione non creata</p>
+            <p className="font-sans text-xs text-destructive mt-1">{submitError}</p>
+          </div>
+        )}
 
         {/* Nav buttons */}
         <div className="flex justify-between mt-10 pt-6 border-t border-border">
