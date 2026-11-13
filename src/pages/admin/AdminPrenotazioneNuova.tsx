@@ -136,6 +136,7 @@ const AdminPrenotazioneNuova = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const prev = () => {
+    setSubmitError(null);
     setStep((s) => Math.max(s - 1, 0));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
